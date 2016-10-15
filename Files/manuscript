@@ -1,16 +1,48 @@
-**Inferring sex chromosome ploidy in NGS data**
+** Inferring sex chromosome ploidy in NGS data **
+Madeline Couse, Bruno Grande, Eric Karlins, Tanya Phung, Phillip Richmond, Tim Webster, Whitney Whitford, Melissa A. Wilson Sayres
 
 
-Introduction
+** Introduction ** 
+Individuals who are chimeric for sex chromosome copy number variations may not know it, 
+and due to the unique pattern of recombination on the sex chromosomes, individuals may 
+have an atypical ploidy for only a region of the sex chromosomes, resulting in a subtle 
+phenotype changes. Ploidy level will also affect estimates of genome diversity and variation 
+that is required in most clinical genomic studies. Ploidy is important across the genome, 
+and as genomic databases are increasing in size, it is becoming increasingly necessary to 
+characterize ploidy variation across the genome, especially including the sex chromosomes 
+for which anuploidy is common (e.g. 45,X occurs in 1/2500 while 47, XXY occurs in 1/1000 to 
+1/500). There are simple and complex ways to infer ploidy, and nearly all of them are designed 
+without thinking about the unique inheritance of the X and Y chromosome. Thus, we propose to 
+develop tools to quickly infer ploidy in NGS data (DNA and RNA), focusing on the sex chromosomes, 
+but which will be applicable across genomic regions. This tool (or tools) will also be useful 
+for identifying sites that are heteroplasmic in mitochondrial DNA, and may be beneficial in 
+studies outside of diploid organisms (e.g., cancer). These tools will be made open source.
 
 
-Methods
+** Methods ** 
 
 
-Results
+
+** Results ** 
 
 
-Discussion
+
+** Discussion ** 
 
 
-Acknowledgements
+
+** Acknowledgements ** 
+
+
+
+** Figures ** 
+
+
+
+** Tables ** 
+
+* Table 1 * CALLABLE MASK
+Poznik et al 2013 generate a mask for callable Y chromosome sequence.
+   Here is the mask file for hg19: chrY.callable.hg19.bed.txt
+   And I ran it through UCSC genome liftover tool to get the mask file for hg38: chrY.callable.hg38liftover.bed.txt
+   We are also planning to make a new mask following the same rules for the hg38 reference sequence (instead of just a liftover).
