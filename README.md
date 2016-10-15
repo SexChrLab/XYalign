@@ -15,8 +15,8 @@
 2. Identify sex chromosome ploidy from WGS data. 
   + XX - Female
   + XY - Male
-  + XXY - Kleinfelter's
-  + X0 - Turner's
+  + XXY - Kleinfelter (subset)
+  + X0 - Turner
   + And all other combinations
   
 3. Identify copy number variations on X and Y
