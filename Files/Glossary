@@ -48,12 +48,17 @@ Orphan reads - where only one read of a read pair is aligned to the reference ge
 Ploidy - alterations in number of whole chromosomes within a cell/individual
 Polyploidy - increases in the number of whole sets of chromosomes e.g. 3n
 Aneuploidy - alterations in the number of single chromosomes e.g. 2n + 1
+Allele fraction/Read balance - the relative proportion of reads for alleles at heterozygous sites
+
+
+
 
 LASTZ - LASTZ is a program for aligning DNA sequences, a pairwise aligner. Used for self-self alignment of X and Y, and X vs. Y, which can identify areas of duplication and inversions within and between the chromosomes
 BWA - Burrows-Wheeler Aligner, alignment tool
 SAMtools - provide various utilities for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format
 python 2
 1000 genome project - large project with sequencing of over 1000 human genomes with the goal of identifting all SNPs with frequencies >1%
+Platypus - a haplotype based variant caller
 
 Reference genome : GRCh38 with decoy dowloaded directly from 1000 genomes (ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/GRCh38_reference_genome/)
 Data: 1000 genomes - phase 3, YRI and CEU, 5 males and 5 females from each population
