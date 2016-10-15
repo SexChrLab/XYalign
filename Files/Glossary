@@ -39,6 +39,7 @@ Allele frequency - relative frequency of an allele at a particular locus in a po
 SNV - single nucleotide variants
 SNP - SNVs which are present in at least a given level within the population, typically 1%
 Singleton/private SNV - single nucleotide variants that are only present in one individual in the population
+VCF - Variant Call Format, text based file which describes the genetic variants
 
 
 LASTZ - LASTZ is a program for aligning DNA sequences, a pairwise aligner. Used for self-self alignment of X and Y, and X vs. Y, which can identify areas of duplication and inversions within and between the chromosomes
