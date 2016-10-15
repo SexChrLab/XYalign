@@ -40,6 +40,10 @@ SNV - single nucleotide variants
 SNP - SNVs which are present in at least a given level within the population, typically 1%
 Singleton/private SNV - single nucleotide variants that are only present in one individual in the population
 VCF - Variant Call Format, text based file which describes the genetic variants
+homozygous - all alleles at a given locus are the same allele
+heterozygous - at a given locus, more than one allele is present. Typically 2 alleles in equal relative copy number 
+PAR - psuedo autosomal region. Areas on the X and Y chromosomes with sequence homology where crossing over occurs, thus these sections of the sex chromosomes act like autosomal regions
+XTR - X-transposed region. A locus on the Y chromosome where a section of the X chromosome has been inserted into the Y chromosome, following the human-chimpanzee divergence
 
 
 LASTZ - LASTZ is a program for aligning DNA sequences, a pairwise aligner. Used for self-self alignment of X and Y, and X vs. Y, which can identify areas of duplication and inversions within and between the chromosomes
