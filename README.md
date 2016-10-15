@@ -16,8 +16,8 @@
   + XX - Female
   + XY - Male
   + XXY - Kleinfelter's
-  + XYY - Supermale?
   + X0 - Turner's
+  
 3. Identify copy number variations on X and Y
 Because I think we have to address this if we want to get a really good handle on #2 given the extremely high copy number variable regions on X and Y - the ampliconic regions. Likely we will masking them out to infer #2, which will be easiest, but then we can have an extended goal to see characterize variations in these regions.
 
