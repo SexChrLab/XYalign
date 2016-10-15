@@ -1,6 +1,6 @@
 # 2016_project_6
 
-Inferring sex chromosome and autosomal ploidy in NGS data
+# Inferring sex chromosome and autosomal ploidy in NGS data
 
 
 ### Publication  Links
@@ -26,3 +26,8 @@ Because I think we have to address this if we want to get a really good handle o
 ### Known problems and complications
 - High sequence identity between X and Y
 - Higher amount of sequence repeats
+
+
+
+### Group Members
+
