@@ -31,11 +31,15 @@ Because I think we have to address this if we want to get a really good handle o
 
 
 
-
 ### Group Members
 Name | email | github ID
 --- | --- |  --- 
-Phillip Richmond | phillip.a.richmond@gmail.com | @Phillip-a-Richmond  
-Whitney Whitford | whitney.whitford@auckland.ac.nz | @whitneywhitford
 Madeline Couse| mhcouse@gmail.com | @Madelinehazel
+Bruno Grande | bgrande@sfu.ca | @brunogrande
+Eric Karlins | karlinser@mail.nih.gov | @ekarlins
+Tanya Phung | tnphung@ucla.edu | @tnphung
+Phillip Richmond | phillip.a.richmond@gmail.com | @Phillip-a-Richmond 
+Tim Webster | timothy.h.webster@asu.edu | @thw17
+Whitney Whitford | whitney.whitford@auckland.ac.nz | @whitneywhitford
 Melissa A. Wilson Sayres | melissa.wilsonsayres@asu.edu | @mwilsonsayres
+
