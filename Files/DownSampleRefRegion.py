@@ -1,3 +1,5 @@
+### uses pysam version 0.9.1.4
+
 import pysam
 import random
 import sys
