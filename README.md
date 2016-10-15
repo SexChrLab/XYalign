@@ -30,4 +30,7 @@ Because I think we have to address this if we want to get a really good handle o
 
 
 ### Group Members
+Name | email | github ID
+--- | --- |  --- 
+Phillip Richmond | phillip.a.richmond@gmail.com | @Phillip-a-Richmond  
 
