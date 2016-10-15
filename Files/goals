@@ -1,0 +1,8 @@
+Goals of the Inferring Sex Chromosome Ploidy hackseq group: 
+
+1. Assess proportion of X-Y mis-alignment and correct for this to improve chrX and chrY calls
+2. Infer total X chromosome and Y chromosome ploidy
+3. Model expected distribution of alleles on X, Y and chr19*
+4. Infer copy number variation across the X and Y (because I think we have to address this if we want to get a really good handle on #2 given the extremely high copy number variable regions on X and Y - the ampliconic regions. Likely we will masking them out to infer #2, which will be easiest, but then we can have an extended goal to see characterize variations in these regions).
+
+* Use chr 19 because it has a low rate of anueploidy and is a relatively small chromosome: http://www.fertstert.org/article/S0015-0282(11)02810-X/fulltext
