@@ -37,4 +37,5 @@ Name | email | github ID
 --- | --- |  --- 
 Phillip Richmond | phillip.a.richmond@gmail.com | @Phillip-a-Richmond  
 Whitney Whitford | whitney.whitford@auckland.ac.nz | @whitstraction
+Madeline Couse| mhcouse@gmail.com | @Madelinehazel
 
