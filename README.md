@@ -38,4 +38,4 @@ Name | email | github ID
 Phillip Richmond | phillip.a.richmond@gmail.com | @Phillip-a-Richmond  
 Whitney Whitford | whitney.whitford@auckland.ac.nz | @whitneywhitford
 Madeline Couse| mhcouse@gmail.com | @Madelinehazel
-
+Melissa A. Wilson Sayres | melissa.wilsonsayres@asu.edu | @mwilsonsayres
