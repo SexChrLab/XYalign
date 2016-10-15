@@ -1,1 +1,51 @@
 # Here is a glossary of terms that will be helpful for people when reading about our program.
+
+Glossary:
+ASW - African Ancestry in SW USA
+ACB - African Caribbean in Barbados
+BEB - Bengali in Bangladesh
+GBR - British From England and Scotland
+CDX - Chinese Dai in Xishuangbanna, China
+CEU - Utah Residents (CEPH) with Northern and Western Ancestry
+CLM - Colombian in Medellín, Colombia
+ESN - Esan in Nigeria
+FIN - Finnish in Finland
+GWD - Gambian in Western Division – Mandinka
+GIH - Gujarati Indians in Houston, Texas, USA
+CHB - Han Chinese in Beijing, China
+CHS - Han Chinese South
+IBS - Iberian Populations in Spain
+ITU - Indian Telugu in the U.K.
+JPT - Japanese in Tokyo, Japan
+KHV - Kinh in Ho Chi Minh City, Vietnam
+LWK - Luhya in Webuye, Kenya
+MSL - Mende in Sierra Leone
+MXL - Mexican Ancestry in Los Angeles CA USA
+PEL - Peruvian in Lima Peru
+PUR - Puerto Rican in Puerto Rico
+PJL - Punjabi in Lahore, Pakistan
+STU - Sri Lankan Tamil in the UK
+TSI - Toscani in Italia
+YRI - Yoruba in Ibadan, Nigeria
+SVs - Structural Variants including inversions, translocations and copy number variants
+CNVs - copy number variants in the form of deletions and duplications larger scale than indels (typically >1kb, can be as low as >50bp)
+SNP - single nucleotide polymorphism
+BWA - Burrows-Wheeler Aligner
+SAM - Sequence Alignment/Map file used to represent aligned sequences
+BAM - Binary Alignment/Map is the compressed binary version of a SAM file that is used to represent aligned sequences 
+FASTQ  - format is a text-based format for storing both a biological sequence (usually nucleotide sequence) and its corresponding quality scores
+Reference genome - the 'true' genome for which the reads output from sequencing are aligned to
+Allele frequency - relative frequency of an allele at a particular locus in a population. The fraction of all chromosomes in the population that carry that allele
+SNV - single nucleotide variants
+SNP - SNVs which are present in at least a given level within the population, typically 1%
+Singleton/private SNV - single nucleotide variants that are only present in one individual in the population
+
+
+LASTZ - LASTZ is a program for aligning DNA sequences, a pairwise aligner. Used for self-self alignment of X and Y, and X vs. Y, which can identify areas of duplication and inversions within and between the chromosomes
+BWA - Burrows-Wheeler Aligner, alignment tool
+SAMtools - provide various utilities for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format
+python 2
+1000 genome project - large project with sequencing of over 1000 human genomes with the goal of identifting all SNPs with frequencies >1%
+
+Reference genome : GRCh38 with decoy dowloaded directly from 1000 genomes (ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/GRCh38_reference_genome/)
+Data: 1000 genomes - phase 3, YRI and CEU, 5 males and 5 females from each population
