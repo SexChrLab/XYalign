@@ -2,12 +2,10 @@ import argparse
 import numpy as np
 import pysam
 import sys
-from ggplot import *
+# from ggplot import *
 
 
 def traverseBam(samfile, chrom, start, stop, window_size, minDepth, afThresh, minAltReads):
-	
-	
 	depthCollector = []
 	readBalanceCollector = []
 	counter = 0
@@ -51,17 +49,13 @@ def traverseBam(samfile, chrom, start, stop, window_size, minDepth, afThresh, mi
 		if counter % 100000 == 0:
 			print "%d sites processed, %d of which passed filters" % (counter, passed)
 	return (np.asarray(readBalance), np.asarray(depth))
-	
+
+
 def main():
 	########################################
 	######## Parse the command line ########
 	########################################
 	parser = argparse.ArgumentParser(description="Add description")
-	
-	#Print help/usage if no arguments are supplied
-	if len(sys.argv)==1:
-		parser.print_usage()
-	sys.exit(1)	
 	
 	# Parse command lines
 	parser.add_argument("--bam", required=True, 
@@ -78,8 +72,14 @@ def main():
 						help="DEFAULT is 2. Minimum depth for a site to be considered. Integer.")
 	parser.add_argument("--minimum_alt_allele_reads", type=int, default=1,
 						help="DEFAULT is 1. Minimum number of reads with minor allele for read balance to be considered. Integer.")
-	parser.add_argumber("--minor_allele_threshold", type=float, default=0.1,
+	parser.add_argument("--minor_allele_threshold", type=float, default=0.1,
 						help="DEFAULT is 0.1. Minimum fraction of reads with minor allele for read balance to be considered. Float.")
+
+	#Print help/usage if no arguments are supplied
+	if len(sys.argv)==1:
+		parser.print_usage()
+		sys.exit(1)	
+
 	args = parser.parse_args()
 
 	# Grab X and Y chromosome coordinates
@@ -93,12 +93,9 @@ def main():
 	########################################
 	########### Traverse bam file ##########
 	########################################
-    samfile = pysam.AlignmentFile(args.bam, "rb")
-    results = traverseBam(samfile, args.chrX_name, 0, x_length, args.minimum_depth, args.minimum_alt_allele_reads, minor_allele_fraction))
+	samfile = pysam.AlignmentFile(args.bam, "rb")
+	results = traverseBam(samfile, args.chrX_name, 0, x_length, args.minimum_depth, args.minimum_alt_allele_reads, minor_allele_fraction)
     
     
-
 if __name__ == "__main__":
 	main()
-		
-		
