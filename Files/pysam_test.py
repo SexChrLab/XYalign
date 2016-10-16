@@ -6,8 +6,8 @@ import sys
 def functionName(samfile, chrom, start, stop, minDepth = 2, afThresh = 0.02, minAltReads = 1):
 	depth = []
 	readBalance = []
+	counter = 0
 	for pileupcolumn in samfile.pileup(chrom, start, stop):
-		counter = 0
 		baseCountDict = {'A':0, 'C':0, 'G':0, 'T':0, 'N': 0}
 		for pileupread in pileupcolumn.pileups:
 			if not pileupread.is_del and not pileupread.is_refskip:
