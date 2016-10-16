@@ -5,6 +5,7 @@ Madeline Couse, Bruno Grande, Eric Karlins, Tanya Phung, Phillip Richmond, Tim W
 ** Introduction ** 
 Individuals who are chimeric for sex chromosome copy number variations may not know it, and due to the unique pattern of recombination on the sex chromosomes, individuals may have an atypical ploidy for only a region of the sex chromosomes, resulting in a subtle phenotype changes. Ploidy level will also affect estimates of genome diversity and variation that is required in most clinical genomic studies. Ploidy is important across the genome, and as genomic databases are increasing in size, it is becoming increasingly necessary to characterize ploidy variation across the genome, especially including the sex chromosomes for which anuploidy is common (e.g. 45,X occurs in 1/2500 while 47, XXY occurs in 1/1000 to 1/500). There are simple and complex ways to infer ploidy, and nearly all of them are designed without thinking about the unique inheritance of the X and Y chromosome. Thus, we propose to develop tools to quickly infer ploidy in NGS data (DNA and RNA), focusing on the sex chromosomes, but which will be applicable across genomic regions. This tool (or tools) will also be useful for identifying sites that are heteroplasmic in mitochondrial DNA, and may be beneficial in studies outside of diploid organisms (e.g., cancer). These tools will be made open source.
 
+Half of 47,XXY are paternal in origin (http://humupd.oxfordjournals.org/content/9/4/309.full.pdf)
 
 ** Methods ** 
 
