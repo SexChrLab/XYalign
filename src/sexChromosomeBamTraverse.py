@@ -2,6 +2,7 @@ import sys
 import argparse
 import numpy as np
 import pysam
+from collections import Counter
 
 
 def traverseBam(samfile, chrom, start, stop, window_size, minDepth, afThresh, minAltReads):
@@ -55,6 +56,10 @@ def traverseBam(samfile, chrom, start, stop, window_size, minDepth, afThresh, mi
 		if counter % 100000 == 0:
 			print "%d sites processed, %d of which passed filters" % (counter, passed)
 	return (np.asarray(readBalance), np.asarray(depth))
+
+
+def plot_data(data):
+	pass
 
 
 def main():
