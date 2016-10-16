@@ -24,16 +24,16 @@
   C. Allele Balance
   D. Ampliconic/Palindromic/CNV filter
   
-  Expectations for heterozygous calls under different sex chromosome complements: 
+ Typical expectations for heterozygous calls under different sex chromosome complements: 
   
   Genotype | X_call | Y_call
   --- | --- |  --- 
   XX | het | none
   XY | hap | hap
   X0 | hap | none or partial_hap
-  XXY | 1/2 het (Xm1Xm2 or Xm1Xp or Xm2Xp) or 1/2 hap (Xm1Xm1 or Xm2Xm2 or XpXp) | hap 
+  XXY | het or hap | hap 
   XYY | hap | hap
-  XXX | het or hap | none
+  XXX | het | none
 
   Note: Half of 47,XXY are paternal in origin -> do not expect het sites: http://humupd.oxfordjournals.org/content/9/4/309.full.pdf
 
