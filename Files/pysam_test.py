@@ -23,11 +23,10 @@ def functionName(samfile, chrom, start, stop, minDepth = 2, afThresh = 0.02, min
 			readBalance.append(float(numAlt) / totalDepth)
 		counter += 1
 		if counter % 1000 == 0:
-			print "%d sites processed, %d of which passed filters" % (counter, length(depth))
+			print "%d sites processed, %d of which passed filters" % (counter, len(depth))
 	return np.mean(np.asarray(readBalance))
 	
 def main():
-    ##usage:  module load python/2.7.8;python DownSampleRefRegion.py in.bam out.bam chrom start end
     inBam = sys.argv[-1]
     samfile = pysam.AlignmentFile(inBam, "rb")
     print(functionName(samfile, 'chrX', 1, 10000000, 3, 0.02, 1))
