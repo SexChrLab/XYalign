@@ -1,11 +1,18 @@
+import sys
 import argparse
 import numpy as np
 import pysam
-import sys
-# from ggplot import *
 
 
 def traverseBam(samfile, chrom, start, stop, window_size, minDepth, afThresh, minAltReads):
+	"""Analyze a BAM file for various metrics and statistics.
+
+	Returns a tuple of pandas data frames:
+	- Statistics for each window
+	- Frequencies for mapping quality
+	- Frequencies for read depth
+	- Frequencies for read balance
+	"""
 	depthCollector = []
 	readBalanceCollector = []
 	counter = 0
@@ -43,8 +50,7 @@ def traverseBam(samfile, chrom, start, stop, window_size, minDepth, afThresh, mi
 			depth = []
 			readBalance = []
 			coord.append(int(pileupcolumn.pos))
-		
-		
+
 		counter += 1
 		if counter % 100000 == 0:
 			print "%d sites processed, %d of which passed filters" % (counter, passed)
@@ -60,12 +66,14 @@ def main():
 	# Parse command lines
 	parser.add_argument("--bam", required=True, 
 						help="REQUIRED. Input bam file")
-	parser.add_argument("--fai", required=True,
-						help="REQUIRED. Fasta index file (.fai) from reference genome.")
+	# parser.add_argument("--fai", required=True,
+	# 					help="REQUIRED. Fasta index file (.fai) from reference genome.")
 	parser.add_argument("--chrX_name", default="chrX",
 						help="DEFAULT is chrX.  The name of the X chromosome scaffold.")
 	parser.add_argument("--chrY_name", default="chrY",
 						help="DEFAULT is chrY.  The name of the Y chromosome scaffold.")
+	parser.add_argument("--chromosomes", "-c", nargs="+", default=["chrX", "chrY", "chr19"],
+	                    help="Chromosomes to analyze.")
 	parser.add_argument("--window_size", type=int, default=50000,
 						help="DEFAULT is 50000.  Window size for sliding window calculations. Integer.")
 	parser.add_argument("--minimum_depth", type=int, default=2,
@@ -82,19 +90,18 @@ def main():
 
 	args = parser.parse_args()
 
-	# Grab X and Y chromosome coordinates
-	with open(args.fai,"r") as f:
-		for i in csv.reader(f,delimiter="\t"):
-			if i[0] == args.chrX_name:
-				x_length = int(i[1])
-			if i[0] == args.chrY_name:
-				y_length = int(i[1])
-
 	########################################
 	########### Traverse bam file ##########
 	########################################
+
 	samfile = pysam.AlignmentFile(args.bam, "rb")
-	results = traverseBam(samfile, args.chrX_name, 0, x_length, args.minimum_depth, args.minimum_alt_allele_reads, minor_allele_fraction)
+
+	all_lengths = zip(samfile.references, samfile.lengths)
+	selected_lengths = dict(filter(lambda x: x[0] in args.chromosomes, all_lengths))
+
+	for chromosome, length in selected_lengths.items():
+		data = traverseBam(samfile, chromosome, 0, length, args.minimum_depth, args.minimum_alt_allele_reads, minor_allele_fraction)
+		plot_data(data)
     
     
 if __name__ == "__main__":
