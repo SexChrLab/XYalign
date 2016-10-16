@@ -1,0 +1,728 @@
+##fileformat=VCFv4.1
+##FILTER=<ID=PASS,Description="All filters passed">
+##fileDate=20150218
+##reference=ftp://ftp.1000genomes.ebi.ac.uk//vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz
+##source=1000GenomesPhase3Pipeline
+##contig=<ID=1,assembly=b37,length=249250621>
+##contig=<ID=2,assembly=b37,length=243199373>
+##contig=<ID=3,assembly=b37,length=198022430>
+##contig=<ID=4,assembly=b37,length=191154276>
+##contig=<ID=5,assembly=b37,length=180915260>
+##contig=<ID=6,assembly=b37,length=171115067>
+##contig=<ID=7,assembly=b37,length=159138663>
+##contig=<ID=8,assembly=b37,length=146364022>
+##contig=<ID=9,assembly=b37,length=141213431>
+##contig=<ID=10,assembly=b37,length=135534747>
+##contig=<ID=11,assembly=b37,length=135006516>
+##contig=<ID=12,assembly=b37,length=133851895>
+##contig=<ID=13,assembly=b37,length=115169878>
+##contig=<ID=14,assembly=b37,length=107349540>
+##contig=<ID=15,assembly=b37,length=102531392>
+##contig=<ID=16,assembly=b37,length=90354753>
+##contig=<ID=17,assembly=b37,length=81195210>
+##contig=<ID=18,assembly=b37,length=78077248>
+##contig=<ID=19,assembly=b37,length=59128983>
+##contig=<ID=20,assembly=b37,length=63025520>
+##contig=<ID=21,assembly=b37,length=48129895>
+##contig=<ID=22,assembly=b37,length=51304566>
+##contig=<ID=GL000191.1,assembly=b37,length=106433>
+##contig=<ID=GL000192.1,assembly=b37,length=547496>
+##contig=<ID=GL000193.1,assembly=b37,length=189789>
+##contig=<ID=GL000194.1,assembly=b37,length=191469>
+##contig=<ID=GL000195.1,assembly=b37,length=182896>
+##contig=<ID=GL000196.1,assembly=b37,length=38914>
+##contig=<ID=GL000197.1,assembly=b37,length=37175>
+##contig=<ID=GL000198.1,assembly=b37,length=90085>
+##contig=<ID=GL000199.1,assembly=b37,length=169874>
+##contig=<ID=GL000200.1,assembly=b37,length=187035>
+##contig=<ID=GL000201.1,assembly=b37,length=36148>
+##contig=<ID=GL000202.1,assembly=b37,length=40103>
+##contig=<ID=GL000203.1,assembly=b37,length=37498>
+##contig=<ID=GL000204.1,assembly=b37,length=81310>
+##contig=<ID=GL000205.1,assembly=b37,length=174588>
+##contig=<ID=GL000206.1,assembly=b37,length=41001>
+##contig=<ID=GL000207.1,assembly=b37,length=4262>
+##contig=<ID=GL000208.1,assembly=b37,length=92689>
+##contig=<ID=GL000209.1,assembly=b37,length=159169>
+##contig=<ID=GL000210.1,assembly=b37,length=27682>
+##contig=<ID=GL000211.1,assembly=b37,length=166566>
+##contig=<ID=GL000212.1,assembly=b37,length=186858>
+##contig=<ID=GL000213.1,assembly=b37,length=164239>
+##contig=<ID=GL000214.1,assembly=b37,length=137718>
+##contig=<ID=GL000215.1,assembly=b37,length=172545>
+##contig=<ID=GL000216.1,assembly=b37,length=172294>
+##contig=<ID=GL000217.1,assembly=b37,length=172149>
+##contig=<ID=GL000218.1,assembly=b37,length=161147>
+##contig=<ID=GL000219.1,assembly=b37,length=179198>
+##contig=<ID=GL000220.1,assembly=b37,length=161802>
+##contig=<ID=GL000221.1,assembly=b37,length=155397>
+##contig=<ID=GL000222.1,assembly=b37,length=186861>
+##contig=<ID=GL000223.1,assembly=b37,length=180455>
+##contig=<ID=GL000224.1,assembly=b37,length=179693>
+##contig=<ID=GL000225.1,assembly=b37,length=211173>
+##contig=<ID=GL000226.1,assembly=b37,length=15008>
+##contig=<ID=GL000227.1,assembly=b37,length=128374>
+##contig=<ID=GL000228.1,assembly=b37,length=129120>
+##contig=<ID=GL000229.1,assembly=b37,length=19913>
+##contig=<ID=GL000230.1,assembly=b37,length=43691>
+##contig=<ID=GL000231.1,assembly=b37,length=27386>
+##contig=<ID=GL000232.1,assembly=b37,length=40652>
+##contig=<ID=GL000233.1,assembly=b37,length=45941>
+##contig=<ID=GL000234.1,assembly=b37,length=40531>
+##contig=<ID=GL000235.1,assembly=b37,length=34474>
+##contig=<ID=GL000236.1,assembly=b37,length=41934>
+##contig=<ID=GL000237.1,assembly=b37,length=45867>
+##contig=<ID=GL000238.1,assembly=b37,length=39939>
+##contig=<ID=GL000239.1,assembly=b37,length=33824>
+##contig=<ID=GL000240.1,assembly=b37,length=41933>
+##contig=<ID=GL000241.1,assembly=b37,length=42152>
+##contig=<ID=GL000242.1,assembly=b37,length=43523>
+##contig=<ID=GL000243.1,assembly=b37,length=43341>
+##contig=<ID=GL000244.1,assembly=b37,length=39929>
+##contig=<ID=GL000245.1,assembly=b37,length=36651>
+##contig=<ID=GL000246.1,assembly=b37,length=38154>
+##contig=<ID=GL000247.1,assembly=b37,length=36422>
+##contig=<ID=GL000248.1,assembly=b37,length=39786>
+##contig=<ID=GL000249.1,assembly=b37,length=38502>
+##contig=<ID=MT,assembly=b37,length=16569>
+##contig=<ID=NC_007605,assembly=b37,length=171823>
+##contig=<ID=X,assembly=b37,length=155270560>
+##contig=<ID=Y,assembly=b37,length=59373566>
+##contig=<ID=hs37d5,assembly=b37,length=35477943>
+##ALT=<ID=CNV,Description="Copy Number Polymorphism">
+##ALT=<ID=DEL,Description="Deletion">
+##ALT=<ID=DUP,Description="Duplication">
+##ALT=<ID=INS:ME:ALU,Description="Insertion of ALU element">
+##ALT=<ID=INS:ME:LINE1,Description="Insertion of LINE1 element">
+##ALT=<ID=INS:ME:SVA,Description="Insertion of SVA element">
+##ALT=<ID=INS:MT,Description="Nuclear Mitochondrial Insertion">
+##ALT=<ID=INV,Description="Inversion">
+##ALT=<ID=CN0,Description="Copy number allele: 0 copies">
+##ALT=<ID=CN1,Description="Copy number allele: 1 copy">
+##ALT=<ID=CN2,Description="Copy number allele: 2 copies">
+##ALT=<ID=CN3,Description="Copy number allele: 3 copies">
+##ALT=<ID=CN4,Description="Copy number allele: 4 copies">
+##ALT=<ID=CN5,Description="Copy number allele: 5 copies">
+##ALT=<ID=CN6,Description="Copy number allele: 6 copies">
+##ALT=<ID=CN7,Description="Copy number allele: 7 copies">
+##ALT=<ID=CN8,Description="Copy number allele: 8 copies">
+##ALT=<ID=CN9,Description="Copy number allele: 9 copies">
+##ALT=<ID=CN10,Description="Copy number allele: 10 copies">
+##ALT=<ID=CN11,Description="Copy number allele: 11 copies">
+##ALT=<ID=CN12,Description="Copy number allele: 12 copies">
+##ALT=<ID=CN13,Description="Copy number allele: 13 copies">
+##ALT=<ID=CN14,Description="Copy number allele: 14 copies">
+##ALT=<ID=CN15,Description="Copy number allele: 15 copies">
+##ALT=<ID=CN16,Description="Copy number allele: 16 copies">
+##ALT=<ID=CN17,Description="Copy number allele: 17 copies">
+##ALT=<ID=CN18,Description="Copy number allele: 18 copies">
+##ALT=<ID=CN19,Description="Copy number allele: 19 copies">
+##ALT=<ID=CN20,Description="Copy number allele: 20 copies">
+##ALT=<ID=CN21,Description="Copy number allele: 21 copies">
+##ALT=<ID=CN22,Description="Copy number allele: 22 copies">
+##ALT=<ID=CN23,Description="Copy number allele: 23 copies">
+##ALT=<ID=CN24,Description="Copy number allele: 24 copies">
+##ALT=<ID=CN25,Description="Copy number allele: 25 copies">
+##ALT=<ID=CN26,Description="Copy number allele: 26 copies">
+##ALT=<ID=CN27,Description="Copy number allele: 27 copies">
+##ALT=<ID=CN28,Description="Copy number allele: 28 copies">
+##ALT=<ID=CN29,Description="Copy number allele: 29 copies">
+##ALT=<ID=CN30,Description="Copy number allele: 30 copies">
+##ALT=<ID=CN31,Description="Copy number allele: 31 copies">
+##ALT=<ID=CN32,Description="Copy number allele: 32 copies">
+##ALT=<ID=CN33,Description="Copy number allele: 33 copies">
+##ALT=<ID=CN34,Description="Copy number allele: 34 copies">
+##ALT=<ID=CN35,Description="Copy number allele: 35 copies">
+##ALT=<ID=CN36,Description="Copy number allele: 36 copies">
+##ALT=<ID=CN37,Description="Copy number allele: 37 copies">
+##ALT=<ID=CN38,Description="Copy number allele: 38 copies">
+##ALT=<ID=CN39,Description="Copy number allele: 39 copies">
+##ALT=<ID=CN40,Description="Copy number allele: 40 copies">
+##ALT=<ID=CN41,Description="Copy number allele: 41 copies">
+##ALT=<ID=CN42,Description="Copy number allele: 42 copies">
+##ALT=<ID=CN43,Description="Copy number allele: 43 copies">
+##ALT=<ID=CN44,Description="Copy number allele: 44 copies">
+##ALT=<ID=CN45,Description="Copy number allele: 45 copies">
+##ALT=<ID=CN46,Description="Copy number allele: 46 copies">
+##ALT=<ID=CN47,Description="Copy number allele: 47 copies">
+##ALT=<ID=CN48,Description="Copy number allele: 48 copies">
+##ALT=<ID=CN49,Description="Copy number allele: 49 copies">
+##ALT=<ID=CN50,Description="Copy number allele: 50 copies">
+##ALT=<ID=CN51,Description="Copy number allele: 51 copies">
+##ALT=<ID=CN52,Description="Copy number allele: 52 copies">
+##ALT=<ID=CN53,Description="Copy number allele: 53 copies">
+##ALT=<ID=CN54,Description="Copy number allele: 54 copies">
+##ALT=<ID=CN55,Description="Copy number allele: 55 copies">
+##ALT=<ID=CN56,Description="Copy number allele: 56 copies">
+##ALT=<ID=CN57,Description="Copy number allele: 57 copies">
+##ALT=<ID=CN58,Description="Copy number allele: 58 copies">
+##ALT=<ID=CN59,Description="Copy number allele: 59 copies">
+##ALT=<ID=CN60,Description="Copy number allele: 60 copies">
+##ALT=<ID=CN61,Description="Copy number allele: 61 copies">
+##ALT=<ID=CN62,Description="Copy number allele: 62 copies">
+##ALT=<ID=CN63,Description="Copy number allele: 63 copies">
+##ALT=<ID=CN64,Description="Copy number allele: 64 copies">
+##ALT=<ID=CN65,Description="Copy number allele: 65 copies">
+##ALT=<ID=CN66,Description="Copy number allele: 66 copies">
+##ALT=<ID=CN67,Description="Copy number allele: 67 copies">
+##ALT=<ID=CN68,Description="Copy number allele: 68 copies">
+##ALT=<ID=CN69,Description="Copy number allele: 69 copies">
+##ALT=<ID=CN70,Description="Copy number allele: 70 copies">
+##ALT=<ID=CN71,Description="Copy number allele: 71 copies">
+##ALT=<ID=CN72,Description="Copy number allele: 72 copies">
+##ALT=<ID=CN73,Description="Copy number allele: 73 copies">
+##ALT=<ID=CN74,Description="Copy number allele: 74 copies">
+##ALT=<ID=CN75,Description="Copy number allele: 75 copies">
+##ALT=<ID=CN76,Description="Copy number allele: 76 copies">
+##ALT=<ID=CN77,Description="Copy number allele: 77 copies">
+##ALT=<ID=CN78,Description="Copy number allele: 78 copies">
+##ALT=<ID=CN79,Description="Copy number allele: 79 copies">
+##ALT=<ID=CN80,Description="Copy number allele: 80 copies">
+##ALT=<ID=CN81,Description="Copy number allele: 81 copies">
+##ALT=<ID=CN82,Description="Copy number allele: 82 copies">
+##ALT=<ID=CN83,Description="Copy number allele: 83 copies">
+##ALT=<ID=CN84,Description="Copy number allele: 84 copies">
+##ALT=<ID=CN85,Description="Copy number allele: 85 copies">
+##ALT=<ID=CN86,Description="Copy number allele: 86 copies">
+##ALT=<ID=CN87,Description="Copy number allele: 87 copies">
+##ALT=<ID=CN88,Description="Copy number allele: 88 copies">
+##ALT=<ID=CN89,Description="Copy number allele: 89 copies">
+##ALT=<ID=CN90,Description="Copy number allele: 90 copies">
+##ALT=<ID=CN91,Description="Copy number allele: 91 copies">
+##ALT=<ID=CN92,Description="Copy number allele: 92 copies">
+##ALT=<ID=CN93,Description="Copy number allele: 93 copies">
+##ALT=<ID=CN94,Description="Copy number allele: 94 copies">
+##ALT=<ID=CN95,Description="Copy number allele: 95 copies">
+##ALT=<ID=CN96,Description="Copy number allele: 96 copies">
+##ALT=<ID=CN97,Description="Copy number allele: 97 copies">
+##ALT=<ID=CN98,Description="Copy number allele: 98 copies">
+##ALT=<ID=CN99,Description="Copy number allele: 99 copies">
+##ALT=<ID=CN100,Description="Copy number allele: 100 copies">
+##ALT=<ID=CN101,Description="Copy number allele: 101 copies">
+##ALT=<ID=CN102,Description="Copy number allele: 102 copies">
+##ALT=<ID=CN103,Description="Copy number allele: 103 copies">
+##ALT=<ID=CN104,Description="Copy number allele: 104 copies">
+##ALT=<ID=CN105,Description="Copy number allele: 105 copies">
+##ALT=<ID=CN106,Description="Copy number allele: 106 copies">
+##ALT=<ID=CN107,Description="Copy number allele: 107 copies">
+##ALT=<ID=CN108,Description="Copy number allele: 108 copies">
+##ALT=<ID=CN109,Description="Copy number allele: 109 copies">
+##ALT=<ID=CN110,Description="Copy number allele: 110 copies">
+##ALT=<ID=CN111,Description="Copy number allele: 111 copies">
+##ALT=<ID=CN112,Description="Copy number allele: 112 copies">
+##ALT=<ID=CN113,Description="Copy number allele: 113 copies">
+##ALT=<ID=CN114,Description="Copy number allele: 114 copies">
+##ALT=<ID=CN115,Description="Copy number allele: 115 copies">
+##ALT=<ID=CN116,Description="Copy number allele: 116 copies">
+##ALT=<ID=CN117,Description="Copy number allele: 117 copies">
+##ALT=<ID=CN118,Description="Copy number allele: 118 copies">
+##ALT=<ID=CN119,Description="Copy number allele: 119 copies">
+##ALT=<ID=CN120,Description="Copy number allele: 120 copies">
+##ALT=<ID=CN121,Description="Copy number allele: 121 copies">
+##ALT=<ID=CN122,Description="Copy number allele: 122 copies">
+##ALT=<ID=CN123,Description="Copy number allele: 123 copies">
+##ALT=<ID=CN124,Description="Copy number allele: 124 copies">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##INFO=<ID=CIEND,Number=2,Type=Integer,Description="Confidence interval around END for imprecise variants">
+##INFO=<ID=CIPOS,Number=2,Type=Integer,Description="Confidence interval around POS for imprecise variants">
+##INFO=<ID=CS,Number=1,Type=String,Description="Source call set.">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End coordinate of this variant">
+##INFO=<ID=IMPRECISE,Number=0,Type=Flag,Description="Imprecise structural variation">
+##INFO=<ID=MC,Number=.,Type=String,Description="Merged calls.">
+##INFO=<ID=MEINFO,Number=4,Type=String,Description="Mobile element info of the form NAME,START,END<POLARITY; If there is on
+ly 5' OR 3' support for this call, will be NULL NULL for START and END">
+##INFO=<ID=MEND,Number=1,Type=Integer,Description="Mitochondrial end coordinate of inserted sequence">
+##INFO=<ID=MLEN,Number=1,Type=Integer,Description="Estimated length of mitochondrial insert">
+##INFO=<ID=MSTART,Number=1,Type=Integer,Description="Mitochondrial start coordinate of inserted sequence">
+##INFO=<ID=SVLEN,Number=.,Type=Integer,Description="SV length. It is only calculated for structural variation MEIs. For oth
+er types of SVs; one may calculate the SV length by INFO:END-START+1, or by finding the difference between lengthes of REF
+and ALT alleles">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+##INFO=<ID=TSD,Number=1,Type=String,Description="Precise Target Site Duplication for bases, if unknown, value will be NULL"
+>
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Total number of alternate alleles in called genotypes">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Estimated allele frequency in the range (0,1)">
+##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=EAS_AF,Number=A,Type=Float,Description="Allele frequency in the EAS populations calculated from AC and AN, in th
+e range (0,1)">
+##INFO=<ID=EUR_AF,Number=A,Type=Float,Description="Allele frequency in the EUR populations calculated from AC and AN, in th
+e range (0,1)">
+##INFO=<ID=AFR_AF,Number=A,Type=Float,Description="Allele frequency in the AFR populations calculated from AC and AN, in th
+e range (0,1)">
+##INFO=<ID=AMR_AF,Number=A,Type=Float,Description="Allele frequency in the AMR populations calculated from AC and AN, in th
+e range (0,1)">
+##INFO=<ID=SAS_AF,Number=A,Type=Float,Description="Allele frequency in the SAS populations calculated from AC and AN, in th
+e range (0,1)">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total read depth; only low coverage data were counted towards the DP, exom
+e data were not used">
+##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral Allele. Format: AA|REF|ALT|IndelType. AA: Ancestral allele, REF:R
+eference Allele, ALT:Alternate Allele, IndelType:Type of Indel (REF, ALT and IndelType are only defined for indels)">
+##INFO=<ID=VT,Number=.,Type=String,Description="indicates what type of variant the line represents">
+##INFO=<ID=EX_TARGET,Number=0,Type=Flag,Description="indicates whether a variant is within the exon pull down target bounda
+ries">
+##INFO=<ID=MULTI_ALLELIC,Number=0,Type=Flag,Description="indicates whether a site is multi-allelic">
+#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  HG00096 HG00268 HG00419 HG00759 HG01051 HG01112 HG0
+1500    HG01565 HG01583 HG01595 HG01879 HG02568 HG02922 HG03006 HG03052 HG03642 HG03742 NA18525 NA18939 NA19017 NA19625 NA1
+9648    NA20502 NA20845
+19	251548	esv3643341	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	266428	esv3643342	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	286841	esv3643343;esv3643344	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	323368	esv3643346;esv3643347	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	572192	esv3643354;esv3643355	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	640060	esv3643357;esv3643358	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	656766	esv3643359	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	712133	esv3643362;esv3643363	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	1|0	0|0	0|0	2|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	724133	esv3643364	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	730718	esv3643365;esv3643366	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	732976	.;esv3643368	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	794878	esv3643371;esv3643372	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	841514	esv3643373	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	873393	.;esv3643375	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	954978	esv3643378;esv3643379	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	982574	esv3643380;esv3643381	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1012554	esv3643383	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1012802	esv3643384;esv3643385	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1264453	esv3643389	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1273201	esv3643390;esv3643391	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1327803	esv3643392	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1356855	esv3643395;esv3643396	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1442412	esv3643397	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1481778	DUP_uwash_chr19_1481778_1551133	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1486558	esv3643399;.	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1510537	esv3643402;.	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1517992	esv3643404	C	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1530392	esv3643405	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1948004	esv3643414	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	1989079	esv3643416;esv3643417	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	2314253	.;esv3643422	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	2720375	esv3643435;esv3643436	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	2733026	esv3643437	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	2920978	esv3643445	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	3081482	esv3643454	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	3417942	esv3643463	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	3512970	esv3643465	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	3742658	esv3643470	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	3762013	esv3643471	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	3789078	esv3643473	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	3805733	esv3643475;esv3643476	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	3907961	.;esv3643481	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	3909247	esv3643482	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	1|0	1|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0
+19	4007997	esv3643486	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	4083533	esv3643487	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	4137145	esv3643488	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	4217790	.;esv3643492;esv3643493	G	<CN0>,<CN2>,<CN3>	100	PASS	.	GT	0|3	0|3	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	4294839	.;esv3643497	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	4365365	esv3643501	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	4997738	esv3643521	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	5393852	esv3643524	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	1|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	5447724	esv3643526	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	5558199	esv3643529	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0
+19	5613164	esv3643530	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	5633549	esv3643532;esv3643533	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	6189179	esv3643547	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	6358521	esv3643553	C	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	6377375	esv3643555;esv3643556	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	2|0	0|0	0|0	0|0
+19	6868334	esv3643569	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	6890797	esv3643570	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	6896412	esv3643571	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	6916531	esv3643572	G	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1
+19	6972968	esv3643575	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	6999825	esv3643576	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	7066691	esv3643577	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	7241045	esv3643578	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	7410061	esv3643582	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	7536871	esv3643585	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	7884058	esv3643595	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	8398274	esv3643614	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	8431830	esv3643616	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	8591535	esv3643618	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	8632099	esv3643619	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	9009633	esv3643623	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0
+19	9233185	esv3643627	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	9415501	esv3643632	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	9582886	esv3643634	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	9717232	esv3643638	G	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	10329720	esv3643649	C	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	11322112	esv3643667	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	11914960	esv3643677	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	11922879	esv3643678	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	12005314	esv3643681;esv3643682	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	12039759	esv3643684;esv3643685	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	1|0	0|0	0|0	0|0	0|0	1|1	0|1	0|0	0|0	0|0
+19	12048823	esv3643687	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	12105882	esv3643689	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	12337112	esv3643695	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	12500363	esv3643700;esv3643701	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	12523245	esv3643702	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	12688100	esv3643708	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	12827962	esv3643711	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	13094721	esv3643717	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	13301688	SVA_umary_SVA_739	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	13750759	esv3643726	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	14998616	esv3643755	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	15045175	esv3643758	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0
+19	15161095	esv3643760	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	15162626	esv3643761	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	15163744	esv3643762	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	15187248	esv3643763	G	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	15190879	esv3643764	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	15740856	esv3643774	T	<INS:MT>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	15783118	esv3643776	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	15927952	esv3643779	A	<INS:ME:ALU>	100	PASS	.	GT	1|1	1|0	1|0	0|1	1|1	0|0	0|0	1|0	0|0	1|1	0|0	0|0	0|1	0|1	0|1	0|1	1|0	0|1	1|0	1|1	1|0	0|1	0|0	0|1
+19	15994121	esv3643781	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	16056562	esv3643783	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	16078215	esv3643784	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	16252443	esv3643789;esv3643790	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	16305923	esv3643792	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	16530365	esv3643796	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	16598142	esv3643798	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	17277891	esv3643815	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	17442711	esv3643817;esv3643818	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	17752494	esv3643825	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	18080488	esv3643828	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	18107742	esv3643829	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	18302930	esv3643833;esv3643834	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	18580448	esv3643839	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	18835612	esv3643843	C	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	1|0	1|1	0|0	0|0	0|0
+19	19454338	esv3643851	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	19717304	esv3643852	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	19764289	esv3643853	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20027051	esv3643861	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20080141	esv3643862	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20095927	esv3643863	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20176173	esv3643867	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20239564	esv3643869;esv3643870	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20255994	esv3643872	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20704393	esv3643887	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20745988	esv3643890	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|1	0|1	0|0	0|1	0|0	1|0	0|0	1|0	0|1	1|0	1|0	0|1	0|0	0|0	0|0	1|0	0|0	0|0	0|1	0|0	0|0	0|1
+19	20821293	esv3643892;esv3643893	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20853322	esv3643894;esv3643895	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20862396	esv3643896;esv3643897	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20975571	esv3643901;esv3643902	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20984715	esv3643903	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	20989031	esv3643904;esv3643905	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	21007644	esv3643906;esv3643907	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	21055692	esv3643908;esv3643909	T	<CN2>,<CN3>	100	PASS	.	GT	0|0	0|1	0|1	1|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|1	0|0	0|0	0|0	0|0	0|0	1|0	0|1	0|0	0|0	0|0	1|0	0|0
+19	21285989	esv3643915	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	21752923	esv3643926;esv3643927	T	<CN2>,<CN3>	100	PASS	.	GT	0|1	0|0	0|0	1|0	1|1	0|1	0|0	0|1	0|0	0|0	1|0	1|0	0|0	0|0	1|0	1|1	0|0	1|1	0|1	0|1	0|1	0|0	0|0	0|1
+19	21841542	esv3643930	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	1|0	1|0	0|1	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	21907271	esv3643932;esv3643933	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	22079521	esv3643939	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	22415646	esv3643944	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	22543111	esv3643948	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	22659522	esv3643951	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0
+19	22747474	esv3643956	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	22765270	esv3643957	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	22784953	esv3643959;esv3643960	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	22816848	esv3643961	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0
+19	22919690	esv3643967;esv3643968	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	22993613	esv3643971	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23018488	esv3643972;esv3643973	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23086465	esv3643974;esv3643975	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23142762	esv3643977;esv3643978	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23188674	esv3643979;esv3643980	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23301722	esv3643983;esv3643984	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23328575	esv3643985;esv3643986	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23333826	esv3643987	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23390763	esv3643989	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23456069	esv3643991	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23474422	esv3643993	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23498391	esv3643994	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23654101	esv3643996	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23801770	esv3644000	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23817104	esv3644003;esv3644004	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23826914	esv3644005	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23839868	esv3644008;esv3644009	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23875478	esv3644011;esv3644012	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23917065	esv3644016	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0
+19	23925324	esv3644017;esv3644018	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	23981425	esv3644020	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24009466	esv3644023	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24011300	esv3644024	T	<INS:ME:SVA>	100	PASS	.	GT	1|1	1|1	0|1	0|1	1|1	0|1	1|1	1|1	1|1	1|0	1|1	1|1	1|0	0|1	1|0	0|1	0|1	0|1	1|1	0|1	1|1	1|0	1|1	1|1
+19	24027921	esv3644025	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	1|0	0|1	0|1	1|1	0|0	0|1	1|1	0|0	0|1	1|0	0|1	1|0	1|0	1|0	1|0	1|0	0|1	1|0	0|1	0|0	0|1	1|0	1|0
+19	24089241	esv3644027;esv3644028	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24115712	esv3644029	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24229411	esv3644033	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24244012	esv3644034	T	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24258944	esv3644035;esv3644036	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24274007	.;esv3644038	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24277435	esv3644039	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24285703	esv3644041;esv3644042	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24311804	esv3644044;esv3644045	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24328587	esv3644048	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24336508	esv3644049	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24477234	esv3644053	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24491737	esv3644055	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24554169	esv3644056	T	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	24571473	esv3644057	T	<INS:ME:LINE1>	100	PASS	.	GT	0|0	1|0	0|1	0|1	1|0	0|0	0|1	1|0	1|0	1|0	0|1	1|0	0|1	1|0	0|1	0|1	0|1	1|0	0|1	1|0	0|1	0|1	0|0	0|1
+19	27836578	esv3644064	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|1
+19	27839079	esv3644065	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	27859630	esv3644066	A	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	27990000	esv3644073	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	28154066	esv3644078	C	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	28246833	esv3644080;esv3644081	T	<CN2>,<CN3>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	28358774	esv3644086	G	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	28444563	esv3644090	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	28594616	esv3644094	A	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	28659891	esv3644096	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	28682514	esv3644097	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	29094614	esv3644106	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	29110237	esv3644108	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	29513989	esv3644114;esv3644115	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	29719335	esv3644118	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	29827173	esv3644120;esv3644121	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	29846195	esv3644122	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	29855784	esv3644123	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|1	0|1	1|0	0|0	0|0	0|0	0|0	0|0	0|1	1|0	0|0	0|1	1|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|1
+19	30448212	esv3644129	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	1|0	0|1	1|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	30506813	esv3644133	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	30582276	esv3644134	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	30850007	esv3644136	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	31113483	esv3644141	T	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	31152763	esv3644142	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	31690684	esv3644146	A	<INS:ME:ALU>	100	PASS	.	GT	1|0	0|0	0|1	0|1	1|0	1|1	0|1	0|1	0|1	0|0	1|1	1|1	1|0	0|0	1|0	1|0	0|1	0|1	0|1	0|1	0|1	0|0	0|0	0|0
+19	31954211	esv3644148	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	31968483	esv3644150	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0
+19	32378556	esv3644155	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	32390554	esv3644156	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	32730878	esv3644167	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	32775297	esv3644168	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	32791143	esv3644169	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	32998779	esv3644170	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	33045868	esv3644173	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	34209735	esv3644193	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	34243617	esv3644194	A	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	34441400	esv3644199	G	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	34704087	esv3644202	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	34841329	esv3644207	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	34877161	esv3644208	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	35028178	esv3644209	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	35034692	esv3644210	C	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	35073552	esv3644211	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	1|0	1|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0
+19	35284233	esv3644217	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	35366182	esv3644222	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	35699962	esv3644228	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	35701717	esv3644229	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	35719260	esv3644230	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	35851718	esv3644233;esv3644234	A	<CN0>,<CN2>	100	PASS	.	GT	0|1	1|0	0|1	0|0	0|0	0|1	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|1	0|0
+19	35874119	esv3644235	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36152708	esv3644240;esv3644241	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36199472	esv3644242	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36521169	esv3644244	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36535341	esv3644245	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36546539	esv3644246	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36713740	esv3644250	C	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36812212	esv3644253	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36834285	esv3644254	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36909437	esv3644256	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36930472	esv3644257	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	36940932	esv3644258	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	37152528	esv3644267	A	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0
+19	37213854	esv3644268	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	37298124	esv3644271	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	37485058	esv3644275	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	37601294	esv3644277	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	37625579	esv3644278	G	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	37855025	esv3644285	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	38031459	esv3644289	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|1	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	1|0	0|1	1|0	0|0
+19	38349306	esv3644297	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0
+19	38533229	esv3644302	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	38802173	esv3644306	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	39256101	esv3644312	G	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	39410143	esv3644314	G	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	39465849	esv3644316;esv3644317	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	39499797	esv3644319	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	40081911	esv3644332	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	40181088	esv3644334	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	40188331	esv3644335	T	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	40250106	esv3644336	C	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	40361127	esv3644338	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	40471948	esv3644340	C	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	40696966	esv3644344	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	40709031	esv3644345	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	41165123	esv3644358	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	41316184	esv3644360	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	41354052	esv3644362;esv3644363	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|1	0|2	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	41428057	esv3644365;esv3644366	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	41446744	esv3644368;esv3644369	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	41450458	esv3644371	T	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	41625361	esv3644372	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	41879506	esv3644377	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|1	0|0	1|0	0|0	0|0	0|1	0|0	0|1	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0
+19	41887642	BI_GS_DEL1_B2_P2714_493	C	<CN0>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	42186335	esv3644391	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	42193805	esv3644392	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	42235749	esv3644393	A	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	42253567	esv3644394	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43153535	esv3644402	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43213430	esv3644404	T	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43222558	esv3644405	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43242758	esv3644407	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43248456	esv3644408	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43315581	esv3644413;esv3644414	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	2|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	2|0	0|0	0|0	0|0
+19	43327629	esv3644416	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43369055	esv3644419;esv3644420	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	2|0	0|0	0|0	0|0
+19	43378028	esv3644421	T	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43423930	esv3644425;esv3644426	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	2|0	0|0	0|0	0|0
+19	43448023	esv3644428;esv3644429	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	2|0	0|0	0|0	0|0
+19	43480581	esv3644431;esv3644432	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	2|0	0|0	0|0	0|0
+19	43487108	esv3644433	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43505313	esv3644435;esv3644436	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43548282	esv3644440;esv3644441	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0
+19	43596505	esv3644443;esv3644444	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0
+19	43614841	esv3644446	T	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43654428	esv3644448;esv3644449	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0
+19	43696551	esv3644452	A	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43701719	esv3644453;esv3644454	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	1|0	0|0	0|0	0|0	1|0	0|0	0|0	1|0	0|0	1|1	1|0	0|0	1|0	0|0	0|0	1|1	1|1	0|0	0|1	0|0	0|0	0|0
+19	43765761	esv3644459;esv3644460	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43823618	esv3644462;esv3644463	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|2	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	2|0	0|0	0|0
+19	43875470	esv3644465	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43887743	esv3644466	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	43914732	esv3644467	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44021270	esv3644471	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44171369	esv3644472	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44177758	esv3644473	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44191882	esv3644474	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44371141	esv3644476	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44377945	esv3644477	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44735937	esv3644479	A	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44812749	esv3644480	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44819328	esv3644481	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44936656	esv3644483	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0
+19	44953883	esv3644484	C	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	44979614	esv3644486	G	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	45006181	esv3644487	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	45443259	esv3644493	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	45444699	esv3644494	T	<INS:ME:LINE1>	100	PASS	.	GT	1|0	1|0	0|0	0|0	1|0	0|0	0|0	1|0	0|0	0|0	0|0	1|0	0|1	1|0	0|0	0|0	1|0	0|1	0|1	0|0	1|0	0|0	0|0	1|0
+19	45486452	esv3644496	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	45596058	esv3644498	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	45826405	esv3644502	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	45845933	esv3644504	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	46180271	esv3644509	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	46186290	esv3644510	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	46235685	esv3644511	C	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	46483232	esv3644516;esv3644517	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	46637639	esv3644521	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	46640173	esv3644522	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	46663229	esv3644523	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	46936330	esv3644529	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	47024924	esv3644531	A	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	47403211	esv3644540	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	47419654	esv3644541	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	47509716	esv3644542	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	47608224	esv3644545	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	48250461	esv3644559	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	48384787	esv3644567;esv3644568	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	48561310	esv3644573;esv3644574	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	48763948	esv3644580	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	48815424	.;esv3644583	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	49068849	esv3644590;esv3644591	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	49107873	esv3644593;esv3644594	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	49112003	esv3644595	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	49401952	esv3644607	A	<INS:MT>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	49556402	esv3644612	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	49633863	esv3644614	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	49634744	esv3644615	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	49650963	esv3644616	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	49964933	esv3644624	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	50365038	esv3644628	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	50381083	esv3644630	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	50460210	esv3644635	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	50508185	esv3644636	G	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	50509418	esv3644637	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	50566908	esv3644639	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	50584256	esv3644640	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	51233691	esv3644649	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	51255383	esv3644650;esv3644651	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	51263689	esv3644653;esv3644654	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	51330352	esv3644656;esv3644657	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|1	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	51350632	esv3644658	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	51373190	esv3644659	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	52006035	esv3644672	A	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	52123030	esv3644674	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	52134835	esv3644676;esv3644677	T	<CN0>,<CN2>	100	PASS	.	GT	1|0	0|0	1|1	1|1	0|0	0|0	1|0	0|0	2|0	0|0	0|1	1|0	1|1	0|0	1|0	1|2	0|1	0|0	0|1	0|0	1|0	0|0	2|0	0|0
+19	52135432	esv3644678	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0
+19	52289018	esv3644680	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	52357233	esv3644681	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	52372770	esv3644682	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	52531720	esv3644684	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	52673340	esv3644686	C	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	52888074	esv3644691	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|1	0|0	0|0	0|0	1|0	0|0	1|0	1|0	0|1	0|0	1|0	1|0	0|0	0|1	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0
+19	53061584	DUP_gs_CNV_19_53061584_53077674	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53080236	esv3644701	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53098550	esv3644704;esv3644705	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53142837	esv3644706;esv3644707	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53151771	esv3644708;esv3644709	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53190297	.;esv3644712	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53198906	esv3644714	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53207831	esv3644715;esv3644716	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53243234	esv3644718	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53262398	esv3644719	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53323747	esv3644724;esv3644725	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	2|0	0|0	0|0	2|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53376104	esv3644727	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53520294	esv3644732;esv3644733;esv3644734	T	<CN0>,<CN2>,<CN3>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	2|0	0|0	0|0	2|0	0|0	0|0	0|0	0|0
+19	53599620	esv3644737;esv3644738	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53600700	esv3644739	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53656320	esv3644740	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53657667	esv3644741	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53679597	esv3644742	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53799134	esv3644746	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	1|0	0|0	1|0	0|0	1|0	0|0	0|1	0|0	0|0	0|1
+19	53803852	esv3644748	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1
+19	53850316	esv3644749;esv3644750	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53884289	esv3644752	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53918063	esv3644756	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	53944972	esv3644757;esv3644758	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54036370	esv3644761	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54160789	esv3644768	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54257136	esv3644772	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54560978	esv3644780	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54633568	esv3644781	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54641780	esv3644782	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54654759	esv3644783	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54727998	esv3644786;esv3644787;esv3644788	A	<CN0>,<CN2>,<CN3>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|2	2|0	0|0	0|0	0|0	0|2	0|0	2|2	0|2	1|2	0|0	0|0	0|0	0|0	0|0	2|0	0|0	0|0	0|0
+19	54754156	esv3644789	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54763368	esv3644790;esv3644791	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54781758	esv3644792;esv3644793	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54808248	esv3644796;esv3644797	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	54987526	esv3644809	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	55032568	esv3644811	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	55187936	esv3644813	C	<INS:ME:LINE1>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	55266365	esv3644816;esv3644817	C	<CN0>,<CN2>	100	PASS	.	GT	1|1	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|1	0|0	0|1	0|0	0|0	1|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|1
+19	55338842	esv3644818;esv3644819	T	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|1	0|1	0|0	0|0	0|1	0|0	0|0	0|0	1|1	0|0	0|0	1|0	0|1	0|1	0|1	0|0	1|0	1|0	0|0	1|1	0|1	0|0
+19	55379078	esv3644822	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	55462392	esv3644823	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	55542261	esv3644829	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	55543351	esv3644830;esv3644831	A	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	55568865	BI_GS_DEL1_B2_P2728_246	A	<CN0>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	55571678	esv3644833	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	55595730	esv3644836	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	55915401	esv3644840	G	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0
+19	56347685	esv3644849	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	56354761	esv3644851	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	56359635	esv3644852	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	56865668	esv3644865	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0
+19	56872204	esv3644867	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	56966061	esv3644868	C	<INS:ME:ALU>	100	PASS	.	GT	1|1	0|1	0|0	0|1	0|1	0|0	1|0	1|0	1|0	0|0	1|0	0|1	0|0	0|0	0|1	1|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|1
+19	56983944	esv3644869	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57023579	esv3644870	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|1	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57119644	esv3644871	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57172468	esv3644873	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57425532	esv3644880	G	<INS:ME:ALU>	100	PASS	.	GT	1|1	1|0	1|0	0|1	0|0	0|0	1|0	1|0	0|0	0|1	1|0	0|0	0|0	0|0	0|0	0|0	0|1	1|0	0|0	1|0	0|1	0|1	0|0	0|0
+19	57518268	esv3644885	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57553900	esv3644888	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|1	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57580589	esv3644889	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57620589	esv3644892	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57637028	esv3644893	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	1|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57673342	esv3644895	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57687880	esv3644896	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57961620	esv3644902	A	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	57988329	esv3644903	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58020167	esv3644904	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58197091	esv3644906	C	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	1|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58202468	esv3644907	C	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58321853	esv3644911	T	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58380078	esv3644913	A	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58411720	esv3644915	C	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58483340	esv3644917;esv3644918	G	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58581391	esv3644922	G	<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58678086	esv3644927	T	<INS:ME:ALU>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58768576	esv3644930;esv3644931	C	<CN0>,<CN2>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
+19	58999008	esv3644935	T	<INS:ME:SVA>	100	PASS	.	GT	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0	0|0
