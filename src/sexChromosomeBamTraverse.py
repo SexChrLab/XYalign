@@ -314,10 +314,12 @@ def plot_data(dataDict):
 	genome-wide plots of various metrics
 	"""
 
-	window_df = dataDict["windows"]
-	depth_hist = dataDict["depth_freq"]
-	readbal_hist = dataDict["readbal_freq"]
-	mapq_hist = dataDict["mapq_freq"]
+	# window_df = dataDict["windows"]
+	# depth_hist = dataDict["depth_freq"]
+	# readbal_hist = dataDict["readbal_freq"]
+	# mapq_hist = dataDict["mapq_freq"]
+
+	window_df = pd.read_csv("~/Desktop/data.csv", sep="\t")
 
 	# Create genome-wide plots based on window means
 	depth_genome_plot = sns.lmplot('Position', 'Depth', data=window_df, fit_reg=False)
@@ -343,4 +345,4 @@ def plot_data(dataDict):
 
 
 if __name__ == "__main__":
-	main()
+	plot_data({})
