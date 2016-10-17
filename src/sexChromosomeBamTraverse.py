@@ -1,13 +1,13 @@
 from __future__ import division
+import os
 import argparse
+from collections import Counter, defaultdict
+from itertools import chain
 import numpy as np
 import pandas as pd
 import pybedtools
 import pysam
-import matplotlib.pyplot as plt
 import seaborn as sns
-from collections import Counter, defaultdict
-from itertools import chain
 
 
 def main():
@@ -21,12 +21,14 @@ def main():
 		tup = makeRegionLists(data, args.mapq_cutoff, args.depth_filter) 
 		pass_df.append(tup[0])
 		fail_df.append(tup[1])
-		plot_data(data)
+		plot_data(data, args.output_dir)
 	outputBed(args.high_quality_bed, *pass_df)
 	outputBed(args.low_quality_bed, *fail_df)
 
 
 def parse_args():
+	"""Parse and validation command-line arguments."""
+	# Parse arguments
 	parser = argparse.ArgumentParser(description="Add description")
 	parser.add_argument("--bam", required=True, help="Input bam file")
 	parser.add_argument("--chromosomes", "-c", nargs="+", default=["chrX", "chrY", "chr19"],
@@ -47,7 +49,12 @@ def parse_args():
 						help="Minimum number of reads supporting the alternate allele to be considered.")
 	parser.add_argument("--min_minor_fraction", "-af", type=float, default=0.1,
 						help="Minimum fraction of reads supporting the alternate allele to be considered.")
+	parser.add_argument("--output_dir", "-o", help="Output directory")
 	args = parser.parse_args()
+	# Validate arguments
+	if not os.path.exists(args.output_dir):
+		os.mkdir(args.output_dir, parents=True)
+	# Return arguments namespace
 	return args
 
 
@@ -308,41 +315,53 @@ def chromsomeWidePlot(positions,y_value,measure_name,chromosome,sampleID,MarkerS
     plt.savefig("%s_%s_%s_GenomicScatter.png"% (sampleID, chromsome, measure_name))
 	#plt.show()
 
-def plot_data(dataDict):
+def plot_data(data_dict, output_dir):
 	"""
 	Takes a dictionary (output from traverseBam) and outputs histograms and
-	genome-wide plots of various metrics
+	genome-wide plots of various metrics.
+
+	Args:
+		data_dict: Dictionary of pandas data frames
+		output_dir: Directory where the PNG file with the plots will be stored
+
+	Returns:
+		None
 	"""
 
-	# window_df = dataDict["windows"]
-	# depth_hist = dataDict["depth_freq"]
-	# readbal_hist = dataDict["readbal_freq"]
-	# mapq_hist = dataDict["mapq_freq"]
+	window_df = None if "windows" not in data_dict else data_dict["windows"]
+	depth_hist = None if "depth_freq" not in data_dict else data_dict["depth_freq"]
+	readbal_hist = None if "readbal_freq" not in data_dict else data_dict["readbal_freq"]
+	mapq_hist = None if "mapq_freq" not in data_dict else data_dict["mapq_freq"]
 
-	window_df = pd.read_csv("~/Desktop/data.csv", sep="\t")
+	window_df = pd.read_csv("/projects/bgrande/experiments/2016-10-15_hackseq_project_6/tmp/data.chrX.tsv", sep="\t")
+
+	chrom = window_df["chrom"][1]
 
 	# Create genome-wide plots based on window means
-	depth_genome_plot = sns.lmplot('Position', 'Depth', data=window_df, fit_reg=False)
-	depth_genome_plot.savefig("depth_windows.png")
-
-	balance_genome_plot = sns.lmplot('Position', 'ReadBalance', data=window_df, fit_reg=False)
-	balance_genome_plot.savefig("balance_windows.png")
-
-	mapq_genome_plot = sns.lmplot('Position', 'ReadBalance', data=window_df, fit_reg=False)
-	mapq_genome_plot.savefig("mapq_windows.png")
+	if window_df is not None:
+		# depth plot
+		depth_genome_plot_path = os.path.join(output_dir, "depth_windows." + chrom + ".png")
+		depth_genome_plot = sns.lmplot('start', 'depth', data=window_df, fit_reg=False,
+										scatter_kws={'alpha': 0.3})
+		depth_genome_plot.savefig(depth_genome_plot_path)
+		# mapping quality plot
+		mapq_genome_plot_path = os.path.join(output_dir, "mapq_windows." + chrom + ".png")
+		mapq_genome_plot = sns.lmplot('start', 'mapq', data=window_df, fit_reg=False)
+		mapq_genome_plot.savefig(mapq_genome_plot_path)
 
 	# Create histograms
-	depth_bar_plot = sns.countplot(x='Depth', y='Count', data=depth_hist)
-	depth_bar_plot.savefig("depth_hist.png")
-
-	balance_bar_plot = sns.countplot(x='ReadBalance', y='Count', data=readbal_hist)
-	balance_bar_plot.savefig("readbalance_hist.png")
-
-	mapq_bar_plot = sns.countplot(x='Mapq', y='Count', data=mapq_hist)
-	mapq_bar_plot.savefig("mapq_hist.png")
-
-	pass
+	# TODO: update filenames dynamically like window_df above
+	# TODO: update Count column name
+	if depth_hist is not None:
+		depth_bar_plot = sns.countplot(x='depth', y='Count', data=depth_hist)
+		depth_bar_plot.savefig("depth_hist.png")
+	if readbal_hist is not None:
+		balance_bar_plot = sns.countplot(x='ReadBalance', y='Count', data=readbal_hist)
+		balance_bar_plot.savefig("readbalance_hist.png")
+	if mapq_hist is not None:
+		mapq_bar_plot = sns.countplot(x='Mapq', y='Count', data=mapq_hist)
+		mapq_bar_plot.savefig("mapq_hist.png")
 
 
 if __name__ == "__main__":
-	plot_data({})
+	main()
