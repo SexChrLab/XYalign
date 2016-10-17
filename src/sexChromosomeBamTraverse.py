@@ -2,20 +2,28 @@ from __future__ import division
 import argparse
 import numpy as np
 import pandas as pd
+import pybedtools
 import pysam
 import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import Counter, defaultdict
+from itertools import chain
 
 
 def main():
 	"""Main program"""
 	args = parse_args()
 	samfile = pysam.AlignmentFile(args.bam, "rb")
+	pass_df = []
+	fail_df = []
 	for chromosome in args.chromosomes:
-		data = traverse_bam(samfile, chromosome, args.window_size, args.min_depth,
-							args.min_minor_depth, args.min_minor_fraction, 10, 0.05)
+		data = traverse_bam_fetch(samfile, chromosome, args.window_size)
+		tup = makeRegionLists(data, args.mapq_cutoff, args.depth_filter) 
+		pass_df.append(tup[0])
+		fail_df.append(tup[1])
 		plot_data(data)
+	outputBed(args.high_quality_bed, *pass_df)
+	outputBed(args.low_quality_bed, *fail_df)
 
 
 def parse_args():
@@ -25,6 +33,14 @@ def parse_args():
 						help="Chromosomes to analyze.")
 	parser.add_argument("--window_size", "-w", type=int, default=50000,
 						help="Window size (integer) for sliding window calculations.")
+	parser.add_argument("--depth_filter", "-df", type=float, default = 4.0,
+						help="Filter for depth (f), where the threshold used is mean_depth +- (f * square_root(mean_depth)).")
+	parser.add_argument("--mapq_cutoff", "-mq", type=int, default=20,
+						help="Minimum mean mapq threshold for a window to be considered high quality.")
+	parser.add_argument("--high_quality_bed", "-hq", default="highquality.bed",
+						help="Name of output file for high quality regions.")
+	parser.add_argument("--low_quality_bed", "-lq", default="lowquality.bed",
+						help="Name of output file for high quality regions.")
 	parser.add_argument("--min_depth", "-d", type=int, default=2,
 						help="Minimum depth for a site to be considered.")
 	parser.add_argument("--min_minor_depth", "-ar", type=int, default=1,
@@ -58,8 +74,111 @@ def reset_counters(n):
 	"""Initialize `n` lists of size `size`."""
 	return [Counter() for i in range(n)]
 
+def traverse_bam_fetch(samfile, chrom, window_size):
+	"""Analyze the `samfile` BAM file for various metrics and statistics.
 
-def traverse_bam(samfile, chrom, window_size, min_depth, min_minor_depth,
+	Currently, this function looks at the following metrics across genomic windows:
+	- Read depth
+	- Mapping quality
+
+	The average of each metric will be calculated for each window of
+	size `window_size` and stored altogether in a pandas data frame.
+
+	Returns a dictionary of pandas data frames with the following key:
+	- windows: The averages for each metric for each window
+	"""
+	chr_len = get_length(samfile, chrom)
+	num_windows = chr_len // window_size + 1
+	if chr_len % num_windows == 0:
+		last_window_len = window_size
+	else:
+		last_window_len = chr_len % num_windows
+	
+	window_id = 0
+	win_pos = 0
+	
+	chr_list = [chrom] * num_windows
+	start_list = []
+	stop_list = []
+	depth_list = []
+	mapq_list = []
+	
+	start = 0
+	end = window_size
+	for window in range(0,num_windows):
+		mapq = []
+		num_reads = 0
+		total_read_length = 0
+		for read in samfile.fetch(chrom, start, end):
+			num_reads += 1
+			total_read_length += read.infer_query_length()
+			mapq.append(read.mapping_quality)
+		start_list.append(start)
+		stop_list.append(end)
+		depth_list.append(total_read_length / window_size)
+		mapq_list.append(np.mean(np.asarray(mapq)))
+		
+		window_id += 1
+		if window_id == num_windows - 1:
+			start += window_size
+			end += last_window_len
+		else:
+			start += window_size
+			end += window_size
+
+		# Print progress
+		print "{} out of {} windows processed on {}".format(window_id, num_windows, chrom)
+
+	# Convert data into pandas data frames
+	windows_df = pd.DataFrame({
+		"chrom": np.asarray(chr_list),
+		"start": np.asarray(start_list),
+		"stop": np.asarray(stop_list),
+		"depth": np.asarray(depth_list),
+		"mapq": np.asarray(mapq_list)
+	})
+
+
+	results = {
+		"windows": windows_df,
+	}
+	return results
+
+
+def makeRegionLists(depthAndMapqDf, mapqCutoff, sd_thresh):
+    '''
+    (pandas.core.frame.DataFrame, int, float) -> (list, list)
+    return two lists of regions (keepList, excludeList) based on cutoffs for depth and mapq
+    '''
+    
+    depth_mean = depthAndMapqDf["depth"].mean()
+    depth_sd = depthAndMapqDf["depth"].std()
+    
+    depthMin = depth_mean - (sd_thresh * (depth_sd ** 0.5))
+    depthMax = depth_mean + (sd_thresh * (depth_sd ** 0.5))
+    
+    good = (depthAndMapqDf.mapq > mapqCutoff) & (depthAndMapqDf.depth > depthMin) & (depthAndMapqDf.depth < depthMax)
+    dfGood = depthAndMapqDf[good]
+    dfBad = depthAndMapqDf[~good]
+
+    return (dfGood, dfBad)
+    
+    
+def outputBed(outBed, *regionDfs):
+    '''
+    (list, list, str) -> bedtoolsObject
+    Take two sorted lists.  Each list is a list of tuples (chrom[str], start[int], end[int])
+    Return a pybedtools object and output a bed file.
+    '''
+	dfComb = pd.concat(regionDfs)
+	regionList = dfComb.ix[:, 'chrom':'end'].values.tolist()    
+    merge = pybedtools.BedTool(regionList).sort().merge()
+    with open(outBed, 'w') as output:
+        output.write(str(merge))
+    pass
+
+
+def traverse_bam_pileup(samfile, chrom, window_size, min_depth, min_minor_depth,
 					min_minor_fraction, depth_binsize, readbal_binsize):
 	"""Analyze the `samfile` BAM file for various metrics and statistics.
 
