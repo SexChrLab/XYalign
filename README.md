@@ -1,7 +1,7 @@
 # 2016_project_6
 
 # Inferring sex chromosome and autosomal ploidy in NGS data
-
+Slide show here: https://docs.google.com/presentation/d/1OB2d_mu5zC742N_NKfzHjVpUm4BFtm5lUzniLLI--OQ/edit?usp=sharing
 
 ### Publication  Links
 - chromosome X: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2665286/
