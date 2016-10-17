@@ -3,6 +3,9 @@ import argparse
 import numpy as np
 import pysam
 from collections import Counter
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def traverseBam(samfile, chrom, start, stop, window_size, minDepth, afThresh, minAltReads):
@@ -58,8 +61,40 @@ def traverseBam(samfile, chrom, start, stop, window_size, minDepth, afThresh, mi
 	return (np.asarray(readBalance), np.asarray(depth))
 
 
-def plot_data(data):
+def plot_data(dataDict):
+	"""
+	Takes a dictionary (output from traverseBam) and outputs histograms and 
+	genome-wide plots of various metrics
+	
+	"""
+	
+	window_df = dataDict[windows]
+	depth_hist = dataDict[depth_freq]
+	readbal_hist = dataDict[readbal_freq]
+	mapq_hist = dataDict[mapq_freq]
+	
+	## Create genome-wide plots based on window means
+	depth_genome_plot = sns.lmplot('Position','Depth', data=window_df, fit_reg=False)
+	depth_genome_plot.savefig("depth_windows.png")
+	
+	balance_genome_plot = sns.lmplot('Position','ReadBalance', data=window_df, fit_reg=False)
+	balance_genome_plot.savefig("balance_windows.png")
+	
+	mapq_genome_plot = sns.lmplot('Position','ReadBalance', data=window_df, fit_reg=False)
+	mapq_genome_plot.savefig("mapq_windows.png")
+	
+	## Create histograms
+	depth_bar_plot = sns.countplot(x='Depth', y='Count', data=depth_hist)
+	depth_bar_plot.savefig("depth_hist.png")
+	
+	balance_bar_plot = sns.countplot(x='ReadBalance', y='Count', data=balance_hist)
+	balance_bar_plot.savefig("readbalance_hist.png")
+	
+	mapq_bar_plot = sns.countplot(x='Mapq', y='Count', data=mapq_hist)
+	mapq_bar_plot.savefig("mapq_hist.png")
+	
 	pass
+	
 
 
 def main():
