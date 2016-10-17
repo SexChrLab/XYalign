@@ -42,7 +42,7 @@ def ParseVCF(filename,qualCutoff):
   
   
 #This Function will plot the read balance (variant allele / total reads mapped), which is the array output (readBalance, positions) from the above functin
-
+# This function also takes in the markerSize and markerAlpha, and x-limit.  Play with these, but examples are given below
   
 def PlotReadBalance(positions,readBalance,sampleID,MarkerSize,MarkerAlpha,Xlim):
     if "X" in sampleID:
