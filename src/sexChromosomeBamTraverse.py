@@ -274,6 +274,38 @@ def traverse_bam_pileup(samfile, chrom, window_size, min_depth, min_minor_depth,
 	}
 	return results
 
+def chromsomeWidePlot(positions,y_value,measure_name,chromosome,sampleID,MarkerSize,MarkerAlpha,Xlim,Ylim):
+    '''
+    Plots values across a chromosome, where the x axis is the position along the
+    chromosome and the Y axis is the value of the measure of interest.
+    
+    positions is an array of coordinates 
+    y_value is an array of the values of the measure of interest
+    measure_name is the name of the measure of interest (y axis title)
+    chromsome is the name of the chromosome being plotted
+    sampleID is the name of the sample
+    MarkerSize is the size in points^2
+    MarkerAlpha is the transparency (0 to 1)
+    Xlim is the maximum X value
+    Ylim is the maximum Y value
+    '''
+    
+    if "X" in sampleID:
+        Color="green"
+    elif "Y" in sampleID:
+        Color = "blue"
+    else:
+    	Color = "red"
+    fig = plt.figure(figsize=(15,5))
+    axes = fig.add_subplot(111)
+    axes.scatter(positions,y_value,c=Color,alpha=MarkerAlpha,s=MarkerSize,lw=0)
+    axes.set_xlim(0,Xlim)
+    axes.set_title("%s - %s" % (sampleID, chromosome))
+    axes.set_xlabel("Chromosomal Position")
+    axes.set_ylabel(measure_name)
+    plt.savefig("%s_%s_%s_GenomicScatter.svg" % (sampleID, chromsome, measure_name))
+    plt.savefig("%s_%s_%s_GenomicScatter.png"% (sampleID, chromsome, measure_name))
+	#plt.show()
 
 def plot_data(dataDict):
 	"""
