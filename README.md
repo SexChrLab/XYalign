@@ -5,7 +5,7 @@ XYalign: Hacking sex chromosome variation
 
 Madeline Couse, Bruno Grande, Eric Karlins, Tanya Phung, Phillip Richmond, Timothy H. Webster, Whitney Whitford, Melissa A. Wilson Sayres
 
-Sex chromosome copy number variations are currently estimated to be as common as 1/400 in the human population. Violations in typical ploidy will affect estimates of genome diversity and variation calling that is required in most clinical genomic studies. Further, mis-alignment of reads between the X and Y chromosomes will affect variant calling. Here we propose a new tool, XYalign, to quickly infer sex chromosome ploidy in NGS data (DNA and RNA), to remap reads based on inferred sex chromosome complement of the individual, and to output quality, depth, and allele-balance across the sex chromosomes.
+Sex chromosome aneuploidies are currently estimated to be as common as 1/400 in humans. Atypical ploidy will affect variant calling and measures of genomic variation that are central to most clinical genomic studies. Further, the high degree of similarity between gametologous sequences on the X and Y chromosomes can lead to the misalignment of sequencing reads and substantially affect variant calling. Here we present XYalign, a new tool that (1) quickly infers sex chromosome ploidy in NGS data (DNA and RNA), (2) remaps reads based on the inferred sex chromosome complement of the individual, and (3) outputs quality, depth, and allele-balance metrics across the sex chromosomes.
 
 October 17, 2016 slide show here: https://docs.google.com/presentation/d/1OB2d_mu5zC742N_NKfzHjVpUm4BFtm5lUzniLLI--OQ/edit?usp=sharing
 
