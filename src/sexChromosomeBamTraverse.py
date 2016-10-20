@@ -25,12 +25,13 @@ def main():
 	outputBed(os.path.join(args.output_dir, args.high_quality_bed), *pass_df)
 	outputBed(os.path.join(args.output_dir, args.low_quality_bed), *fail_df)
 
-
 def parse_args():
 	"""Parse and validation command-line arguments."""
 	# Parse arguments
 	parser = argparse.ArgumentParser(description="Add description")
 	parser.add_argument("--bam", required=True, help="Input bam file")
+	parser.add_argument("--sample_id", "-id", default="sample",
+						help="Name/ID of sample - for use in plot titles and file naming.")
 	parser.add_argument("--chromosomes", "-c", nargs="+", default=["chrX", "chrY", "chr19"],
 						help="Chromosomes to analyze.")
 	parser.add_argument("--window_size", "-w", type=int, default=50000,
@@ -49,6 +50,12 @@ def parse_args():
 						help="Minimum number of reads supporting the alternate allele to be considered.")
 	parser.add_argument("--min_minor_fraction", "-af", type=float, default=0.1,
 						help="Minimum fraction of reads supporting the alternate allele to be considered.")
+	parser.add_argument("--marker_size", type=float, default=1.0,
+						help="Marker size for genome-wide plots in matplotlib.")
+	parser.add_argument("--marker_transparency", "-mt", type=float, default=0.5,
+						help="Transparency of markers in genome-wide plots.  Alpha in matplotlib.")
+	parser.add_argument("--plot_cov_max", type=int, default=100,
+						help="Y axis maximum for plotting depth of coverage.")
 	parser.add_argument("--output_dir", "-o", help="Output directory")
 	args = parser.parse_args()
 	# Validate arguments
