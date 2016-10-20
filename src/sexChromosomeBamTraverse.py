@@ -18,12 +18,12 @@ def main():
 	fail_df = []
 	for chromosome in args.chromosomes:
 		data = traverse_bam_fetch(samfile, chromosome, args.window_size)
-		tup = makeRegionLists(data, args.mapq_cutoff, args.depth_filter) 
+		tup = makeRegionLists(data["windows"], args.mapq_cutoff, args.depth_filter)
 		pass_df.append(tup[0])
 		fail_df.append(tup[1])
 		plot_data(data, args.output_dir)
-	outputBed(args.high_quality_bed, *pass_df)
-	outputBed(args.low_quality_bed, *fail_df)
+	outputBed(os.path.join(args.output_dir, args.high_quality_bed), *pass_df)
+	outputBed(os.path.join(args.output_dir, args.low_quality_bed), *fail_df)
 
 
 def parse_args():
@@ -35,7 +35,7 @@ def parse_args():
 						help="Chromosomes to analyze.")
 	parser.add_argument("--window_size", "-w", type=int, default=50000,
 						help="Window size (integer) for sliding window calculations.")
-	parser.add_argument("--depth_filter", "-df", type=float, default = 4.0,
+	parser.add_argument("--depth_filter", "-df", type=float, default=4.0,
 						help="Filter for depth (f), where the threshold used is mean_depth +- (f * square_root(mean_depth)).")
 	parser.add_argument("--mapq_cutoff", "-mq", type=int, default=20,
 						help="Minimum mean mapq threshold for a window to be considered high quality.")
@@ -53,7 +53,7 @@ def parse_args():
 	args = parser.parse_args()
 	# Validate arguments
 	if not os.path.exists(args.output_dir):
-		os.mkdir(args.output_dir, parents=True)
+		os.makedirs(args.output_dir)
 	# Return arguments namespace
 	return args
 
@@ -112,7 +112,7 @@ def traverse_bam_fetch(samfile, chrom, window_size):
 	
 	start = 0
 	end = window_size
-	for window in range(0,num_windows):
+	for window in range(0, num_windows):
 		mapq = []
 		num_reads = 0
 		total_read_length = 0
@@ -143,34 +143,31 @@ def traverse_bam_fetch(samfile, chrom, window_size):
 		"stop": np.asarray(stop_list),
 		"depth": np.asarray(depth_list),
 		"mapq": np.asarray(mapq_list)
-	})
+	})[["chrom", "start", "stop", "depth", "mapq"]]
 
+	results = {"windows": windows_df}
 
-	results = {
-		"windows": windows_df,
-	}
 	return results
 
 
 def makeRegionLists(depthAndMapqDf, mapqCutoff, sd_thresh):
-    '''
-    (pandas.core.frame.DataFrame, int, float) -> (list, list)
-    return two lists of regions (keepList, excludeList) based on cutoffs for depth and mapq
-    '''
-    
-    depth_mean = depthAndMapqDf["depth"].mean()
-    depth_sd = depthAndMapqDf["depth"].std()
-    
-    depthMin = depth_mean - (sd_thresh * (depth_sd ** 0.5))
-    depthMax = depth_mean + (sd_thresh * (depth_sd ** 0.5))
-    
-    good = (depthAndMapqDf.mapq > mapqCutoff) & (depthAndMapqDf.depth > depthMin) & (depthAndMapqDf.depth < depthMax)
-    dfGood = depthAndMapqDf[good]
-    dfBad = depthAndMapqDf[~good]
+	"""
+	(pandas.core.frame.DataFrame, int, float) -> (list, list)
+	return two lists of regions (keepList, excludeList) based on cutoffs for depth and mapq
+	"""
+	depth_mean = depthAndMapqDf["depth"].mean()
+	depth_sd = depthAndMapqDf["depth"].std()
 
-    return (dfGood, dfBad)
-    
-    
+	depthMin = depth_mean - (sd_thresh * (depth_sd ** 0.5))
+	depthMax = depth_mean + (sd_thresh * (depth_sd ** 0.5))
+
+	good = (depthAndMapqDf.mapq > mapqCutoff) & (depthAndMapqDf.depth > depthMin) & (depthAndMapqDf.depth < depthMax)
+	dfGood = depthAndMapqDf[good]
+	dfBad = depthAndMapqDf[~good]
+
+	return (dfGood, dfBad)
+
+
 def outputBed(outBed, *regionDfs):
     '''
     (list, list, str) -> bedtoolsObject
@@ -178,11 +175,11 @@ def outputBed(outBed, *regionDfs):
     Return a pybedtools object and output a bed file.
     '''
 	dfComb = pd.concat(regionDfs)
-	regionList = dfComb.ix[:, 'chrom':'end'].values.tolist()    
-    merge = pybedtools.BedTool(regionList).sort().merge()
-    with open(outBed, 'w') as output:
-        output.write(str(merge))
-    pass
+	regionList = dfComb.ix[:, "chrom":"stop"].values.tolist()
+	merge = pybedtools.BedTool(regionList).sort().merge()
+	with open(outBed, 'w') as output:
+		output.write(str(merge))
+	pass
 
 
 def traverse_bam_pileup(samfile, chrom, window_size, min_depth, min_minor_depth,
@@ -332,8 +329,6 @@ def plot_data(data_dict, output_dir):
 	depth_hist = None if "depth_freq" not in data_dict else data_dict["depth_freq"]
 	readbal_hist = None if "readbal_freq" not in data_dict else data_dict["readbal_freq"]
 	mapq_hist = None if "mapq_freq" not in data_dict else data_dict["mapq_freq"]
-
-	window_df = pd.read_csv("/projects/bgrande/experiments/2016-10-15_hackseq_project_6/tmp/data.chrX.tsv", sep="\t")
 
 	chrom = window_df["chrom"][1]
 
