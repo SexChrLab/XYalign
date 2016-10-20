@@ -9,6 +9,7 @@ import pysam
 def main():
 	""" Main program"""
 	args = parse_args()
+	## First round of Platypus calling
 	
 	
 def parse_args():
@@ -18,6 +19,8 @@ def parse_args():
 						help="Input bam file.")
 	parser.add_argument("--ref", required=True,
 						help="Path to reference sequence (including file name).")
+	parser.add_argument("--chromosomes", "-c", default=["chrX","chrY","chr19"],
+						help="Chromosomes to analyze.")
 	
 						
 def platypus_calling(bam, ref, chroms, cpus, output_file):
