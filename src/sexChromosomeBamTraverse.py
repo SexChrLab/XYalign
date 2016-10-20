@@ -300,6 +300,7 @@ def chromsomeWidePlot(positions,y_value,measure_name,chromosome,sampleID,MarkerS
     axes = fig.add_subplot(111)
     axes.scatter(positions,y_value,c=Color,alpha=MarkerAlpha,s=MarkerSize,lw=0)
     axes.set_xlim(0,Xlim)
+    axes.set_ylim(0,Ylim)
     axes.set_title("%s - %s" % (sampleID, chromosome))
     axes.set_xlabel("Chromosomal Position")
     axes.set_ylabel(measure_name)
