@@ -5,6 +5,8 @@ import subprocess
 import sys
 from collections import Counter, defaultdict
 from itertools import chain
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
