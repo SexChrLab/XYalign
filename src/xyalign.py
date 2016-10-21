@@ -39,14 +39,13 @@ def main():
 		tup = make_region_lists(data["windows"], args.mapq_cutoff, args.depth_filter)
 		pass_df.append(tup[0])
 		fail_df.append(tup[1])
-		plot_depth_mapq(data, args.output_dir)
+		plot_depth_mapq(data, args.output_dir, args.sample_id, get_length(samfile, chromosome), args.marker_size, args.marker_transparency)
 	output_bed(os.path.join(args.output_dir, args.high_quality_bed), *pass_df)
 	output_bed(os.path.join(args.output_dir, args.low_quality_bed), *fail_df)
 	
 	## Infer ploidy
 	
 	## Remapping
-	
 	
 	## Final round of calling and plotting
 									
@@ -74,7 +73,7 @@ def parse_args():
 						help="Include flag to prevent plotting read balance from VCF files.")
 	parser.add_argument("--variant_quality_cutoff", "-vqc", type=int, default=20,
 						help="Consider all SNPs with a quality greater than or equal to this value. Default is 20.")
-	parser.add_argument("--marker_size", type=float, default=1.0,
+	parser.add_argument("--marker_size", type=float, default=10.0,
 						help="Marker size for genome-wide plots in matplotlib.")
 	parser.add_argument("--marker_transparency", "-mt", type=float, default=0.5,
 						help="Transparency of markers in genome-wide plots.  Alpha in matplotlib.")
@@ -304,7 +303,7 @@ def output_bed(outBed, *regionDfs):
     	output.write(str(merge))
     pass
 	
-def chromsomeWidePlot(chrom, positions, y_value, measure_name, chromosome, sampleID, MarkerSize, MarkerAlpha, Xlim, Ylim):
+def chromsome_wide_plot(chrom, positions, y_value, measure_name, sampleID, output_prefix, MarkerSize, MarkerAlpha, Xlim, Ylim):
     '''
     Plots values across a chromosome, where the x axis is the position along the
     chromosome and the Y axis is the value of the measure of interest.
@@ -330,20 +329,22 @@ def chromsomeWidePlot(chrom, positions, y_value, measure_name, chromosome, sampl
     axes.scatter(positions,y_value,c=Color,alpha=MarkerAlpha,s=MarkerSize,lw=0)
     axes.set_xlim(0,Xlim)
     axes.set_ylim(0,Ylim)
-    axes.set_title("%s - %s" % (sampleID, chromosome))
+    axes.set_title("%s - %s" % (sampleID, chrom))
     axes.set_xlabel("Chromosomal Position")
     axes.set_ylabel(measure_name)
-    plt.savefig("%s_%s_%s_GenomicScatter.svg" % (sampleID, chromsome, measure_name))
-    plt.savefig("%s_%s_%s_GenomicScatter.png"% (sampleID, chromsome, measure_name))
+    plt.savefig("{}_{}_{}_GenomicScatter.svg".format(output_prefix, chrom, measure_name))
+    plt.savefig("{}_{}_{}_GenomicScatter.png".format(output_prefix, chrom, measure_name))
     #plt.show()
 
-def plot_depth_mapq(data_dict, output_dir):
+def plot_depth_mapq(data_dict, output_dir, sampleID, chrom_length, MarkerSize, MarkerAlpha):
 	"""
 	Takes a dictionary (output from traverseBam) and outputs histograms and
 	genome-wide plots of various metrics.
 	Args:
 		data_dict: Dictionary of pandas data frames
 		output_dir: Directory where the PNG file with the plots will be stored
+		sampleID: name/ID of sample
+		chrom_length: length of chromosome
 	Returns:
 		None
 	"""
@@ -353,19 +354,28 @@ def plot_depth_mapq(data_dict, output_dir):
 	readbal_hist = None if "readbal_freq" not in data_dict else data_dict["readbal_freq"]
 	mapq_hist = None if "mapq_freq" not in data_dict else data_dict["mapq_freq"]
 
-	chrom = window_df["chrom"][1]
+	chromosome = window_df["chrom"][1]
 
 	# Create genome-wide plots based on window means
 	if window_df is not None:
 		# depth plot
-		depth_genome_plot_path = os.path.join(output_dir, "depth_windows." + chrom + ".png")
-		depth_genome_plot = sns.lmplot('start', 'depth', data=window_df, fit_reg=False,
-										scatter_kws={'alpha': 0.3})
-		depth_genome_plot.savefig(depth_genome_plot_path)
+		#depth_genome_plot_path = os.path.join(output_dir, "depth_windows." + chromosome + ".png")
+		#depth_genome_plot = sns.lmplot('start', 'depth', data=window_df, fit_reg=False,
+		#								scatter_kws={'alpha': 0.3})
+		#depth_genome_plot.savefig(depth_genome_plot_path)
+		chromosome_wide_plot(chromosome, window_df[:,"start"].values.to_list(), 100,
+							"Depth", chromosome, sampleID, "{}/{}".format(output_dir, sampleID),
+							MarkerSize, MarkerAlpha, chrom_length, 100)
+							
+		
 		# mapping quality plot
-		mapq_genome_plot_path = os.path.join(output_dir, "mapq_windows." + chrom + ".png")
-		mapq_genome_plot = sns.lmplot('start', 'mapq', data=window_df, fit_reg=False)
-		mapq_genome_plot.savefig(mapq_genome_plot_path)
+		#mapq_genome_plot_path = os.path.join(output_dir, "mapq_windows." + chrom + ".png")
+		#mapq_genome_plot = sns.lmplot('start', 'mapq', data=window_df, fit_reg=False)
+		#mapq_genome_plot.savefig(mapq_genome_plot_path)
+		chromosome_wide_plot(chromosome, window_df[:,"start"].values.to_list(), 100,
+							"Depth", chromosome, sampleID, "{}/{}".format(output_dir, sampleID),
+							MarkerSize, MarkerAlpha, chrom_length, 80)
+		
 
 	# Create histograms
 	# TODO: update filenames dynamically like window_df above
