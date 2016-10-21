@@ -202,8 +202,8 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 def plot_variants_per_chrom(chrom_list, vcf_file, sampleID, output_directory, qualCutoff, MarkerSize, MarkerAlpha, bamfile):
 	for i in chrom_list:
 		parse_results = parse_platypus_VCF(vcf_file, qualCutoff, i)
-		plot_read_balance(i, parse_results[0], parse_results[1], sampleID, output_directory + "{}.noprocessing".format(sampleID), MarkerSize, MarkerAlpha, bamfile)
-		hist_read_balance(i, readBalance, sampleID, output_directory + "{}.noprocessing".format(sampleID))
+		plot_read_balance(i, parse_results[0], parse_results[2], sampleID, output_directory + "/{}.noprocessing".format(sampleID), MarkerSize, MarkerAlpha, bamfile)
+		hist_read_balance(i, parse_results[2], sampleID, output_directory + "/{}.noprocessing".format(sampleID))
 	pass
 	
 
