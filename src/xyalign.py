@@ -8,7 +8,9 @@ import pysam
 
 def main():
 	""" Main program"""
+	
 	args = parse_args()
+	
 	## First round of Platypus calling and plotting
 	if args.platypus_calling == "both" or "before"
 		a = platypus_caller(args.bam, args.ref, args.chromosomes, args.cpus, args.output_dir + "{}.noprocessing.vcf".format(args.sample_id))
@@ -19,7 +21,14 @@ def main():
 			plot_variants_per_chrom(args.chromosomes, args.output_dir + "{}.noprocessing.vcf".format(args.sample_id),
 									args.sample_id, args.output_dir, args.variant_quality_cutoff,
 									args.marker_size, margs.marker_transparency)
-	##  
+	
+	## Analyze bam for depth and mapq and infer ploidy
+	
+	
+	## Remapping
+	
+	
+	## Final round of calling and plotting
 									
 			
 
@@ -49,6 +58,8 @@ def parse_args():
 						help="Marker size for genome-wide plots in matplotlib.")
 	parser.add_argument("--marker_transparency", "-mt", type=float, default=0.5,
 						help="Transparency of markers in genome-wide plots.  Alpha in matplotlib.")
+	parser.add_argument("--output_dir", "-o",
+						help="Output directory")
 						
 	args = parser.parse_args()
 	
