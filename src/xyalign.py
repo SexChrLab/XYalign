@@ -26,8 +26,7 @@ def main():
 		if args.no_variant_plots == True:
 			plot_variants_per_chrom(args.chromosomes, args.output_dir + "/{}.noprocessing.vcf".format(args.sample_id),
 									args.sample_id, args.output_dir, args.variant_quality_cutoff,
-									args.marker_size, args.marker_transparency,
-									get_length(pysam.AlignmentFile(args.bam, "rb"), i))
+									args.marker_size, args.marker_transparency, args.bam)
 	
 	## Analyze bam for depth and mapq
 	samfile = pysam.AlignmentFile(args.bam, "rb")
@@ -160,7 +159,7 @@ def parse_platypus_VCF(filename, qualCutoff, chrom):
 		quality.append(qual)
 	return (positions,quality,readBalance)
 	
-def plot_read_balance(chrom, positions, readBalance, sampleID, output_prefix, MarkerSize, MarkerAlpha, Xlim):
+def plot_read_balance(chrom, positions, readBalance, sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile):
     """ Plots read balance at each SNP along a chromosome """
     if "x" in chrom.lower():
         Color="green"
@@ -171,7 +170,7 @@ def plot_read_balance(chrom, positions, readBalance, sampleID, output_prefix, Ma
     fig = plt.figure(figsize=(15,5))
     axes = fig.add_subplot(111)
     axes.scatter(positions,readBalance,c=Color,alpha=MarkerAlpha,s=MarkerSize,lw=0)
-    axes.set_xlim(0,Xlim)
+    axes.set_xlim(0, get_length(pysam.AlignmentFile(bamfile, "rb"), chrom))
     axes.set_title(sampleID)
     axes.set_xlabel("Chromosomal Coordinate")
     axes.set_ylabel("Read Balance")
@@ -198,10 +197,10 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
     plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
 	#plt.show()
 
-def plot_variants_per_chrom(chrom_list, vcf_file, sampleID, output_directory, qualCutoff, MarkerSize, MarkerAlpha, Xlim):
+def plot_variants_per_chrom(chrom_list, vcf_file, sampleID, output_directory, qualCutoff, MarkerSize, MarkerAlpha, bamfile):
 	for i in chrom_list:
 		parse_results = parse_platypus_VCF(vcf_file, qualCutoff, i)
-		plot_read_balance(i, parse_results[0], parse_results[1], sampleID, output_directory + "{}.noprocessing".format(sampleID), MarkerSize, MarkerAlpha, Xlim, i)
+		plot_read_balance(i, parse_results[0], parse_results[1], sampleID, output_directory + "{}.noprocessing".format(sampleID), MarkerSize, MarkerAlpha, bamfile)
 		hist_read_balance(i, readBalance, sampleID, output_directory + "{}.noprocessing".format(sampleID))
 	pass
 	
