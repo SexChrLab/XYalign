@@ -117,7 +117,7 @@ def get_length(bamfile, chrom):
 		Length (int)
 	
 	"""
-	lengths = dict(zip(samfile.references, samfile.lengths))
+	lengths = dict(zip(bamfile.references, bamfile.lengths))
 	return lengths[chrom]
 						
 def platypus_caller(bam, ref, chroms, cpus, output_file):
@@ -141,9 +141,9 @@ def parse_platypus_VCF(filename, qualCutoff, chrom):
 	quality = []
 	readBalance = []
 	for line in infile:
-		if line[0] != chrom:
+		cols = line.strip('\n').split('\t')
+		if cols[0] != chrom:
 			continue
-		cols=line.strip('\n').split('\t')
 		pos = int(cols[1])
 		qual = float(cols[5])
 		if qual < qualCutoff:
@@ -152,7 +152,7 @@ def parse_platypus_VCF(filename, qualCutoff, chrom):
 		TC = cols[7].split(';')[14].split('=')[1]
 		if ',' in TR or ',' in TC:
 			continue
-		if (float(TR)==0) or (float(TC) == 0):
+		if (float(TR) == 0) or (float(TC) == 0):
 			continue
 		ReadRatio = float(TR)/float(TC)
 		
@@ -160,6 +160,7 @@ def parse_platypus_VCF(filename, qualCutoff, chrom):
 		readBalance.append(ReadRatio)
 		positions.append(pos)
 		quality.append(qual)
+		
 	return (positions,quality,readBalance)
 	
 def plot_read_balance(chrom, positions, readBalance, sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile):
