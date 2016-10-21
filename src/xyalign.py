@@ -27,7 +27,7 @@ def main():
 			plot_variants_per_chrom(args.chromosomes, args.output_dir + "/{}.noprocessing.vcf".format(args.sample_id),
 									args.sample_id, args.output_dir, args.variant_quality_cutoff,
 									args.marker_size, args.marker_transparency,
-									get_length(pysam.AlignmentFile(args.bam, "rb")))
+									get_length(pysam.AlignmentFile(args.bam, "rb"), i))
 	
 	## Analyze bam for depth and mapq
 	samfile = pysam.AlignmentFile(args.bam, "rb")
