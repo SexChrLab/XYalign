@@ -29,7 +29,7 @@ def main():
 									args.marker_size, args.marker_transparency,
 									get_length(pysam.AlignmentFile(args.bam, "rb")))
 	
-	## Analyze bam for depth and mapq and infer ploidy
+	## Analyze bam for depth and mapq
 	samfile = pysam.AlignmentFile(args.bam, "rb")
 	pass_df = []
 	fail_df = []
@@ -41,6 +41,8 @@ def main():
 		plot_depth_mapq(data, args.output_dir)
 	output_bed(os.path.join(args.output_dir, args.high_quality_bed), *pass_df)
 	output_bed(os.path.join(args.output_dir, args.low_quality_bed), *fail_df)
+	
+	## Infer ploidy
 	
 	## Remapping
 	
@@ -199,7 +201,7 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 def plot_variants_per_chrom(chrom_list, vcf_file, sampleID, output_directory, qualCutoff, MarkerSize, MarkerAlpha, Xlim):
 	for i in chrom_list:
 		parse_results = parse_platypus_VCF(vcf_file, qualCutoff, i)
-		plot_read_balance(i, parse_results[0], parse_results[1], sampleID, output_directory + "{}.noprocessing".format(sampleID), MarkerSize, MarkerAlpha, Xlim, i))
+		plot_read_balance(i, parse_results[0], parse_results[1], sampleID, output_directory + "{}.noprocessing".format(sampleID), MarkerSize, MarkerAlpha, Xlim, i)
 		hist_read_balance(i, readBalance, sampleID, output_directory + "{}.noprocessing".format(sampleID))
 	pass
 	
