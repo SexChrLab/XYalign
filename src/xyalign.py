@@ -58,6 +58,8 @@ def parse_args():
 						help="Marker size for genome-wide plots in matplotlib.")
 	parser.add_argument("--marker_transparency", "-mt", type=float, default=0.5,
 						help="Transparency of markers in genome-wide plots.  Alpha in matplotlib.")
+	parser.add_argument("--cpus", type=int, default=1,
+						help="Number of cores/threads to use.")
 	parser.add_argument("--output_dir", "-o",
 						help="Output directory")
 						
