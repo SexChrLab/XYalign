@@ -44,7 +44,7 @@ def parse_args():
 						help="Input bam file.")
 	parser.add_argument("--ref", required=True,
 						help="Path to reference sequence (including file name).")
-	parser.add_argument("--chromosomes", "-c", default=["chrX","chrY","chr19"],
+	parser.add_argument("--chromosomes", "-c", nargs="+", default=["chrX","chrY","chr19"],
 						help="Chromosomes to analyze.")
 	parser.add_argument("--sample_id", "-id", default="sample",
 						help="Name/ID of sample - for use in plot titles and file naming.")
