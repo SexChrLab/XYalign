@@ -363,8 +363,8 @@ def plot_depth_mapq(data_dict, output_dir, sampleID, chrom_length, MarkerSize, M
 		#depth_genome_plot = sns.lmplot('start', 'depth', data=window_df, fit_reg=False,
 		#								scatter_kws={'alpha': 0.3})
 		#depth_genome_plot.savefig(depth_genome_plot_path)
-		chromosome_wide_plot(chromosome, window_df[:,"start"].values.to_list(), 100,
-							"Depth", chromosome, sampleID, "{}/{}".format(output_dir, sampleID),
+		chromosome_wide_plot(chromosome, window_df["start"].values, window_df["depth"].values,
+							"Depth", sampleID, "{}/{}".format(output_dir, sampleID),
 							MarkerSize, MarkerAlpha, chrom_length, 100)
 							
 		
@@ -372,8 +372,8 @@ def plot_depth_mapq(data_dict, output_dir, sampleID, chrom_length, MarkerSize, M
 		#mapq_genome_plot_path = os.path.join(output_dir, "mapq_windows." + chrom + ".png")
 		#mapq_genome_plot = sns.lmplot('start', 'mapq', data=window_df, fit_reg=False)
 		#mapq_genome_plot.savefig(mapq_genome_plot_path)
-		chromosome_wide_plot(chromosome, window_df[:,"start"].values.to_list(), 100,
-							"Depth", chromosome, sampleID, "{}/{}".format(output_dir, sampleID),
+		chromosome_wide_plot(chromosome, window_df["start"].values, window_df["mapq"].values,
+							"Mapq", sampleID, "{}/{}".format(output_dir, sampleID),
 							MarkerSize, MarkerAlpha, chrom_length, 80)
 		
 
