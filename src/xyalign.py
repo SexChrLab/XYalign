@@ -117,7 +117,8 @@ def get_length(bamfile, chrom):
 		Length (int)
 	
 	"""
-
+	lengths = dict(zip(samfile.references, samfile.lengths))
+	return lengths[chrom]
 						
 def platypus_caller(bam, ref, chroms, cpus, output_file):
 	""" Uses platypus to make variant calls on provided bam file
