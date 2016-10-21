@@ -20,7 +20,7 @@ def main():
 		if args.no_variant_plots == True:
 			plot_variants_per_chrom(args.chromosomes, args.output_dir + "/{}.noprocessing.vcf".format(args.sample_id),
 									args.sample_id, args.output_dir, args.variant_quality_cutoff,
-									args.marker_size, margs.marker_transparency)
+									args.marker_size, args.marker_transparency)
 	
 	## Analyze bam for depth and mapq and infer ploidy
 	
