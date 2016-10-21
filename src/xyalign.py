@@ -81,7 +81,7 @@ def parse_args():
 						help="Number of cores/threads to use.")
 	parser.add_argument("--window_size", "-w", type=int, default=50000,
 						help="Window size (integer) for sliding window calculations.")
-	parser.add_argument("--mapq_cutoff", "-mq", type=int, defaul=20,
+	parser.add_argument("--mapq_cutoff", "-mq", type=int, default=20,
 						help="Minimum mean mapq threshold for a window to be considered high quality.")
 	parser.add_argument("--depth_filter", "-df", type=float, default=4.0,
 						help="Filter for depth (f), where the threshold used is mean_depth +- (f * square_root(mean_depth)).")
@@ -294,12 +294,12 @@ def output_bed(outBed, *regionDfs):
     Take two sorted lists.  Each list is a list of tuples (chrom[str], start[int], end[int])
     Return a pybedtools object and output a bed file.
     '''
-	dfComb = pd.concat(regionDfs)
-	regionList = dfComb.ix[:, "chrom":"stop"].values.tolist()
-	merge = pybedtools.BedTool(regionList).sort().merge()
-	with open(outBed, 'w') as output:
-		output.write(str(merge))
-	pass
+    dfComb = pd.concat(regionDfs)
+    regionList = dfComb.ix[:, "chrom":"stop"].values.tolist()
+    merge = pybedtools.BedTool(regionList).sort().merge()
+    with open(outBed, 'w') as output:
+    	output.write(str(merge))
+    pass
 	
 def chromsomeWidePlot(chrom, positions, y_value, measure_name, chromosome, sampleID, MarkerSize, MarkerAlpha, Xlim, Ylim):
     '''
