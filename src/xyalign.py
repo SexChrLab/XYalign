@@ -169,11 +169,11 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
     plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
 	#plt.show()
 
-def plot_variants_per_chrom(chrom_list, vcf_file, sampleID, output_prefix, qualCutoff, MarkerSize, MarkerAlpha):
+def plot_variants_per_chrom(chrom_list, vcf_file, sampleID, output_directory, qualCutoff, MarkerSize, MarkerAlpha):
 	for i in chrom_list:
-		parse_results = parse_platypus_VCF(args.output_dir + "{}.noprocessing.vcf".format(sampleID), qualCutoff, i)
+		parse_results = parse_platypus_VCF(vcf_file, qualCutoff, i)
 		plot_read_balance(i, parse_results[0], parse_results[1], sampleID, output_directory + "{}.noprocessing".format(sampleID), MarkerSize, MarkerAlpha, get_length(pysam.AlignmentFile(args.bam, b), i))
-		hist_read_balance(i, readBalance, sampleID, output_prefix)
+		hist_read_balance(i, readBalance, sampleID, output_directory + "{}.noprocessing".format(sampleID))
 	pass
 	
 if __name__ == "__main__":
