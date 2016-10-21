@@ -17,7 +17,7 @@ def main():
 		if a != 0:
 			print "Error in initial Platypus calling."
 			sys.exit(1)
-		if no_variant_plots == True:
+		if args.no_variant_plots == True:
 			plot_variants_per_chrom(args.chromosomes, args.output_dir + "/{}.noprocessing.vcf".format(args.sample_id),
 									args.sample_id, args.output_dir, args.variant_quality_cutoff,
 									args.marker_size, margs.marker_transparency)
