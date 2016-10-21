@@ -303,7 +303,7 @@ def output_bed(outBed, *regionDfs):
     	output.write(str(merge))
     pass
 	
-def chromsome_wide_plot(chrom, positions, y_value, measure_name, sampleID, output_prefix, MarkerSize, MarkerAlpha, Xlim, Ylim):
+def chromosome_wide_plot(chrom, positions, y_value, measure_name, sampleID, output_prefix, MarkerSize, MarkerAlpha, Xlim, Ylim):
     '''
     Plots values across a chromosome, where the x axis is the position along the
     chromosome and the Y axis is the value of the measure of interest.
