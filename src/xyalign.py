@@ -1,3 +1,11 @@
+# To-do list
+# 1) Add ploidy estimation
+# 2) Add flags to make each part of the pipeline optional
+# 3) Write to a better designed directory structure
+# 4) Generalize mapping and calling (perhaps by allowing users to add command lines as  strings)
+# 5) Finalize plotting, etc.
+
+
 from __future__ import division
 import argparse
 import os
@@ -21,7 +29,7 @@ def main():
 	# First round of Platypus calling and plotting
 	if args.platypus_calling == "both" or "before":
 		a = platypus_caller(args.bam, args.ref, args.chromosomes, args.cpus,
-							args.output_dir + "/{}.noprocessing.vcf".format(args.sample_id))
+							args.output_dir + "/{}.noprocessing.vcf".format(args.sample_id), None)
 		if a != 0:
 			print "Error in initial Platypus calling."
 			sys.exit(1)
@@ -69,6 +77,8 @@ def main():
 			merged_bam = switch_sex_chromosomes_bam(args.bam, new_bam, args.x_chromosome + args.y_chromosome, args.output_dir, args.sample_id)
 
 	## Final round of calling and plotting
+	variant_mask = os.path.join(args.output_dir, args.high_quality_bed)
+
 	if args.platypus_calling == "both" or "after":
 		a = platypus_caller(merged_bam, args.ref, args.chromosomes, args.cpus,
 							args.output_dir + "/{}.postprocessing.vcf".format(args.sample_id))
@@ -78,7 +88,8 @@ def main():
 		if args.no_variant_plots is True:
 			plot_variants_per_chrom(args.chromosomes, args.output_dir + "/{}.postprocessing.vcf".format(args.sample_id),
 									args.sample_id, args.output_dir, args.variant_quality_cutoff,
-									args.marker_size, args.marker_transparency, merged_bam)
+									args.marker_size, args.marker_transparency,
+									merged_bam, variant_mask)
 
 def parse_args():
 	"""Parse command-line arguments"""
@@ -191,13 +202,13 @@ def switch_sex_chromosomes_bam(bam_orig, bam_new, sex_chroms, output_directory,
 	subprocess.call("samtools view -h -b {} {} > {}/no_sex.bam".format(bam_orig, " ".join(non_sex_scaffolds), output_directory), shell = True)
 
 	#Merge bam files
-	subprocess.call("samtools merge -h {}/header.sam {}/{}.bam {}/no_sex.bam {} > ".format(output_directory,
+	subprocess.call("samtools merge -h {}/header.sam {}/{}.bam {}/no_sex.bam {}".format(output_directory,
 								output_directory, output_prefix, output_directory, bam_new), shell = True)
 
 	return "{}/{}.bam".format(output_directory, output_prefix)
 
 
-def platypus_caller(bam, ref, chroms, cpus, output_file):
+def platypus_caller(bam, ref, chroms, cpus, output_file, regions_file = None):
 	""" Uses platypus to make variant calls on provided bam file
 
 	bam is input bam file
@@ -206,7 +217,10 @@ def platypus_caller(bam, ref, chroms, cpus, output_file):
 	cpus is the number of threads/cores to use
 	output_file is the name of the output vcf
 	"""
-	regions = ','.join(map(str,chroms))
+	if regions_file == None:
+		regions = ','.join(map(str,chroms))
+	else:
+		regions = regions_file
 	command_line = "platypus callVariants --bamFiles {} -o {} --refFile {} --nCPU {} --regions {} --assemble 1".format(bam, output_file, ref, cpus, regions)
 	return_code = subprocess.call(command_line, shell = True)
 	return return_code
