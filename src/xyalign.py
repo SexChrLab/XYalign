@@ -46,15 +46,33 @@ def main():
 	## Infer ploidy
 	
 	## Remapping
+	if args.no_remapping == True:
+		if y_present == True:
+			# Isolate sex chromosomes from reference and index new reference
+			new_reference = isolate_chromsomes_reference(args.ref, "{}/{}.sex_chroms".format(args.output_dir, args.sample_id), args.x_chromosome + args.y_chromosome)
+			#Strip reads from sex chromosomes
+			new_fastqs = bam_to_fastq(args.bam, args.single_end, args.output_dir, args.sample_id, args.x_chromosome + args.y_chromosome)
+			#Remap
+			new_bam = bwa_mem_mapping(new_reference, "{}/{}.sex_chroms".format(args.output_dir, args.sample_id), new_fastqs)
+			#Merge bam files
+			merged_bam = switch_sex_chromosomes_bam(args.bam, new_bam, args.x_chromosome + args.y_chromosome, args.output_dir, args.sample_id)
+			
+			
+		else:
+			# Isolate sex chromosomes from reference and index new reference
+			new_reference = isolate_chromsomes_reference(args.ref, "{}/{}.sex_chroms".format(args.output_dir, args.sample_id), args.x_chromosome)
+			#Strip reads from sex chromosomes
+			new_fastqs = bam_to_fastq(args.bam, args.single_end, args.output_dir, args.sample_id, args.x_chromosome)
+			#Remap
+			new_bam= bwa_mem_mapping(new_reference, "{}/{}.sex_chroms".format(args.output_dir, args.sample_id), new_fastqs)
+			#Merge bam files
+			merged_bam = switch_sex_chromosomes_bam(args.bam, new_bam, args.x_chromosome + args.y_chromosome, args.output_dir, args.sample_id)	
+	
 	
 	## Final round of calling and plotting
 									
 			
 
-
-
-
-		
 	
 def parse_args():
 	"""Parse command-line arguments"""
@@ -65,12 +83,20 @@ def parse_args():
 						help="Path to reference sequence (including file name).")
 	parser.add_argument("--chromosomes", "-c", nargs="+", default=["chrX","chrY","chr19"],
 						help="Chromosomes to analyze.")
+	parser.add_argument("--x_chromosome", "-x", nargs="+", default=["chrX"],
+						help="Names of y-linked scaffolds in reference sequence.")
+	parser.add_argument("--y_chromosome", "-y", nargs="+", default=["chrY"],
+						help="Names of y-linked scaffolds in reference sequence.")
 	parser.add_argument("--sample_id", "-id", default="sample",
 						help="Name/ID of sample - for use in plot titles and file naming.")
+	parser.add_argument("--single_end", action="store_true", default=False,
+						help="Include flag if reads are single-end and NOT paired-end.")
 	parser.add_argument("--platypus_calling", default="both",
 						help="Platypus calling withing the pipeline (before processing, after processing, both, or neither). Options: both, none, before, after.")
 	parser.add_argument("--no_variant_plots", action="store_false", default=True,
 						help="Include flag to prevent plotting read balance from VCF files.")
+	parser.add_argument("--no_remapping", action="store_false", default=True,
+						help="Include this flag to prevent remapping sex chromosome reads.")
 	parser.add_argument("--variant_quality_cutoff", "-vqc", type=int, default=20,
 						help="Consider all SNPs with a quality greater than or equal to this value. Default is 20.")
 	parser.add_argument("--marker_size", type=float, default=10.0,
@@ -119,6 +145,33 @@ def get_length(bamfile, chrom):
 	lengths = dict(zip(bamfile.references, bamfile.lengths))
 	return lengths[chrom]
 						
+def bwa_mem_mapping(reference, output_prefix, fastqs):
+	fastqs = ' '.join(fastqs)
+	command_line = "bwa mem {} {} | samtools fixmate -O bam - - | samtools sort -O bam -o {}_sorted.bam -".format(reference, fastqs, output_prefix)
+	subprocess.call(command_line, shell=True)
+	return "{}_sorted.bam".format(output_prefix)
+	
+def switch_sex_chromosomes_bam(bam_orig, bam_new, sex_chroms, output_directory, output_prefix):
+	#Grab original header
+	subprocess.call("samtools view -H {} > {}/header.sam".format(bam_orig, output_directory))
+	
+	#Remove sex chromosomes from original bam
+	samfile = AlignmentFile(bam_orig, "rb")
+	non_sex_scaffolds = filter(lambda x: x not in sex_chroms, list(samfile.references))
+	subprocess.call("samtools view -h -b {} {} > {}/no_sex.bam".format(bam_orig, " ".join(non_sex_scaffolds), output_directory))
+	
+	#Merge bam files
+	subprocess.call("samtools merge -h {}/header.sam {}/no_sex.bam {} > {}/{}.bam".format(output_directory,
+								output_directory, bam_new, output_directory, output_prefix))
+								
+	return "{}/{}.bam".format(output_directory, output_prefix)
+	
+
+	
+	
+	
+	
+
 def platypus_caller(bam, ref, chroms, cpus, output_file):
 	""" Uses platypus to make variant calls on provided bam file
 	
@@ -132,6 +185,34 @@ def platypus_caller(bam, ref, chroms, cpus, output_file):
 	command_line = "platypus callVariants --bamFiles {} -o {} --refFile {} --nCPU {} --regions {} --assemble 1".format(bam, output_file, ref, cpus, regions)
 	return_code = subprocess.call(command_line, shell=True)
 	return return_code
+	
+def isolate_chromsomes_reference(reference_fasta, new_ref_prefix, chroms):
+	""" Takes a reference fasta file and a list of chromosomes to include
+	and outputs a new, indexed reference fasta.
+	"""
+	outpath = "{}.fa".format(new_ref_prefix)
+	if type(chroms) != list:
+		chroms = list(chroms)
+	command_line = "samtools faidx {} {} > {}".format(reference_fasta, " ".join(chroms), outpath)
+	subprocess.call(command_line, shell=True)
+	subprocess.call("samtools faidx {}".format(outpath))
+	return outpath
+
+def bam_to_fastq(bamfile, single, output_directory, output_prefix, regions):
+	if single == False:
+		command_line = "samtools view -b {} {} | samtools bam2fq -1 {}/temp_1.fastq -2 {}/temp_2.fastq -t -n - ".format(bamfile, ' '.join(map(str,regions)), output_directory, output_directory)
+		subprocess.call(command_line, shell=True)
+		command_line = "repair.sh in1={} in2={} out1={} out2={}".format(output_directory + "/temp_1.fastq",
+						output_directory + "/temp_2.fastq", output_directory + "/" + output_prefix + "_1.fastq",
+						output_directory + "/" + output_prefix + "_2.fastq")
+		subprocess.call(command_line, shell = True)
+		return [output_directory + "/" + output_prefix + "_1.fastq", output_directory + "/" + output_prefix + "_2.fastq"]
+	else:
+		command_line = "samtools view -b {} {} | samtools bam2fq -t -n - > {}/temp.fastq".format(bamfile, ' '.join(map(str,regions)), output_directory)
+		subprocess.call(command_line, shell=True)
+		command_line = "repair.sh in={} out={}".format(output_directory + "/temp.fastq", output_directory + "/" + output_prefix + ".fastq")
+		return [output_directory + "/temp.fastq", output_directory + "/" + output_prefix + ".fastq"]
+
 		
 def parse_platypus_VCF(filename, qualCutoff, chrom):
 	""" Parse vcf generated by Platypus """
