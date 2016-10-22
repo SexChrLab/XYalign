@@ -49,7 +49,7 @@ def main():
 	if args.no_remapping == True:
 		if y_present == True:
 			# Isolate sex chromosomes from reference and index new reference
-			new_reference = isolate_chromsomes_reference(args.ref, "{}/{}.sex_chroms".format(args.output_dir, args.sample_id), args.x_chromosome + args.y_chromosome)
+			new_reference = isolate_chromosomes_reference(args.ref, "{}/{}.sex_chroms".format(args.output_dir, args.sample_id), args.x_chromosome + args.y_chromosome)
 			#Strip reads from sex chromosomes
 			new_fastqs = bam_to_fastq(args.bam, args.single_end, args.output_dir, args.sample_id, args.x_chromosome + args.y_chromosome)
 			#Remap
@@ -60,7 +60,7 @@ def main():
 			
 		else:
 			# Isolate sex chromosomes from reference and index new reference
-			new_reference = isolate_chromsomes_reference(args.ref, "{}/{}.sex_chroms".format(args.output_dir, args.sample_id), args.x_chromosome)
+			new_reference = isolate_chromosomes_reference(args.ref, "{}/{}.sex_chroms".format(args.output_dir, args.sample_id), args.x_chromosome)
 			#Strip reads from sex chromosomes
 			new_fastqs = bam_to_fastq(args.bam, args.single_end, args.output_dir, args.sample_id, args.x_chromosome)
 			#Remap
@@ -186,7 +186,7 @@ def platypus_caller(bam, ref, chroms, cpus, output_file):
 	return_code = subprocess.call(command_line, shell=True)
 	return return_code
 	
-def isolate_chromsomes_reference(reference_fasta, new_ref_prefix, chroms):
+def isolate_chromosomes_reference(reference_fasta, new_ref_prefix, chroms):
 	""" Takes a reference fasta file and a list of chromosomes to include
 	and outputs a new, indexed reference fasta.
 	"""
@@ -392,7 +392,7 @@ def chromosome_wide_plot(chrom, positions, y_value, measure_name, sampleID, outp
     positions is an array of coordinates 
     y_value is an array of the values of the measure of interest
     measure_name is the name of the measure of interest (y axis title)
-    chromsome is the name of the chromosome being plotted
+    chromosome is the name of the chromosome being plotted
     sampleID is the name of the sample
     MarkerSize is the size in points^2
     MarkerAlpha is the transparency (0 to 1)
