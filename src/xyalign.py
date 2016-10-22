@@ -169,7 +169,7 @@ def switch_sex_chromosomes_bam(bam_orig, bam_new, sex_chroms, output_directory, 
 	subprocess.call("samtools view -H {} > {}/header.sam".format(bam_orig, output_directory), shell = True)
 
 	#Remove sex chromosomes from original bam
-	samfile = AlignmentFile(bam_orig, "rb")
+	samfile = pysam.AlignmentFile(bam_orig, "rb")
 	non_sex_scaffolds = filter(lambda x: x not in sex_chroms, list(samfile.references))
 	subprocess.call("samtools view -h -b {} {} > {}/no_sex.bam".format(bam_orig, " ".join(non_sex_scaffolds), output_directory), shell = True)
 
