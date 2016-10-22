@@ -32,20 +32,20 @@ def main():
 	window = []
 	target = []
 	query = []
-	with open(sys.argv[1]) as f1:
-		for line1 in f1:
-     			line1 = line1.split("\t")
-			window.append((int(line1[1]), int(line1[2])))
+	with open(sys.argv[1]) as window_file:
+		for each_line in window_file:
+     			each_line = each_line.split("\t")
+			window.append((int(each_line[1]), int(each_line[2])))
 	
-	with open(sys.argv[2]) as f2:
-		for line2 in f2:
-			line2 = line2.split("\t")
-			target.append((int(line2[0]), int(line2[1])))
+	with open(sys.argv[2]) as target_file:
+		for each_line in target_file:
+			each_line = each_line.split("\t")
+			target.append((int(each_line[0]), int(each_line[1])))
 	
-	with open(sys.argv[3]) as f3:
-		for line3 in f3:
-			line3 = line3.split("\t")
-			query.append((int(line3[0]), int(line3[1])))
+	with open(sys.argv[3]) as query_file:
+		for each_line in query_file:
+			each_line = each_line.split("\t")
+			query.append((int(each_line[0]), int(each_line[1])))
 
 	obtain_query_outside_windows(window, target, query)
 
