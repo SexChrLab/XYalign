@@ -5,7 +5,6 @@ import subprocess
 import sys
 from collections import Counter, defaultdict
 from itertools import chain
-from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import pybedtools
@@ -13,6 +12,7 @@ import pysam
 import seaborn as sns
 import matplotlib
 matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 
 
 def main():
