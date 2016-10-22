@@ -3,8 +3,6 @@ import argparse
 import os
 import subprocess
 import sys
-from collections import Counter, defaultdict
-from itertools import chain
 import numpy as np
 import pandas as pd
 import pybedtools
@@ -48,7 +46,6 @@ def main():
 	# Infer ploidy (needs to be finished)
 	y_present = True
 
-
 	# Remapping
 	if args.no_remapping == True:
 		if y_present == True:
@@ -61,7 +58,6 @@ def main():
 			#Merge bam files
 			merged_bam = switch_sex_chromosomes_bam(args.bam, new_bam, args.x_chromosome + args.y_chromosome, args.output_dir, args.sample_id)
 
-
 		else:
 			# Isolate sex chromosomes from reference and index new reference
 			new_reference = isolate_chromosomes_reference(args.ref, "{}/{}.sex_chroms".format(args.output_dir, args.sample_id), args.x_chromosome)
@@ -71,7 +67,6 @@ def main():
 			new_bam= bwa_mem_mapping(new_reference, "{}/{}.sex_chroms".format(args.output_dir, args.sample_id), new_fastqs)
 			#Merge bam files
 			merged_bam = switch_sex_chromosomes_bam(args.bam, new_bam, args.x_chromosome + args.y_chromosome, args.output_dir, args.sample_id)
-
 
 	## Final round of calling and plotting
 	if args.platypus_calling == "both" or "after":
@@ -85,49 +80,67 @@ def main():
 									args.sample_id, args.output_dir, args.variant_quality_cutoff,
 									args.marker_size, args.marker_transparency, merged_bam)
 
-
-
 def parse_args():
 	"""Parse command-line arguments"""
 	parser = argparse.ArgumentParser(description="XYalign.  A tool to estimate sex chromosome ploidy and use this information to correct mapping and variant calling on the sex chromosomes.")
+
 	parser.add_argument("--bam", required=True,
 						help="Input bam file.")
+
 	parser.add_argument("--ref", required=True,
 						help="Path to reference sequence (including file name).")
+
 	parser.add_argument("--chromosomes", "-c", nargs="+", default=["chrX","chrY","chr19"],
 						help="Chromosomes to analyze.")
+
 	parser.add_argument("--x_chromosome", "-x", nargs="+", default=["chrX"],
 						help="Names of y-linked scaffolds in reference sequence.")
+
 	parser.add_argument("--y_chromosome", "-y", nargs="+", default=["chrY"],
 						help="Names of y-linked scaffolds in reference sequence.")
+
 	parser.add_argument("--sample_id", "-id", default="sample",
 						help="Name/ID of sample - for use in plot titles and file naming.")
+
 	parser.add_argument("--single_end", action="store_true", default=False,
 						help="Include flag if reads are single-end and NOT paired-end.")
+
 	parser.add_argument("--platypus_calling", default="both",
 						help="Platypus calling withing the pipeline (before processing, after processing, both, or neither). Options: both, none, before, after.")
+
 	parser.add_argument("--no_variant_plots", action="store_false", default=True,
 						help="Include flag to prevent plotting read balance from VCF files.")
+
 	parser.add_argument("--no_remapping", action="store_false", default=True,
 						help="Include this flag to prevent remapping sex chromosome reads.")
+
 	parser.add_argument("--variant_quality_cutoff", "-vqc", type=int, default=20,
 						help="Consider all SNPs with a quality greater than or equal to this value. Default is 20.")
+
 	parser.add_argument("--marker_size", type=float, default=10.0,
 						help="Marker size for genome-wide plots in matplotlib.")
+
 	parser.add_argument("--marker_transparency", "-mt", type=float, default=0.5,
 						help="Transparency of markers in genome-wide plots.  Alpha in matplotlib.")
+
 	parser.add_argument("--cpus", type=int, default=1,
 						help="Number of cores/threads to use.")
+
 	parser.add_argument("--window_size", "-w", type=int, default=50000,
 						help="Window size (integer) for sliding window calculations.")
+
 	parser.add_argument("--mapq_cutoff", "-mq", type=int, default=20,
 						help="Minimum mean mapq threshold for a window to be considered high quality.")
+
 	parser.add_argument("--depth_filter", "-df", type=float, default=4.0,
 						help="Filter for depth (f), where the threshold used is mean_depth +- (f * square_root(mean_depth)).")
+
 	parser.add_argument("--high_quality_bed", "-hq", default="highquality.bed",
 						help="Name of output file for high quality regions.")
+
 	parser.add_argument("--low_quality_bed", "-lq", default="lowquality.bed",
 						help="Name of output file for high quality regions.")
+
 	parser.add_argument("--output_dir", "-o",
 						help="Output directory")
 
@@ -158,6 +171,7 @@ def get_length(bamfile, chrom):
 	lengths = dict(zip(bamfile.references, bamfile.lengths))
 	return lengths[chrom]
 
+
 def bwa_mem_mapping(reference, output_prefix, fastqs):
 	fastqs = ' '.join(fastqs)
 	subprocess.call("bwa index {}".format(reference), shell = True)
@@ -165,7 +179,9 @@ def bwa_mem_mapping(reference, output_prefix, fastqs):
 	subprocess.call(command_line, shell=True)
 	return "{}_sorted.bam".format(output_prefix)
 
-def switch_sex_chromosomes_bam(bam_orig, bam_new, sex_chroms, output_directory, output_prefix):
+
+def switch_sex_chromosomes_bam(bam_orig, bam_new, sex_chroms, output_directory,
+								output_prefix):
 	#Grab original header
 	subprocess.call("samtools view -H {} > {}/header.sam".format(bam_orig, output_directory), shell = True)
 
@@ -175,10 +191,11 @@ def switch_sex_chromosomes_bam(bam_orig, bam_new, sex_chroms, output_directory, 
 	subprocess.call("samtools view -h -b {} {} > {}/no_sex.bam".format(bam_orig, " ".join(non_sex_scaffolds), output_directory), shell = True)
 
 	#Merge bam files
-	subprocess.call("samtools merge -h {}/header.sam {}/no_sex.bam {} > {}/{}.bam".format(output_directory,
-								output_directory, bam_new, output_directory, output_prefix), shell = True)
+	subprocess.call("samtools merge -h {}/header.sam {}/{}.bam {}/no_sex.bam {} > ".format(output_directory,
+								output_directory, output_prefix, output_directory, bam_new), shell = True)
 
 	return "{}/{}.bam".format(output_directory, output_prefix)
+
 
 def platypus_caller(bam, ref, chroms, cpus, output_file):
 	""" Uses platypus to make variant calls on provided bam file
@@ -194,6 +211,7 @@ def platypus_caller(bam, ref, chroms, cpus, output_file):
 	return_code = subprocess.call(command_line, shell = True)
 	return return_code
 
+
 def isolate_chromosomes_reference(reference_fasta, new_ref_prefix, chroms):
 	""" Takes a reference fasta file and a list of chromosomes to include
 	and outputs a new, indexed reference fasta.
@@ -205,6 +223,7 @@ def isolate_chromosomes_reference(reference_fasta, new_ref_prefix, chroms):
 	subprocess.call(command_line, shell = True)
 	subprocess.call("samtools faidx {}".format(outpath), shell = True)
 	return outpath
+
 
 def bam_to_fastq(bamfile, single, output_directory, output_prefix, regions):
 	if single == False:
@@ -252,6 +271,7 @@ def parse_platypus_VCF(filename, qualCutoff, chrom):
 
 	return (positions,quality,readBalance)
 
+
 def plot_read_balance(chrom, positions, readBalance, sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile):
     """ Plots read balance at each SNP along a chromosome """
     if "x" in chrom.lower():
@@ -272,28 +292,33 @@ def plot_read_balance(chrom, positions, readBalance, sampleID, output_prefix, Ma
     plt.savefig("{}_{}_ReadBalance_GenomicScatter.png".format(output_prefix, chrom))
 	#plt.show()
 
+
 def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
-    """ Plot a histogram of read balance """
-    if "x" in chrom.lower():
-        Color="green"
-    elif "y" in chrom.lower():
-        Color = "blue"
-    else:
-    	Color = "red"
-    fig = plt.figure(figsize=(8,8))
-    axes = fig.add_subplot(111)
-    axes.set_title(sampleID)
-    axes.set_xlabel("Read Balance")
-    axes.set_ylabel("Frequency")
-    axes.hist(readBalance,bins=50,color=Color)
-    plt.savefig("{}_{}_ReadBalance_Hist.svg".format(output_prefix, chrom))
-    plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
+	""" Plot a histogram of read balance """
+	if "x" in chrom.lower():
+		Color="green"
+	elif "y" in chrom.lower():
+		Color = "blue"
+	else:
+		Color = "red"
+	fig = plt.figure(figsize=(8,8))
+	axes = fig.add_subplot(111)
+	axes.set_title(sampleID)
+	axes.set_xlabel("Read Balance")
+	axes.set_ylabel("Frequency")
+	axes.hist(readBalance,bins=50,color=Color)
+	plt.savefig("{}_{}_ReadBalance_Hist.svg".format(output_prefix, chrom))
+	plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
 	#plt.show()
 
-def plot_variants_per_chrom(chrom_list, vcf_file, sampleID, output_directory, qualCutoff, MarkerSize, MarkerAlpha, bamfile):
+
+def plot_variants_per_chrom(chrom_list, vcf_file, sampleID, output_directory,
+							qualCutoff, MarkerSize, MarkerAlpha, bamfile):
 	for i in chrom_list:
 		parse_results = parse_platypus_VCF(vcf_file, qualCutoff, i)
-		plot_read_balance(i, parse_results[0], parse_results[2], sampleID, output_directory + "/{}.noprocessing".format(sampleID), MarkerSize, MarkerAlpha, bamfile)
+		plot_read_balance(i, parse_results[0], parse_results[2],
+							sampleID, output_directory + "/{}.noprocessing".format(sampleID),
+								MarkerSize, MarkerAlpha, bamfile)
 		hist_read_balance(i, parse_results[2], sampleID, output_directory + "/{}.noprocessing".format(sampleID))
 	pass
 
@@ -362,10 +387,12 @@ def traverse_bam_fetch(samfile, chrom, window_size):
 	results = {"windows": windows_df}
 	return results
 
+
 def make_region_lists(depthAndMapqDf, mapqCutoff, sd_thresh):
 	"""
 	(pandas.core.frame.DataFrame, int, float) -> (list, list)
-	return two lists of regions (keepList, excludeList) based on cutoffs for depth and mapq
+	return two lists of regions (keepList, excludeList) based on
+	cutoffs for depth and mapq
 	"""
 	depth_mean = depthAndMapqDf["depth"].mean()
 	depth_sd = depthAndMapqDf["depth"].std()
@@ -381,50 +408,53 @@ def make_region_lists(depthAndMapqDf, mapqCutoff, sd_thresh):
 
 
 def output_bed(outBed, *regionDfs):
-    '''
-    (list, list, str) -> bedtoolsObject
-    Take two sorted lists.  Each list is a list of tuples (chrom[str], start[int], end[int])
-    Return a pybedtools object and output a bed file.
-    '''
-    dfComb = pd.concat(regionDfs)
-    regionList = dfComb.ix[:, "chrom":"stop"].values.tolist()
-    merge = pybedtools.BedTool(regionList).sort().merge()
-    with open(outBed, 'w') as output:
-    	output.write(str(merge))
-    pass
+	'''
+	(list, list, str) -> bedtoolsObject
+	Take two sorted lists.  Each list is a list of tuples
+	(chrom[str], start[int], end[int])
+	Return a pybedtools object and output a bed file.
+	'''
+	dfComb = pd.concat(regionDfs)
+	regionList = dfComb.ix[:, "chrom":"stop"].values.tolist()
+	merge = pybedtools.BedTool(regionList).sort().merge()
+	with open(outBed, 'w') as output:
+		output.write(str(merge))
+	pass
 
-def chromosome_wide_plot(chrom, positions, y_value, measure_name, sampleID, output_prefix, MarkerSize, MarkerAlpha, Xlim, Ylim):
-    '''
-    Plots values across a chromosome, where the x axis is the position along the
-    chromosome and the Y axis is the value of the measure of interest.
+def chromosome_wide_plot(chrom, positions, y_value, measure_name,
+							sampleID, output_prefix, MarkerSize, MarkerAlpha,
+								Xlim, Ylim):
+	'''
+	Plots values across a chromosome, where the x axis is the position along the
+	chromosome and the Y axis is the value of the measure of interest.
+	positions is an array of coordinates
+	y_value is an array of the values of the measure of interest
+	measure_name is the name of the measure of interest (y axis title)
+	chromosome is the name of the chromosome being plotted
+	sampleID is the name of the sample
+	MarkerSize is the size in points^2
+	MarkerAlpha is the transparency (0 to 1)
+	Xlim is the maximum X value
+	Ylim is the maximum Y value
+	'''
+	if "x" in chrom.lower():
+		Color="green"
+	elif "y" in chrom.lower():
+		Color = "blue"
+	else:
+		Color = "red"
+	fig = plt.figure(figsize=(15,5))
+	axes = fig.add_subplot(111)
+	axes.scatter(positions,y_value,c=Color,alpha=MarkerAlpha,s=MarkerSize,lw=0)
+	axes.set_xlim(0, Xlim)
+	axes.set_ylim(0, Ylim)
+	axes.set_title("%s - %s" % (sampleID, chrom))
+	axes.set_xlabel("Chromosomal Position")
+	axes.set_ylabel(measure_name)
+	plt.savefig("{}_{}_{}_GenomicScatter.svg".format(output_prefix, chrom, measure_name))
+	plt.savefig("{}_{}_{}_GenomicScatter.png".format(output_prefix, chrom, measure_name))
+	#plt.show()
 
-    positions is an array of coordinates
-    y_value is an array of the values of the measure of interest
-    measure_name is the name of the measure of interest (y axis title)
-    chromosome is the name of the chromosome being plotted
-    sampleID is the name of the sample
-    MarkerSize is the size in points^2
-    MarkerAlpha is the transparency (0 to 1)
-    Xlim is the maximum X value
-    Ylim is the maximum Y value
-    '''
-    if "x" in chrom.lower():
-        Color="green"
-    elif "y" in chrom.lower():
-        Color = "blue"
-    else:
-    	Color = "red"
-    fig = plt.figure(figsize=(15,5))
-    axes = fig.add_subplot(111)
-    axes.scatter(positions,y_value,c=Color,alpha=MarkerAlpha,s=MarkerSize,lw=0)
-    axes.set_xlim(0, Xlim)
-    axes.set_ylim(0, Ylim)
-    axes.set_title("%s - %s" % (sampleID, chrom))
-    axes.set_xlabel("Chromosomal Position")
-    axes.set_ylabel(measure_name)
-    plt.savefig("{}_{}_{}_GenomicScatter.svg".format(output_prefix, chrom, measure_name))
-    plt.savefig("{}_{}_{}_GenomicScatter.png".format(output_prefix, chrom, measure_name))
-    #plt.show()
 
 def plot_depth_mapq(data_dict, output_dir, sampleID, chrom_length, MarkerSize, MarkerAlpha):
 	"""
