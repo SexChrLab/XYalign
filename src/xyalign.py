@@ -251,7 +251,7 @@ def bwa_mem_mapping(reference, output_prefix, fastqs):
 	subprocess.call("bwa index {}".format(reference), shell=True)
 	command_line = "bwa mem {} {} | samtools fixmate -O bam - - | samtools sort -O bam -o {}_sorted.bam -".format(reference, fastqs, output_prefix)
 	subprocess.call(command_line, shell=True)
-	subprocess.call("samtools index {}_sorted.bam".format(output_prefix))
+	subprocess.call("samtools index {}_sorted.bam".format(output_prefix), shell=True)
 	return "{}_sorted.bam".format(output_prefix)
 
 
@@ -278,6 +278,8 @@ def switch_sex_chromosomes_bam(
 		"samtools merge -h {}/header.sam {}/{}.bam {}/no_sex.bam {}".format(
 			output_directory, output_directory, output_prefix,
 			output_directory, bam_new), shell = True)
+	subprocess.call("samtools index {}/{}.bam".format(
+		output_directory, output_prefix), shell=True)
 
 	return "{}/{}.bam".format(output_directory, output_prefix)
 
