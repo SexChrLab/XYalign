@@ -202,7 +202,7 @@ def isolate_chromosomes_reference(reference_fasta, new_ref_prefix, chroms):
 		chroms = list(chroms)
 	command_line = "samtools faidx {} {} > {}".format(reference_fasta, " ".join(chroms), outpath)
 	subprocess.call(command_line, shell=True)
-	subprocess.call("samtools faidx {}".format(outpath))
+	subprocess.call("samtools faidx {}".format(outpath), shell=True)
 	return outpath
 
 def bam_to_fastq(bamfile, single, output_directory, output_prefix, regions):
