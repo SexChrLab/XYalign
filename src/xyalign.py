@@ -319,7 +319,7 @@ def bam_to_fastq(bamfile, single, output_directory, output_prefix, regions):
 	if single == False:
 		command_line = "samtools view -b {} {} | samtools bam2fq -1 {}/temp_1.fastq -2 {}/temp_2.fastq -t -n - ".format(bamfile, ' '.join(map(str,regions)), output_directory, output_directory)
 		subprocess.call(command_line, shell = True)
-		command_line = "repair.sh in1={} in2={} out1={} out2={} overwrite-true".format(
+		command_line = "repair.sh in1={} in2={} out1={} out2={} overwrite=true".format(
 			output_directory + "/temp_1.fastq",
 			output_directory + "/temp_2.fastq",
 			output_directory + "/" + output_prefix + "_1.fastq",
@@ -329,7 +329,7 @@ def bam_to_fastq(bamfile, single, output_directory, output_prefix, regions):
 	else:
 		command_line = "samtools view -b {} {} | samtools bam2fq -t -n - > {}/temp.fastq".format(bamfile, ' '.join(map(str,regions)), output_directory)
 		subprocess.call(command_line, shell = True)
-		command_line = "repair.sh in={} out={} overwrite-true".format(output_directory + "/temp.fastq", output_directory + "/" + output_prefix + ".fastq")
+		command_line = "repair.sh in={} out={} overwrite=true".format(output_directory + "/temp.fastq", output_directory + "/" + output_prefix + ".fastq")
 		return [output_directory + "/temp.fastq", output_directory + "/" + output_prefix + ".fastq"]
 
 
