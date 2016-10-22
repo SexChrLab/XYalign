@@ -251,6 +251,7 @@ def bwa_mem_mapping(reference, output_prefix, fastqs):
 	subprocess.call("bwa index {}".format(reference), shell=True)
 	command_line = "bwa mem {} {} | samtools fixmate -O bam - - | samtools sort -O bam -o {}_sorted.bam -".format(reference, fastqs, output_prefix)
 	subprocess.call(command_line, shell=True)
+	subprocess.call("samtools index {}_sorted.bam".format(output_prefix))
 	return "{}_sorted.bam".format(output_prefix)
 
 
