@@ -166,16 +166,16 @@ def bwa_mem_mapping(reference, output_prefix, fastqs):
 
 def switch_sex_chromosomes_bam(bam_orig, bam_new, sex_chroms, output_directory, output_prefix):
 	#Grab original header
-	subprocess.call("samtools view -H {} > {}/header.sam".format(bam_orig, output_directory))
+	subprocess.call("samtools view -H {} > {}/header.sam".format(bam_orig, output_directory), shell = True)
 
 	#Remove sex chromosomes from original bam
 	samfile = AlignmentFile(bam_orig, "rb")
 	non_sex_scaffolds = filter(lambda x: x not in sex_chroms, list(samfile.references))
-	subprocess.call("samtools view -h -b {} {} > {}/no_sex.bam".format(bam_orig, " ".join(non_sex_scaffolds), output_directory))
+	subprocess.call("samtools view -h -b {} {} > {}/no_sex.bam".format(bam_orig, " ".join(non_sex_scaffolds), output_directory), shell = True)
 
 	#Merge bam files
 	subprocess.call("samtools merge -h {}/header.sam {}/no_sex.bam {} > {}/{}.bam".format(output_directory,
-								output_directory, bam_new, output_directory, output_prefix))
+								output_directory, bam_new, output_directory, output_prefix), shell = True)
 
 	return "{}/{}.bam".format(output_directory, output_prefix)
 
@@ -190,7 +190,7 @@ def platypus_caller(bam, ref, chroms, cpus, output_file):
 	"""
 	regions = ','.join(map(str,chroms))
 	command_line = "platypus callVariants --bamFiles {} -o {} --refFile {} --nCPU {} --regions {} --assemble 1".format(bam, output_file, ref, cpus, regions)
-	return_code = subprocess.call(command_line, shell=True)
+	return_code = subprocess.call(command_line, shell = True)
 	return return_code
 
 def isolate_chromosomes_reference(reference_fasta, new_ref_prefix, chroms):
@@ -201,14 +201,14 @@ def isolate_chromosomes_reference(reference_fasta, new_ref_prefix, chroms):
 	if type(chroms) != list:
 		chroms = list(chroms)
 	command_line = "samtools faidx {} {} > {}".format(reference_fasta, " ".join(chroms), outpath)
-	subprocess.call(command_line, shell=True)
-	subprocess.call("samtools faidx {}".format(outpath), shell=True)
+	subprocess.call(command_line, shell = True)
+	subprocess.call("samtools faidx {}".format(outpath), shell = True)
 	return outpath
 
 def bam_to_fastq(bamfile, single, output_directory, output_prefix, regions):
 	if single == False:
 		command_line = "samtools view -b {} {} | samtools bam2fq -1 {}/temp_1.fastq -2 {}/temp_2.fastq -t -n - ".format(bamfile, ' '.join(map(str,regions)), output_directory, output_directory)
-		subprocess.call(command_line, shell=True)
+		subprocess.call(command_line, shell = True)
 		command_line = "repair.sh in1={} in2={} out1={} out2={}".format(output_directory + "/temp_1.fastq",
 								output_directory + "/temp_2.fastq",
 								output_directory + "/" + output_prefix + "_1.fastq",
@@ -217,7 +217,7 @@ def bam_to_fastq(bamfile, single, output_directory, output_prefix, regions):
 		return [output_directory + "/" + output_prefix + "_1.fastq", output_directory + "/" + output_prefix + "_2.fastq"]
 	else:
 		command_line = "samtools view -b {} {} | samtools bam2fq -t -n - > {}/temp.fastq".format(bamfile, ' '.join(map(str,regions)), output_directory)
-		subprocess.call(command_line, shell=True)
+		subprocess.call(command_line, shell = True)
 		command_line = "repair.sh in={} out={}".format(output_directory + "/temp.fastq", output_directory + "/" + output_prefix + ".fastq")
 		return [output_directory + "/temp.fastq", output_directory + "/" + output_prefix + ".fastq"]
 
