@@ -71,7 +71,7 @@ def main():
 	if args.bam is not None:
 		samfile = pysam.AlignmentFile(args.bam, "rb")
 	else:
-		samfile = pysam.AlignmentFile(args.bam, "rc")
+		samfile = pysam.AlignmentFile(args.cram, "rc")
 	pass_df = []
 	fail_df = []
 	for chromosome in args.chromosomes:
