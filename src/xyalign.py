@@ -314,7 +314,7 @@ def switch_sex_chromosomes_bam(
 				bam_orig, " ".join(non_sex_scaffolds), output_directory),
 			shell=True)
 		subprocess.call(
-			"samtools index {}/no_sex.bam".format(output_directory))
+			"samtools index {}/no_sex.bam".format(output_directory), shell=True)
 
 		# Merge bam files
 		subprocess.call(
