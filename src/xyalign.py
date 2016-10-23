@@ -34,7 +34,7 @@ def main():
 
 	# First round of Platypus calling and plotting
 	if args.platypus_calling == "both" or "before":
-		if args.bam is not False:
+		if args.bam is not None:
 			a = platypus_caller(
 				args.bam, args.ref, args.chromosomes, args.cpus,
 				args.output_dir + "/{}.noprocessing.vcf".format(
@@ -68,7 +68,7 @@ def main():
 					args.marker_transparency, args.cram)
 
 	# Analyze bam for depth and mapq
-	if args.bam is not False:
+	if args.bam is not None:
 		samfile = pysam.AlignmentFile(args.bam, "rb")
 	else:
 		samfile = pysam.AlignmentFile(args.bam, "rc")
@@ -105,7 +105,7 @@ def main():
 					args.output_dir, args.sample_id),
 				args.x_chromosome + args.y_chromosome)
 			# Strip reads from sex chromosomes
-			if args.bam is not False:
+			if args.bam is not None:
 				new_fastqs = bam_to_fastq(
 					args.bam, args.single_end, args.output_dir, args.sample_id,
 					args.x_chromosome + args.y_chromosome)
@@ -119,7 +119,7 @@ def main():
 					args.output_dir, args.sample_id),
 				new_fastqs)
 			# Merge bam files
-			if args.bam is not False:
+			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam(
 					args.bam, new_bam, args.x_chromosome + args.y_chromosome,
 					args.output_dir, args.sample_id)
@@ -135,7 +135,7 @@ def main():
 					args.output_dir, args.sample_id),
 				args.x_chromosome)
 			# Strip reads from sex chromosomes
-			if args.bam is not False:
+			if args.bam is not None:
 				new_fastqs = bam_to_fastq(
 					args.bam, args.single_end, args.output_dir, args.sample_id,
 					args.x_chromosome)
@@ -149,7 +149,7 @@ def main():
 					args.output_dir, args.sample_id),
 				new_fastqs)
 			# Merge bam files
-			if args.bam is not False:
+			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam(
 					args.bam, new_bam, args.x_chromosome + args.y_chromosome,
 					args.output_dir, args.sample_id)
