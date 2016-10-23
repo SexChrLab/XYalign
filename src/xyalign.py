@@ -34,20 +34,38 @@ def main():
 
 	# First round of Platypus calling and plotting
 	if args.platypus_calling == "both" or "before":
-		a = platypus_caller(
-			args.bam, args.ref, args.chromosomes, args.cpus,
-			args.output_dir + "/{}.noprocessing.vcf".format(
-				args.sample_id), None)
-		if a != 0:
-			print "Error in initial Platypus calling."
-			sys.exit(1)
-		if args.no_variant_plots is True:
-			plot_variants_per_chrom(
-				args.chromosomes,
-				args.output_dir + "/{}.noprocessing.vcf".format(args.sample_id),
-				args.sample_id, args.output_dir, "noprocessing",
-				args.variant_quality_cutoff, args.marker_size,
-				args.marker_transparency, args.bam)
+		if args.bam is not False:
+			a = platypus_caller(
+				args.bam, args.ref, args.chromosomes, args.cpus,
+				args.output_dir + "/{}.noprocessing.vcf".format(
+					args.sample_id), None)
+			if a != 0:
+				print "Error in initial Platypus calling."
+				sys.exit(1)
+			if args.no_variant_plots is True:
+				plot_variants_per_chrom(
+					args.chromosomes,
+					args.output_dir + "/{}.noprocessing.vcf".format(
+						args.sample_id),
+					args.sample_id, args.output_dir, "noprocessing",
+					args.variant_quality_cutoff, args.marker_size,
+					args.marker_transparency, args.bam)
+		else:
+			a = platypus_caller(
+				args.cram, args.ref, args.chromosomes, args.cpus,
+				args.output_dir + "/{}.noprocessing.vcf".format(
+					args.sample_id), None)
+			if a != 0:
+				print "Error in initial Platypus calling."
+				sys.exit(1)
+			if args.no_variant_plots is True:
+				plot_variants_per_chrom(
+					args.chromosomes,
+					args.output_dir + "/{}.noprocessing.vcf".format(
+						args.sample_id),
+					args.sample_id, args.output_dir, "noprocessing",
+					args.variant_quality_cutoff, args.marker_size,
+					args.marker_transparency, args.cram)
 
 	# Analyze bam for depth and mapq
 	if args.bam is not False:
@@ -87,18 +105,28 @@ def main():
 					args.output_dir, args.sample_id),
 				args.x_chromosome + args.y_chromosome)
 			# Strip reads from sex chromosomes
-			new_fastqs = bam_to_fastq(
-				args.bam, args.single_end, args.output_dir, args.sample_id,
-				args.x_chromosome + args.y_chromosome)
+			if args.bam is not False:
+				new_fastqs = bam_to_fastq(
+					args.bam, args.single_end, args.output_dir, args.sample_id,
+					args.x_chromosome + args.y_chromosome)
+			else:
+				new_fastqs = bam_to_fastq(
+					args.cram, args.single_end, args.output_dir, args.sample_id,
+					args.x_chromosome + args.y_chromosome)
 			# Remap
 			new_bam = bwa_mem_mapping(
 				new_reference, "{}/{}.sex_chroms".format(
 					args.output_dir, args.sample_id),
 				new_fastqs)
 			# Merge bam files
-			merged_bam = switch_sex_chromosomes_bam(
-				args.bam, new_bam, args.x_chromosome + args.y_chromosome,
-				args.output_dir, args.sample_id)
+			if args.bam is not False:
+				merged_bam = switch_sex_chromosomes_bam(
+					args.bam, new_bam, args.x_chromosome + args.y_chromosome,
+					args.output_dir, args.sample_id)
+			else:
+				merged_bam = switch_sex_chromosomes_bam(
+					args.cram, new_bam, args.x_chromosome + args.y_chromosome,
+					args.output_dir, args.sample_id)
 
 		else:
 			# Isolate sex chromosomes from reference and index new reference
@@ -107,18 +135,28 @@ def main():
 					args.output_dir, args.sample_id),
 				args.x_chromosome)
 			# Strip reads from sex chromosomes
-			new_fastqs = bam_to_fastq(
-				args.bam, args.single_end, args.output_dir, args.sample_id,
-				args.x_chromosome)
+			if args.bam is not False:
+				new_fastqs = bam_to_fastq(
+					args.bam, args.single_end, args.output_dir, args.sample_id,
+					args.x_chromosome)
+			else:
+				new_fastqs = bam_to_fastq(
+					args.cram, args.single_end, args.output_dir, args.sample_id,
+					args.x_chromosome)
 			# Remap
 			new_bam = bwa_mem_mapping(
 				new_reference, "{}/{}.sex_chroms".format(
 					args.output_dir, args.sample_id),
 				new_fastqs)
 			# Merge bam files
-			merged_bam = switch_sex_chromosomes_bam(
-				args.bam, new_bam, args.x_chromosome + args.y_chromosome,
-				args.output_dir, args.sample_id)
+			if args.bam is not False:
+				merged_bam = switch_sex_chromosomes_bam(
+					args.bam, new_bam, args.x_chromosome + args.y_chromosome,
+					args.output_dir, args.sample_id)
+			else:
+				merged_bam = switch_sex_chromosomes_bam(
+					args.cram, new_bam, args.x_chromosome + args.y_chromosome,
+					args.output_dir, args.sample_id)
 
 	# Final round of calling and plotting
 	variant_mask = os.path.join(args.output_dir, args.high_quality_bed)
