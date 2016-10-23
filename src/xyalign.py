@@ -112,7 +112,8 @@ def main():
 	if args.platypus_calling == "both" or "after":
 		a = platypus_caller(
 			merged_bam, args.ref, args.chromosomes, args.cpus,
-			args.output_dir + "/{}.postprocessing.vcf".format(args.sample_id))
+			args.output_dir + "/{}.postprocessing.vcf".format(args.sample_id),
+			variant_mask)
 		if a != 0:
 			print "Error in initial Platypus calling."
 			sys.exit(1)
@@ -123,7 +124,7 @@ def main():
 					args.sample_id),
 				args.sample_id, args.output_dir, args.variant_quality_cutoff,
 				args.marker_size, args.marker_transparency,
-				merged_bam, variant_mask)
+				merged_bam)
 
 
 def parse_args():
