@@ -70,7 +70,13 @@ def main():
 	output_bed(os.path.join(args.output_dir, args.low_quality_bed), *fail_df)
 
 	# Infer ploidy (needs to be finished)
-	y_present = True
+	if args.y_present is True:
+		y_present = True
+	elif args.y_absent is True:
+		y_present = False
+	else:
+		# Replace this with code to infer ploidy, etc.
+		y_present = None
 
 	# Remapping
 	if args.no_remapping is True:
@@ -228,6 +234,16 @@ def parse_args():
 
 	group.add_argument(
 		"--cram", help="Input cram file.")
+
+	group2 = parser.add_mutually_exclusive_group(required=False)
+
+	group2.add_argument(
+		"--y_present", action="store_true",
+		help="Overrides sex chr estimation by XYalign and remaps with Y present.")
+
+	group2.add_argument(
+		"--y_absent", action="store_true",
+		help="Overrides sex chr estimation by XY align and remaps with Y absent.")
 
 	args = parser.parse_args()
 
