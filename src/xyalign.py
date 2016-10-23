@@ -4,8 +4,12 @@
 # 3) Write to a better designed output directory structure
 # 4) Generalize mapping and calling (perhaps by allowing users to
 # 										add command lines as  strings)
-# 5) Finalize plotting, etc.
+# 5) Add plotting of high-quality windows (depth, mapq), also after remapping
+# 		- will need to update naming scheme for this
 # 6) Check for behavior when files already exist (e.g., overwrite, quit, etc.?)
+# 7) Add checkpointing
+# 8) Allow users to call specific parts of the pipeline
+# 		- e.g., use plotting function on their own supplied vcf or bam
 
 
 from __future__ import division
@@ -41,11 +45,15 @@ def main():
 			plot_variants_per_chrom(
 				args.chromosomes,
 				args.output_dir + "/{}.noprocessing.vcf".format(args.sample_id),
-				args.sample_id, args.output_dir, args.variant_quality_cutoff,
-				args.marker_size, args.marker_transparency, args.bam)
+				args.sample_id, args.output_dir, "noprocessing",
+				args.variant_quality_cutoff, args.marker_size,
+				args.marker_transparency, args.bam)
 
 	# Analyze bam for depth and mapq
-	samfile = pysam.AlignmentFile(args.bam, "rb")
+	if args.bam is not False:
+		samfile = pysam.AlignmentFile(args.bam, "rb")
+	else:
+		samfile = pysam.AlignmentFile(args.bam, "rc")
 	pass_df = []
 	fail_df = []
 	for chromosome in args.chromosomes:
@@ -122,18 +130,14 @@ def main():
 				args.chromosomes,
 				args.output_dir + "/{}.postprocessing.vcf".format(
 					args.sample_id),
-				args.sample_id, args.output_dir, args.variant_quality_cutoff,
-				args.marker_size, args.marker_transparency,
-				merged_bam)
+				args.sample_id, args.output_dir, "postprocessing",
+				args.variant_quality_cutoff, args.marker_size,
+				args.marker_transparency, merged_bam)
 
 
 def parse_args():
 	"""Parse command-line arguments"""
 	parser = argparse.ArgumentParser(description="XYalign")
-
-	parser.add_argument(
-		"--bam", required=True,
-		help="Input bam file.")
 
 	parser.add_argument(
 		"--ref", required=True,
@@ -217,6 +221,14 @@ def parse_args():
 		"--output_dir", "-o",
 		help="Output directory")
 
+	group = parser.add_mutually_exclusive_group(required=True)
+
+	group.add_argument(
+		"--bam", help="Input bam file.")
+
+	group.add_argument(
+		"--cram", help="Input cram file.")
+
 	args = parser.parse_args()
 
 	# Validate arguments
@@ -236,6 +248,8 @@ def get_length(bamfile, chrom):
 
 	args:
 		bamfile: pysam AlignmentFile object
+			- can be bam, cram, or sam, needs to be declared
+				in pysam.AlignmentFile call before passing to function
 		chrom: chromosome name (string)
 
 	returns:
@@ -246,60 +260,94 @@ def get_length(bamfile, chrom):
 	return lengths[chrom]
 
 
-def bwa_mem_mapping(reference, output_prefix, fastqs):
-	""" Maps reads to a reference genome using bwa mem."""
+def bwa_mem_mapping(reference, output_prefix, fastqs, cram=False):
+	""" Maps reads to a reference genome using bwa mem.
+	"""
 	fastqs = ' '.join(fastqs)
 	subprocess.call("bwa index {}".format(reference), shell=True)
-	command_line = "bwa mem {} {} | samtools fixmate -O bam - - | samtools sort -O bam -o {}_sorted.bam -".format(reference, fastqs, output_prefix)
-	subprocess.call(command_line, shell=True)
-	subprocess.call("samtools index {}_sorted.bam".format(output_prefix), shell=True)
-	return "{}_sorted.bam".format(output_prefix)
+	if cram is False:
+		command_line = "bwa mem {} {} | samtools fixmate -O bam - - | samtools sort -O bam -o {}_sorted.bam -".format(reference, fastqs, output_prefix)
+		subprocess.call(command_line, shell=True)
+		subprocess.call(
+			"samtools index {}_sorted.bam".format(output_prefix), shell=True)
+		return "{}_sorted.bam".format(output_prefix)
+	else:
+		command_line = "bwa mem {} {} | samtools fixmate -O cram - - | samtools sort -O cram -o {}_sorted.cram -".format(reference, fastqs, output_prefix)
+		subprocess.call(command_line, shell=True)
+		subprocess.call(
+			"samtools index {}_sorted.cram".format(output_prefix), shell=True)
+		return "{}_sorted.cram".format(output_prefix)
 
 
 def switch_sex_chromosomes_bam(
-	bam_orig, bam_new, sex_chroms, output_directory, output_prefix):
+	bam_orig, bam_new, sex_chroms, output_directory, output_prefix, cram=False):
 	""" Removes sex chromosomes from original bam and merges in remmapped
-	sex chromosomes, while retaining the original bam header """
+	sex chromosomes, while retaining the original bam header
+	"""
 	# Grab original header
 	subprocess.call(
 		"samtools view -H {} > {}/header.sam".format(
-			bam_orig, output_directory), shell = True)
+			bam_orig, output_directory), shell=True)
+	if cram is False:
+		# Remove sex chromosomes from original bam
+		samfile = pysam.AlignmentFile(bam_orig, "rb")
+		non_sex_scaffolds = filter(
+			lambda x: x not in sex_chroms, list(samfile.references))
+		subprocess.call(
+			"samtools view -h -b {} {} > {}/no_sex.bam".format(
+				bam_orig, " ".join(non_sex_scaffolds), output_directory),
+			shell=True)
+		subprocess.call(
+			"samtools index {}/no_sex.bam".format(output_directory))
 
-	# Remove sex chromosomes from original bam
-	samfile = pysam.AlignmentFile(bam_orig, "rb")
-	non_sex_scaffolds = filter(
-		lambda x: x not in sex_chroms, list(samfile.references))
-	subprocess.call(
-		"samtools view -h -b {} {} > {}/no_sex.bam".format(
-			bam_orig, " ".join(non_sex_scaffolds), output_directory),
-		shell = True)
+		# Merge bam files
+		subprocess.call(
+			"samtools merge -h {}/header.sam {}/{}.bam {}/no_sex.bam {}".format(
+				output_directory, output_directory, output_prefix,
+				output_directory, bam_new), shell=True)
+		subprocess.call("samtools index {}/{}.bam".format(
+			output_directory, output_prefix), shell=True)
 
-	# Merge bam files
-	subprocess.call(
-		"samtools merge -h {}/header.sam {}/{}.bam {}/no_sex.bam {}".format(
-			output_directory, output_directory, output_prefix,
-			output_directory, bam_new), shell = True)
-	subprocess.call("samtools index {}/{}.bam".format(
-		output_directory, output_prefix), shell=True)
+		return "{}/{}.bam".format(output_directory, output_prefix)
 
-	return "{}/{}.bam".format(output_directory, output_prefix)
+	else:
+		# Remove sex chromosomes from original bam
+		samfile = pysam.AlignmentFile(bam_orig, "rc")
+		non_sex_scaffolds = filter(
+			lambda x: x not in sex_chroms, list(samfile.references))
+		subprocess.call(
+			"samtools view -h -b {} {} > {}/no_sex.cram".format(
+				bam_orig, " ".join(non_sex_scaffolds), output_directory),
+			shell=True)
+		subprocess.call(
+			"samtools index {}/no_sex.cram".format(output_directory), shell=True)
+
+		# Merge bam files
+		subprocess.call(
+			"samtools merge -h {}/header.sam {}/{}.cram {}/no_sex.cram {}".format(
+				output_directory, output_directory, output_prefix,
+				output_directory, bam_new), shell=True)
+		subprocess.call("samtools index {}/{}.cram".format(
+			output_directory, output_prefix), shell=True)
+
+		return "{}/{}.cram".format(output_directory, output_prefix)
 
 
-def platypus_caller(bam, ref, chroms, cpus, output_file, regions_file = None):
+def platypus_caller(bam, ref, chroms, cpus, output_file, regions_file=None):
 	""" Uses platypus to make variant calls on provided bam file
 
-	bam is input bam file
+	bam is input bam (or cram) file
 	ref is path to reference sequence
 	chroms is a list of chromosomes to call on, e.g., ["chrX", "chrY", "chr19"]
 	cpus is the number of threads/cores to use
 	output_file is the name of the output vcf
 	"""
-	if regions_file == None:
-		regions = ','.join(map(str,chroms))
+	if regions_file is None:
+		regions = ','.join(map(str, chroms))
 	else:
 		regions = regions_file
 	command_line = "platypus callVariants --bamFiles {} -o {} --refFile {} --nCPU {} --regions {} --assemble 1".format(bam, output_file, ref, cpus, regions)
-	return_code = subprocess.call(command_line, shell = True)
+	return_code = subprocess.call(command_line, shell=True)
 	return return_code
 
 
@@ -311,34 +359,35 @@ def isolate_chromosomes_reference(reference_fasta, new_ref_prefix, chroms):
 	if type(chroms) != list:
 		chroms = list(chroms)
 	command_line = "samtools faidx {} {} > {}".format(reference_fasta, " ".join(chroms), outpath)
-	subprocess.call(command_line, shell = True)
-	subprocess.call("samtools faidx {}".format(outpath), shell = True)
+	subprocess.call(command_line, shell=True)
+	subprocess.call("samtools faidx {}".format(outpath), shell=True)
 	return outpath
 
 
 def bam_to_fastq(bamfile, single, output_directory, output_prefix, regions):
-	""" Strips reads from a bam file in provided regions and outputs sorted
-	fastqs containing reads."""
-	if single == False:
-		command_line = "samtools view -b {} {} | samtools bam2fq -1 {}/temp_1.fastq -2 {}/temp_2.fastq -t -n - ".format(bamfile, ' '.join(map(str,regions)), output_directory, output_directory)
-		subprocess.call(command_line, shell = True)
+	""" Strips reads from a bam or cram file in provided regions and outputs
+	sorted fastqs containing reads.
+	"""
+	if single is False:
+		command_line = "samtools view -b {} {} | samtools bam2fq -1 {}/temp_1.fastq -2 {}/temp_2.fastq -t -n - ".format(bamfile, ' '.join(map(str, regions)), output_directory, output_directory)
+		subprocess.call(command_line, shell=True)
 		command_line = "repair.sh in1={} in2={} out1={} out2={} overwrite=true".format(
 			output_directory + "/temp_1.fastq",
 			output_directory + "/temp_2.fastq",
 			output_directory + "/" + output_prefix + "_1.fastq",
 			output_directory + "/" + output_prefix + "_2.fastq")
-		subprocess.call(command_line, shell = True)
+		subprocess.call(command_line, shell=True)
 		return [output_directory + "/" + output_prefix + "_1.fastq", output_directory + "/" + output_prefix + "_2.fastq"]
 	else:
-		command_line = "samtools view -b {} {} | samtools bam2fq -t -n - > {}/temp.fastq".format(bamfile, ' '.join(map(str,regions)), output_directory)
-		subprocess.call(command_line, shell = True)
+		command_line = "samtools view -b {} {} | samtools bam2fq -t -n - > {}/temp.fastq".format(bamfile, ' '.join(map(str, regions)), output_directory)
+		subprocess.call(command_line, shell=True)
 		command_line = "repair.sh in={} out={} overwrite=true".format(output_directory + "/temp.fastq", output_directory + "/" + output_prefix + ".fastq")
 		return [output_directory + "/temp.fastq", output_directory + "/" + output_prefix + ".fastq"]
 
 
 def parse_platypus_VCF(filename, qualCutoff, chrom):
 	""" Parse vcf generated by Platypus """
-	infile = open("{}".format(filename),'r')
+	infile = open("{}".format(filename), 'r')
 	positions = []
 	quality = []
 	readBalance = []
@@ -356,7 +405,7 @@ def parse_platypus_VCF(filename, qualCutoff, chrom):
 			continue
 		if (float(TR) == 0) or (float(TC) == 0):
 			continue
-		ReadRatio = float(TR)/float(TC)
+		ReadRatio = float(TR) / float(TC)
 
 		# Add to arrays
 		readBalance.append(ReadRatio)
@@ -370,6 +419,10 @@ def plot_read_balance(
 	chrom, positions, readBalance, sampleID, output_prefix, MarkerSize,
 	MarkerAlpha, bamfile):
 	""" Plots read balance at each SNP along a chromosome """
+	if bamfile[-3] == "bam" or bamfile[-3] == "BAM":
+		chrom_len = get_length(pysam.AlignmentFile(bamfile, "rb"), chrom)
+	else:
+		chrom_len = get_length(pysam.AlignmentFile(bamfile, "rc"), chrom)
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():
@@ -380,7 +433,7 @@ def plot_read_balance(
 	axes = fig.add_subplot(111)
 	axes.scatter(
 		positions, readBalance, c=Color, alpha=MarkerAlpha, s=MarkerSize, lw=0)
-	axes.set_xlim(0, get_length(pysam.AlignmentFile(bamfile, "rb"), chrom))
+	axes.set_xlim(0, chrom_len)
 	axes.set_title(sampleID)
 	axes.set_xlabel("Chromosomal Coordinate")
 	axes.set_ylabel("Read Balance")
@@ -412,7 +465,7 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 
 
 def plot_variants_per_chrom(
-	chrom_list, vcf_file, sampleID, output_directory, qualCutoff,
+	chrom_list, vcf_file, sampleID, output_directory, output_prefix, qualCutoff,
 	MarkerSize, MarkerAlpha, bamfile):
 	""" Parses a vcf file and plots read balance in separate plots
 	for each chromosome in the input list
@@ -421,16 +474,16 @@ def plot_variants_per_chrom(
 		parse_results = parse_platypus_VCF(vcf_file, qualCutoff, i)
 		plot_read_balance(
 			i, parse_results[0], parse_results[2],
-			sampleID, output_directory + "/{}.noprocessing".format(sampleID),
-			MarkerSize, MarkerAlpha, bamfile)
+			sampleID, output_directory + "/{}.{}".format(
+				sampleID, output_prefix), MarkerSize, MarkerAlpha, bamfile)
 		hist_read_balance(
 			i, parse_results[2], sampleID,
-			output_directory + "/{}.noprocessing".format(sampleID))
+			output_directory + "/{}.{}".format(sampleID, output_prefix))
 	pass
 
 
 def traverse_bam_fetch(samfile, chrom, window_size):
-	"""Analyze the `samfile` BAM file for various metrics and statistics.
+	"""Analyze the `samfile` BAM (or CRAM) file for various metrics.
 	Currently, this function looks at the following metrics across genomic
 	windows:
 	- Read depth
