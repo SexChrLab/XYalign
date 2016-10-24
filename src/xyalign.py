@@ -5,10 +5,10 @@
 # 4) Generalize mapping and calling (perhaps by allowing users to
 # 										add command lines as  strings)
 # 5) Add plotting of high-quality windows (depth, mapq), also after remapping
-# 		- will need to update naming scheme for this
-# 6) Check for behavior when files already exist (e.g., overwrite, quit, etc.?)
-# 7) Add checkpointing
-# 8) Allow users to call specific parts of the pipeline
+# 6) Better (and unified) naming scheme for plots and output
+# 7) Check for behavior when files already exist (e.g., overwrite, quit, etc.?)
+# 8) Add checkpointing
+# 9) Allow users to call specific parts of the pipeline
 # 		- e.g., use plotting function on their own supplied vcf or bam
 
 
