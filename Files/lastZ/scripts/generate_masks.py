@@ -4,6 +4,7 @@ import sys
 def generate_masks(window, target, query, xKb_buffer):
 	output_target={}
 	output_query={}
+	identity_mapped={}
 	for each_window in window:
 		each_window_query_in_target = []
 		each_window_query_out_target = []
@@ -43,7 +44,15 @@ def generate_masks(window, target, query, xKb_buffer):
 			if len(output_target[k]) != 0:
 				for index in range(0, len(output_target[k])):
 					window_target_query_outFile.write(str(k[0])+'\t'+str(k[1])+'\t'+str(output_target[k][index][0])+'\t'+str(output_target[k][index][1])+'\t'+str(output_query[k][index][0])+'\t'+str(output_query[k][index][1])+'\n')
-				
+	
+	with open(sys.argv[8],'a') as toMaskRegion:
+                for keys in output_target.keys():
+                        for i in output_target[keys]:
+                                toMaskRegion.write(str('chrY')+'\t'+str(i[0])+'\t'+str(i[1])+'\n')
+        with open(sys.argv[9],'a') as identityMapped:
+                for keys in identity_mapped.keys():
+                        for i in identity_mapped[keys]:
+                                identityMapped.write(str('chrY')+'\t'+str(i[0])+'\t'+str(i[1])+'\n')	
 def main():
 
 	""" From formatted lastZ output, return regions that are multimapped. 3 files are returned. File 1: coordinates for the target. File 2: coordinates for the query. File 1 and File 2 are in the rdotplot format to overlap the dotplot for visualization. File 3 contains the 10kb windows with the coordinates for the target and the query that are multimapped. Here, xKb_buffer is defined as the regions where if the query fell outside of that region, then it will be called multimapped. For example, if the window is (10000, 20000), and the target coordinates is (7000, 8000), and the query coordinates is (11000, 12000), then, this region will not be called multimapped if the buffer window is 50000. However, for the same window and target coordinates, if the query coordinates is (200000, 201000), then this region will be marked as "multimapped". This xKb buffer region can be specified by the user."""
