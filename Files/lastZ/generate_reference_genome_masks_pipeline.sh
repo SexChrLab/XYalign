@@ -18,13 +18,13 @@ xKb_windowSize=10000
 # STEP 01: To run lastZ for self-self alignment
 ################################################################################################
 
-#$lastz_dir/lastz $analysis_dir/$chr".fa" --self --notransition --ambiguous=iupac --nogapped --nomirror --step=10 --exact=50 --notrivial --format=rdotplot > $analysis_dir/$chr"_"$chr".rdotplot"
+$lastz_dir/lastz $analysis_dir/$chr".fa" --self --notransition --ambiguous=iupac --nogapped --nomirror --step=10 --exact=50 --notrivial --format=rdotplot > $analysis_dir/$chr"_"$chr".rdotplot"
 
 ################################################################################################
 # STEP 02: Dot plot for visualization
 ################################################################################################
 
-#Rscript $scripts_dir/dotplot.R $analysis_dir/$chr"_"$chr".rdotplot" $analysis_dir/$chr"_"$chr".jpeg"
+Rscript $scripts_dir/dotplot.R $analysis_dir/$chr"_"$chr".rdotplot" $analysis_dir/$chr"_"$chr".jpeg"
 
 # Visually check the dotplot. If the dot plot looks good, proceed to STEP 03
 
@@ -33,12 +33,12 @@ xKb_windowSize=10000
 # See the bash script "format_rdotplot.R" for more details
 ################################################################################################
 
-#$scripts_dir/format_rdotplot.sh $analysis_dir/$chr"_"$chr".rdotplot" $analysis_dir chrY
+$scripts_dir/format_rdotplot.sh $analysis_dir/$chr"_"$chr".rdotplot" $analysis_dir chrY
 
 ################################################################################################
 # STEP 04: Generate Xkb non-overlapping windows (choose here 10kb)
 ################################################################################################
-#bedtools makewindows -g $analysis_dir/$chr"_length.txt" -w $xKb_windowSize > $analysis_dir/$chr"_"$xKb_windowSize"_nonOverlapping.txt"
+bedtools makewindows -g $analysis_dir/$chr"_length.txt" -w $xKb_windowSize > $analysis_dir/$chr"_"$xKb_windowSize"_nonOverlapping.txt"
 
 ###############################################################################################
 # STEP 05: Run python script to obtain the masked regions
@@ -52,7 +52,7 @@ arg_5=$analysis_dir/"target_out_bufferRegion"$arg_4".txt"
 arg_6=$analysis_dir/"query_out_bufferRegion"$arg_4".txt"
 arg_7=$analysis_dir/"window_query_out_bufferRegion"$arg_4".txt"
 
-#python $scripts_dir/generate_masks.py $arg_1 $arg_2 $arg_3 $arg_4 $arg_5 $arg_6 $arg_7
+python $scripts_dir/generate_masks.py $arg_1 $arg_2 $arg_3 $arg_4 $arg_5 $arg_6 $arg_7
 
 ###############################################################################################
 # STEP 07: Plotting for visualization
