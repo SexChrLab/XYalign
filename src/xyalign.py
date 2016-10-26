@@ -112,12 +112,12 @@ def main():
 				perm_res.append(permutation_test_chromosomes(
 					pd.concat(pass_df), c, str(args.x_chromosome[0]), "chrom",
 					"depth", args.num_permutations,
-					"{}_{}_permutation_results.txt".format(
+					args.output_dir + "/{}_{}_permutation_results.txt".format(
 						c, str(args.x_chromosome[0]))))
 			sex_perm_res = permutation_test_chromosomes(
 				pd.concat(pass_df), str(args.x_chromosome[0]), str(args.y_chromosome[0]),
 				"chrom", "depth", args.num_permutations,
-				"{}_{}_permutation_results.txt".format(
+				args.output_dir + "/{}_{}_permutation_results.txt".format(
 					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 			if 0.025 < sex_perm_res[2] < 0.95:
 				y_present = True
