@@ -106,7 +106,7 @@ def main():
 		# Permutation tests
 		if args.no_perm_test is not True:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
-			autosomes = [x for x in args.chromosomes not in sex_chromosomes]
+			autosomes = [x for x in args.chromosomes if x not in sex_chromosomes]
 			perm_res = []
 			for c in autosomes:
 				perm_res.append(permutation_test_chromosomes(
@@ -144,7 +144,7 @@ def main():
 			# Remap
 			new_bam = bwa_mem_mapping(
 				new_reference, "{}/{}.sex_chroms".format(
-					args.output_dir, args.sample_id),
+					args.output_dir, args.sample_id, threads=args.cpus),
 				new_fastqs)
 			# Merge bam files
 			if args.bam is not None:
@@ -174,7 +174,7 @@ def main():
 			# Remap
 			new_bam = bwa_mem_mapping(
 				new_reference, "{}/{}.sex_chroms".format(
-					args.output_dir, args.sample_id),
+					args.output_dir, args.sample_id, threads=args.cpus),
 				new_fastqs)
 			# Merge bam files
 			if args.bam is not None:
@@ -401,19 +401,19 @@ def permutation_test_chromosomes(
 	return (first_mean, second_mean, sig)
 
 
-def bwa_mem_mapping(reference, output_prefix, fastqs, cram=False):
+def bwa_mem_mapping(reference, output_prefix, fastqs, threads=1, cram=False):
 	""" Maps reads to a reference genome using bwa mem.
 	"""
 	fastqs = ' '.join(fastqs)
 	subprocess.call("bwa index {}".format(reference), shell=True)
 	if cram is False:
-		command_line = "bwa mem {} {} | samtools fixmate -O bam - - | samtools sort -O bam -o {}_sorted.bam -".format(reference, fastqs, output_prefix)
+		command_line = "bwa mem -t {} {} {} | samtools fixmate -O bam - - | samtools sort -O bam -o {}_sorted.bam -".format(threads, reference, fastqs, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			"samtools index {}_sorted.bam".format(output_prefix), shell=True)
 		return "{}_sorted.bam".format(output_prefix)
 	else:
-		command_line = "bwa mem {} {} | samtools fixmate -O cram - - | samtools sort -O cram -o {}_sorted.cram -".format(reference, fastqs, output_prefix)
+		command_line = "bwa mem -t {} {} {} | samtools fixmate -O cram - - | samtools sort -O cram -o {}_sorted.cram -".format(threads, reference, fastqs, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			"samtools index {}_sorted.cram".format(output_prefix), shell=True)
