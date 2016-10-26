@@ -10,12 +10,13 @@
 # 3) Write to a better designed output directory structure
 # 4) Better (and unified) naming scheme for plots and output
 # 5) Generalize mapping and calling (perhaps by allowing users to
-# 										add command lines as  strings)
+# 		add command lines as  strings)
 # 6) Add plotting of high-quality windows (depth, mapq), also after remapping
 
 # 7) Check for behavior when files already exist (e.g., overwrite, quit, etc.?)
 # 8) Incorporate mask integration on the fly
-
+# 9) Check with Python 3 and see if any incompatibilities (e.g., printing) can
+# 		be solved with from __future__
 
 from __future__ import division
 import argparse
@@ -289,6 +290,15 @@ def parse_args():
 		help="Name of output file for high quality regions.")
 
 	parser.add_argument(
+		"--num_permutations", type=int, default=10000,
+		help="Number of permutations to use for permutation analyses")
+
+	parser.add_argument(
+		"--no_perm_test", action="store_true", default=False,
+		help="Include flag to turn off permutation tests. Requires either "
+		"--y_present or --y_absent to also be called")
+
+	parser.add_argument(
 		"--output_dir", "-o",
 		help="Output directory")
 
@@ -303,11 +313,11 @@ def parse_args():
 	group2 = parser.add_mutually_exclusive_group(required=False)
 
 	group2.add_argument(
-		"--y_present", action="store_true",
+		"--y_present", action="store_true", default=False,
 		help="Overrides sex chr estimation by XYalign and remaps with Y present.")
 
 	group2.add_argument(
-		"--y_absent", action="store_true",
+		"--y_absent", action="store_true", default=False,
 		help="Overrides sex chr estimation by XY align and remaps with Y absent.")
 
 	args = parser.parse_args()
@@ -318,6 +328,11 @@ def parse_args():
 	if args.platypus_calling not in ["both", "none", "before", "after"]:
 		print "Error. Platypus calling must be both, none, before, or after. ",\
 			"Default is both."
+		sys.exit(1)
+	if args.no_perm_test is True:
+		if args.y_present is False and args.y_absent is False:
+			print "Error. Either --y_present or --y_absent needs to be ",\
+				"included with --no_perm_test"
 		sys.exit(1)
 
 	# Return arguments namespace
