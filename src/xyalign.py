@@ -107,18 +107,27 @@ def main():
 		if args.no_perm_test is not True:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			autosomes = [x for x in args.chromosomes if x not in sex_chromosomes]
-			perm_res = []
+			perm_res_x = []
+			perm_res_y = []
 			for c in autosomes:
-				perm_res.append(permutation_test_chromosomes(
+				perm_res_x.append(permutation_test_chromosomes(
 					pd.concat(pass_df), c, str(args.x_chromosome[0]), "chrom",
 					"depth", args.num_permutations,
 					args.output_dir + "/{}_{}_permutation_results.txt".format(
 						c, str(args.x_chromosome[0]))))
+				perm_res_y.append(permutation_test_chromosomes(
+					pd.concat(pass_df), c, str(args.y_chromosome[0]), "chrom",
+					"depth", args.num_permutations,
+					args.output_dir + "/{}_{}_permutation_results.txt".format(
+						c, str(args.y_chromosome[0]))))
 			sex_perm_res = permutation_test_chromosomes(
 				pd.concat(pass_df), str(args.x_chromosome[0]), str(args.y_chromosome[0]),
 				"chrom", "depth", args.num_permutations,
 				args.output_dir + "/{}_{}_permutation_results.txt".format(
 					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+			# Right now this implements a simple and rather inelegant test for
+			# 	a Y chromosome that assumes approximately equal depth on the
+			# 	X and the Y in XY individuals.
 			if 0.025 < sex_perm_res[2] < 0.95:
 				y_present = True
 			else:
@@ -371,13 +380,13 @@ def permutation_test_chromosomes(
 	first_mean = np.mean(first_vals)
 	second_mean = np.mean(second_vals)
 
-	observed = first_mean - second_mean
+	observed = first_mean / second_mean
 	perms = []
 	for i in range(0, num_perms):
 		np.random.shuffle(combined)
 		first = np.mean(combined[:len(first_vals)])
 		second = np.mean(combined[-len(second_vals):])
-		perms.append(first - second)
+		perms.append(first / second)
 	perms = np.asarray(perms)
 	sig = len(np.where(perms > observed)) / num_perms
 	if output_file is not None:
@@ -385,7 +394,7 @@ def permutation_test_chromosomes(
 			"{}_mean".format(first_chrom),
 			"{}_mean".format(second_chrom),
 			"{}_{}_diff".format(first_chrom, second_chrom),
-			"p_val_({}_>_{})".format(first_chrom, second_chrom),
+			"p_val_({}_/_{})".format(first_chrom, second_chrom),
 			"perm_2.5",
 			"perm_50",
 			"perm_97.5"]
