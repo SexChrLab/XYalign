@@ -1,19 +1,25 @@
 # To-do list
 # 1) Add ploidy estimation
-# 2) Add flags to make each part of the pipeline optional
+# 		- added permutation tests
+# 		- need to add likelihood analyses (model fitting)
+# 2) Compartmentalize all steps of analysis
+# 		- Add flags to make each part of the pipeline optional
+# 		- Allow users to call specific parts of the pipeline
+# 					(e.g. only vcf plotting)
+# 		- Add checkpointing
 # 3) Write to a better designed output directory structure
-# 4) Generalize mapping and calling (perhaps by allowing users to
+# 4) Better (and unified) naming scheme for plots and output
+# 5) Generalize mapping and calling (perhaps by allowing users to
 # 										add command lines as  strings)
-# 5) Add plotting of high-quality windows (depth, mapq), also after remapping
-# 6) Better (and unified) naming scheme for plots and output
+# 6) Add plotting of high-quality windows (depth, mapq), also after remapping
+
 # 7) Check for behavior when files already exist (e.g., overwrite, quit, etc.?)
-# 8) Add checkpointing
-# 9) Allow users to call specific parts of the pipeline
-# 		- e.g., use plotting function on their own supplied vcf or bam
+# 8) Incorporate mask integration on the fly
 
 
 from __future__ import division
 import argparse
+import csv
 import os
 import subprocess
 import sys
@@ -21,6 +27,8 @@ import numpy as np
 import pandas as pd
 import pybedtools
 import pysam
+# Setting the matplotlib display variable requires importing
+# 	in exactly the following order:
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
@@ -94,7 +102,26 @@ def main():
 		y_present = False
 	else:
 		# Replace this with code to infer ploidy, etc.
-		y_present = None
+		# Permutation tests
+		if args.no_perm_test is not True:
+			sex_chromosomes = args.x_chromosome + args.y_chromosome
+			autosomes = [x for x in args.chromosomes not in sex_chromosomes]
+			perm_res = []
+			for c in autosomes:
+				perm_res.append(permutation_test_chromosomes(
+					pd.concat(pass_df), c, args.x_chromosome, "chrom",
+					"depth", args.num_permutations,
+					"{}_{}_permutation_results.txt".format(
+						c, args.x_chromosome)))
+			sex_perm_res = permutation_test_chromosomes(
+				pd.concat(pass_df), args.x_chromosome, args.y_chromosome,
+				"chrom", "depth", args.num_permutations,
+				"{}_{}_permutation_results.txt".format(
+					args.x_chromosome, args.y_chromosome))
+			if 0.025 < sex_perm_res[2] < 0.95:
+				y_present = True
+
+		# Likelihood analyses
 
 	# Remapping
 	if args.no_remapping is True:
@@ -312,6 +339,51 @@ def get_length(bamfile, chrom):
 	"""
 	lengths = dict(zip(bamfile.references, bamfile.lengths))
 	return lengths[chrom]
+
+
+def permutation_test_chromosomes(
+	data_frame, first_chrom, second_chrom, chrom_column,
+	value_column, num_perms, output_file=None):
+	""" Takes a dataframe and runs a permutation test comparing mean values
+	of two chromosomes.
+	"""
+	first_vals = data_frame[chrom_column == first_chrom].value_column
+	second_vals = data_frame[chrom_column == second_chrom].value_column
+	combined = np.append(first_vals, second_vals)
+
+	first_mean = np.mean(first_vals)
+	second_mean = np.mean(second_vals)
+
+	observed = first_mean - second_mean
+	perms = []
+	for i in range(0, num_perms):
+		np.random.shuffle(combined)
+		first = np.mean(combined[:len(first_vals)])
+		second = np.mean(combined[-len(second_vals):])
+		perms.append(first - second)
+	perms = np.asarray(perms)
+	sig = len(np.where(perms > observed)) / num_perms
+	if output_file is not None:
+		a = [
+			"{}_mean".format(first_chrom),
+			"{}_mean".format(second_chrom),
+			"{}_{}_diff".format(first_chrom, second_chrom),
+			"p_val_({}_>_{})".format(first_chrom, second_chrom),
+			"perm_2.5",
+			"perm_50",
+			"perm_97.5"]
+		b = [
+			"{}".format(first),
+			"{}".format(second),
+			"{}".format(observed),
+			"{}".format(sig),
+			"{}".format(np.percentile(perms, 2.5)),
+			"{}".format(np.percentile(perms, 50)),
+			"{}".format(np.percentile(perms, 97.5))]
+		with open(output_file, "w") as f:
+			w = csv.writer(f, dialect="excel-tab")
+			w.writerows([a, b])
+	return (first_mean, second_mean, sig)
 
 
 def bwa_mem_mapping(reference, output_prefix, fastqs, cram=False):
