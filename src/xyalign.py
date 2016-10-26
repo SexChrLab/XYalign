@@ -362,8 +362,8 @@ def permutation_test_chromosomes(
 	""" Takes a dataframe and runs a permutation test comparing mean values
 	of two chromosomes.
 	"""
-	first_vals = data_frame[chrom_column == first_chrom].value_column
-	second_vals = data_frame[chrom_column == second_chrom].value_column
+	first_vals = data_frame[data_frame.chrom_column == first_chrom].value_column
+	second_vals = data_frame[data_frame.chrom_column == second_chrom].value_column
 	combined = np.append(first_vals, second_vals)
 
 	first_mean = np.mean(first_vals)
