@@ -110,17 +110,19 @@ def main():
 			perm_res = []
 			for c in autosomes:
 				perm_res.append(permutation_test_chromosomes(
-					pd.concat(pass_df), c, args.x_chromosome, "chrom",
+					pd.concat(pass_df), c, str(args.x_chromosome[0]), "chrom",
 					"depth", args.num_permutations,
 					"{}_{}_permutation_results.txt".format(
-						c, args.x_chromosome)))
+						c, str(args.x_chromosome[0]))))
 			sex_perm_res = permutation_test_chromosomes(
-				pd.concat(pass_df), args.x_chromosome, args.y_chromosome,
+				pd.concat(pass_df), str(args.x_chromosome[0]), str(args.y_chromosome[0]),
 				"chrom", "depth", args.num_permutations,
 				"{}_{}_permutation_results.txt".format(
-					args.x_chromosome, args.y_chromosome))
+					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 			if 0.025 < sex_perm_res[2] < 0.95:
 				y_present = True
+			else:
+				y_present = False
 
 		# Likelihood analyses
 
@@ -362,8 +364,8 @@ def permutation_test_chromosomes(
 	""" Takes a dataframe and runs a permutation test comparing mean values
 	of two chromosomes.
 	"""
-	first_vals = data_frame[data_frame.chrom_column == first_chrom].value_column
-	second_vals = data_frame[data_frame.chrom_column == second_chrom].value_column
+	first_vals = data_frame[data_frame[chrom_column] == first_chrom][value_column]
+	second_vals = data_frame[data_frame[chrom_column] == second_chrom][value_column]
 	combined = np.append(first_vals, second_vals)
 
 	first_mean = np.mean(first_vals)
@@ -388,8 +390,8 @@ def permutation_test_chromosomes(
 			"perm_50",
 			"perm_97.5"]
 		b = [
-			"{}".format(first),
-			"{}".format(second),
+			"{}".format(first_mean),
+			"{}".format(second_mean),
 			"{}".format(observed),
 			"{}".format(sig),
 			"{}".format(np.percentile(perms, 2.5)),
