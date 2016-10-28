@@ -23,6 +23,7 @@ def generate_masks(window, target, query, xKb_buffer):
 					each_window_query_out_target.append(target_coord)
 		output_target[each_window]=each_window_query_out_target
 		output_query[each_window]=each_window_query_out
+		identity_mapped[each_window]=each_window_query_in_target
 	with open(sys.argv[5],'a') as target_outFile:
 		target_outFile.write('chrY\n')
 		for keys in output_target.keys():
