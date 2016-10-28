@@ -33,7 +33,7 @@ scripts_dir=$cwd/scripts #This is the directory where all of the scripts are sto
 # STEP 01: To run lastZ for self-self alignment
 ################################################################################################
 
-$lastz_dir/lastz $analysis_dir/$chr".fa" --self --notransition --ambiguous=iupac --nogapped --nomirror --step=20 --notrivial --format=rdotplot > $analysis_dir/$chr"_"$chr".rdotplot"
+$lastz_dir/lastz ${fastaData}/ucsc_${build}/$chr".fa" --self --notransition --ambiguous=iupac --nogapped --nomirror --step=20 --notrivial --format=rdotplot > $analysis_dir/$chr"_"$chr".rdotplot"
 
 ################################################################################################
 # STEP 02: Dot plot for visualization
