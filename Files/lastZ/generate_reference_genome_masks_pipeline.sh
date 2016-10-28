@@ -33,7 +33,7 @@ scripts_dir=$cwd/scripts #This is the directory where all of the scripts are sto
 # STEP 01: To run lastZ for self-self alignment
 ################################################################################################
 
-$lastz_dir/lastz ${cwd}/fastaData/ucsc_${build}/$chr".fa" --self --notransition --ambiguous=iupac --nogapped --nomirror --step=20 --notrivial --format=rdotplot > $analysis_dir/$chr"_"$chr".rdotplot"
+$lastz_dir/lastz ${cwd}/fastaData/ucsc_${build}/$chr".fa" --self --notransition --ambiguous=iupac --nogapped --nomirror --step=10 --exact=50 --notrivial --format=rdotplot > $analysis_dir/$chr"_"$chr".rdotplot"
 
 ################################################################################################
 # STEP 02: Dot plot for visualization
@@ -68,8 +68,8 @@ arg_6=$analysis_dir/"query_out_bufferRegion"$arg_4".txt"
 arg_7=$analysis_dir/"window_query_out_bufferRegion"$arg_4".txt"
 arg_8=$analysis_dir/"toMaskRegions.bed" ### masked regions in bed format 
 arg_9=$analysis_dir/"identityMapped.bed" ### regions that are on the identity line in bed format 
-#python $scripts_dir/generate_masks.py $arg_1 $arg_2 $arg_3 $arg_4 $arg_5 $arg_6 $arg_7 $arg_8 $arg_9
-python $scripts_dir/generate_masks.py $arg_1 $arg_2 $arg_3 $arg_4 $arg_5 $arg_6 $arg_7
+python $scripts_dir/generate_masks.py $arg_1 $arg_2 $arg_3 $arg_4 $arg_5 $arg_6 $arg_7 $arg_8 $arg_9
+#python $scripts_dir/generate_masks.py $arg_1 $arg_2 $arg_3 $arg_4 $arg_5 $arg_6 $arg_7
 
 ###############################################################################################
 # STEP 07: Plotting for visualization
