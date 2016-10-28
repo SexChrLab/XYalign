@@ -1,5 +1,5 @@
 #!/bin/bash
-
+##### TODO: Make lastZ command more flexible
 . /u/local/Modules/default/init/modules.sh
 module load R
 module load python
@@ -7,18 +7,33 @@ module load bedtools
 
 cwd=$(pwd)
 
-### To run, modify these paths
+### Ask the user what build (hg19 vs hg38) and what chromosome
+
+echo -n "Enter the build, hg19 or hg38, and press [ENTER]: "
+read build
+
+echo -n "Enter the chromosome you want to create a mask of and press [ENTER]: "
+read chr
+
+echo -n "Enter the type of lastZ you are running (ie default) and press [ENTER] "
+read lastZ
+
+echo -n "Enter the size of the nonOverlapping window and press [ENTER]: "
+read xKb_windowSize
+
+### Create a directory to dump all output
+
+mkdir ${cwd}/${build}_${chr}_lastZ${lastZ}_outDir
+
 lastz_dir=$cwd/lastz-distrib/bin #This is the directory where to call lastZ
-analysis_dir=$cwd/generate_chrY_masks #This is the directory where all the input and output files are stored. Assume that the fasta file for a specific chromosome is stored here. 
+analysis_dir=${cwd}/${build}_${chr}_lastZ${lastZ}_outDir #This is the directory where all the input and output files are stored. 
 scripts_dir=$cwd/scripts #This is the directory where all of the scripts are stored
-chr='chrY'
-xKb_windowSize=10000
 
 ################################################################################################
 # STEP 01: To run lastZ for self-self alignment
 ################################################################################################
 
-$lastz_dir/lastz $analysis_dir/$chr".fa" --self --notransition --ambiguous=iupac --nogapped --nomirror --step=10 --exact=50 --notrivial --format=rdotplot > $analysis_dir/$chr"_"$chr".rdotplot"
+$lastz_dir/lastz $analysis_dir/$chr".fa" --self --notransition --ambiguous=iupac --nogapped --nomirror --step=20 --notrivial --format=rdotplot > $analysis_dir/$chr"_"$chr".rdotplot"
 
 ################################################################################################
 # STEP 02: Dot plot for visualization
@@ -89,9 +104,6 @@ identityMappedSum=`awk '{ sum += $4 } END {print sum} ' $analysis_dir/"identityM
 
 echo 'Total number of base pairs that are masked is' $toMaskSum
 echo 'Total number of base pairs that are on the identity line is' $identityMappedSum
-
-
-
 
 
 
