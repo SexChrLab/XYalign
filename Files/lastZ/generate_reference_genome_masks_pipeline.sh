@@ -1,5 +1,6 @@
 #!/bin/bash
 ##### TODO: Make lastZ command more flexible
+#### TODO: Call rdotplot with argument being the chr name
 . /u/local/Modules/default/init/modules.sh
 module load R
 module load python
@@ -48,7 +49,7 @@ Rscript $scripts_dir/dotplot.R $analysis_dir/$chr"_"$chr".rdotplot" $analysis_di
 # See the bash script "format_rdotplot.R" for more details
 ################################################################################################
 
-$scripts_dir/format_rdotplot.sh $analysis_dir/$chr"_"$chr".rdotplot" $analysis_dir chrY
+$scripts_dir/format_rdotplot.sh $analysis_dir/$chr"_"$chr".rdotplot" $analysis_dir $chr
 
 ################################################################################################
 # STEP 04: Generate Xkb non-overlapping windows (choose here 10kb)
