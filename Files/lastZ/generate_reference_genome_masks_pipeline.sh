@@ -53,7 +53,7 @@ $scripts_dir/format_rdotplot.sh $analysis_dir/$chr"_"$chr".rdotplot" $analysis_d
 ################################################################################################
 # STEP 04: Generate Xkb non-overlapping windows (choose here 10kb)
 ################################################################################################
-bedtools makewindows -g $analysis_dir/$chr"_length.txt" -w $xKb_windowSize > $analysis_dir/$chr"_"$xKb_windowSize"_nonOverlapping.txt"
+bedtools makewindows -g ${cwd}/fastaData/ucsc_${build}/$chr"_length.txt" -w $xKb_windowSize > $analysis_dir/$chr"_"$xKb_windowSize"_nonOverlapping.txt"
 
 ###############################################################################################
 # STEP 05: Run python script to obtain the masked regions
