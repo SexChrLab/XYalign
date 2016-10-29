@@ -40,7 +40,7 @@ $lastz_dir/lastz ${cwd}/fastaData/ucsc_${build}/$chr".fa" --self --notransition 
 # STEP 02: Dot plot for visualization
 ################################################################################################
 
-Rscript $scripts_dir/dotplot.R $analysis_dir/$chr"_"$chr".rdotplot" $analysis_dir/$chr"_"$chr".jpeg"
+Rscript $scripts_dir/dotplot.R $analysis_dir/$chr"_"$chr".rdotplot" $analysis_dir/$chr"_"$chr".jpeg" $chr
 
 # Visually check the dotplot. If the dot plot looks good, proceed to STEP 03
 
@@ -77,7 +77,7 @@ python $scripts_dir/generate_masks.py $arg_1 $arg_2 $arg_3 $arg_4 $arg_5 $arg_6 
 ###############################################################################################
 # A. Generate the rdotplot format for the "masked" regions
 paste $arg_5 $arg_6 > $analysis_dir/$chr"_target_query_out_bufferRegion"$arg_4".rdotplot"
-Rscript $scripts_dir/dotplot.R $analysis_dir/$chr"_target_query_out_bufferRegion"$arg_4".rdotplot" $analysis_dir/$chr"_"$chr"_masked_regions.jpeg"
+Rscript $scripts_dir/dotplot.R $analysis_dir/$chr"_target_query_out_bufferRegion"$arg_4".rdotplot" $analysis_dir/$chr"_"$chr"_masked_regions.jpeg" $chr
 
 # B. Overlaying
 Rscript $scripts_dir/dotplot_overlap.R $analysis_dir/$chr"_"$chr".rdotplot" $analysis_dir/$chr"_target_query_out_bufferRegion"$arg_4".rdotplot" $analysis_dir/$chr"_"$chr"overlay_with_maskedRegions.jpeg"
