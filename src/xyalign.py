@@ -70,6 +70,20 @@ def main():
 			plat_log))
 	readbalance_prefix = os.path.join(
 		args.output_dir, "plots", "{}_noprocessing".format(args.sample_id))
+	depth_mapq_prefix = os.path.join(
+		args.output_dir, "plots", "{}_noprocessing".format(args.sample_id))
+	if args.high_quality_bed is not None:
+		high_prefix = args.high_quality_bed
+	else:
+		high_prefix = "{}_highquality".format(args.sample_id)
+	output_bed_high = os.path.join(
+		args.output_dir, "bed", "{}.bed".format(high_prefix))
+	if args.low_quality_bed is not None:
+		low_prefix = args.low_quality_bed
+	else:
+		low_prefix = "{}_lowquality".format(args.sample_id)
+	output_bed_low = os.path.join(
+		args.output_dir, "bed", "{}.bed".format(low_prefix))
 
 	# First round of Platypus calling and plotting
 	if args.platypus_calling == "both" or "before":
@@ -115,11 +129,11 @@ def main():
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			plot_depth_mapq(
-				data, args.output_dir, args.sample_id,
+				data, depth_mapq_prefix, args.sample_id,
 				get_length(samfile, chromosome), args.marker_size,
 				args.marker_transparency)
-			output_bed(os.path.join(args.output_dir, args.high_quality_bed), *pass_df)
-			output_bed(os.path.join(args.output_dir, args.low_quality_bed), *fail_df)
+		output_bed(output_bed_high, *pass_df)
+		output_bed(output_bed_low, *fail_df)
 
 	# Infer ploidy (needs to be finished)
 
@@ -354,12 +368,14 @@ def parse_args():
 		"(f * square_root(mean_depth)).")
 
 	parser.add_argument(
-		"--high_quality_bed", "-hq", default="highquality.bed",
-		help="Name of output file for high quality regions.")
+		"--high_quality_bed", "-hq", default=None,
+		help="Prefix of output file for high quality regions. Defaults to "
+		"samplename_highquality")
 
 	parser.add_argument(
-		"--low_quality_bed", "-lq", default="lowquality.bed",
-		help="Name of output file for low quality regions.")
+		"--low_quality_bed", "-lq", default=None,
+		help="Prefix of output file for low quality regions. Defaults to "
+		"samplename_lowquality")
 
 	parser.add_argument(
 		"--num_permutations", type=int, default=10000,
@@ -882,13 +898,13 @@ def chromosome_wide_plot(
 
 
 def plot_depth_mapq(
-	data_dict, output_dir, sampleID, chrom_length, MarkerSize, MarkerAlpha):
+	data_dict, output_prefix, sampleID, chrom_length, MarkerSize, MarkerAlpha):
 	"""
 	Takes a dictionary (output from traverseBam) and outputs histograms and
 	genome-wide plots of various metrics.
 	Args:
 		data_dict: Dictionary of pandas data frames
-		output_dir: Directory where the PNG file with the plots will be stored
+		output_prefix: Path and prefix of output files to create
 		sampleID: name/ID of sample
 		chrom_length: length of chromosome
 	Returns:
@@ -913,7 +929,7 @@ def plot_depth_mapq(
 		# depth_genome_plot.savefig(depth_genome_plot_path)
 		chromosome_wide_plot(
 			chromosome, window_df["start"].values, window_df["depth"].values,
-			"Depth", sampleID, "{}/{}".format(output_dir, sampleID),
+			"Depth", sampleID, output_prefix,
 			MarkerSize, MarkerAlpha,
 			chrom_length, 100)
 
@@ -925,7 +941,7 @@ def plot_depth_mapq(
 		# mapq_genome_plot.savefig(mapq_genome_plot_path)
 		chromosome_wide_plot(
 			chromosome, window_df["start"].values, window_df["mapq"].values,
-			"Mapq", sampleID, "{}/{}".format(output_dir, sampleID),
+			"Mapq", sampleID, output_prefix,
 			MarkerSize, MarkerAlpha, chrom_length, 80)
 
 	# Create histograms
