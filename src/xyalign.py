@@ -227,6 +227,10 @@ def parse_args():
 		help="Path to reference sequence (including file name).")
 
 	parser.add_argument(
+		"--output_dir", "-o",
+		help="Output directory")
+
+	parser.add_argument(
 		"--chromosomes", "-c", nargs="+", default=["chrX", "chrY", "chr19"],
 		help="Chromosomes to analyze.")
 
@@ -243,8 +247,34 @@ def parse_args():
 		help="Name/ID of sample - for use in plot titles and file naming.")
 
 	parser.add_argument(
+		"--cpus", type=int, default=1,
+		help="Number of cores/threads to use.")
+
+	parser.add_argument(
 		"--single_end", action="store_true", default=False,
 		help="Include flag if reads are single-end and NOT paired-end.")
+
+	# Program paths
+	parser.add_argument(
+		"--platypus_path", default="platypus",
+		help="Path to platypus.  Default is 'platypus'")
+
+	parser.add_argument(
+		"--bwa_path", default="bwa",
+		help="Path to bwa. Default is 'bwa'")
+
+	parser.add_argument(
+		"--samtools_path", default="samtools",
+		help="Path to samtools. Default is 'samtools'")
+
+	parser.add_argument(
+		"--repairsh_path", default="repair.sh",
+		help="Path to bbmap's repair.sh script. Default is 'repair.sh'")
+
+	# Options for turning on/off parts of the pipeline
+	parser.add_argument(
+		"--no_remapping", action="store_false", default=True,
+		help="Include this flag to prevent remapping sex chromosome reads.")
 
 	parser.add_argument(
 		"--platypus_calling", default="both",
@@ -256,28 +286,13 @@ def parse_args():
 		"--no_variant_plots", action="store_false", default=True,
 		help="Include flag to prevent plotting read balance from VCF files.")
 
-	parser.add_argument(
-		"--no_remapping", action="store_false", default=True,
-		help="Include this flag to prevent remapping sex chromosome reads.")
-
+	# Variant Calling Flags
 	parser.add_argument(
 		"--variant_quality_cutoff", "-vqc", type=int, default=20,
 		help="Consider all SNPs with a quality greater than or "
 		"equal to this value. Default is 20.")
 
-	parser.add_argument(
-		"--marker_size", type=float, default=10.0,
-		help="Marker size for genome-wide plots in matplotlib.")
-
-	parser.add_argument(
-		"--marker_transparency", "-mt", type=float, default=0.5,
-		help="Transparency of markers in genome-wide plots.  "
-		"Alpha in matplotlib.")
-
-	parser.add_argument(
-		"--cpus", type=int, default=1,
-		help="Number of cores/threads to use.")
-
+	# Bam Analysis Flags
 	parser.add_argument(
 		"--window_size", "-w", type=int, default=50000,
 		help="Window size (integer) for sliding window calculations.")
@@ -298,21 +313,24 @@ def parse_args():
 
 	parser.add_argument(
 		"--low_quality_bed", "-lq", default="lowquality.bed",
-		help="Name of output file for high quality regions.")
+		help="Name of output file for low quality regions.")
 
 	parser.add_argument(
 		"--num_permutations", type=int, default=10000,
-		help="Number of permutations to use for permutation analyses")
+		help="Number of permutations to use for permutation analyses. "
+		"Default is 10,000")
+
+	# Plotting flags
+	parser.add_argument(
+		"--marker_size", type=float, default=10.0,
+		help="Marker size for genome-wide plots in matplotlib.")
 
 	parser.add_argument(
-		"--no_perm_test", action="store_true", default=False,
-		help="Include flag to turn off permutation tests. Requires either "
-		"--y_present or --y_absent to also be called")
+		"--marker_transparency", "-mt", type=float, default=0.5,
+		help="Transparency of markers in genome-wide plots.  "
+		"Alpha in matplotlib.")
 
-	parser.add_argument(
-		"--output_dir", "-o",
-		help="Output directory")
-
+	# Mutually exclusive group 1 - bam or cram file
 	group = parser.add_mutually_exclusive_group(required=True)
 
 	group.add_argument(
@@ -320,6 +338,17 @@ def parse_args():
 
 	group.add_argument(
 		"--cram", help="Input cram file.")
+
+	# Mutally exclusive group 2 - overriding ploidy estimation with declaration
+	# 		that Y is present or Y is absent.  --no_perm_test is provided
+	# 		for convenience in understanding the what is being omitted when
+	# 		choosing --y_present or --y_absent, but it is not required if
+	# 		either of the latter two flags are present.
+
+	parser.add_argument(
+		"--no_perm_test", action="store_true", default=False,
+		help="Include flag to turn off permutation tests. Requires either "
+		"--y_present or --y_absent to also be called")
 
 	group2 = parser.add_mutually_exclusive_group(required=False)
 
