@@ -1,4 +1,4 @@
-# XYalign
+# XYalign: Inferring Sex Chromosome Ploidy in NGS Data
 
 
     Copyright 2016 by Melissa A. Wilson Sayres
@@ -13,18 +13,44 @@
     GNU General Public License for more details.
 
 
-
-
-## Inferring sex chromosome ploidy in NGS data
-###XYalign: Hacking sex chromosome variation
-
 Madeline Couse, Bruno Grande, Eric Karlins, Tanya Phung, Phillip Richmond, Timothy H. Webster, Whitney Whitford, Melissa A. Wilson Sayres
 
 Sex chromosome aneuploidies are currently estimated to be as common as 1/400 in humans. Atypical ploidy will affect variant calling and measures of genomic variation that are central to most clinical genomic studies. Further, the high degree of similarity between gametologous sequences on the X and Y chromosomes can lead to the misalignment of sequencing reads and substantially affect variant calling. Here we present XYalign, a new tool that (1) quickly infers sex chromosome ploidy in NGS data (DNA and RNA), (2) remaps reads based on the inferred sex chromosome complement of the individual, and (3) outputs quality, depth, and allele-balance metrics across the sex chromosomes.
 
 October 17, 2016 slide show here: https://docs.google.com/presentation/d/1OB2d_mu5zC742N_NKfzHjVpUm4BFtm5lUzniLLI--OQ/edit?usp=sharing
 
+## Quick Start
+### What you need
+Minimally, you'll need:
+1. a bam or cram file
 
+2. the reference genome against which reads were mapped to create the bam/cram file in (1)
+
+3. an environment with a host of python packages (right now we only support Python 2.7; numpy, pandas, matplotlib, seaborn, pysam, and pybedtools) and external programs (platypus, bwa, samtools, and bbmap) installed.  Probably the easiest way to do this is to download [miniconda](http://conda.pydata.org/miniconda.html) and let it append its path to your .bashrc file.  You should then be able to set up and environment with the following commands:
+```
+conda config --add channels r
+
+conda config --add channels conda-forge
+
+conda config --add channels bioconda
+
+conda create -n xyalign_env python=2.7 pysam pybedtools numpy pandas matplotlib seaborn platypus-variant bwa bbmap samtools
+```
+This will work on Linux machines.  As of right now, bioconda won't install platypus on Macs, so Mac users will have to replace the final command with
+```
+conda create -n xyalign_env python=2.7 pysam pybedtools numpy pandas matplotlib seaborn bwa bbmap samtools
+```
+and [install platypus on their own](http://www.well.ox.ac.uk/platypus).
+
+After setup, this environment can be loaded with the command (same on Linux and Macs):
+```
+source activate xyalign_env
+```
+See [Anaconda's documentation](http://conda.pydata.org/docs/using/envs.html) for details on working with environments.
+
+4. a .fai index of the reference genome in (2) located in the same directory as the reference.  This can be generated using the command ```samtools faidx <reference_fasta>```.  See the [samtools documentation](http://www.htslib.org/doc/samtools.html) for more information 
+
+## Goals, Problems, and Contributors
 ### List of Goals: Assess X/Y ploidy and correct for misalignment
 1. Extract input chromosomes - recommend chrX, chrY, autosome (e.g., chr19) - from BAM
 
