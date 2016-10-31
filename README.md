@@ -22,6 +22,7 @@ October 17, 2016 slide show here: https://docs.google.com/presentation/d/1OB2d_m
 ## Quick Start
 ### What you need
 Minimally, you'll need:
+
 1. a bam or cram file
 
 2. the reference genome against which reads were mapped to create the bam/cram file in (1)
