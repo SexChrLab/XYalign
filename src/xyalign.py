@@ -41,13 +41,40 @@ def main():
 
 	args = parse_args()
 
+	# Setup output paths
+	fastq_path = os.path.join(args.output_dir, "fastq")
+	bam_path = os.path.join(args.output_dir, "bam")
+	reference_path = os.path.join(args.output_dir, "reference")
+	bed_path = os.path.join(args.output_dir, "bed")
+	vcf_path = os.path.join(args.output_dir, "vcf")
+	plots_path = os.path.join(args.output_dir, "plots")
+	results_path = os.path.join(args.output_dir, "results")
+	logfile_path = os.path.join(args.output_dir, "logfiles")
+
+	# Create paths for output files
+	noprocessing_vcf = os.path.join(
+		args.output_dir, "vcf", "{}.noprocessing.vcf".format(
+			args.sample_id))
+	postprocessing_vcf = os.path.join(
+		args.output_dir, "vcf", "{}.postprocessing.vcf".format(
+			args.sample_id))
+	if args.platypus_logfile is not None:
+		plat_log = args.platypus_logfile
+	else:
+		plat_log = args.sample_id
+	noprocessing_vcf_log = os.path.join(
+		args.output_dir, "logfiles", "{}_noprocessing_platypus.log".format(
+			plat_log))
+	postprocessing_vcf_log = os.path.join(
+		args.output_dir, "logfiles", "{}_postprocessing_platypus.log".format(
+			plat_log))
+
 	# First round of Platypus calling and plotting
 	if args.platypus_calling == "both" or "before":
 		if args.bam is not None:
 			a = platypus_caller(
-				args.platypus_path, args.bam, args.ref, args.chromosomes,
-				args.cpus, args.output_dir + "/{}.noprocessing.vcf".format(
-					args.sample_id), None)
+				args.platypus_path, noprocessing_vcf_log, args.bam, args.ref,
+				args.chromosomes, args.cpus, noprocessing_vcf, None)
 			if a != 0:
 				print "Error in initial Platypus calling."
 				sys.exit(1)
@@ -61,9 +88,8 @@ def main():
 					args.marker_transparency, args.bam)
 		else:
 			a = platypus_caller(
-				args.platypus_path, args.cram, args.ref, args.chromosomes,
-				args.cpus, args.output_dir + "/{}.noprocessing.vcf".format(
-					args.sample_id), None)
+				args.platypus_path, noprocessing_vcf_log, args.cram, args.ref,
+				args.chromosomes, args.cpus, noprocessing_vcf, None)
 			if a != 0:
 				print "Error in initial Platypus calling."
 				sys.exit(1)
@@ -216,9 +242,8 @@ def main():
 
 	if args.platypus_calling == "both" or "after":
 		a = platypus_caller(
-			args.platypus_path, merged_bam, args.ref, args.chromosomes, args.cpus,
-			args.output_dir + "/{}.postprocessing.vcf".format(args.sample_id),
-			include_bed)
+			args.platypus_path, postprocessing_vcf_log, merged_bam, args.ref,
+			args.chromosomes, args.cpus, postprocessing_vcf, include_bed)
 		if a != 0:
 			print "Error in second round of Platypus calling."
 			sys.exit(1)
@@ -310,6 +335,11 @@ def parse_args():
 		help="Consider all SNPs with a quality greater than or "
 		"equal to this value. Default is 20.")
 
+	parser.add_argument(
+		"--platypus_logfile", default=None,
+		help="Prefix to use for Platypus log files.  Will default to the "
+		"sample name")
+
 	# Bam Analysis Flags
 	parser.add_argument(
 		"--window_size", "-w", type=int, default=50000,
@@ -383,17 +413,33 @@ def parse_args():
 	args = parser.parse_args()
 
 	# Validate arguments
-	if not os.path.exists(args.output_dir):
-		os.makedirs(args.output_dir)
-	if args.platypus_calling not in ["both", "none", "before", "after"]:
-		print "Error. Platypus calling must be both, none, before, or after. ",\
-			"Default is both."
-		sys.exit(1)
 	if args.no_perm_test is True:
 		if args.y_present is False and args.y_absent is False:
 			print "Error. Either --y_present or --y_absent needs to be ",\
 				"included with --no_perm_test"
 		sys.exit(1)
+	if args.platypus_calling not in ["both", "none", "before", "after"]:
+		print "Error. Platypus calling must be both, none, before, or after. ",\
+			"Default is both."
+		sys.exit(1)
+
+	# Create directory structure if not already in place
+	if not os.path.exists(os.path.join(args.output_dir, "fastq")):
+		os.makedirs(os.path.join(args.output_dir, "fastq"))
+	if not os.path.exists(os.path.join(args.output_dir, "bam")):
+		os.makedirs(os.path.join(args.output_dir, "bam"))
+	if not os.path.exists(os.path.join(args.output_dir, "reference")):
+		os.makedirs(os.path.join(args.output_dir, "reference"))
+	if not os.path.exists(os.path.join(args.output_dir, "bed")):
+		os.makedirs(os.path.join(args.output_dir, "bed"))
+	if not os.path.exists(os.path.join(args.output_dir, "vcf")):
+		os.makedirs(os.path.join(args.output_dir, "vcf"))
+	if not os.path.exists(os.path.join(args.output_dir, "plots")):
+		os.makedirs(os.path.join(args.output_dir, "plots"))
+	if not os.path.exists(os.path.join(args.output_dir, "results")):
+		os.makedirs(os.path.join(args.output_dir, "results"))
+	if not os.path.exists(os.path.join(args.output_dir, "logfiles")):
+		os.makedirs(os.path.join(args.output_dir, "logfiles"))
 
 	# Return arguments namespace
 	return args
@@ -544,7 +590,8 @@ def switch_sex_chromosomes_bam(
 
 
 def platypus_caller(
-	platypus_path, bam, ref, chroms, cpus, output_file, regions_file=None):
+	platypus_path, log_path, bam, ref, chroms, cpus, output_file,
+	regions_file=None):
 	""" Uses platypus to make variant calls on provided bam file
 
 	bam is input bam (or cram) file
@@ -557,7 +604,7 @@ def platypus_caller(
 		regions = ','.join(map(str, chroms))
 	else:
 		regions = regions_file
-	command_line = "{} callVariants --bamFiles {} -o {} --refFile {} --nCPU {} --regions {} --assemble 1".format(platypus_path, bam, output_file, ref, cpus, regions)
+	command_line = "{} callVariants --bamFiles {} -o {} --refFile {} --nCPU {} --regions {} --assemble 1 --logFileName {}".format(platypus_path, bam, output_file, ref, cpus, regions, log_path)
 	return_code = subprocess.call(command_line, shell=True)
 	return return_code
 
