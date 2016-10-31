@@ -97,43 +97,46 @@ def main():
 	output_bed(os.path.join(args.output_dir, args.low_quality_bed), *fail_df)
 
 	# Infer ploidy (needs to be finished)
+
+	# Replace this with code to infer ploidy, etc.
+	# Permutation tests
+	if args.no_perm_test is not True:
+		sex_chromosomes = args.x_chromosome + args.y_chromosome
+		autosomes = [x for x in args.chromosomes if x not in sex_chromosomes]
+		perm_res_x = []
+		perm_res_y = []
+		for c in autosomes:
+			perm_res_x.append(permutation_test_chromosomes(
+				pd.concat(pass_df), c, str(args.x_chromosome[0]), "chrom",
+				"depth", args.num_permutations,
+				args.output_dir + "/{}_{}_permutation_results.txt".format(
+					c, str(args.x_chromosome[0]))))
+			perm_res_y.append(permutation_test_chromosomes(
+				pd.concat(pass_df), c, str(args.y_chromosome[0]), "chrom",
+				"depth", args.num_permutations,
+				args.output_dir + "/{}_{}_permutation_results.txt".format(
+					c, str(args.y_chromosome[0]))))
+		sex_perm_res = permutation_test_chromosomes(
+			pd.concat(pass_df), str(args.x_chromosome[0]), str(args.y_chromosome[0]),
+			"chrom", "depth", args.num_permutations,
+			args.output_dir + "/{}_{}_permutation_results.txt".format(
+				str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+		# Right now this implements a simple and rather inelegant test for
+		# 	a Y chromosome that assumes approximately equal depth on the
+		# 	X and the Y in XY individuals.
+		if 0.025 < sex_perm_res[2] < 0.95:
+			y_present_perm = True
+		else:
+			y_present_perm = False
+
 	if args.y_present is True:
 		y_present = True
 	elif args.y_absent is True:
 		y_present = False
 	else:
-		# Replace this with code to infer ploidy, etc.
-		# Permutation tests
-		if args.no_perm_test is not True:
-			sex_chromosomes = args.x_chromosome + args.y_chromosome
-			autosomes = [x for x in args.chromosomes if x not in sex_chromosomes]
-			perm_res_x = []
-			perm_res_y = []
-			for c in autosomes:
-				perm_res_x.append(permutation_test_chromosomes(
-					pd.concat(pass_df), c, str(args.x_chromosome[0]), "chrom",
-					"depth", args.num_permutations,
-					args.output_dir + "/{}_{}_permutation_results.txt".format(
-						c, str(args.x_chromosome[0]))))
-				perm_res_y.append(permutation_test_chromosomes(
-					pd.concat(pass_df), c, str(args.y_chromosome[0]), "chrom",
-					"depth", args.num_permutations,
-					args.output_dir + "/{}_{}_permutation_results.txt".format(
-						c, str(args.y_chromosome[0]))))
-			sex_perm_res = permutation_test_chromosomes(
-				pd.concat(pass_df), str(args.x_chromosome[0]), str(args.y_chromosome[0]),
-				"chrom", "depth", args.num_permutations,
-				args.output_dir + "/{}_{}_permutation_results.txt".format(
-					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
-			# Right now this implements a simple and rather inelegant test for
-			# 	a Y chromosome that assumes approximately equal depth on the
-			# 	X and the Y in XY individuals.
-			if 0.025 < sex_perm_res[2] < 0.95:
-				y_present = True
-			else:
-				y_present = False
+		y_present = y_present_perm
 
-		# Likelihood analyses
+	# Likelihood analyses
 
 	# Remapping
 	if args.no_remapping is True:
@@ -350,10 +353,12 @@ def parse_args():
 		"--cram", help="Input cram file.")
 
 	# Mutally exclusive group 2 - overriding ploidy estimation with declaration
-	# 		that Y is present or Y is absent.  --no_perm_test is provided
-	# 		for convenience in understanding the what is being omitted when
-	# 		choosing --y_present or --y_absent, but it is not required if
-	# 		either of the latter two flags are present.
+	# 		that Y is present or Y is absent.  --no_perm_test explicitly
+	# 		requires one of either --y_present or --y_absent, but the reverse
+	# 		is not true (i.e., if you don't run tests, you need to tell
+	# 		XY align what the ploidy is, however you can tell XY align what
+	# 		the ploidy is and still run the permutation analyses, the results
+	# 		of which will be ignored)
 
 	parser.add_argument(
 		"--no_perm_test", action="store_true", default=False,
