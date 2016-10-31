@@ -27,7 +27,9 @@ Minimally, you'll need:
 
 2. the reference genome against which reads were mapped to create the bam/cram file in (1)
 
-3. an environment with a host of python packages (right now we only support Python 2.7; numpy, pandas, matplotlib, seaborn, pysam, and pybedtools) and external programs (platypus, bwa, samtools, and bbmap) installed.  Probably the easiest way to do this is to download [miniconda](http://conda.pydata.org/miniconda.html) and let it append its path to your .bashrc file.  You should then be able to set up and environment with the following commands:
+3. a .fai index of the reference genome in (2) located in the same directory as the reference.  This can be generated using the command ```samtools faidx <reference_fasta>```.  See the [samtools documentation](http://www.htslib.org/doc/samtools.html) for more information 
+
+4. an environment with a host of python packages (right now we only support Python 2.7; numpy, pandas, matplotlib, seaborn, pysam, and pybedtools) and external programs (platypus, bwa, samtools, and bbmap) installed.  Probably the easiest way to do this is to download [miniconda](http://conda.pydata.org/miniconda.html) and let it append its path to your .bashrc file.  You should then be able to set up and environment with the following commands:
 ```
 conda config --add channels r
 
@@ -49,7 +51,14 @@ source activate xyalign_env
 ```
 See [Anaconda's documentation](http://conda.pydata.org/docs/using/envs.html) for details on working with environments.
 
-4. a .fai index of the reference genome in (2) located in the same directory as the reference.  This can be generated using the command ```samtools faidx <reference_fasta>```.  See the [samtools documentation](http://www.htslib.org/doc/samtools.html) for more information 
+### Running XYalign
+XYalign is located in ```XYalign/src/xyalign.py``` and can be run with a command along the lines of:
+```
+python <path/to/xyalign.py> --ref <path/to/reference.fasta> --bam </path/to/bam --sample_id <name_of_sample> --output_dir <path/to/outputdirectory - will be created if doesn't already exist> --cpus <number of cores/threads to use>
+```
+You can see a full list of options with the command ```python /path/to/xyalign.py -h```
+
+## What XYalign does
 
 ## Goals, Problems, and Contributors
 ### List of Goals: Assess X/Y ploidy and correct for misalignment
