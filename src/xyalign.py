@@ -77,24 +77,25 @@ def main():
 					args.marker_transparency, args.cram)
 
 	# Analyze bam for depth and mapq
-	if args.bam is not None:
-		samfile = pysam.AlignmentFile(args.bam, "rb")
-	else:
-		samfile = pysam.AlignmentFile(args.cram, "rc")
-	pass_df = []
-	fail_df = []
-	for chromosome in args.chromosomes:
-		data = traverse_bam_fetch(samfile, chromosome, args.window_size)
-		tup = make_region_lists(
-			data["windows"], args.mapq_cutoff, args.depth_filter)
-		pass_df.append(tup[0])
-		fail_df.append(tup[1])
-		plot_depth_mapq(
-			data, args.output_dir, args.sample_id,
-			get_length(samfile, chromosome), args.marker_size,
-			args.marker_transparency)
-	output_bed(os.path.join(args.output_dir, args.high_quality_bed), *pass_df)
-	output_bed(os.path.join(args.output_dir, args.low_quality_bed), *fail_df)
+	if args.no_bam_analysis is not True:
+		if args.bam is not None:
+			samfile = pysam.AlignmentFile(args.bam, "rb")
+		else:
+			samfile = pysam.AlignmentFile(args.cram, "rc")
+		pass_df = []
+		fail_df = []
+		for chromosome in args.chromosomes:
+			data = traverse_bam_fetch(samfile, chromosome, args.window_size)
+			tup = make_region_lists(
+				data["windows"], args.mapq_cutoff, args.depth_filter)
+			pass_df.append(tup[0])
+			fail_df.append(tup[1])
+			plot_depth_mapq(
+				data, args.output_dir, args.sample_id,
+				get_length(samfile, chromosome), args.marker_size,
+				args.marker_transparency)
+			output_bed(os.path.join(args.output_dir, args.high_quality_bed), *pass_df)
+			output_bed(os.path.join(args.output_dir, args.low_quality_bed), *fail_df)
 
 	# Infer ploidy (needs to be finished)
 
@@ -298,6 +299,10 @@ def parse_args():
 	parser.add_argument(
 		"--no_variant_plots", action="store_false", default=True,
 		help="Include flag to prevent plotting read balance from VCF files.")
+
+	parser.add_argument(
+		"--no_bam_analysis", action="store_false", default=True,
+		help="Include flag to prevent depth/mapq analysis of bam file")
 
 	# Variant Calling Flags
 	parser.add_argument(
