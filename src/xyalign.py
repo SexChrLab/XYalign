@@ -94,7 +94,7 @@ def main():
 			if a != 0:
 				print "Error in initial Platypus calling."
 				sys.exit(1)
-			if args.no_variant_plots is True:
+			if args.no_variant_plots is not True:
 				plot_variants_per_chrom(
 					args.chromosomes, noprocessing_vcf,
 					args.sample_id, readbalance_prefix,
@@ -107,7 +107,7 @@ def main():
 			if a != 0:
 				print "Error in initial Platypus calling."
 				sys.exit(1)
-			if args.no_variant_plots is True:
+			if args.no_variant_plots is not True:
 				plot_variants_per_chrom(
 					args.chromosomes, noprocessing_vcf,
 					args.sample_id, readbalance_prefix,
@@ -178,7 +178,7 @@ def main():
 	# Likelihood analyses
 
 	# Remapping
-	if args.no_remapping is True:
+	if args.no_remapping is not True:
 		if y_present is True:
 			# Isolate sex chromosomes from reference and index new reference
 			new_reference = isolate_chromosomes_reference(
@@ -259,7 +259,7 @@ def main():
 		if a != 0:
 			print "Error in second round of Platypus calling."
 			sys.exit(1)
-		if args.no_variant_plots is True:
+		if args.no_variant_plots is not True:
 			plot_variants_per_chrom(
 				args.chromosomes,
 				args.output_dir + "/{}.postprocessing.vcf".format(
@@ -324,7 +324,7 @@ def parse_args():
 
 	# Options for turning on/off parts of the pipeline
 	parser.add_argument(
-		"--no_remapping", action="store_false", default=True,
+		"--no_remapping", action="store_true", default=False,
 		help="Include this flag to prevent remapping sex chromosome reads.")
 
 	parser.add_argument(
@@ -334,11 +334,11 @@ def parse_args():
 		"or neither). Options: both, none, before, after.")
 
 	parser.add_argument(
-		"--no_variant_plots", action="store_false", default=True,
+		"--no_variant_plots", action="store_true", default=False,
 		help="Include flag to prevent plotting read balance from VCF files.")
 
 	parser.add_argument(
-		"--no_bam_analysis", action="store_false", default=True,
+		"--no_bam_analysis", action="store_true", default=False,
 		help="Include flag to prevent depth/mapq analysis of bam file")
 
 	# Variant Calling Flags
