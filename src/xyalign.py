@@ -68,6 +68,8 @@ def main():
 	postprocessing_vcf_log = os.path.join(
 		args.output_dir, "logfiles", "{}_postprocessing_platypus.log".format(
 			plat_log))
+	readbalance_prefix = os.path.join(
+		args.output_dir, "plots", "{}_noprocessing".format(args.sample_id))
 
 	# First round of Platypus calling and plotting
 	if args.platypus_calling == "both" or "before":
@@ -80,10 +82,8 @@ def main():
 				sys.exit(1)
 			if args.no_variant_plots is True:
 				plot_variants_per_chrom(
-					args.chromosomes,
-					args.output_dir + "/{}.noprocessing.vcf".format(
-						args.sample_id),
-					args.sample_id, args.output_dir, "noprocessing",
+					args.chromosomes, noprocessing_vcf,
+					args.sample_id, readbalance_prefix,
 					args.variant_quality_cutoff, args.marker_size,
 					args.marker_transparency, args.bam)
 		else:
@@ -95,10 +95,8 @@ def main():
 				sys.exit(1)
 			if args.no_variant_plots is True:
 				plot_variants_per_chrom(
-					args.chromosomes,
-					args.output_dir + "/{}.noprocessing.vcf".format(
-						args.sample_id),
-					args.sample_id, args.output_dir, "noprocessing",
+					args.chromosomes, noprocessing_vcf,
+					args.sample_id, readbalance_prefix,
 					args.variant_quality_cutoff, args.marker_size,
 					args.marker_transparency, args.cram)
 
@@ -730,7 +728,7 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 
 
 def plot_variants_per_chrom(
-	chrom_list, vcf_file, sampleID, output_directory, output_prefix, qualCutoff,
+	chrom_list, vcf_file, sampleID, output_prefix, qualCutoff,
 	MarkerSize, MarkerAlpha, bamfile):
 	""" Parses a vcf file and plots read balance in separate plots
 	for each chromosome in the input list
@@ -739,11 +737,9 @@ def plot_variants_per_chrom(
 		parse_results = parse_platypus_VCF(vcf_file, qualCutoff, i)
 		plot_read_balance(
 			i, parse_results[0], parse_results[2],
-			sampleID, output_directory + "/{}.{}".format(
-				sampleID, output_prefix), MarkerSize, MarkerAlpha, bamfile)
+			sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile)
 		hist_read_balance(
-			i, parse_results[2], sampleID,
-			output_directory + "/{}.{}".format(sampleID, output_prefix))
+			i, parse_results[2], sampleID, output_prefix)
 	pass
 
 
