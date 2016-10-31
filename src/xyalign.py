@@ -212,15 +212,15 @@ def main():
 					args.output_dir, args.sample_id)
 
 	# Final round of calling and plotting
-	variant_mask = os.path.join(args.output_dir, args.high_quality_bed)
+	include_bed = os.path.join(args.output_dir, args.high_quality_bed)
 
 	if args.platypus_calling == "both" or "after":
 		a = platypus_caller(
 			args.platypus_path, merged_bam, args.ref, args.chromosomes, args.cpus,
 			args.output_dir + "/{}.postprocessing.vcf".format(args.sample_id),
-			variant_mask)
+			include_bed)
 		if a != 0:
-			print "Error in initial Platypus calling."
+			print "Error in second round of Platypus calling."
 			sys.exit(1)
 		if args.no_variant_plots is True:
 			plot_variants_per_chrom(
