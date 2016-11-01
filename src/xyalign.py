@@ -197,8 +197,8 @@ def main():
 					args.single_end, args.output_dir, args.sample_id,
 					args.x_chromosome + args.y_chromosome)
 			# Remap
-			new_bam = bwa_mem_mapping(
-				args.bwa_path, args.samtools_path,
+			new_bam = bwa_mem_mapping_sambamba(
+				args.bwa_path, args.samtools_path, args.sambamba_path,
 				new_reference, "{}/{}.sex_chroms".format(
 					args.output_dir, args.sample_id, threads=args.cpus),
 				new_fastqs)
@@ -232,8 +232,8 @@ def main():
 					args.single_end, args.output_dir, args.sample_id,
 					args.x_chromosome)
 			# Remap
-			new_bam = bwa_mem_mapping(
-				args.bwa_path, args.samtools_path,
+			new_bam = bwa_mem_mapping_sambamba(
+				args.bwa_path, args.samtools_path, args.sambamba_path,
 				new_reference, "{}/{}.sex_chroms".format(
 					args.output_dir, args.sample_id, threads=args.cpus),
 				new_fastqs)
@@ -321,6 +321,10 @@ def parse_args():
 	parser.add_argument(
 		"--repairsh_path", default="repair.sh",
 		help="Path to bbmap's repair.sh script. Default is 'repair.sh'")
+
+	parser.add_argument(
+		"--sambamba_path", default="sambamba",
+		help="Path to sambamba. Default is 'sambamba'"
 
 	# Options for turning on/off parts of the pipeline
 	parser.add_argument(
@@ -534,6 +538,28 @@ def bwa_mem_mapping(
 		subprocess.call(
 			"{} index {}_sorted.bam".format(
 				samtools_path, output_prefix), shell=True)
+		return "{}_sorted.bam".format(output_prefix)
+	else:
+		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | {} sort -O cram -o {}_sorted.cram -".format(bwa_path, threads, reference, fastqs, samtools_path, samtools_path, output_prefix)
+		subprocess.call(command_line, shell=True)
+		subprocess.call(
+			"{} index {}_sorted.cram".format(
+				samtools_path, output_prefix), shell=True)
+		return "{}_sorted.cram".format(output_prefix)
+
+def bwa_mem_mapping_sambamba(
+	bwa_path, samtools_path, sambamba_path, reference, output_prefix, fastqs,
+	threads=1, cram=False):
+	""" Maps reads to a reference genome using bwa mem.
+	"""
+	fastqs = ' '.join(fastqs)
+	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
+	if cram is False:
+		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | {} sort -t {} -o {}_sorted.bam /dev/stdin".format(bwa_path, threads, reference, fastqs, samtools_path, sambamba_path, threads, output_prefix)
+		subprocess.call(command_line, shell=True)
+		subprocess.call(
+			"{} index -t {} {}_sorted.bam".format(
+				sambamba_path, threads, output_prefix), shell=True)
 		return "{}_sorted.bam".format(output_prefix)
 	else:
 		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | {} sort -O cram -o {}_sorted.cram -".format(bwa_path, threads, reference, fastqs, samtools_path, samtools_path, output_prefix)
