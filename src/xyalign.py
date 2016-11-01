@@ -324,7 +324,7 @@ def parse_args():
 
 	parser.add_argument(
 		"--sambamba_path", default="sambamba",
-		help="Path to sambamba. Default is 'sambamba'"
+		help="Path to sambamba. Default is 'sambamba'")
 
 	# Options for turning on/off parts of the pipeline
 	parser.add_argument(
