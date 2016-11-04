@@ -23,13 +23,13 @@ October 17, 2016 slide show here: https://docs.google.com/presentation/d/1OB2d_m
 ### What you need
 Minimally, you'll need:
 
-1. a bam or cram file
+1. A BAM or CRAM file
 
-2. the reference genome against which reads were mapped to create the bam/cram file in (1)
+2. The reference genome against which reads were mapped to create the BAM/CRAM file in (1)
 
-3. a .fai index of the reference genome in (2) located in the same directory as the reference.  This can be generated using the command ```samtools faidx <reference_fasta>```.  See the [samtools documentation](http://www.htslib.org/doc/samtools.html) for more information 
+3. A .fai index of the reference genome in (2) located in the same directory as the reference.  This can be generated using the command ```samtools faidx <reference_fasta>```.  See the [samtools documentation](http://www.htslib.org/doc/samtools.html) for more information 
 
-4. an environment with a host of python packages (right now we only support Python 2.7; numpy, pandas, matplotlib, seaborn, pysam, and pybedtools) and external programs (platypus, bwa, samtools, and bbmap) installed.  Probably the easiest way to do this is to download [miniconda](http://conda.pydata.org/miniconda.html) and let it append its path to your .bashrc file.  You should then be able to set up and environment with the following commands:
+4. An environment with a host of python packages (right now we only support Python 2.7; numpy, pandas, matplotlib, seaborn, pysam, and pybedtools) and external programs (platypus, bwa, samtools, and bbmap) installed.  Probably the easiest way to do this is to download [miniconda](http://conda.pydata.org/miniconda.html) and let it append its path to your .bashrc file.  You should then be able to set up and environment with the following commands:
 ```
 conda config --add channels r
 
@@ -39,7 +39,7 @@ conda config --add channels bioconda
 
 conda create -n xyalign_env python=2.7 pysam pybedtools numpy pandas matplotlib seaborn platypus-variant bwa bbmap samtools
 ```
-This will work on Linux machines.  As of right now, bioconda won't install platypus on Macs, so Mac users will have to replace the final command with
+This will work in within a Linux operating system.  As of right now, bioconda won't install platypus on Macs, so Mac users will have to replace the final command with:
 ```
 conda create -n xyalign_env python=2.7 pysam pybedtools numpy pandas matplotlib seaborn bwa bbmap samtools
 ```
