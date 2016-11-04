@@ -629,6 +629,54 @@ def switch_sex_chromosomes_bam(
 		return "{}/{}.cram".format(output_directory, output_prefix)
 
 
+def switch_sex_chromosomes_bam_sambamba(
+	samtools_path, sambamba_path, bam_orig, bam_new, sex_chroms,
+	output_directory, output_prefix, threads, cram=False):
+	""" Removes sex chromosomes from original bam and merges in remmapped
+	sex chromosomes, while retaining the original bam header
+	"""
+	# Grab original header
+	subprocess.call(
+		"{} view -H {} > {}/header.sam".format(
+			samtools_path, bam_orig, output_directory), shell=True)
+	if cram is False:
+		# Remove sex chromosomes from original bam and merge
+		samfile = pysam.AlignmentFile(bam_orig, "rb")
+		non_sex_scaffolds = filter(
+			lambda x: x not in sex_chroms, list(samfile.references))
+		subprocess.call(
+			"{} view -h -t {} -f bam -o /dev/stdout {} {} | {} merge -t {} {}/{}.merged.bam /dev/stdin {}".format(
+				sambamba_path, threads, bam_orig, " ".join(non_sex_scaffolds),
+				sambamba_path, threads, output_directory, output_prefix,
+				new_bam),
+			shell=True)
+
+		return "{}/{}.merged.bam".format(output_directory, output_prefix)
+
+	else:
+		# Remove sex chromosomes from original bam
+		samfile = pysam.AlignmentFile(bam_orig, "rc")
+		non_sex_scaffolds = filter(
+			lambda x: x not in sex_chroms, list(samfile.references))
+		subprocess.call(
+			"{} view -h -b {} {} > {}/no_sex.cram".format(
+				samtools_path, bam_orig, " ".join(non_sex_scaffolds),
+				output_directory),
+			shell=True)
+		subprocess.call(
+			"{} index {}/no_sex.cram".format(
+				samtools_path, output_directory), shell=True)
+
+		# Merge bam files
+		subprocess.call(
+			"{} merge -h {}/header.sam {}/{}.cram {}/no_sex.cram {}".format(
+				samtools_path, output_directory, output_directory,
+				output_prefix, output_directory, bam_new), shell=True)
+		subprocess.call("{} index {}/{}.cram".format(
+			samtools_path, output_directory, output_prefix), shell=True)
+
+		return "{}/{}.cram".format(output_directory, output_prefix)
+
 def platypus_caller(
 	platypus_path, log_path, bam, ref, chroms, cpus, output_file,
 	regions_file=None):
