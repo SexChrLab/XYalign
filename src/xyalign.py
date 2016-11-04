@@ -204,12 +204,12 @@ def main():
 				new_fastqs)
 			# Merge bam files
 			if args.bam is not None:
-				merged_bam = switch_sex_chromosomes_bam(
+				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					args.output_dir, args.sample_id)
 			else:
-				merged_bam = switch_sex_chromosomes_bam(
+				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					args.output_dir, args.sample_id)
@@ -239,12 +239,12 @@ def main():
 				new_fastqs)
 			# Merge bam files
 			if args.bam is not None:
-				merged_bam = switch_sex_chromosomes_bam(
+				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					args.output_dir, args.sample_id)
 			else:
-				merged_bam = switch_sex_chromosomes_bam(
+				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					args.output_dir, args.sample_id)
