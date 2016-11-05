@@ -200,19 +200,19 @@ def main():
 			new_bam = bwa_mem_mapping_sambamba(
 				args.bwa_path, args.samtools_path, args.sambamba_path,
 				new_reference, "{}/{}.sex_chroms".format(
-					args.output_dir, args.sample_id, threads=args.cpus),
+					args.output_dir, args.sample_id, args.cpus),
 				new_fastqs)
 			# Merge bam files
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
-					args.samtools_path, args.bam, new_bam,
+					args.samtools_path, args.sambamba_path, args.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					args.output_dir, args.sample_id)
+					args.output_dir, args.sample_id, args.cpus)
 			else:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
-					args.samtools_path, args.cram, new_bam,
+					args.samtools_path, args.sambamba_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					args.output_dir, args.sample_id)
+					args.output_dir, args.sample_id, args.cpus)
 
 		else:
 			# Isolate sex chromosomes from reference and index new reference
@@ -235,19 +235,19 @@ def main():
 			new_bam = bwa_mem_mapping_sambamba(
 				args.bwa_path, args.samtools_path, args.sambamba_path,
 				new_reference, "{}/{}.sex_chroms".format(
-					args.output_dir, args.sample_id, threads=args.cpus),
+					args.output_dir, args.sample_id, args.cpus),
 				new_fastqs)
 			# Merge bam files
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
-					args.samtools_path, args.bam, new_bam,
+					args.samtools_path, args.sambamba_path, rgs.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					args.output_dir, args.sample_id)
+					args.output_dir, args.sample_id, args.cpus)
 			else:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
-					args.samtools_path, args.cram, new_bam,
+					args.samtools_path, args.sambamba_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					args.output_dir, args.sample_id)
+					args.output_dir, args.sample_id, args.cpus)
 
 	# Final round of calling and plotting
 	include_bed = os.path.join(args.output_dir, args.high_quality_bed)
@@ -527,7 +527,7 @@ def permutation_test_chromosomes(
 
 def bwa_mem_mapping(
 	bwa_path, samtools_path, reference, output_prefix, fastqs,
-	threads=1, cram=False):
+	threads, cram=False):
 	""" Maps reads to a reference genome using bwa mem.
 	"""
 	fastqs = ' '.join(fastqs)
@@ -549,7 +549,7 @@ def bwa_mem_mapping(
 
 def bwa_mem_mapping_sambamba(
 	bwa_path, samtools_path, sambamba_path, reference, output_prefix, fastqs,
-	threads=1, cram=False):
+	threads, cram=False):
 	""" Maps reads to a reference genome using bwa mem.
 	"""
 	fastqs = ' '.join(fastqs)
