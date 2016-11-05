@@ -200,8 +200,8 @@ def main():
 			new_bam = bwa_mem_mapping_sambamba(
 				args.bwa_path, args.samtools_path, args.sambamba_path,
 				new_reference, "{}/{}.sex_chroms".format(
-					args.output_dir, args.sample_id, args.cpus),
-				new_fastqs)
+					args.output_dir, args.sample_id),
+				new_fastqs, args.cpus)
 			# Merge bam files
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
@@ -235,8 +235,8 @@ def main():
 			new_bam = bwa_mem_mapping_sambamba(
 				args.bwa_path, args.samtools_path, args.sambamba_path,
 				new_reference, "{}/{}.sex_chroms".format(
-					args.output_dir, args.sample_id, args.cpus),
-				new_fastqs)
+					args.output_dir, args.sample_id),
+				new_fastqs, args.cpus)
 			# Merge bam files
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
