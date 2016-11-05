@@ -648,7 +648,7 @@ def switch_sex_chromosomes_bam_sambamba(
 			"{} view -h -t {} -f bam -o /dev/stdout {} {} | {} merge -t {} {}/{}.merged.bam /dev/stdin {}".format(
 				sambamba_path, threads, bam_orig, " ".join(non_sex_scaffolds),
 				sambamba_path, threads, output_directory, output_prefix,
-				new_bam),
+				bam_new),
 			shell=True)
 
 		return "{}/{}.merged.bam".format(output_directory, output_prefix)
