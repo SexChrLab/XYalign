@@ -68,8 +68,10 @@ def main():
 	postprocessing_vcf_log = os.path.join(
 		args.output_dir, "logfiles", "{}_postprocessing_platypus.log".format(
 			plat_log))
-	readbalance_prefix = os.path.join(
+	readbalance_prefix_noprocessing = os.path.join(
 		args.output_dir, "plots", "{}_noprocessing".format(args.sample_id))
+	readbalance_prefix_postprocessing = os.path.join(
+		args.output_dir, "plots", "{}_postprocessing".format(args.sample_id))
 	depth_mapq_prefix = os.path.join(
 		args.output_dir, "plots", "{}_noprocessing".format(args.sample_id))
 	if args.high_quality_bed is not None:
@@ -97,7 +99,7 @@ def main():
 			if args.no_variant_plots is not True:
 				plot_variants_per_chrom(
 					args.chromosomes, noprocessing_vcf,
-					args.sample_id, readbalance_prefix,
+					args.sample_id, readbalance_prefix_noprocessing,
 					args.variant_quality_cutoff, args.marker_size,
 					args.marker_transparency, args.bam)
 		else:
@@ -110,7 +112,7 @@ def main():
 			if args.no_variant_plots is not True:
 				plot_variants_per_chrom(
 					args.chromosomes, noprocessing_vcf,
-					args.sample_id, readbalance_prefix,
+					args.sample_id, readbalance_prefix_noprocessing,
 					args.variant_quality_cutoff, args.marker_size,
 					args.marker_transparency, args.cram)
 
@@ -148,17 +150,17 @@ def main():
 			perm_res_x.append(permutation_test_chromosomes(
 				pd.concat(pass_df), c, str(args.x_chromosome[0]), "chrom",
 				"depth", args.num_permutations,
-				args.output_dir + "/{}_{}_permutation_results.txt".format(
+				results_path + "/{}_{}_permutation_results.txt".format(
 					c, str(args.x_chromosome[0]))))
 			perm_res_y.append(permutation_test_chromosomes(
 				pd.concat(pass_df), c, str(args.y_chromosome[0]), "chrom",
 				"depth", args.num_permutations,
-				args.output_dir + "/{}_{}_permutation_results.txt".format(
+				results_path + "/{}_{}_permutation_results.txt".format(
 					c, str(args.y_chromosome[0]))))
 		sex_perm_res = permutation_test_chromosomes(
 			pd.concat(pass_df), str(args.x_chromosome[0]), str(args.y_chromosome[0]),
 			"chrom", "depth", args.num_permutations,
-			args.output_dir + "/{}_{}_permutation_results.txt".format(
+			results_path + "/{}_{}_permutation_results.txt".format(
 				str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 		# Right now this implements a simple and rather inelegant test for
 		# 	a Y chromosome that assumes approximately equal depth on the
@@ -183,74 +185,74 @@ def main():
 			# Isolate sex chromosomes from reference and index new reference
 			new_reference = isolate_chromosomes_reference(
 				args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
-					args.output_dir, args.sample_id),
+					reference_path, args.sample_id),
 				args.x_chromosome + args.y_chromosome)
 			# Strip reads from sex chromosomes
 			if args.bam is not None:
 				new_fastqs = bam_to_fastq(
 					args.samtools_path, args.repairsh_path, args.bam,
-					args.single_end, args.output_dir, args.sample_id,
+					args.single_end, fastq_path, args.sample_id,
 					args.x_chromosome + args.y_chromosome)
 			else:
 				new_fastqs = bam_to_fastq(
 					args.samtools_path, args.repairsh_path, args.cram,
-					args.single_end, args.output_dir, args.sample_id,
+					args.single_end, fastq_path, args.sample_id,
 					args.x_chromosome + args.y_chromosome)
 			# Remap
 			new_bam = bwa_mem_mapping_sambamba(
 				args.bwa_path, args.samtools_path, args.sambamba_path,
 				new_reference, "{}/{}.sex_chroms".format(
-					args.output_dir, args.sample_id),
+					bam_path, args.sample_id),
 				new_fastqs, args.cpus)
 			# Merge bam files
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.sambamba_path, args.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					args.output_dir, args.sample_id, args.cpus)
+					bam_path, args.sample_id, args.cpus)
 			else:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.sambamba_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					args.output_dir, args.sample_id, args.cpus)
+					bam_path, args.sample_id, args.cpus)
 
 		else:
 			# Isolate sex chromosomes from reference and index new reference
 			new_reference = isolate_chromosomes_reference(
 				args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
-					args.output_dir, args.sample_id),
+					reference_path, args.sample_id),
 				args.x_chromosome)
 			# Strip reads from sex chromosomes
 			if args.bam is not None:
 				new_fastqs = bam_to_fastq(
 					args.samtools_path, args.repairsh_path, args.bam,
-					args.single_end, args.output_dir, args.sample_id,
+					args.single_end, fastq_path, args.sample_id,
 					args.x_chromosome)
 			else:
 				new_fastqs = bam_to_fastq(
 					args.samtools_path, args.repairsh_path, args.cram,
-					args.single_end, args.output_dir, args.sample_id,
+					args.single_end, fastq_path, args.sample_id,
 					args.x_chromosome)
 			# Remap
 			new_bam = bwa_mem_mapping_sambamba(
 				args.bwa_path, args.samtools_path, args.sambamba_path,
 				new_reference, "{}/{}.sex_chroms".format(
-					args.output_dir, args.sample_id),
+					bam_path, args.sample_id),
 				new_fastqs, args.cpus)
 			# Merge bam files
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.sambamba_path, args.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					args.output_dir, args.sample_id, args.cpus)
+					bam_path, args.sample_id, args.cpus)
 			else:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.sambamba_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					args.output_dir, args.sample_id, args.cpus)
+					bam_path, args.sample_id, args.cpus)
 
 	# Final round of calling and plotting
-	include_bed = os.path.join(args.output_dir, args.high_quality_bed)
+	include_bed = output_bed_high
 
 	if args.platypus_calling == "both" or "after":
 		a = platypus_caller(
@@ -262,9 +264,8 @@ def main():
 		if args.no_variant_plots is not True:
 			plot_variants_per_chrom(
 				args.chromosomes,
-				args.output_dir + "/{}.postprocessing.vcf".format(
-					args.sample_id),
-				args.sample_id, args.output_dir, "postprocessing",
+				postprocessing_vcf,
+				args.sample_id, readbalance_prefix_postprocessing,
 				args.variant_quality_cutoff, args.marker_size,
 				args.marker_transparency, merged_bam)
 
