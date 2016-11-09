@@ -1,18 +1,14 @@
 # To-do list
 # 1) Add ploidy estimation
-# 		- added permutation tests
 # 		- need to add likelihood analyses (model fitting)
 # 2) Compartmentalize all steps of analysis
 # 		- Add flags to make each part of the pipeline optional
 # 		- Allow users to call specific parts of the pipeline
 # 					(e.g. only vcf plotting)
 # 		- Add checkpointing
-# 3) Write to a better designed output directory structure
-# 4) Better (and unified) naming scheme for plots and output
 # 5) Generalize mapping and calling (perhaps by allowing users to
 # 		add command lines as  strings)
 # 6) Add plotting of high-quality windows (depth, mapq), also after remapping
-
 # 7) Check for behavior when files already exist (e.g., overwrite, quit, etc.?)
 # 8) Incorporate mask integration on the fly
 # 9) Check with Python 3 and see if any incompatibilities (e.g., printing) can
