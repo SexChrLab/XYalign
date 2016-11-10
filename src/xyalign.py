@@ -542,7 +542,7 @@ def bwa_mem_mapping_sambamba(
 	fastqs = ' '.join(fastqs)
 	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
 	if cram is False:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | ",\
+		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
 				bwa_path, threads, reference, fastqs, samtools_path,
 				sambamba_path, threads, output_prefix)
@@ -552,7 +552,7 @@ def bwa_mem_mapping_sambamba(
 				sambamba_path, threads, output_prefix), shell=True)
 		return "{}_sorted.bam".format(output_prefix)
 	else:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | ",\
+		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | "\
 			"{} sort -O cram -o {}_sorted.cram -".format(
 				bwa_path, threads, reference, fastqs, samtools_path,
 				samtools_path, output_prefix)
@@ -628,7 +628,7 @@ def platypus_caller(
 		regions = ','.join(map(str, chroms))
 	else:
 		regions = regions_file
-	command_line = "{} callVariants --bamFiles {} -o {} --refFile {} ",\
+	command_line = "{} callVariants --bamFiles {} -o {} --refFile {} "\
 		"--nCPU {} --regions {} --assemble 1 --logFileName {}".format(
 			platypus_path, bam, output_file, ref, cpus, regions, log_path)
 	return_code = subprocess.call(command_line, shell=True)
@@ -670,7 +670,7 @@ def bam_to_fastq(
 	sorted fastqs containing reads.
 	"""
 	if single is False:
-		command_line = "{} view -b {} {} | {} bam2fq -1 {}/temp_1.fastq ",\
+		command_line = "{} view -b {} {} | {} bam2fq -1 {}/temp_1.fastq "\
 			"-2 {}/temp_2.fastq -t -n - ".format(
 				samtools_path, bamfile, ' '.join(map(str, regions)),
 				samtools_path, output_directory, output_directory)
@@ -686,7 +686,7 @@ def bam_to_fastq(
 			output_directory + "/" + output_prefix + "_1.fastq",
 			output_directory + "/" + output_prefix + "_2.fastq"]
 	else:
-		command_line = "{} view -b {} {} | {} bam2fq -t -n - > ",\
+		command_line = "{} view -b {} {} | {} bam2fq -t -n - > "\
 			"{}/temp.fastq".format(samtools_path, bamfile, ' '.join(map(
 				str, regions)), samtools_path, output_directory)
 		subprocess.call(command_line, shell=True)
@@ -1012,7 +1012,7 @@ def bwa_mem_mapping(
 	fastqs = ' '.join(fastqs)
 	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
 	if cram is False:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | ",\
+		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -O bam -o {}_sorted.bam -".format(
 				bwa_path, threads, reference, fastqs, samtools_path,
 				samtools_path, output_prefix)
@@ -1022,7 +1022,7 @@ def bwa_mem_mapping(
 				samtools_path, output_prefix), shell=True)
 		return "{}_sorted.bam".format(output_prefix)
 	else:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | ",\
+		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | "\
 			"{} sort -O cram -o {}_sorted.cram -".format(
 				bwa_path, threads, reference, fastqs, samtools_path,
 				samtools_path, output_prefix)
