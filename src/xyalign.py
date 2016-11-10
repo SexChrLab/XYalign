@@ -579,12 +579,11 @@ def switch_sex_chromosomes_bam_sambamba(
 		non_sex_scaffolds = filter(
 			lambda x: x not in sex_chroms, list(samfile.references))
 		subprocess.call(
-			"{} view -h -t {} -f bam -o /dev/stdout {} {} | ",
+			"{} view -h -t {} -f bam -o /dev/stdout {} {} | "
 			"{} merge -t {} {}/{}.merged.bam /dev/stdin {}".format(
 				sambamba_path, threads, bam_orig, " ".join(non_sex_scaffolds),
 				sambamba_path, threads, output_directory, output_prefix,
-				bam_new),
-			shell=True)
+				bam_new), shell=True)
 
 		return "{}/{}.merged.bam".format(output_directory, output_prefix)
 
