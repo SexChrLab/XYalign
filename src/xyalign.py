@@ -182,7 +182,7 @@ def main():
 			new_reference = isolate_chromosomes_reference(
 				args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
 					reference_path, args.sample_id),
-				args.x_chromosome + args.y_chromosome)
+				args.x_chromosome + args.y_chromosome, args.reference_mask)
 			# Strip reads from sex chromosomes
 			if args.bam is not None:
 				new_fastqs = bam_to_fastq(
@@ -217,7 +217,7 @@ def main():
 			new_reference = isolate_chromosomes_reference(
 				args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
 					reference_path, args.sample_id),
-				args.x_chromosome)
+				args.x_chromosome, args.reference_mask)
 			# Strip reads from sex chromosomes
 			if args.bam is not None:
 				new_fastqs = bam_to_fastq(
@@ -352,6 +352,14 @@ def parse_args():
 		"--platypus_logfile", default=None,
 		help="Prefix to use for Platypus log files.  Will default to the "
 		"sample name")
+
+	# Mapping/remapping Flags
+	parser.add_argument(
+		"--reference_mask", default=None,
+		help="Bed file containing regions to replace with Ns in the sex "
+		"chromosome reference.  Examples might include the pseudoautosomal "
+		"regions on the Y to force all mapping/calling on those regions of the "
+		"X chromosome.  Default is none.")
 
 	# Bam Analysis Flags
 	parser.add_argument(
@@ -522,28 +530,6 @@ def permutation_test_chromosomes(
 	return (first_mean, second_mean, sig)
 
 
-def bwa_mem_mapping(
-	bwa_path, samtools_path, reference, output_prefix, fastqs,
-	threads, cram=False):
-	""" Maps reads to a reference genome using bwa mem.
-	"""
-	fastqs = ' '.join(fastqs)
-	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
-	if cram is False:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | {} sort -O bam -o {}_sorted.bam -".format(bwa_path, threads, reference, fastqs, samtools_path, samtools_path, output_prefix)
-		subprocess.call(command_line, shell=True)
-		subprocess.call(
-			"{} index {}_sorted.bam".format(
-				samtools_path, output_prefix), shell=True)
-		return "{}_sorted.bam".format(output_prefix)
-	else:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | {} sort -O cram -o {}_sorted.cram -".format(bwa_path, threads, reference, fastqs, samtools_path, samtools_path, output_prefix)
-		subprocess.call(command_line, shell=True)
-		subprocess.call(
-			"{} index {}_sorted.cram".format(
-				samtools_path, output_prefix), shell=True)
-		return "{}_sorted.cram".format(output_prefix)
-
 def bwa_mem_mapping_sambamba(
 	bwa_path, samtools_path, sambamba_path, reference, output_prefix, fastqs,
 	threads, cram=False):
@@ -565,65 +551,6 @@ def bwa_mem_mapping_sambamba(
 			"{} index {}_sorted.cram".format(
 				samtools_path, output_prefix), shell=True)
 		return "{}_sorted.cram".format(output_prefix)
-
-
-def switch_sex_chromosomes_bam(
-	samtools_path, bam_orig, bam_new, sex_chroms, output_directory,
-	output_prefix, cram=False):
-	""" Removes sex chromosomes from original bam and merges in remmapped
-	sex chromosomes, while retaining the original bam header
-	"""
-	# Grab original header
-	subprocess.call(
-		"{} view -H {} > {}/header.sam".format(
-			samtools_path, bam_orig, output_directory), shell=True)
-	if cram is False:
-		# Remove sex chromosomes from original bam
-		samfile = pysam.AlignmentFile(bam_orig, "rb")
-		non_sex_scaffolds = filter(
-			lambda x: x not in sex_chroms, list(samfile.references))
-		subprocess.call(
-			"{} view -h -b {} {} > {}/no_sex.bam".format(
-				samtools_path, bam_orig, " ".join(non_sex_scaffolds),
-				output_directory),
-			shell=True)
-		subprocess.call(
-			"{} index {}/no_sex.bam".format(
-				samtools_path, output_directory), shell=True)
-
-		# Merge bam files
-		subprocess.call(
-			"{} merge -h {}/header.sam {}/{}.bam {}/no_sex.bam {}".format(
-				samtools_path, output_directory, output_directory,
-				output_prefix, output_directory, bam_new), shell=True)
-		subprocess.call("{} index {}/{}.bam".format(
-			samtools_path, output_directory, output_prefix), shell=True)
-
-		return "{}/{}.bam".format(output_directory, output_prefix)
-
-	else:
-		# Remove sex chromosomes from original bam
-		samfile = pysam.AlignmentFile(bam_orig, "rc")
-		non_sex_scaffolds = filter(
-			lambda x: x not in sex_chroms, list(samfile.references))
-		subprocess.call(
-			"{} view -h -b {} {} > {}/no_sex.cram".format(
-				samtools_path, bam_orig, " ".join(non_sex_scaffolds),
-				output_directory),
-			shell=True)
-		subprocess.call(
-			"{} index {}/no_sex.cram".format(
-				samtools_path, output_directory), shell=True)
-
-		# Merge bam files
-		subprocess.call(
-			"{} merge -h {}/header.sam {}/{}.cram {}/no_sex.cram {}".format(
-				samtools_path, output_directory, output_directory,
-				output_prefix, output_directory, bam_new), shell=True)
-		subprocess.call("{} index {}/{}.cram".format(
-			samtools_path, output_directory, output_prefix), shell=True)
-
-		return "{}/{}.cram".format(output_directory, output_prefix)
 
 
 def switch_sex_chromosomes_bam_sambamba(
@@ -695,17 +622,31 @@ def platypus_caller(
 
 
 def isolate_chromosomes_reference(
-	samtools_path, reference_fasta, new_ref_prefix, chroms):
+	samtools_path, reference_fasta, new_ref_prefix, chroms, bed_mask):
 	""" Takes a reference fasta file and a list of chromosomes to include
 	and outputs a new, indexed reference fasta.
 	"""
 	outpath = "{}.fa".format(new_ref_prefix)
 	if type(chroms) != list:
 		chroms = list(chroms)
-	command_line = "{} faidx {} {} > {}".format(samtools_path, reference_fasta, " ".join(chroms), outpath)
-	subprocess.call(command_line, shell=True)
-	subprocess.call("{} faidx {}".format(samtools_path, outpath), shell=True)
-	return outpath
+	if bed_mask is not None:
+		maskedpath = "{}.masked.fa".format(new_ref_prefix)
+		command_line = "{} faidx {} {} > {}".format(
+			samtools_path, reference_fasta, " ".join(chroms), outpath)
+		subprocess.call(command_line, shell=True)
+		subprocess.call("{} faidx {}".format(
+			samtools_path, outpath), shell=True)
+		b_fasta = pybedtools.BedTool(outpath)
+		b_tool = pybedtools.BedTool(bed_mask)
+		b = b_tool.mask_fasta(fi=b_fasta, fo=maskedpath)
+		subprocess.call(
+			"{} faidx {}".format(samtools_path, maskedpath), shell=True)
+	else:
+		command_line = "{} faidx {} {} > {}".format(
+			samtools_path, reference_fasta, " ".join(chroms), outpath)
+		subprocess.call(command_line, shell=True)
+		subprocess.call("{} faidx {}".format(samtools_path, outpath), shell=True)
+		return outpath
 
 
 def bam_to_fastq(
@@ -1030,6 +971,89 @@ def plot_depth_mapq(
 		mapq_bar_plot = sns.countplot(
 			x='Mapq', y='Count', data=mapq_hist)
 		mapq_bar_plot.savefig("mapq_hist.png")
+
+
+# Legacy functions (keeping them so they remain callable if needed later)
+def bwa_mem_mapping(
+	bwa_path, samtools_path, reference, output_prefix, fastqs,
+	threads, cram=False):
+	""" Maps reads to a reference genome using bwa mem.
+	"""
+	fastqs = ' '.join(fastqs)
+	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
+	if cram is False:
+		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | {} sort -O bam -o {}_sorted.bam -".format(bwa_path, threads, reference, fastqs, samtools_path, samtools_path, output_prefix)
+		subprocess.call(command_line, shell=True)
+		subprocess.call(
+			"{} index {}_sorted.bam".format(
+				samtools_path, output_prefix), shell=True)
+		return "{}_sorted.bam".format(output_prefix)
+	else:
+		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | {} sort -O cram -o {}_sorted.cram -".format(bwa_path, threads, reference, fastqs, samtools_path, samtools_path, output_prefix)
+		subprocess.call(command_line, shell=True)
+		subprocess.call(
+			"{} index {}_sorted.cram".format(
+				samtools_path, output_prefix), shell=True)
+		return "{}_sorted.cram".format(output_prefix)
+
+
+def switch_sex_chromosomes_bam(
+	samtools_path, bam_orig, bam_new, sex_chroms, output_directory,
+	output_prefix, cram=False):
+	""" Removes sex chromosomes from original bam and merges in remmapped
+	sex chromosomes, while retaining the original bam header
+	"""
+	# Grab original header
+	subprocess.call(
+		"{} view -H {} > {}/header.sam".format(
+			samtools_path, bam_orig, output_directory), shell=True)
+	if cram is False:
+		# Remove sex chromosomes from original bam
+		samfile = pysam.AlignmentFile(bam_orig, "rb")
+		non_sex_scaffolds = filter(
+			lambda x: x not in sex_chroms, list(samfile.references))
+		subprocess.call(
+			"{} view -h -b {} {} > {}/no_sex.bam".format(
+				samtools_path, bam_orig, " ".join(non_sex_scaffolds),
+				output_directory),
+			shell=True)
+		subprocess.call(
+			"{} index {}/no_sex.bam".format(
+				samtools_path, output_directory), shell=True)
+
+		# Merge bam files
+		subprocess.call(
+			"{} merge -h {}/header.sam {}/{}.bam {}/no_sex.bam {}".format(
+				samtools_path, output_directory, output_directory,
+				output_prefix, output_directory, bam_new), shell=True)
+		subprocess.call("{} index {}/{}.bam".format(
+			samtools_path, output_directory, output_prefix), shell=True)
+
+		return "{}/{}.bam".format(output_directory, output_prefix)
+
+	else:
+		# Remove sex chromosomes from original bam
+		samfile = pysam.AlignmentFile(bam_orig, "rc")
+		non_sex_scaffolds = filter(
+			lambda x: x not in sex_chroms, list(samfile.references))
+		subprocess.call(
+			"{} view -h -b {} {} > {}/no_sex.cram".format(
+				samtools_path, bam_orig, " ".join(non_sex_scaffolds),
+				output_directory),
+			shell=True)
+		subprocess.call(
+			"{} index {}/no_sex.cram".format(
+				samtools_path, output_directory), shell=True)
+
+		# Merge bam files
+		subprocess.call(
+			"{} merge -h {}/header.sam {}/{}.cram {}/no_sex.cram {}".format(
+				samtools_path, output_directory, output_directory,
+				output_prefix, output_directory, bam_new), shell=True)
+		subprocess.call("{} index {}/{}.cram".format(
+			samtools_path, output_directory, output_prefix), shell=True)
+
+		return "{}/{}.cram".format(output_directory, output_prefix)
 
 if __name__ == "__main__":
 	main()
