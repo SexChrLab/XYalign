@@ -745,7 +745,7 @@ def bam_to_fastq(
 			for line in f:
 				rg = line.strip()
 				if rg != "":
-					with open("{}.txt".format(rg), "w") as o:
+					with open("{}/{}.txt".format(output_directory, rg), "w") as o:
 						o.write(rg)
 					if single is False:
 						command_line = "{} view -b {} {} | {} bam2fq -1 {}/temp_1.fastq "\
