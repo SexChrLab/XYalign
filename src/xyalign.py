@@ -723,8 +723,11 @@ def bam_to_fastq(
 	# Collect RGs
 	rg_list = output_directory + "full_rg.list"
 	command_line = """{} view -H {} | awk '$1=="\x40RG"' | """\
-		"""awk '{for(i=1;i<=NF;i++){if (substr($i,1,2) ~ /ID/){print $i}}}' """\
-		"""| cut -d':' -f 2 > {}""".format(samtools_path, bamfile, rg_list)
+		"""awk {} """\
+		"""| cut -d':' -f 2 > {}""".format(
+			samtools_path, bamfile,
+			repr('{for(i=1;i<=NF;i++){if (substr($i,1,2) ~ /ID/){print $i}}}'),
+			rg_list)
 	subprocess.call(command_line, shell=True)
 	rg_header_lines = output_directory + "header_lines_rg.list"
 	command_line = """{} view -H {} | awk '$1=="\x40RG"' > {}""".format(
