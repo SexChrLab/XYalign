@@ -218,9 +218,12 @@ def main():
 							bam_path, args.sample_id, rg_id),
 						fastq_files, args.cpus, rg_tag)
 					temp_bam_list.append(temp_bam)
-			new_bam = sambamba_merge(
-				args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
-					bam_path, args.sample_id), args.cpus)
+			if len(temp_bam_list) < 2:
+				new_bam = temp_bam_list[0]
+			else:
+				new_bam = sambamba_merge(
+					args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
+						bam_path, args.sample_id), args.cpus)
 			# Merge bam files
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
@@ -272,9 +275,12 @@ def main():
 							bam_path, args.sample_id, rg_id),
 						fastq_files, args.cpus, rg_tag)
 					temp_bam_list.append(temp_bam)
-			new_bam = sambamba_merge(
-				args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
-					bam_path, args.sample_id), args.cpus)
+			if len(temp_bam_list) < 2:
+				new_bam = temp_bam_list[0]
+			else:
+				new_bam = sambamba_merge(
+					args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
+						bam_path, args.sample_id), args.cpus)
 			# Merge bam files
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
@@ -606,7 +612,7 @@ def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
 	Takes a list of bam files, e.g., [bam1,bam2,bam3,...], and merges them
 	using sambamba
 	"""
-	subprocess_call(
+	subprocess.call(
 		"{} merge -t {} {}.merged.bam {}".format(
 			sambamba_path, threads, output_prefix, " ".join(bam_list)))
 	subprocess.call(
@@ -721,7 +727,7 @@ def bam_to_fastq(
 	sorted fastqs containing reads.
 	"""
 	# Collect RGs
-	rg_list = output_directory + "full_rg.list"
+	rg_list = output_directory + "/" + "full_rg.list"
 	command_line = """{} view -H {} | awk '$1=="\x40RG"' | """\
 		"""awk {} """\
 		"""| cut -d':' -f 2 > {}""".format(
@@ -729,12 +735,12 @@ def bam_to_fastq(
 			repr('{for(i=1;i<=NF;i++){if (substr($i,1,2) ~ /ID/){print $i}}}'),
 			rg_list)
 	subprocess.call(command_line, shell=True)
-	rg_header_lines = output_directory + "header_lines_rg.list"
+	rg_header_lines = output_directory + "/" + "header_lines_rg.list"
 	command_line = """{} view -H {} | awk '$1=="\x40RG"' > {}""".format(
 		samtools_path, bamfile, rg_header_lines)
 	subprocess.call(command_line, shell=True)
 	with open(rg_list, "r") as f:
-		out_rg_table = output_directory + "rg_fastq_key.list"
+		out_rg_table = output_directory + "/" + "rg_fastq_key.list"
 		with open(out_rg_table, "w") as ortab:
 			for line in f:
 				rg = line.strip()
