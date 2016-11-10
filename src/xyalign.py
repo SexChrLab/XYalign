@@ -872,7 +872,10 @@ def make_region_lists(depthAndMapqDf, mapqCutoff, sd_thresh):
 	depthMin = depth_mean - (sd_thresh * (depth_sd ** 0.5))
 	depthMax = depth_mean + (sd_thresh * (depth_sd ** 0.5))
 
-	good = (depthAndMapqDf.mapq > mapqCutoff) & (depthAndMapqDf.depth > depthMin) & (depthAndMapqDf.depth < depthMax)
+	good = (
+		(depthAndMapqDf.mapq > mapqCutoff) &
+		(depthAndMapqDf.depth > depthMin) &
+		(depthAndMapqDf.depth < depthMax))
 	dfGood = depthAndMapqDf[good]
 	dfBad = depthAndMapqDf[~good]
 
