@@ -15,6 +15,7 @@
 # 		be solved with from __future__
 
 from __future__ import division
+from __future__ import print_function
 import argparse
 import csv
 import os
@@ -90,7 +91,7 @@ def main():
 				args.platypus_path, noprocessing_vcf_log, args.bam, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
 			if a != 0:
-				print "Error in initial Platypus calling."
+				print("Error in initial Platypus calling.")
 				sys.exit(1)
 			if args.no_variant_plots is not True:
 				plot_variants_per_chrom(
@@ -103,7 +104,7 @@ def main():
 				args.platypus_path, noprocessing_vcf_log, args.cram, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
 			if a != 0:
-				print "Error in initial Platypus calling."
+				print("Error in initial Platypus calling.")
 				sys.exit(1)
 			if args.no_variant_plots is not True:
 				plot_variants_per_chrom(
@@ -255,7 +256,7 @@ def main():
 			args.platypus_path, postprocessing_vcf_log, merged_bam, args.ref,
 			args.chromosomes, args.cpus, postprocessing_vcf, include_bed)
 		if a != 0:
-			print "Error in second round of Platypus calling."
+			print("Error in second round of Platypus calling.")
 			sys.exit(1)
 		if args.no_variant_plots is not True:
 			plot_variants_per_chrom(
@@ -438,12 +439,12 @@ def parse_args():
 	# Validate arguments
 	if args.no_perm_test is True:
 		if args.y_present is False and args.y_absent is False:
-			print "Error. Either --y_present or --y_absent needs to be ",\
-				"included with --no_perm_test"
+			print("Error. Either --y_present or --y_absent needs to be "
+					"included with --no_perm_test")
 		sys.exit(1)
 	if args.platypus_calling not in ["both", "none", "before", "after"]:
-		print "Error. Platypus calling must be both, none, before, or after. ",\
-			"Default is both."
+		print("Error. Platypus calling must be both, none, before, or after. "
+					"Default is both.")
 		sys.exit(1)
 
 	# Create directory structure if not already in place
@@ -821,8 +822,8 @@ def traverse_bam_fetch(samfile, chrom, window_size):
 			end += window_size
 
 		# Print progress
-		print "{} out of {} windows processed on {}".format(
-			window_id, num_windows, chrom)
+		print("{} out of {} windows processed on {}".format(
+			window_id, num_windows, chrom))
 
 	# Convert data into pandas data frames
 	windows_df = pd.DataFrame({
