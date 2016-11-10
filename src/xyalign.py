@@ -823,12 +823,12 @@ def traverse_bam_fetch(samfile, chrom, window_size):
 	end = window_size
 	for window in range(0, num_windows):
 		mapq = []
-		num_reads = 0
 		total_read_length = 0
 		for read in samfile.fetch(chrom, start, end):
-			num_reads += 1
-			total_read_length += read.infer_query_length()
-			mapq.append(read.mapping_quality)
+			if read.is_secondary is False:
+				if read.is_supplementary is False:
+					total_read_length += read.infer_query_length()
+					mapq.append(read.mapping_quality)
 		start_list.append(start)
 		stop_list.append(end)
 		depth_list.append(total_read_length / window_size)
