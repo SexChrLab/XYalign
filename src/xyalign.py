@@ -197,11 +197,30 @@ def main():
 					args.single_end, fastq_path, args.sample_id,
 					args.x_chromosome + args.y_chromosome)
 			# Remap
-			new_bam = bwa_mem_mapping_sambamba(
-				args.bwa_path, args.samtools_path, args.sambamba_path,
-				new_reference, "{}/{}.sex_chroms".format(
-					bam_path, args.sample_id),
-				new_fastqs, args.cpus)
+			with open(new_fastqs[0]) as f:
+				read_group_and_fastqs = [line.split() for line in f]
+			with open(new_fastqs[1]) as f:
+				read_group_headers = [line.split() for line in f]
+			temp_bam_list = []
+			for i in read_group_and_fastqs:
+				if i != [""]:
+					rg_id = i[0]
+					fastq_files = i[1:]
+					for j in read_group_headers:
+						for k in j:
+							if k[0:2] == 'ID':
+								if k[3:] == rg_id:
+									rg_tag = "\t".join(j)
+								break
+					temp_bam = bwa_mem_mapping_sambamba(
+						args.bwa_path, args.samtools_path, args.sambamba_path,
+						new_reference, "{}/{}.sex_chroms.{}.".format(
+							bam_path, args.sample_id, rg_id),
+						fastq_files, args.cpus, rg_tag)
+					temp_bam_list.append(temp_bam)
+			new_bam = sambamba_merge(
+				args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
+					bam_path, args.sample_id), args.cpus)
 			# Merge bam files
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
@@ -232,11 +251,30 @@ def main():
 					args.single_end, fastq_path, args.sample_id,
 					args.x_chromosome)
 			# Remap
-			new_bam = bwa_mem_mapping_sambamba(
-				args.bwa_path, args.samtools_path, args.sambamba_path,
-				new_reference, "{}/{}.sex_chroms".format(
-					bam_path, args.sample_id),
-				new_fastqs, args.cpus)
+			with open(new_fastqs[0]) as f:
+				read_group_and_fastqs = [line.split() for line in f]
+			with open(new_fastqs[1]) as f:
+				read_group_headers = [line.split() for line in f]
+			temp_bam_list = []
+			for i in read_group_and_fastqs:
+				if i != [""]:
+					rg_id = i[0]
+					fastq_files = i[1:]
+					for j in read_group_headers:
+						for k in j:
+							if k[0:2] == 'ID':
+								if k[3:] == rg_id:
+									rg_tag = "\t".join(j)
+								break
+					temp_bam = bwa_mem_mapping_sambamba(
+						args.bwa_path, args.samtools_path, args.sambamba_path,
+						new_reference, "{}/{}.sex_chroms.{}.".format(
+							bam_path, args.sample_id, rg_id),
+						fastq_files, args.cpus, rg_tag)
+					temp_bam_list.append(temp_bam)
+			new_bam = sambamba_merge(
+				args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
+					bam_path, args.sample_id), args.cpus)
 			# Merge bam files
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
@@ -536,15 +574,15 @@ def permutation_test_chromosomes(
 
 def bwa_mem_mapping_sambamba(
 	bwa_path, samtools_path, sambamba_path, reference, output_prefix, fastqs,
-	threads, cram=False):
+	threads, read_group_line, cram=False):
 	""" Maps reads to a reference genome using bwa mem.
 	"""
 	fastqs = ' '.join(fastqs)
 	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
 	if cram is False:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | "\
+		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
-				bwa_path, threads, reference, fastqs, samtools_path,
+				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
 				sambamba_path, threads, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
@@ -552,15 +590,29 @@ def bwa_mem_mapping_sambamba(
 				sambamba_path, threads, output_prefix), shell=True)
 		return "{}_sorted.bam".format(output_prefix)
 	else:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | "\
+		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O cram - - | "\
 			"{} sort -O cram -o {}_sorted.cram -".format(
-				bwa_path, threads, reference, fastqs, samtools_path,
+				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
 				samtools_path, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			"{} index {}_sorted.cram".format(
 				samtools_path, output_prefix), shell=True)
 		return "{}_sorted.cram".format(output_prefix)
+
+
+def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
+	"""
+	Takes a list of bam files, e.g., [bam1,bam2,bam3,...], and merges them
+	using sambamba
+	"""
+	subprocess_call(
+		"{} merge -t {} {}.merged.bam {}".format(
+			sambamba_path, threads, output_prefix, " ".join(bam_list)))
+	subprocess.call(
+		"{} index {}.merged.bam".format(
+			sambamba_path, output_prefix))
+	return "{}.merged.bam".format(output_prefix)
 
 
 def switch_sex_chromosomes_bam_sambamba(
@@ -668,34 +720,55 @@ def bam_to_fastq(
 	""" Strips reads from a bam or cram file in provided regions and outputs
 	sorted fastqs containing reads.
 	"""
-	if single is False:
-		command_line = "{} view -b {} {} | {} bam2fq -1 {}/temp_1.fastq "\
-			"-2 {}/temp_2.fastq -t -n - ".format(
-				samtools_path, bamfile, ' '.join(map(str, regions)),
-				samtools_path, output_directory, output_directory)
-		subprocess.call(command_line, shell=True)
-		command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
-			repairsh_path,
-			output_directory + "/temp_1.fastq",
-			output_directory + "/temp_2.fastq",
-			output_directory + "/" + output_prefix + "_1.fastq",
-			output_directory + "/" + output_prefix + "_2.fastq")
-		subprocess.call(command_line, shell=True)
-		return [
-			output_directory + "/" + output_prefix + "_1.fastq",
-			output_directory + "/" + output_prefix + "_2.fastq"]
-	else:
-		command_line = "{} view -b {} {} | {} bam2fq -t -n - > "\
-			"{}/temp.fastq".format(samtools_path, bamfile, ' '.join(map(
-				str, regions)), samtools_path, output_directory)
-		subprocess.call(command_line, shell=True)
-		command_line = "{} in={} out={} overwrite=true".format(
-			repairsh_path,
-			output_directory + "/temp.fastq",
-			output_directory + "/" + output_prefix + ".fastq")
-		return [
-			output_directory + "/temp.fastq",
-			output_directory + "/" + output_prefix + ".fastq"]
+	# Collect RGs
+	rg_list = output_directory + "full_rg.list"
+	command_line = """{} view -H {} | awk '$1=="\x40RG"' | """\
+		"""awk '{for(i=1;i<=NF;i++){if (substr($i,1,2) ~ /ID/){print $i}}}' """\
+		"""| cut -d':' -f 2 > {}""".format(samtools_path, bamfile, rg_list)
+	subprocess.call(command_line, shell=True)
+	rg_header_lines = output_directory + "header_lines_rg.list"
+	command_line = """{} view -H {} | awk '$1=="\x40RG"' > {}""".format(
+		samtools_path, bamfile, rg_header_lines)
+	subprocess.call(command_line, shell=True)
+	with open(rg_list, "r") as f:
+		out_rg_table = output_directory + "rg_fastq_key.list"
+		with open("out_rg_table") as ortab:
+			for line in f:
+				rg = line.strip()
+				if rg != "":
+					with open("{}.txt".format(rg), "w") as o:
+						o.write(rg)
+					if single is False:
+						command_line = "{} view -b {} {} | {} bam2fq -1 {}/temp_1.fastq "\
+							"-2 {}/temp_2.fastq -t -n - ".format(
+								samtools_path, bamfile, ' '.join(map(str, regions)),
+								samtools_path, output_directory, output_directory)
+						subprocess.call(command_line, shell=True)
+						command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
+							repairsh_path,
+							output_directory + "/temp_1.fastq",
+							output_directory + "/temp_2.fastq",
+							output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
+							output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
+						subprocess.call(command_line, shell=True)
+						ortab.write("{}\t{}\t{}".format(
+							rg,
+							output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
+							output_directory + "/" + output_prefix + "_" + rg + "_2.fastq"))
+					else:
+						command_line = "{} view -b {} {} | {} bam2fq -t -n - > "\
+							"{}/temp.fastq".format(samtools_path, bamfile, ' '.join(map(
+								str, regions)), samtools_path, output_directory)
+						subprocess.call(command_line, shell=True)
+						command_line = "{} in={} out={} overwrite=true".format(
+							repairsh_path,
+							output_directory + "/temp.fastq",
+							output_directory + "/" + output_prefix + "_" + rg + ".fastq")
+						# write line
+						ortab.write("{}\t{}".format(
+							rg,
+							output_directory + "/" + output_prefix + "_" + rg + ".fastq"))
+	return [out_rg_table, rg_header_lines]
 
 
 def parse_platypus_VCF(filename, qualCutoff, chrom):
