@@ -735,7 +735,7 @@ def bam_to_fastq(
 	subprocess.call(command_line, shell=True)
 	with open(rg_list, "r") as f:
 		out_rg_table = output_directory + "rg_fastq_key.list"
-		with open("out_rg_table") as ortab:
+		with open(out_rg_table, "w") as ortab:
 			for line in f:
 				rg = line.strip()
 				if rg != "":
