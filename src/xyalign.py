@@ -11,8 +11,9 @@
 # 6) Add plotting of high-quality windows (depth, mapq), also after remapping
 # 7) Check for behavior when files already exist (e.g., overwrite, quit, etc.?)
 # 8) Incorporate mask integration on the fly
-# 9) Check with Python 3 and see if any incompatibilities (e.g., printing) can
-# 		be solved with from __future__
+# 9) Check with Python 3 and for any incompatibilities
+# 				- division updated
+# 				- printing updated
 
 from __future__ import division
 from __future__ import print_function
@@ -71,14 +72,14 @@ def main():
 		args.output_dir, "plots", "{}_postprocessing".format(args.sample_id))
 	depth_mapq_prefix = os.path.join(
 		args.output_dir, "plots", "{}_noprocessing".format(args.sample_id))
-	if args.high_quality_bed is not None:
-		high_prefix = args.high_quality_bed
+	if args.high_quality_bed_out is not None:
+		high_prefix = args.high_quality_bed_out
 	else:
 		high_prefix = "{}_highquality".format(args.sample_id)
 	output_bed_high = os.path.join(
 		args.output_dir, "bed", "{}.bed".format(high_prefix))
-	if args.low_quality_bed is not None:
-		low_prefix = args.low_quality_bed
+	if args.low_quality_bed_out is not None:
+		low_prefix = args.low_quality_bed_out
 	else:
 		low_prefix = "{}_lowquality".format(args.sample_id)
 	output_bed_low = os.path.join(
@@ -378,12 +379,12 @@ def parse_args():
 		"(f * square_root(mean_depth)).")
 
 	parser.add_argument(
-		"--high_quality_bed", "-hq", default=None,
+		"--high_quality_bed_out", "-hq", default=None,
 		help="Prefix of output file for high quality regions. Defaults to "
 		"samplename_highquality")
 
 	parser.add_argument(
-		"--low_quality_bed", "-lq", default=None,
+		"--low_quality_bed_out", "-lq", default=None,
 		help="Prefix of output file for low quality regions. Defaults to "
 		"samplename_lowquality")
 
@@ -440,11 +441,11 @@ def parse_args():
 	if args.no_perm_test is True:
 		if args.y_present is False and args.y_absent is False:
 			print("Error. Either --y_present or --y_absent needs to be "
-					"included with --no_perm_test")
+									"included with --no_perm_test")
 		sys.exit(1)
 	if args.platypus_calling not in ["both", "none", "before", "after"]:
 		print("Error. Platypus calling must be both, none, before, or after. "
-					"Default is both.")
+								"Default is both.")
 		sys.exit(1)
 
 	# Create directory structure if not already in place
@@ -492,8 +493,10 @@ def permutation_test_chromosomes(
 	""" Takes a dataframe and runs a permutation test comparing mean values
 	of two chromosomes.
 	"""
-	first_vals = data_frame[data_frame[chrom_column] == first_chrom][value_column]
-	second_vals = data_frame[data_frame[chrom_column] == second_chrom][value_column]
+	first_vals = data_frame[
+		data_frame[chrom_column] == first_chrom][value_column]
+	second_vals = data_frame[
+		data_frame[chrom_column] == second_chrom][value_column]
 	combined = np.append(first_vals, second_vals)
 
 	first_mean = np.mean(first_vals)
@@ -539,14 +542,20 @@ def bwa_mem_mapping_sambamba(
 	fastqs = ' '.join(fastqs)
 	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
 	if cram is False:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | {} sort -t {} -o {}_sorted.bam /dev/stdin".format(bwa_path, threads, reference, fastqs, samtools_path, sambamba_path, threads, output_prefix)
+		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | ",\
+			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
+				bwa_path, threads, reference, fastqs, samtools_path,
+				sambamba_path, threads, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			"{} index -t {} {}_sorted.bam".format(
 				sambamba_path, threads, output_prefix), shell=True)
 		return "{}_sorted.bam".format(output_prefix)
 	else:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | {} sort -O cram -o {}_sorted.cram -".format(bwa_path, threads, reference, fastqs, samtools_path, samtools_path, output_prefix)
+		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | ",\
+			"{} sort -O cram -o {}_sorted.cram -".format(
+				bwa_path, threads, reference, fastqs, samtools_path,
+				samtools_path, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			"{} index {}_sorted.cram".format(
@@ -570,7 +579,8 @@ def switch_sex_chromosomes_bam_sambamba(
 		non_sex_scaffolds = filter(
 			lambda x: x not in sex_chroms, list(samfile.references))
 		subprocess.call(
-			"{} view -h -t {} -f bam -o /dev/stdout {} {} | {} merge -t {} {}/{}.merged.bam /dev/stdin {}".format(
+			"{} view -h -t {} -f bam -o /dev/stdout {} {} | ",
+			"{} merge -t {} {}/{}.merged.bam /dev/stdin {}".format(
 				sambamba_path, threads, bam_orig, " ".join(non_sex_scaffolds),
 				sambamba_path, threads, output_directory, output_prefix,
 				bam_new),
@@ -602,6 +612,7 @@ def switch_sex_chromosomes_bam_sambamba(
 
 		return "{}/{}.cram".format(output_directory, output_prefix)
 
+
 def platypus_caller(
 	platypus_path, log_path, bam, ref, chroms, cpus, output_file,
 	regions_file=None):
@@ -617,7 +628,9 @@ def platypus_caller(
 		regions = ','.join(map(str, chroms))
 	else:
 		regions = regions_file
-	command_line = "{} callVariants --bamFiles {} -o {} --refFile {} --nCPU {} --regions {} --assemble 1 --logFileName {}".format(platypus_path, bam, output_file, ref, cpus, regions, log_path)
+	command_line = "{} callVariants --bamFiles {} -o {} --refFile {} ",\
+		"--nCPU {} --regions {} --assemble 1 --logFileName {}".format(
+			platypus_path, bam, output_file, ref, cpus, regions, log_path)
 	return_code = subprocess.call(command_line, shell=True)
 	return return_code
 
@@ -657,7 +670,10 @@ def bam_to_fastq(
 	sorted fastqs containing reads.
 	"""
 	if single is False:
-		command_line = "{} view -b {} {} | {} bam2fq -1 {}/temp_1.fastq -2 {}/temp_2.fastq -t -n - ".format(samtools_path, bamfile, ' '.join(map(str, regions)), samtools_path, output_directory, output_directory)
+		command_line = "{} view -b {} {} | {} bam2fq -1 {}/temp_1.fastq ",\
+			"-2 {}/temp_2.fastq -t -n - ".format(
+				samtools_path, bamfile, ' '.join(map(str, regions)),
+				samtools_path, output_directory, output_directory)
 		subprocess.call(command_line, shell=True)
 		command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
 			repairsh_path,
@@ -666,15 +682,21 @@ def bam_to_fastq(
 			output_directory + "/" + output_prefix + "_1.fastq",
 			output_directory + "/" + output_prefix + "_2.fastq")
 		subprocess.call(command_line, shell=True)
-		return [output_directory + "/" + output_prefix + "_1.fastq", output_directory + "/" + output_prefix + "_2.fastq"]
+		return [
+			output_directory + "/" + output_prefix + "_1.fastq",
+			output_directory + "/" + output_prefix + "_2.fastq"]
 	else:
-		command_line = "{} view -b {} {} | {} bam2fq -t -n - > {}/temp.fastq".format(samtools_path, bamfile, ' '.join(map(str, regions)), samtools_path, output_directory)
+		command_line = "{} view -b {} {} | {} bam2fq -t -n - > ",\
+			"{}/temp.fastq".format(samtools_path, bamfile, ' '.join(map(
+				str, regions)), samtools_path, output_directory)
 		subprocess.call(command_line, shell=True)
 		command_line = "{} in={} out={} overwrite=true".format(
 			repairsh_path,
 			output_directory + "/temp.fastq",
 			output_directory + "/" + output_prefix + ".fastq")
-		return [output_directory + "/temp.fastq", output_directory + "/" + output_prefix + ".fastq"]
+		return [
+			output_directory + "/temp.fastq",
+			output_directory + "/" + output_prefix + ".fastq"]
 
 
 def parse_platypus_VCF(filename, qualCutoff, chrom):
@@ -924,10 +946,14 @@ def plot_depth_mapq(
 		None
 	"""
 
-	window_df = None if "windows" not in data_dict else data_dict["windows"]
-	depth_hist = None if "depth_freq" not in data_dict else data_dict["depth_freq"]
-	readbal_hist = None if "readbal_freq" not in data_dict else data_dict["readbal_freq"]
-	mapq_hist = None if "mapq_freq" not in data_dict else data_dict["mapq_freq"]
+	window_df = None if "windows" not in data_dict else data_dict[
+		"windows"]
+	depth_hist = None if "depth_freq" not in data_dict else data_dict[
+		"depth_freq"]
+	readbal_hist = None if "readbal_freq" not in data_dict else data_dict[
+		"readbal_freq"]
+	mapq_hist = None if "mapq_freq" not in data_dict else data_dict[
+		"mapq_freq"]
 
 	chromosome = window_df["chrom"][1]
 
@@ -983,14 +1009,20 @@ def bwa_mem_mapping(
 	fastqs = ' '.join(fastqs)
 	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
 	if cram is False:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | {} sort -O bam -o {}_sorted.bam -".format(bwa_path, threads, reference, fastqs, samtools_path, samtools_path, output_prefix)
+		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | ",\
+			"{} sort -O bam -o {}_sorted.bam -".format(
+				bwa_path, threads, reference, fastqs, samtools_path,
+				samtools_path, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			"{} index {}_sorted.bam".format(
 				samtools_path, output_prefix), shell=True)
 		return "{}_sorted.bam".format(output_prefix)
 	else:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | {} sort -O cram -o {}_sorted.cram -".format(bwa_path, threads, reference, fastqs, samtools_path, samtools_path, output_prefix)
+		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | ",\
+			"{} sort -O cram -o {}_sorted.cram -".format(
+				bwa_path, threads, reference, fastqs, samtools_path,
+				samtools_path, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			"{} index {}_sorted.cram".format(
