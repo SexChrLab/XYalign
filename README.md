@@ -19,7 +19,7 @@ Minimally, you'll need:
 
 3. A .fai index of the reference genome in (2) located in the same directory as the reference.  This can be generated using the command ```samtools faidx <reference_fasta>```.  See the [samtools documentation](http://www.htslib.org/doc/samtools.html) for more information 
 
-4. An environment with a host of python packages (right now we only support Python 2.7; numpy, pandas, matplotlib, seaborn, pysam, and pybedtools) and external programs (platypus, bwa, samtools, and bbmap) installed.  Probably the easiest way to do this is to download [miniconda](http://conda.pydata.org/miniconda.html) and let it append its path to your .bashrc file.  You should then be able to set up and environment with the following commands:
+4. An environment with a host of python packages (numpy, pandas, matplotlib, seaborn, pysam, and pybedtools) and external programs (platypus, bwa, samtools, and bbmap) installed.  Note that we only support Python 2.7 right now (because of Platypus). Probably the easiest way to do this is to download [miniconda](http://conda.pydata.org/miniconda.html) and let it append its path to your .bashrc file.  You should then be able to set up and environment with the following commands:
 ```
 conda config --add channels r
 
