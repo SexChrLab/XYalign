@@ -1,4 +1,4 @@
-![Alt text](https://github.com/WilsonSayresLab/XYalign/blob/master/Files/XYlogo.png)
+![XYalign logo](https://github.com/WilsonSayresLab/XYalign/blob/master/Files/XYlogo.png)
 
 # XYalign: Inferring Sex Chromosome Ploidy in NGS Data
 Madeline Couse, Bruno Grande, Eric Karlins, Tanya Phung, Phillip Richmond, Timothy H. Webster, Whitney Whitford, Melissa A. Wilson Sayres
