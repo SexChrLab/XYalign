@@ -50,40 +50,47 @@ def main():
 	logfile_path = os.path.join(args.output_dir, "logfiles")
 
 	# Create paths for output files
+	if args.logfile is not None:
+		logfile = os.path.join(
+			logfile_path, args.logfile)
+	else:
+		logfile = os.path.join(
+			logfile_path, "{}_xyalign.log".format(
+				args.sample_id))
 	noprocessing_vcf = os.path.join(
-		args.output_dir, "vcf", "{}.noprocessing.vcf".format(
+		vcf_path, "{}.noprocessing.vcf".format(
 			args.sample_id))
 	postprocessing_vcf = os.path.join(
-		args.output_dir, "vcf", "{}.postprocessing.vcf".format(
+		vcf_path, "{}.postprocessing.vcf".format(
 			args.sample_id))
 	if args.platypus_logfile is not None:
 		plat_log = args.platypus_logfile
 	else:
 		plat_log = args.sample_id
 	noprocessing_vcf_log = os.path.join(
-		args.output_dir, "logfiles", "{}_noprocessing_platypus.log".format(
+		logfile_path, "{}_noprocessing_platypus.log".format(
 			plat_log))
 	postprocessing_vcf_log = os.path.join(
-		args.output_dir, "logfiles", "{}_postprocessing_platypus.log".format(
+		logfile_path, "{}_postprocessing_platypus.log".format(
 			plat_log))
 	readbalance_prefix_noprocessing = os.path.join(
-		args.output_dir, "plots", "{}_noprocessing".format(args.sample_id))
+		plots_path, "{}_noprocessing".format(args.sample_id))
 	readbalance_prefix_postprocessing = os.path.join(
-		args.output_dir, "plots", "{}_postprocessing".format(args.sample_id))
+		plots_path, "{}_postprocessing".format(args.sample_id))
 	depth_mapq_prefix = os.path.join(
-		args.output_dir, "plots", "{}_noprocessing".format(args.sample_id))
+		plots_path, "{}_noprocessing".format(args.sample_id))
 	if args.high_quality_bed_out is not None:
 		high_prefix = args.high_quality_bed_out
 	else:
 		high_prefix = "{}_highquality".format(args.sample_id)
 	output_bed_high = os.path.join(
-		args.output_dir, "bed", "{}.bed".format(high_prefix))
+		bed_path, "{}.bed".format(high_prefix))
 	if args.low_quality_bed_out is not None:
 		low_prefix = args.low_quality_bed_out
 	else:
 		low_prefix = "{}_lowquality".format(args.sample_id)
 	output_bed_low = os.path.join(
-		args.output_dir, "bed", "{}.bed".format(low_prefix))
+		bed_path, "{}.bed".format(low_prefix))
 
 	# First round of Platypus calling and plotting
 	if args.platypus_calling == "both" or "before":
@@ -343,6 +350,11 @@ def parse_args():
 	parser.add_argument(
 		"--cpus", type=int, default=1,
 		help="Number of cores/threads to use.")
+
+	parser.add_argument(
+		"--logfile", default=None,
+		help="Name of logfile.  Will overwrite if exists.  Default is "
+		"sample_xyalign.log")
 
 	parser.add_argument(
 		"--single_end", action="store_true", default=False,
