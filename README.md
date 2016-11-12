@@ -10,7 +10,6 @@ Sex chromosome aneuploidies are currently estimated to be as common as 1/400 in 
 October 17, 2016 slide show of concept and inital results for Hackseq: https://docs.google.com/presentation/d/1OB2d_mu5zC742N_NKfzHjVpUm4BFtm5lUzniLLI--OQ/edit?usp=sharing
 
 ## To-Do Items Before Release
-(if you have permission to edit, you can interactively check boxes when an item is complete)
 
 Program
 - [ ] Write commands, time, etc. to logfile
