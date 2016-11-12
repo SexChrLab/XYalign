@@ -22,7 +22,6 @@ import csv
 import os
 import subprocess
 import sys
-import assemble
 import numpy as np
 import pandas as pd
 import pybedtools
@@ -33,6 +32,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import seaborn as sns
+import assemble
 
 
 def main():
