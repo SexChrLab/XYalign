@@ -16,8 +16,8 @@ def bwa_mem_mapping_sambamba(
 				sambamba_path, threads, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
-			"{} index -t {} {}_sorted.bam".format(
-				sambamba_path, threads, output_prefix), shell=True)
+			[sambamba_path, "index", "-t", str(threads),
+			"{}_sorted.bam".format(output_prefix)])
 		return "{}_sorted.bam".format(output_prefix)
 	else:
 		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O cram - - | "\
@@ -26,6 +26,5 @@ def bwa_mem_mapping_sambamba(
 				samtools_path, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
-			"{} index {}_sorted.cram".format(
-				samtools_path, output_prefix), shell=True)
+			[samtools_path, "index", "{}_sorted.cram".format(output_prefix)])
 		return "{}_sorted.cram".format(output_prefix)
