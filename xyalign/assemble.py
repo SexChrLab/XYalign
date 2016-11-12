@@ -1,6 +1,6 @@
 # Part of XYalign
 # Collection of functions for mapping reads, processing bams, etc.
-
+import subprocess
 
 def bwa_mem_mapping_sambamba(
 	bwa_path, samtools_path, sambamba_path, reference, output_prefix, fastqs,
