@@ -326,31 +326,36 @@ def parse_args():
 
 	parser.add_argument(
 		"--ref", required=True,
-		help="Path to reference sequence (including file name).")
+		help="REQUIRED. Path to reference sequence (including file name).")
 
 	parser.add_argument(
 		"--output_dir", "-o",
-		help="Output directory")
+		help="REQUIRED. Output directory. XYalign will create a directory "
+		"structure within this directory")
 
 	parser.add_argument(
 		"--chromosomes", "-c", nargs="+", default=["chrX", "chrY", "chr19"],
-		help="Chromosomes to analyze.")
+		help="Chromosomes to analyze (names must match reference exactly). "
+		"Defaults to chr19, chrX, chrY.")
 
 	parser.add_argument(
 		"--x_chromosome", "-x", nargs="+", default=["chrX"],
-		help="Names of y-linked scaffolds in reference fasta.")
+		help="Names of x-linked scaffolds in reference fasta (must match "
+		"reference exactly).  Defaults to chrX.")
 
 	parser.add_argument(
 		"--y_chromosome", "-y", nargs="+", default=["chrY"],
-		help="Names of y-linked scaffolds in reference fasta.")
+		help="Names of y-linked scaffolds in reference fasta (must match "
+		"reference exactly). Defaults to chrY")
 
 	parser.add_argument(
 		"--sample_id", "-id", default="sample",
-		help="Name/ID of sample - for use in plot titles and file naming.")
+		help="Name/ID of sample - for use in plot titles and file naming. "
+		"Default is sample")
 
 	parser.add_argument(
 		"--cpus", type=int, default=1,
-		help="Number of cores/threads to use.")
+		help="Number of cores/threads to use. Default is 1")
 
 	parser.add_argument(
 		"--logfile", default=None,
@@ -410,7 +415,7 @@ def parse_args():
 	parser.add_argument(
 		"--platypus_logfile", default=None,
 		help="Prefix to use for Platypus log files.  Will default to the "
-		"sample name")
+		"sample_id argument provided")
 
 	# Mapping/remapping Flags
 	parser.add_argument(
@@ -423,42 +428,44 @@ def parse_args():
 	# Bam Analysis Flags
 	parser.add_argument(
 		"--window_size", "-w", type=int, default=50000,
-		help="Window size (integer) for sliding window calculations.")
+		help="Window size (integer) for sliding window calculations. Default "
+		"is 50000.")
 
 	parser.add_argument(
 		"--mapq_cutoff", "-mq", type=int, default=20,
 		help="Minimum mean mapq threshold for a window to be "
-		"considered high quality.")
+		"considered high quality. Default is 20.")
 
 	parser.add_argument(
 		"--depth_filter", "-df", type=float, default=4.0,
 		help="Filter for depth (f), where the threshold used is mean_depth +- "
-		"(f * square_root(mean_depth)).")
+		"(f * square_root(mean_depth)).  See Li 2014 (Bioinformatics 30: "
+		"2843-2851) for more information.  Default is 4.")
 
 	parser.add_argument(
 		"--high_quality_bed_out", "-hq", default=None,
 		help="Prefix of output file for high quality regions. Defaults to "
-		"samplename_highquality")
+		"sample_id_highquality")
 
 	parser.add_argument(
 		"--low_quality_bed_out", "-lq", default=None,
 		help="Prefix of output file for low quality regions. Defaults to "
-		"samplename_lowquality")
+		"sample_id_lowquality")
 
 	parser.add_argument(
 		"--num_permutations", type=int, default=10000,
 		help="Number of permutations to use for permutation analyses. "
-		"Default is 10,000")
+		"Default is 10000")
 
 	# Plotting flags
 	parser.add_argument(
 		"--marker_size", type=float, default=10.0,
-		help="Marker size for genome-wide plots in matplotlib.")
+		help="Marker size for genome-wide plots in matplotlib. Default is 10.")
 
 	parser.add_argument(
 		"--marker_transparency", "-mt", type=float, default=0.5,
 		help="Transparency of markers in genome-wide plots.  "
-		"Alpha in matplotlib.")
+		"Alpha in matplotlib.  Default is 0.5")
 
 	# Mutually exclusive group 1 - bam or cram file
 	group = parser.add_mutually_exclusive_group(required=True)
