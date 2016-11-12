@@ -22,6 +22,7 @@ import csv
 import os
 import subprocess
 import sys
+import assemble
 import numpy as np
 import pandas as pd
 import pybedtools
@@ -219,7 +220,7 @@ def main():
 								if k[3:] == rg_id:
 									rg_tag = "\t".join(j)
 								break
-					temp_bam = bwa_mem_mapping_sambamba(
+					temp_bam = assemble.bwa_mem_mapping_sambamba(
 						args.bwa_path, args.samtools_path, args.sambamba_path,
 						new_reference, "{}/{}.sex_chroms.{}.".format(
 							bam_path, args.sample_id, rg_id),
@@ -276,7 +277,7 @@ def main():
 								if k[3:] == rg_id:
 									rg_tag = "\t".join(j)
 								break
-					temp_bam = bwa_mem_mapping_sambamba(
+					temp_bam = assemble.bwa_mem_mapping_sambamba(
 						args.bwa_path, args.samtools_path, args.sambamba_path,
 						new_reference, "{}/{}.sex_chroms.{}.".format(
 							bam_path, args.sample_id, rg_id),
