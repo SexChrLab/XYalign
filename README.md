@@ -9,6 +9,31 @@ Sex chromosome aneuploidies are currently estimated to be as common as 1/400 in 
 
 October 17, 2016 slide show of concept and inital results for Hackseq: https://docs.google.com/presentation/d/1OB2d_mu5zC742N_NKfzHjVpUm4BFtm5lUzniLLI--OQ/edit?usp=sharing
 
+## To-Do Items Before Release
+Program
+- [] Write commands, time, etc. to logfile
+- [] Switch subprocess calls to "shell=False" syntax
+- [] Add support for arbitrary bwa flags
+- [] Add support for additional mappers
+- [] Handle duplicate reads
+- [] Write @PG line to final bam
+- [] Accept and integrate external bed files for excluding and including regions
+- [] Incorporate likelihood model for ploidy estimation
+- [] Second round of bam window analysis and plotting after remapping and filtering low-quality regions
+
+Testing
+- [] Simulate and assemble XX, XY, XXY, and XO genomes 
+  - [] Test XYalign on these genomes
+- [] Download data for XX and XY:
+  - [] high coverage whole genome
+    - [] Test XYalign
+  - [] low coverage whole genome
+    - [] Test XYalign
+  - [] exome 
+    - [] Test XYalign
+- [] In an example case, plot runtimes with increasing numbers of threads (e.g., 1, 2, 4, 8, 16)
+
+
 ## Quick Start
 ### What you need
 Minimally, you'll need:
