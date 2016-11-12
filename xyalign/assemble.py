@@ -11,13 +11,13 @@ def bwa_mem_mapping_sambamba(
 	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
 	if cram is False:
 		p1 = subprocess.Popen([
-			bwa_path, "mem", "-t", threads, "-R", repr(read_group_line),
+			bwa_path, "mem", "-t", str(threads), "-R", repr(read_group_line),
 			reference, fastqs], stdout=subprocess.PIPE)
 		p2 = subprocess.Popen([
 			samtools_path, "fixmate", "-O", "bam", "-", "-"],
 			stdin=p1.stdout, stdout=subprocess.PIPE)
 		p3 = subprocess.Popen([
-			sambamba_path, "sort", "-t", threads, "-o", "{}_sorted.bam".format(
+			sambamba_path, "sort", "-t", str(threads), "-o", "{}_sorted.bam".format(
 				output_prefix), "/dev/stdin"], stdin=p2.stdout)
 		p3.communicate()
 		subprocess.call(
