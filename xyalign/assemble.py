@@ -10,11 +10,16 @@ def bwa_mem_mapping_sambamba(
 	fastqs = ' '.join(fastqs)
 	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
 	if cram is False:
-		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
-			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
-				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
-				sambamba_path, threads, output_prefix)
-		subprocess.call(command_line, shell=True)
+		p1 = subprocess.Popen([
+            bwa_path, "mem", "-t", threads, "-R", repr(read_group_line),
+            reference, fastqs, stdout=subprocess.PIPE])
+        p2 = subprocess.Popen([
+            samtools_path, "fixmate", "-O", "bam", "-", "-"]
+            stdin=p1.stdout, stdout=subprocess.PIPE])
+        p3 = subprocess.Popen([
+            sambamba_path, "sort", "-t", threads, "-o", "{}_sorted.bam".format(
+                output_prefix), "/dev/stdin"], stdin=p2.stdout)
+        p3.communicate()
 		subprocess.call(
 			"{} index -t {} {}_sorted.bam".format(
 				sambamba_path, threads, output_prefix), shell=True)
