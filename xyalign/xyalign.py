@@ -94,7 +94,7 @@ def main():
 		bed_path, "{}.bed".format(low_prefix))
 
 	# First round of Platypus calling and plotting
-	if args.platypus_calling == "both" or "before":
+	if args.platypus_calling == "both" or args.platypus_calling == "before":
 		if args.bam is not None:
 			a = platypus_caller(
 				args.platypus_path, noprocessing_vcf_log, args.bam, args.ref,
@@ -304,7 +304,7 @@ def main():
 	# Final round of calling and plotting
 	include_bed = output_bed_high
 
-	if args.platypus_calling == "both" or "after":
+	if args.platypus_calling == "both" or args.platypus_calling == "after":
 		a = platypus_caller(
 			args.platypus_path, postprocessing_vcf_log, merged_bam, args.ref,
 			args.chromosomes, args.cpus, postprocessing_vcf, include_bed)
@@ -493,6 +493,7 @@ def parse_args():
 		help="Overrides sex chr estimation by XY align and remaps with Y absent.")
 
 	args = parser.parse_args()
+	print(args)
 
 	# Validate arguments
 	if args.no_perm_test is True:
