@@ -8,19 +8,13 @@ def bwa_mem_mapping_sambamba(
 	""" Maps reads to a reference genome using bwa mem.
 	"""
 	fastqs = ' '.join(fastqs)
-	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
+	subprocess.call([bwa_path, "index", reference], shell=False)
 	if cram is False:
-		p1 = subprocess.Popen([
-			bwa_path, "mem", "-t", str(threads), "-R", "{}".format(
-				repr(read_group_line)), reference, fastqs],
-			stdout=subprocess.PIPE)
-		p2 = subprocess.Popen([
-			samtools_path, "fixmate", "-O", "bam", "-", "-"],
-			stdin=p1.stdout, stdout=subprocess.PIPE)
-		p3 = subprocess.Popen([
-			sambamba_path, "sort", "-t", str(threads), "-o", "{}_sorted.bam".format(
-				output_prefix), "/dev/stdin"], stdin=p2.stdout)
-		p3.communicate()
+		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
+			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
+				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
+				sambamba_path, threads, output_prefix)
+		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			"{} index -t {} {}_sorted.bam".format(
 				sambamba_path, threads, output_prefix), shell=True)
