@@ -68,22 +68,22 @@ def main():
 	print("{}\n\n".format(citation))
 	log_open.write("{}\n\n".format(citation))
 	print("{}\n".format("Parameters:"))
-	log_open.write("{}\n".format("Parameters:"))
+	log_open.write("{}\n\n".format("Parameters:"))
 	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
 	for arg in args.__dict__:
 		print("{}:\t{}".format(arg, args.__dict__[arg]))
-		log_open.write("{}:\t{}".format(arg, args.__dict__[arg]))
+		log_open.write("{}:\t{}\n".format(arg, args.__dict__[arg]))
 		xyalign_params_dict['CL'].append("{}={}".format(arg, args.__dict__[arg]))
 	print("\n")
-	log_open.write("\n")
+	log_open.write("\n\n")
 
 	print("Beginning Pipeline at {}".format(
 		time.asctime(time.localtime(time.time()))))
-	log_open.write("Beginning Pipeline at {}".format(
+	log_open.write("Beginning Pipeline at {}\n\n".format(
 		time.asctime(time.localtime(time.time()))))
 
 	# Initialize timer
-	start = time.clock()
+	start = time.time()
 
 	# Setup output paths
 	fastq_path = os.path.join(args.output_dir, "fastq")
@@ -134,15 +134,15 @@ def main():
 	if args.platypus_calling == "both" or args.platypus_calling == "before":
 		print("Beginning Platypus variant calling on unprocessed bam, {}\n".format(
 			args.bam))
-		platy_timer = time.clock()
+		platy_timer = time.time()
 		if args.bam is not None:
 			a = platypus_caller(
 				args.platypus_path, noprocessing_vcf_log, args.bam, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
 			print("\nPlatypus calling complete on {}\nElapsed Time: {}".format(
 				args.bam, (time.clock() - platy_timer)))
-			log_open.write("Platypus calling on {}. Elapsed time: {}".format(
-				args.bam, (time.clock() - platy_timer)))
+			log_open.write("Platypus calling on {}. Elapsed time: {} seconds\n".format(
+				args.bam, (time.time() - platy_timer)))
 			if a != 0:
 				print("Error in initial Platypus calling.")
 				sys.exit(1)
