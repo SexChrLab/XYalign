@@ -501,7 +501,7 @@ def parse_args():
 
 	args = parser.parse_args()
 	for i in args.__dict__:
-		print("{}\t{}".format(i, args.__dict__[i]))
+		print("{}:\t{}".format(i, args.__dict__[i]))
 
 	# Validate arguments
 	if args.no_perm_test is True:
@@ -707,7 +707,7 @@ def platypus_caller(
 		regions = regions_file
 	return_code = subprocess.call(
 		[platypus_path, "callVariants", "--bamFiles", bam, "-o", output_file,
-			"--refFile", ref, "--ncpus", str(threads), "--regions", regions,
+			"--refFile", ref, "--ncpus", str(cpus), "--regions", regions,
 			"--assemble", "1", "--logFileName", log_path])
 	return return_code
 
