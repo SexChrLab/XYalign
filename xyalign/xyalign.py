@@ -44,20 +44,21 @@ def main():
 	Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres
 
 	2016
-	"""
+
+	Version: {}
+	""".format(version)
 
 	# Grab arguments
 	args = parse_args()
 
 	# Print XYalign info and set up dictionary of version and parameters for
 	# bam header updating
-	print("{}\n".format(citation))
-	print("{}:\t{}\n\n".format("Version", version))
+	print("{}\n\n".format(citation))
 	print("{}\n".format("Parameters"))
 	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
-	for args in args.__dict__:
-		print("{}:\t{}".format(i, args.__dict__[i]))
-		xyalign_params_dict['CL'].append("{}={}".format(i, args.__dict__[i]))
+	for arg in args.__dict__:
+		print("{}:\t{}".format(arg, args.__dict__[i]))
+		xyalign_params_dict['CL'].append("{}={}".format(arg, args.__dict__[arg]))
 
 	# Setup output paths
 	fastq_path = os.path.join(args.output_dir, "fastq")
