@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 import pybedtools
 import pysam
+import time
 # Setting the matplotlib display variable requires importing
 # 	in exactly the following order:
 import matplotlib
@@ -51,14 +52,37 @@ def main():
 	# Grab arguments
 	args = parse_args()
 
+	# Set up logfile
+	if args.logfile is not None:
+		logfile = os.path.join(
+			logfile_path, args.logfile)
+	else:
+		logfile = os.path.join(
+			logfile_path, "{}_xyalign.log".format(
+				args.sample_id))
+	log_open = open(logfile, "w")
+
 	# Print XYalign info and set up dictionary of version and parameters for
 	# bam header updating
 	print("{}\n\n".format(citation))
-	print("{}\n".format("Parameters"))
+	log_open.write("{}\n\n".format(citation))
+	print("{}\n".format("Parameters:"))
+	log_open.write("{}\n".format("Parameters:"))
 	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
 	for arg in args.__dict__:
 		print("{}:\t{}".format(arg, args.__dict__[arg]))
+		log_open.write("{}:\t{}".format(arg, args.__dict__[arg]))
 		xyalign_params_dict['CL'].append("{}={}".format(arg, args.__dict__[arg]))
+	print("\n")
+	log_open.write("\n")
+
+	print("Beginning Pipeline at {}".format(
+		time.asctime(time.localtime(time.time()))))
+	log_open.write("Beginning Pipeline at {}".format(
+		time.asctime(time.localtime(time.time()))))
+
+	# Initialize timer
+	start = time.clock()
 
 	# Setup output paths
 	fastq_path = os.path.join(args.output_dir, "fastq")
@@ -71,13 +95,6 @@ def main():
 	logfile_path = os.path.join(args.output_dir, "logfiles")
 
 	# Create paths for output files
-	if args.logfile is not None:
-		logfile = os.path.join(
-			logfile_path, args.logfile)
-	else:
-		logfile = os.path.join(
-			logfile_path, "{}_xyalign.log".format(
-				args.sample_id))
 	noprocessing_vcf = os.path.join(
 		vcf_path, "{}.noprocessing.vcf".format(
 			args.sample_id))
@@ -115,10 +132,17 @@ def main():
 
 	# First round of Platypus calling and plotting
 	if args.platypus_calling == "both" or args.platypus_calling == "before":
+		print("Beginning Platypus variant calling on unprocessed bam, {}\n".format(
+			args.bam))
+		platy_timer = time.clock()
 		if args.bam is not None:
 			a = platypus_caller(
 				args.platypus_path, noprocessing_vcf_log, args.bam, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
+			print("\nPlatypus calling complete on {}\nElapsed Time: {}".format(
+				args.bam, (time.clock() - platy_timer)))
+			log_open.write("Platypus calling on {}. Elapsed time: {}".format(
+				args.bam, (time.clock() - platy_timer)))
 			if a != 0:
 				print("Error in initial Platypus calling.")
 				sys.exit(1)
@@ -338,6 +362,9 @@ def main():
 				args.sample_id, readbalance_prefix_postprocessing,
 				args.variant_quality_cutoff, args.marker_size,
 				args.marker_transparency, merged_bam)
+
+	# Close log file
+	log_open.close()
 
 
 def parse_args():
