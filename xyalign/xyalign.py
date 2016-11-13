@@ -500,8 +500,8 @@ def parse_args():
 		help="Overrides sex chr estimation by XY align and remaps with Y absent.")
 
 	args = parser.parse_args()
-	for i in args:
-		print(i)
+	for i in args.__dict__:
+		print("{}\t{}".format(i, args.__dict__[i]))
 
 	# Validate arguments
 	if args.no_perm_test is True:
