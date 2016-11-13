@@ -38,7 +38,25 @@ import assemble
 def main():
 	""" Main program"""
 
+	# Version - placeholder for now - need to incorporate it into __init__.py
+	version = "0.1"
+	citation = """ XYalign: Inferring Sex Chromosome Ploidy in NGS Data
+	Timothy H Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres
+	2016
+	"""
+
+	# Grab arguments
 	args = parse_args()
+
+	# Print XYalign info and set up dictionary of version and parameters for
+	# bam header updating
+	print("{}\n".format(citation))
+	print("{}\n\n".format(version))
+	print("{}\n".format(parameters))
+	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
+	for args in args.__dict__:
+		print("{}:\t{}".format(i, args.__dict__[i]))
+		xyalign_params_dict['CL'].append("{}={}".format(i, args.__dict__[i]))
 
 	# Setup output paths
 	fastq_path = os.path.join(args.output_dir, "fastq")
@@ -237,12 +255,12 @@ def main():
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.sambamba_path, args.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					bam_path, args.sample_id, args.cpus)
+					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 			else:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.sambamba_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					bam_path, args.sample_id, args.cpus)
+					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 
 		else:
 			# Isolate sex chromosomes from reference and index new reference
@@ -294,12 +312,12 @@ def main():
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.sambamba_path, args.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					bam_path, args.sample_id, args.cpus)
+					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 			else:
 				merged_bam = switch_sex_chromosomes_bam_sambamba(
 					args.samtools_path, args.sambamba_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
-					bam_path, args.sample_id, args.cpus)
+					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 
 	# Final round of calling and plotting
 	include_bed = output_bed_high
@@ -500,8 +518,6 @@ def parse_args():
 		help="Overrides sex chr estimation by XY align and remaps with Y absent.")
 
 	args = parser.parse_args()
-	for i in args.__dict__:
-		print("{}:\t{}".format(i, args.__dict__[i]))
 
 	# Validate arguments
 	if args.no_perm_test is True:
@@ -603,8 +619,21 @@ def permutation_test_chromosomes(
 def bwa_mem_mapping_sambamba(
 	bwa_path, samtools_path, sambamba_path, reference, output_prefix, fastqs,
 	threads, read_group_line, cram=False):
-	""" Maps reads to a reference genome using bwa mem.
 	"""
+	Maps reads to a reference genome using bwa mem.
+
+		bwa_path is path to bwa
+		samtools_path is path to samtools
+		sambamba_path is path to sambamba
+		reference is path to reference fasta (does not need to be indexed)
+		output_prefix is the desired path to where output files will be deposited
+		fastqs is a list of fastq files for the sample,
+			e.g. ['sam_1.fq', 'sam_2.fq']
+		threads are the number of threads/cores/cpus for programs to use
+		read_group_line is the literal string to be inserted for -R in bwa
+		cram (default False) will trigger handling of cram files if True
+	"""
+
 	fastqs = ' '.join(fastqs)
 	subprocess.call([bwa_path, "index", reference])
 	if cram is False:
@@ -643,7 +672,7 @@ def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
 
 def switch_sex_chromosomes_bam_sambamba(
 	samtools_path, sambamba_path, bam_orig, bam_new, sex_chroms,
-	output_directory, output_prefix, threads, cram=False):
+	output_directory, output_prefix, threads, pg_header_dict, cram=False):
 	""" Removes sex chromosomes from original bam and merges in remmapped
 	sex chromosomes, while retaining the original bam header
 	"""
@@ -651,6 +680,14 @@ def switch_sex_chromosomes_bam_sambamba(
 	with open("{}/header.sam".format(output_directory), "w") as f:
 		subprocess.call(
 			[samtools_path, "view", "-H", bam_orig], stdout=f)
+	# Add XYalign @PG line to header
+	cl_string = " ".join(pg_header_dict["CL"])
+	if "VN" in pg_header_dict:
+		pg_line = [
+			"@PG", "ID:{}".format(pg_header_dict["ID"]), "VN:{}".format(
+				pg_header_dict["VN"]), "CL:{}".format(cl_string)]
+	subprocess.call("echo '{}' >> {}/header.sam".format(
+		"\t".join(pg_line), output_directory), shell=True)
 	if cram is False:
 		# Remove sex chromosomes from original bam and merge
 		samfile = pysam.AlignmentFile(bam_orig, "rb")

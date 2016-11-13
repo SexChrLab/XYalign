@@ -9,7 +9,7 @@ def bwa_mem_mapping_sambamba(
 	""" Maps reads to a reference genome using bwa mem.
 	"""
 	fastqs = ' '.join(fastqs)
-	subprocess.call([bwa_path, "index", reference], shell=False)
+	subprocess.call([bwa_path, "index", reference])
 	if cram is False:
 		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
