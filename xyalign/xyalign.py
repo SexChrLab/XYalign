@@ -53,6 +53,7 @@ def main():
 	args = parse_args()
 
 	# Set up logfile
+	logfile_path = os.path.join(args.output_dir, "logfiles")
 	if args.logfile is not None:
 		logfile = os.path.join(
 			logfile_path, args.logfile)
@@ -92,7 +93,6 @@ def main():
 	vcf_path = os.path.join(args.output_dir, "vcf")
 	plots_path = os.path.join(args.output_dir, "plots")
 	results_path = os.path.join(args.output_dir, "results")
-	logfile_path = os.path.join(args.output_dir, "logfiles")
 
 	# Create paths for output files
 	noprocessing_vcf = os.path.join(
