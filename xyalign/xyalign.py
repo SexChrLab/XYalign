@@ -134,15 +134,16 @@ def main():
 	if args.platypus_calling == "both" or args.platypus_calling == "before":
 		print("Beginning Platypus variant calling on unprocessed bam, {}\n".format(
 			args.bam))
-		platy_timer = time.time()
+		platy_start = time.time()
 		if args.bam is not None:
 			a = platypus_caller(
 				args.platypus_path, noprocessing_vcf_log, args.bam, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
-			print("\nPlatypus calling complete on {}\nElapsed Time: {}".format(
-				args.bam, (time.time() - platy_timer)))
+			platy_end = time.time()
+			print("\nPlatypus calling complete on {}. Elapsed Time: {}\n\n".format(
+				args.bam, (platy_end - platy_start)))
 			log_open.write("Platypus calling on {}. Elapsed time: {} seconds\n".format(
-				args.bam, (time.time() - platy_timer)))
+				args.bam, (platy_end - platy_start)))
 			if a != 0:
 				print("Error in initial Platypus calling.")
 				sys.exit(1)
@@ -156,6 +157,11 @@ def main():
 			a = platypus_caller(
 				args.platypus_path, noprocessing_vcf_log, args.cram, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
+			platy_end = time.time()
+			print("\nPlatypus calling complete on {}. Elapsed Time: {}\n\n".format(
+				args.bam, (platy_end - platy_timer)))
+			log_open.write("Platypus calling on {}. Elapsed time: {} seconds\n".format(
+				args.bam, (platy_end - platy_timer)))
 			if a != 0:
 				print("Error in initial Platypus calling.")
 				sys.exit(1)
