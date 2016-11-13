@@ -707,7 +707,7 @@ def platypus_caller(
 		regions = regions_file
 	return_code = subprocess.call(
 		[platypus_path, "callVariants", "--bamFiles", bam, "-o", output_file,
-			"--refFile", ref, "--ncpus", str(cpus), "--regions", regions,
+			"--refFile", ref, "--ncCPU", str(cpus), "--regions", regions,
 			"--assemble", "1", "--logFileName", log_path])
 	return return_code
 
