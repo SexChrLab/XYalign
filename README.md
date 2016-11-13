@@ -17,7 +17,7 @@ Program
 - [ ] Add support for arbitrary bwa flags
 - [ ] Add support for additional mappers
 - [ ] Handle duplicate reads
-- [ ] Write @PG line to final bam
+- [x] Write @PG line to final bam
 - [ ] Accept and integrate external bed files for excluding and including regions
 - [ ] Incorporate likelihood model for ploidy estimation
 - [ ] Second round of bam window analysis and plotting after remapping and filtering low-quality regions
