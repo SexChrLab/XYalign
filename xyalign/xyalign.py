@@ -500,7 +500,8 @@ def parse_args():
 		help="Overrides sex chr estimation by XY align and remaps with Y absent.")
 
 	args = parser.parse_args()
-	print(args)
+	for i in args:
+		print(i)
 
 	# Validate arguments
 	if args.no_perm_test is True:
@@ -669,23 +670,23 @@ def switch_sex_chromosomes_bam_sambamba(
 		samfile = pysam.AlignmentFile(bam_orig, "rc")
 		non_sex_scaffolds = filter(
 			lambda x: x not in sex_chroms, list(samfile.references))
+		with open("{}/no_sex.cram".format(output_directory), "w") as f:
+			subprocess.call(
+				[samtools_path, "view", "-h", "-b",
+					bam_orig, "{}".format(" ".join(non_sex_scaffolds))],
+				stdout=f)
 		subprocess.call(
-			"{} view -h -b {} {} > {}/no_sex.cram".format(
-				samtools_path, bam_orig, " ".join(non_sex_scaffolds),
-				output_directory),
-			shell=True)
-		subprocess.call(
-			"{} index {}/no_sex.cram".format(
-				samtools_path, output_directory), shell=True)
+			[samtools_path, "index", "{}/no_sex.cram".format(output_directory)])
 
 		# Merge bam files
 		subprocess.call(
-			"{} merge -h {}/header.sam {}/{}.cram {}/no_sex.cram {}".format(
-				samtools_path, output_directory, output_directory,
-				output_prefix, output_directory, bam_new), shell=True)
-		subprocess.call("{} index {}/{}.cram".format(
-			samtools_path, output_directory, output_prefix), shell=True)
-
+			[samtools_path, "merge", "-h",
+				"{}/header.sam".format(output_directory), "{}/{}.cram".format(
+					output_directory, output_prefix), "{}/no_sex.cram".format(
+						output_directory), bam_new])
+		subprocess.call(
+			[samtools_path, "index", "{}/{}.cram".format(
+				output_directory, output_prefix)])
 		return "{}/{}.cram".format(output_directory, output_prefix)
 
 
@@ -704,10 +705,10 @@ def platypus_caller(
 		regions = ','.join(map(str, chroms))
 	else:
 		regions = regions_file
-	command_line = "{} callVariants --bamFiles {} -o {} --refFile {} "\
-		"--nCPU {} --regions {} --assemble 1 --logFileName {}".format(
-			platypus_path, bam, output_file, ref, cpus, regions, log_path)
-	return_code = subprocess.call(command_line, shell=True)
+	return_code = subprocess.call(
+		[platypus_path, "callVariants", "--bamFiles", bam, "-o", output_file,
+			"--refFile", ref, "--ncpus", str(threads), "--regions", regions,
+			"--assemble", "1", "--logFileName", log_path])
 	return return_code
 
 
@@ -721,21 +722,23 @@ def isolate_chromosomes_reference(
 		chroms = list(chroms)
 	if bed_mask is not None:
 		maskedpath = "{}.masked.fa".format(new_ref_prefix)
-		command_line = "{} faidx {} {} > {}".format(
-			samtools_path, reference_fasta, " ".join(chroms), outpath)
-		subprocess.call(command_line, shell=True)
-		subprocess.call("{} faidx {}".format(
-			samtools_path, outpath), shell=True)
+		with open(outpath, "w") as f:
+			subprocess.call(
+				[samtools_path, "faidx", reference_fasta, "{}".format(
+					" ".join(chroms))], stdout=f)
+		subprocess.call(
+			[samtools_path, "faidx", outpath])
 		b_fasta = pybedtools.BedTool(outpath)
 		b_tool = pybedtools.BedTool(bed_mask)
 		b = b_tool.mask_fasta(fi=b_fasta, fo=maskedpath)
 		subprocess.call(
-			"{} faidx {}".format(samtools_path, maskedpath), shell=True)
+			[samtools_path, "faidx", "{}".format(maskedpath)])
 	else:
-		command_line = "{} faidx {} {} > {}".format(
-			samtools_path, reference_fasta, " ".join(chroms), outpath)
-		subprocess.call(command_line, shell=True)
-		subprocess.call("{} faidx {}".format(samtools_path, outpath), shell=True)
+		with open(outpath, "w") as f:
+			subprocess.call(
+				[samtools_path, "faidx", reference_fasta, "{}".format(
+					" ".join(chroms))], stdout=f)
+		subprocess.call([samtools_path, "faidx", outpath])
 		return outpath
 
 
@@ -1110,7 +1113,8 @@ def bwa_mem_mapping(
 	""" Maps reads to a reference genome using bwa mem.
 	"""
 	fastqs = ' '.join(fastqs)
-	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
+	subprocess.call(
+		[bwa_path, "index", reference])
 	if cram is False:
 		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -O bam -o {}_sorted.bam -".format(
@@ -1118,8 +1122,7 @@ def bwa_mem_mapping(
 				samtools_path, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
-			"{} index {}_sorted.bam".format(
-				samtools_path, output_prefix), shell=True)
+			[samtools_path, "index", "{}_sorted.bam".format(output_prefix)])
 		return "{}_sorted.bam".format(output_prefix)
 	else:
 		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | "\
@@ -1128,8 +1131,7 @@ def bwa_mem_mapping(
 				samtools_path, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
-			"{} index {}_sorted.cram".format(
-				samtools_path, output_prefix), shell=True)
+			[samtools_path, "index", "{}_sorted.cram".format(output_prefix)])
 		return "{}_sorted.cram".format(output_prefix)
 
 
