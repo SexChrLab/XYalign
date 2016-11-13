@@ -11,9 +11,6 @@
 # 6) Add plotting of high-quality windows (depth, mapq), also after remapping
 # 7) Check for behavior when files already exist (e.g., overwrite, quit, etc.?)
 # 8) Incorporate mask integration on the fly
-# 9) Check with Python 3 and for any incompatibilities
-# 				- division updated
-# 				- printing updated
 
 from __future__ import division
 from __future__ import print_function
@@ -40,8 +37,12 @@ def main():
 
 	# Version - placeholder for now - need to incorporate it into __init__.py
 	version = "0.1"
-	citation = """ XYalign: Inferring Sex Chromosome Ploidy in NGS Data
-	Timothy H Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres
+	citation = """
+	XYalign: Inferring Sex Chromosome Ploidy in NGS Data
+
+	Timothy H Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins,
+	Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres
+
 	2016
 	"""
 
@@ -51,8 +52,8 @@ def main():
 	# Print XYalign info and set up dictionary of version and parameters for
 	# bam header updating
 	print("{}\n".format(citation))
-	print("{}\n\n".format(version))
-	print("{}\n".format(parameters))
+	print("{}:\t{}\n\n".format("Version", version))
+	print("{}\n".format("Parameters"))
 	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
 	for args in args.__dict__:
 		print("{}:\t{}".format(i, args.__dict__[i]))
