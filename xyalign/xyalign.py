@@ -605,7 +605,7 @@ def bwa_mem_mapping_sambamba(
 	""" Maps reads to a reference genome using bwa mem.
 	"""
 	fastqs = ' '.join(fastqs)
-	subprocess.call("{} index {}".format(bwa_path, reference), shell=True)
+	subprocess.call([bwa_path, "index", reference])
 	if cram is False:
 		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
@@ -613,8 +613,8 @@ def bwa_mem_mapping_sambamba(
 				sambamba_path, threads, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
-			"{} index -t {} {}_sorted.bam".format(
-				sambamba_path, threads, output_prefix), shell=True)
+			[sambamba_path, "index", "-t", str(threads),
+				"{}_sorted.bam".format(output_prefix)])
 		return "{}_sorted.bam".format(output_prefix)
 	else:
 		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O cram - - | "\
@@ -623,8 +623,7 @@ def bwa_mem_mapping_sambamba(
 				samtools_path, output_prefix)
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
-			"{} index {}_sorted.cram".format(
-				samtools_path, output_prefix), shell=True)
+			[samtools_path, "index", "{}_sorted.cram".format(output_prefix)])
 		return "{}_sorted.cram".format(output_prefix)
 
 
@@ -634,11 +633,10 @@ def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
 	using sambamba
 	"""
 	subprocess.call(
-		"{} merge -t {} {}.merged.bam {}".format(
-			sambamba_path, threads, output_prefix, " ".join(bam_list)))
-	subprocess.call(
-		"{} index {}.merged.bam".format(
-			sambamba_path, output_prefix))
+		[sambamba_path, "merge", "-t", str(threads), output_prefix, "{}".format(
+			" ".join(bam_list))])
+	subprocess.call([
+		sambamba_path, "index", "{}.merged.bam".format(output_prefix)])
 	return "{}.merged.bam".format(output_prefix)
 
 
@@ -649,9 +647,9 @@ def switch_sex_chromosomes_bam_sambamba(
 	sex chromosomes, while retaining the original bam header
 	"""
 	# Grab original header
-	subprocess.call(
-		"{} view -H {} > {}/header.sam".format(
-			samtools_path, bam_orig, output_directory), shell=True)
+	with open("{}/header.sam".format(output_directory), "w") as f:
+		subprocess.call(
+			[samtools_path, "view", "-H", bam_orig], stdout=f)
 	if cram is False:
 		# Remove sex chromosomes from original bam and merge
 		samfile = pysam.AlignmentFile(bam_orig, "rb")
