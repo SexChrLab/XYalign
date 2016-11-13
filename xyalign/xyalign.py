@@ -57,7 +57,7 @@ def main():
 	print("{}\n".format("Parameters"))
 	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
 	for arg in args.__dict__:
-		print("{}:\t{}".format(arg, args.__dict__[i]))
+		print("{}:\t{}".format(arg, args.__dict__[arg]))
 		xyalign_params_dict['CL'].append("{}={}".format(arg, args.__dict__[arg]))
 
 	# Setup output paths
