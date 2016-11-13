@@ -77,7 +77,7 @@ def main():
 	print("\n")
 	log_open.write("\n\n")
 
-	print("Beginning Pipeline at {}".format(
+	print("Beginning Pipeline at {}\n".format(
 		time.asctime(time.localtime(time.time()))))
 	log_open.write("Beginning Pipeline at {}\n\n".format(
 		time.asctime(time.localtime(time.time()))))
@@ -140,7 +140,7 @@ def main():
 				args.platypus_path, noprocessing_vcf_log, args.bam, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
 			print("\nPlatypus calling complete on {}\nElapsed Time: {}".format(
-				args.bam, (time.clock() - platy_timer)))
+				args.bam, (time.time() - platy_timer)))
 			log_open.write("Platypus calling on {}. Elapsed time: {} seconds\n".format(
 				args.bam, (time.time() - platy_timer)))
 			if a != 0:
