@@ -577,6 +577,25 @@ def parse_args():
 								"Default is both.")
 		sys.exit(1)
 
+	if len(args.chromosomes) == 0:
+		print("Please provide chromosome names to analyze (--chromosomes)")
+		sys.exit(1)
+	elif len(args.chromosomes) == 1:
+		if args.no_perm_test is False:
+			print(
+				"You only provided a single chromosome to analyze. At minimum "
+				"include the flag --no_perm_test, but think carefully about "
+				"how this will affect analyses.  We recommend including at "
+				"least one autosome, X, and Y when possible.")
+			sys.exit(1)
+		else:
+			print(
+				"You only provided a single chromosome to analyze. You "
+				"included the flag --no_perm_test, so XYalign will continue, "
+				"but think carefully about "
+				"how this will affect analyses.  We recommend including at "
+				"least one autosome, X, and Y when possible.")
+
 	# Create directory structure if not already in place
 	if not os.path.exists(os.path.join(args.output_dir, "fastq")):
 		os.makedirs(os.path.join(args.output_dir, "fastq"))
@@ -1191,34 +1210,6 @@ def plot_depth_mapq(
 
 
 # Legacy functions (keeping them so they remain callable if needed later)
-def bwa_mem_mapping(
-	bwa_path, samtools_path, reference, output_prefix, fastqs,
-	threads, cram=False):
-	""" Maps reads to a reference genome using bwa mem.
-	"""
-	fastqs = ' '.join(fastqs)
-	subprocess.call(
-		[bwa_path, "index", reference])
-	if cram is False:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | "\
-			"{} sort -O bam -o {}_sorted.bam -".format(
-				bwa_path, threads, reference, fastqs, samtools_path,
-				samtools_path, output_prefix)
-		subprocess.call(command_line, shell=True)
-		subprocess.call(
-			[samtools_path, "index", "{}_sorted.bam".format(output_prefix)])
-		return "{}_sorted.bam".format(output_prefix)
-	else:
-		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | "\
-			"{} sort -O cram -o {}_sorted.cram -".format(
-				bwa_path, threads, reference, fastqs, samtools_path,
-				samtools_path, output_prefix)
-		subprocess.call(command_line, shell=True)
-		subprocess.call(
-			[samtools_path, "index", "{}_sorted.cram".format(output_prefix)])
-		return "{}_sorted.cram".format(output_prefix)
-
-
 def switch_sex_chromosomes_bam(
 	samtools_path, bam_orig, bam_new, sex_chroms, output_directory,
 	output_prefix, cram=False):
