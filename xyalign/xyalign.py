@@ -210,33 +210,51 @@ def main():
 	# Replace this with code to infer ploidy, etc.
 	# Permutation tests
 	if args.no_perm_test is not True:
-		sex_chromosomes = args.x_chromosome + args.y_chromosome
-		autosomes = [x for x in args.chromosomes if x not in sex_chromosomes]
-		perm_res_x = []
-		perm_res_y = []
-		for c in autosomes:
-			perm_res_x.append(permutation_test_chromosomes(
-				pd.concat(pass_df), c, str(args.x_chromosome[0]), "chrom",
-				"depth", args.num_permutations,
+		if args.y_chromosome is not None:
+			sex_chromosomes = args.x_chromosome + args.y_chromosome
+			autosomes = [x for x in args.chromosomes if x not in sex_chromosomes]
+			perm_res_x = []
+			perm_res_y = []
+			for c in autosomes:
+				perm_res_x.append(permutation_test_chromosomes(
+					pd.concat(pass_df), c, str(args.x_chromosome[0]), "chrom",
+					"depth", args.num_permutations,
+					results_path + "/{}_{}_permutation_results.txt".format(
+						c, str(args.x_chromosome[0]))))
+				perm_res_y.append(permutation_test_chromosomes(
+					pd.concat(pass_df), c, str(args.y_chromosome[0]), "chrom",
+					"depth", args.num_permutations,
+					results_path + "/{}_{}_permutation_results.txt".format(
+						c, str(args.y_chromosome[0]))))
+			sex_perm_res = permutation_test_chromosomes(
+				pd.concat(pass_df), str(args.x_chromosome[0]), str(args.y_chromosome[0]),
+				"chrom", "depth", args.num_permutations,
 				results_path + "/{}_{}_permutation_results.txt".format(
-					c, str(args.x_chromosome[0]))))
-			perm_res_y.append(permutation_test_chromosomes(
-				pd.concat(pass_df), c, str(args.y_chromosome[0]), "chrom",
-				"depth", args.num_permutations,
-				results_path + "/{}_{}_permutation_results.txt".format(
-					c, str(args.y_chromosome[0]))))
-		sex_perm_res = permutation_test_chromosomes(
-			pd.concat(pass_df), str(args.x_chromosome[0]), str(args.y_chromosome[0]),
-			"chrom", "depth", args.num_permutations,
-			results_path + "/{}_{}_permutation_results.txt".format(
-				str(args.x_chromosome[0]), str(args.y_chromosome[0])))
-		# Right now this implements a simple and rather inelegant test for
-		# 	a Y chromosome that assumes approximately equal depth on the
-		# 	X and the Y in XY individuals.
-		if 0.025 < sex_perm_res[2] < 0.95:
-			y_present_perm = True
+					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+			# Right now this implements a simple and rather inelegant test for
+			# 	a Y chromosome that assumes approximately equal depth on the
+			# 	X and the Y in XY individuals.
+			if 0.025 < sex_perm_res[2] < 0.95:
+				y_present_perm = True
+			else:
+				y_present_perm = False
 		else:
-			y_present_perm = False
+			sex_chromosomes = args.x_chromosome
+			autosomes = [x for x in args.chromosomes if x not in sex_chromosomes]
+			perm_res_x = []
+			for c in autosomes:
+				perm_res_x.append(permutation_test_chromosomes(
+					pd.concat(pass_df), c, str(args.x_chromosome[0]), "chrom",
+					"depth", args.num_permutations,
+					results_path + "/{}_{}_permutation_results.txt".format(
+						c, str(args.x_chromosome[0]))))
+			# Right now this implements a simple and rather inelegant test for
+			# 	a Y chromosome that assumes approximately equal depth on the
+			# 	X and the Y in XY individuals.
+			if 0.025 < sex_perm_res[2] < 0.95:
+				y_present_perm = True
+			else:
+				y_present_perm = False
 
 	if args.y_present is True:
 		y_present = True
@@ -411,7 +429,8 @@ def parse_args():
 	parser.add_argument(
 		"--y_chromosome", "-y", nargs="+", default=["chrY"],
 		help="Names of y-linked scaffolds in reference fasta (must match "
-		"reference exactly). Defaults to chrY")
+		"reference exactly). Defaults to chrY. Give None if using an assembly "
+		"without a Y chromosome")
 
 	parser.add_argument(
 		"--sample_id", "-id", default="sample",
