@@ -29,3 +29,30 @@ def bwa_mem_mapping_sambamba(
 		subprocess.call(
 			[samtools_path, "index", "{}_sorted.cram".format(output_prefix)])
 		return "{}_sorted.cram".format(output_prefix)
+
+-def bwa_mem_mapping(
+	bwa_path, samtools_path, reference, output_prefix, fastqs,
+	threads, cram=False):
+	""" Maps reads to a reference genome using bwa mem.
+	"""
+	fastqs = ' '.join(fastqs)
+	subprocess.call(
+		[bwa_path, "index", reference])
+	if cram is False:
+		command_line = "{} mem -t {} {} {} | {} fixmate -O bam - - | "\
+			"{} sort -O bam -o {}_sorted.bam -".format(
+				bwa_path, threads, reference, fastqs, samtools_path,
+				samtools_path, output_prefix)
+		subprocess.call(command_line, shell=True)
+		subprocess.call(
+			[samtools_path, "index", "{}_sorted.bam".format(output_prefix)])
+		return "{}_sorted.bam".format(output_prefix)
+	else:
+		command_line = "{} mem -t {} {} {} | {} fixmate -O cram - - | "\
+			"{} sort -O cram -o {}_sorted.cram -".format(
+				bwa_path, threads, reference, fastqs, samtools_path,
+				samtools_path, output_prefix)
+		subprocess.call(command_line, shell=True)
+		subprocess.call(
+			[samtools_path, "index", "{}_sorted.cram".format(output_prefix)])
+		return "{}_sorted.cram".format(output_prefix)
