@@ -644,7 +644,8 @@ def parse_args():
 
 
 def get_length(bamfile, chrom):
-	""" Extract chromosome length from BAM header.
+	"""
+	Extract chromosome length from BAM header.
 
 	args:
 		bamfile: pysam AlignmentFile object
@@ -663,8 +664,20 @@ def get_length(bamfile, chrom):
 def permutation_test_chromosomes(
 	data_frame, first_chrom, second_chrom, chrom_column,
 	value_column, num_perms, output_file=None):
-	""" Takes a dataframe and runs a permutation test comparing mean values
+	"""
+	Takes a dataframe and runs a permutation test comparing mean values
 	of two chromosomes.
+
+	data_frame is a pandas dataframe
+	first_chrom is the name of the first chromosome in comparison
+	second_chrom is the name of the second chromosome in comparison
+	chrom_column is the name of the column containing chromosome names
+	value_column is the name of the column containing the value of interest
+	num_perms is the number of permutations to use
+	output_file: if not none, will print results to this file
+
+	Returns:
+		A tuple containing (mean of first chrom, mean of second chrom, p-value)
 	"""
 	first_vals = data_frame[
 		data_frame[chrom_column] == first_chrom][value_column]
@@ -752,6 +765,9 @@ def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
 	"""
 	Takes a list of bam files, e.g., [bam1,bam2,bam3,...], and merges them
 	using sambamba
+
+	Returns:
+		path to merged bam
 	"""
 	subprocess.call(
 		[sambamba_path, "merge", "-t", str(threads), output_prefix, "{}".format(
@@ -764,8 +780,32 @@ def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
 def switch_sex_chromosomes_bam_sambamba(
 	samtools_path, sambamba_path, bam_orig, bam_new, sex_chroms,
 	output_directory, output_prefix, threads, pg_header_dict, cram=False):
-	""" Removes sex chromosomes from original bam and merges in remmapped
-	sex chromosomes, while retaining the original bam header
+	"""
+	Removes sex chromosomes from original bam and merges in remmapped
+	sex chromosomes, while retaining the original bam header (and adding new
+	@PG line)
+
+	samtools_path is the path to samtools
+	sambamba_path is the path to sambamba
+	bam_orig is the original full bam file
+	bam_new is the bam containing the sex chromosomes
+	sex_chroms is a list of sex chromosomes (to be removed from bam_orig)
+	output_directory is the path to directory where all files (inc. temp) will
+			be output
+	threads is the number of threads/cpus to use
+	pg_header_dict is a dictionary with information to be included in the new
+		@PG line
+			- must contain:
+				Key = 'CL', value = list of command line values
+				Key = 'ID', value = string of program ID
+			- optional:
+				Key = 'VN', value = string of program version
+	cram (default is False) - if True, will treat input as cram files and
+		output cram files.  Right now slower, with more intermediate/temp files
+
+	Returns:
+		New bam or cram file with original header (plus new @PG line), but sex
+			chromosomes swapped out
 	"""
 	# Grab original header
 	with open("{}/header.sam".format(output_directory), "w") as f:
@@ -821,13 +861,20 @@ def switch_sex_chromosomes_bam_sambamba(
 def platypus_caller(
 	platypus_path, log_path, bam, ref, chroms, cpus, output_file,
 	regions_file=None):
-	""" Uses platypus to make variant calls on provided bam file
+	"""
+	Uses platypus to make variant calls on provided bam file
 
+	platypus_path is the path to platypus
+	log_path is the path to and name of desired log file for platypus
 	bam is input bam (or cram) file
 	ref is path to reference sequence
 	chroms is a list of chromosomes to call on, e.g., ["chrX", "chrY", "chr19"]
 	cpus is the number of threads/cores to use
 	output_file is the name of the output vcf
+	regions_file (default none) - if not none, will only make calls in regions
+		included in this BED file (note: must be in bed format)
+
+	Outputs a vcf, but returns the exit code of the Platypus call
 	"""
 	if regions_file is None:
 		regions = ','.join(map(str, chroms))
@@ -842,8 +889,18 @@ def platypus_caller(
 
 def isolate_chromosomes_reference(
 	samtools_path, reference_fasta, new_ref_prefix, chroms, bed_mask):
-	""" Takes a reference fasta file and a list of chromosomes to include
-	and outputs a new, indexed reference fasta.
+	"""
+	Takes a reference fasta file and a list of chromosomes to include
+	and outputs a new, indexed (and optionally masked) reference fasta.
+
+	samtools_path is the path to samtools
+	reference_fasta is the path to the reference genome (in fasta format)
+	new_ref_prefix is the desired path to and prefix of the output files
+	chroms should be a list of chromosomes to include in the output fasta
+	bed_mask is a bed file of regions to mask (as N) in the new reference
+
+	Returns:
+		Path to new, indexed (optionally masked) fasta
 	"""
 	outpath = "{}.fa".format(new_ref_prefix)
 	if type(chroms) != list:
@@ -873,8 +930,23 @@ def isolate_chromosomes_reference(
 def bam_to_fastq(
 	samtools_path, repairsh_path, bamfile, single, output_directory,
 	output_prefix, regions):
-	""" Strips reads from a bam or cram file in provided regions and outputs
-	sorted fastqs containing reads.
+	"""
+	Strips reads from a bam or cram file in provided regions and outputs
+	sorted fastqs containing reads, one set of fastq files per read group.
+
+	samtools_path is the path to samtools
+	repairsh_path is the path to repair.sh (from BBmap)
+	bamfile is the input bam (including path)
+	single is either True or False; if true will output single-end fastq file,
+		if False, will output paired-end fastq files
+	output_directory is the directory for ALL output (including temporary files)
+	output_prefix is the name (without path) to use for prefix to output fastqs
+	regions is a list of regions from which reads will be stripped
+
+	Returns:
+		A two-item list containing the path to a text file pairing read group
+			names with associated output fastqs, and a text file containing a
+			list of @RG lines associated with each read group
 	"""
 	# Collect RGs
 	rg_list = output_directory + "/" + "full_rg.list"
@@ -930,8 +1002,20 @@ def bam_to_fastq(
 	return [out_rg_table, rg_header_lines]
 
 
-def parse_platypus_VCF(filename, qualCutoff, chrom):
-	""" Parse vcf generated by Platypus """
+def parse_platypus_VCF(filename, qual_cutoff, chrom):
+	"""
+	Parse vcf generated by Platypus to grab read balance
+
+	filename is the full path to the input vcf
+	qual_cutoff the minimum (PHRED) quality at which sites should be included
+	chrom is the name of the chromosome to include
+
+	Returns:
+		Tuple containing three corresponding arrays of the same length:
+			position across the chromosome
+			site quality
+			read balance
+	"""
 	infile = open("{}".format(filename), 'r')
 	positions = []
 	quality = []
@@ -942,7 +1026,7 @@ def parse_platypus_VCF(filename, qualCutoff, chrom):
 			continue
 		pos = int(cols[1])
 		qual = float(cols[5])
-		if qual < qualCutoff:
+		if qual < qual_cutoff:
 			continue
 		TR = cols[7].split(';')[17].split('=')[1]
 		TC = cols[7].split(';')[14].split('=')[1]
@@ -963,7 +1047,26 @@ def parse_platypus_VCF(filename, qualCutoff, chrom):
 def plot_read_balance(
 	chrom, positions, readBalance, sampleID, output_prefix, MarkerSize,
 	MarkerAlpha, bamfile):
-	""" Plots read balance at each SNP along a chromosome """
+	"""
+	Plots read balance at each SNP along a chromosome
+
+	chrom is the name of the chromosome
+	positions is an array of positions along the chromosome (same length as
+		readBalance)
+	readBalance is an array of read balance corresponding with the positions
+		in the positions array
+	sampleID is the sample name or id to include in the plot title
+	output_prefix is the desired prefix (including full path) of the output files
+	MarkerSize is the size of markers (matplotlib sizes) to use in the figure
+	MarkerAlpha is the transparency (matplotlib values) of markers for the figure
+	bamfile is the name of the corresponding bam file (used to get chromosome
+		lengths only)
+
+	Outputs:
+		Scatter (along genomic positions) plot of read balance values
+	Returns:
+		Nothing
+	"""
 	if bamfile[-3] == "bam" or bamfile[-3] == "BAM":
 		chrom_len = get_length(pysam.AlignmentFile(bamfile, "rb"), chrom)
 	else:
@@ -991,7 +1094,19 @@ def plot_read_balance(
 
 
 def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
-	""" Plot a histogram of read balance """
+	"""
+	Plots a histogram of read balance
+
+	chrom is the name of the chromosome
+	readBalance is an array of read balance values
+	sampleID is the sample name or id to include in the plot title
+	output_prefix is the desired prefix (including full path) of the output files
+
+	Outputs:
+		Histogram plot of read balance values
+	Returns:
+		Nothing
+	"""
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():
@@ -1010,13 +1125,13 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 
 
 def plot_variants_per_chrom(
-	chrom_list, vcf_file, sampleID, output_prefix, qualCutoff,
+	chrom_list, vcf_file, sampleID, output_prefix, qual_cutoff,
 	MarkerSize, MarkerAlpha, bamfile):
 	""" Parses a vcf file and plots read balance in separate plots
 	for each chromosome in the input list
 	"""
 	for i in chrom_list:
-		parse_results = parse_platypus_VCF(vcf_file, qualCutoff, i)
+		parse_results = parse_platypus_VCF(vcf_file, qual_cutoff, i)
 		plot_read_balance(
 			i, parse_results[0], parse_results[2],
 			sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile)
