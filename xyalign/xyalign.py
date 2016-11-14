@@ -148,11 +148,18 @@ def main():
 				print("Error in initial Platypus calling.")
 				sys.exit(1)
 			if args.no_variant_plots is not True:
+				plot_var_begin = time.time()
+				print("Beginning plotting of vcf, {}\n".format(noprocessing_vcf))
 				plot_variants_per_chrom(
 					args.chromosomes, noprocessing_vcf,
 					args.sample_id, readbalance_prefix_noprocessing,
 					args.variant_quality_cutoff, args.marker_size,
 					args.marker_transparency, args.bam)
+				plot_var_end = time.time()
+				print("\nVCF plotting complete on {}. Elapsed Time: {}\n\n".format(
+					noprocessing_vcf, (plot_var_end - plot_var_begin)))
+				log_open.write("VCF plotting on {}. Elapsed time: {} seconds\n".format(
+					noprocessing_vcf, (plot_var_end - plot_var_begin)))
 		else:
 			a = platypus_caller(
 				args.platypus_path, noprocessing_vcf_log, args.cram, args.ref,
@@ -166,12 +173,17 @@ def main():
 				print("Error in initial Platypus calling.")
 				sys.exit(1)
 			if args.no_variant_plots is not True:
+				plot_var_begin = time.time()
+				print("Beginning plotting of vcf, {}\n".format(noprocessing_vcf))
 				plot_variants_per_chrom(
 					args.chromosomes, noprocessing_vcf,
 					args.sample_id, readbalance_prefix_noprocessing,
 					args.variant_quality_cutoff, args.marker_size,
 					args.marker_transparency, args.cram)
-
+				print("\nVCF plotting complete on {}. Elapsed Time: {}\n\n".format(
+					noprocessing_vcf, (plot_var_end - plot_var_begin)))
+				log_open.write("VCF plotting on {}. Elapsed time: {} seconds\n".format(
+					noprocessing_vcf, (plot_var_end - plot_var_begin)))
 	# Analyze bam for depth and mapq
 	if args.no_bam_analysis is not True:
 		if args.bam is not None:
