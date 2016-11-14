@@ -83,7 +83,7 @@ def main():
 		time.asctime(time.localtime(time.time()))))
 
 	# Initialize timer
-	start = time.time()
+	start_time = time.time()
 
 	# Setup output paths
 	fastq_path = os.path.join(args.output_dir, "fastq")
@@ -398,6 +398,12 @@ def main():
 				args.sample_id, readbalance_prefix_postprocessing,
 				args.variant_quality_cutoff, args.marker_size,
 				args.marker_transparency, merged_bam)
+
+	# Final timestamp
+	end_time = time.time()
+	print("XYalign complete. Elapsed time: {}".format(end_time - start_time))
+	log_open.write("XYalign complete. Elapsed time: {}".format(
+		end_time - start_time))
 
 	# Close log file
 	log_open.close()
