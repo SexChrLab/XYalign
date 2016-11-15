@@ -224,6 +224,8 @@ def main():
 	# Replace this with code to infer ploidy, etc.
 	# Permutation tests
 	if args.no_perm_test is not True:
+		perm_start = time.time()
+		print("Beginning permutation tests\n")
 		if args.y_chromosome is not None:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			autosomes = [x for x in args.chromosomes if x not in sex_chromosomes]
@@ -269,13 +271,28 @@ def main():
 				y_present_perm = True
 			else:
 				y_present_perm = False
+		perm_end = time.time()
+		print("Permutation tests complete.  Elapsed time: {}\n\n".format(
+			perm_end - perm_start))
+		log_open.write("Permutation tests complete.  Elapsed time: {}\n".format(
+			perm_end - perm_start))
 
 	if args.y_present is True:
 		y_present = True
+		print("User set Y chromosome as present\n\n")
+		log_open.write("User set Y chromosome as present\n")
 	elif args.y_absent is True:
 		y_present = False
+		print("User set Y chromosome as absent\n\n")
+		log_open.write("User set Y chromosome as absent\n")
 	else:
 		y_present = y_present_perm
+		if y_present is True:
+			print("Y chromosome inferred to be present\n\n")
+			log_open.write("Y chromosome inferred to be present\n")
+		else:
+			print("Y chromosome inferred to be absent\n\n")
+			log_open.write("Y chromosome inferred to be absent\n")
 
 	# Likelihood analyses
 
@@ -316,7 +333,7 @@ def main():
 								break
 					temp_bam = assemble.bwa_mem_mapping_sambamba(
 						args.bwa_path, args.samtools_path, args.sambamba_path,
-						new_reference, "{}/{}.sex_chroms.{}.".format(
+						args.ref, "{}/{}.sex_chroms.{}.".format(
 							bam_path, args.sample_id, rg_id),
 						fastq_files, args.cpus, rg_tag)
 					temp_bam_list.append(temp_bam)
@@ -373,7 +390,7 @@ def main():
 								break
 					temp_bam = assemble.bwa_mem_mapping_sambamba(
 						args.bwa_path, args.samtools_path, args.sambamba_path,
-						new_reference, "{}/{}.sex_chroms.{}.".format(
+						args.ref, "{}/{}.sex_chroms.{}.".format(
 							bam_path, args.sample_id, rg_id),
 						fastq_files, args.cpus, rg_tag)
 					temp_bam_list.append(temp_bam)
@@ -974,6 +991,7 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 		# return "{}/{}.cram".format(output_directory, output_prefix)
 		print("This function does not currently handle cram files")
 		return None
+
 
 def platypus_caller(
 	platypus_path, log_path, bam, ref, chroms, cpus, output_file,

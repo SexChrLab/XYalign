@@ -21,7 +21,7 @@ def bwa_mem_mapping_sambamba(
 	cram (default is False) - if True, will output a sorted cram file
 	"""
 	fastqs = ' '.join(fastqs)
-	subprocess.call([bwa_path, "index", reference])
+	# subprocess.call([bwa_path, "index", reference])
 	if cram is False:
 		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
