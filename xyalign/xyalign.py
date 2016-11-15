@@ -213,11 +213,11 @@ def main():
 		if args.bam is not None:
 			log_open.write(
 				"Bam analyses complete on {}. Elapsed time: {} seconds\n".format(
-					args.bam, (bam_analysis_end - bam analysis_start)))
+					args.bam, (bam_analysis_end - bam_analysis_start)))
 		else:
 			log_open.write(
 				"Cram analyses complete on {}. Elapsed time: {} seconds\n".format(
-					args.cram, (bam_analysis_end - bam analysis_start)))
+					args.cram, (bam_analysis_end - bam_analysis_start)))
 
 	# Infer ploidy (needs to be finished)
 
