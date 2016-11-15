@@ -804,7 +804,7 @@ def switch_sex_chromosomes_bam_sambamba(
 		output cram files.  Right now slower, with more intermediate/temp files
 
 	Returns:
-		New bam or cram file with original header (plus new @PG line), but sex
+		New bam or cram file path with original header (plus new @PG line), but sex
 			chromosomes swapped out
 	"""
 	# Grab original header
@@ -1127,8 +1127,23 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 def plot_variants_per_chrom(
 	chrom_list, vcf_file, sampleID, output_prefix, qual_cutoff,
 	MarkerSize, MarkerAlpha, bamfile):
-	""" Parses a vcf file and plots read balance in separate plots
+	"""
+	Parses a vcf file and plots read balance in separate plots
 	for each chromosome in the input list
+
+	chrom_list is the list of chromosomes to run parse_platypus_VCF and plotting
+		functions on
+	vcf_file is the file (including path) of platypus vcf to analyze
+	sampleID is the sample name (for plot titles)
+	output_prefix is the full path to and prefix of desired output plots
+	qual_cutoff is the minimum (Phred) quality to consider a site in the vcf
+	MarkerSize is the size of markers (matplotlib sizes) to use in the figure
+	MarkerAlpha is the transparency (matplotlib values) of markers for the figure
+	bamfile is the name of the corresponding bam file (used to get chromosome
+		lengths only)
+
+	Returns:
+		Nothing
 	"""
 	for i in chrom_list:
 		parse_results = parse_platypus_VCF(vcf_file, qual_cutoff, i)
@@ -1148,8 +1163,15 @@ def traverse_bam_fetch(samfile, chrom, window_size):
 	- Mapping quality
 	The average of each metric will be calculated for each window of
 	size `window_size` and stored altogether in a pandas data frame.
-	Returns a dictionary of pandas data frames with the following key:
-	- windows: The averages for each metric for each window
+
+
+	samfile is a pysam AlignmentFile object
+	chrom is the chromosome to analyze
+	window size is the integer window size to use for sliding window analyses
+
+	Returns:
+		A dictionary of pandas data frames with the following key:
+			- windows: The averages for each metric for each window
 	"""
 	chr_len = get_length(samfile, chrom)
 	num_windows = chr_len // window_size + 1
@@ -1206,20 +1228,28 @@ def traverse_bam_fetch(samfile, chrom, window_size):
 	return results
 
 
-def make_region_lists(depthAndMapqDf, mapqCutoff, sd_thresh):
+def make_region_lists(depthAndMapqDf, mapqCutoff, depth_thresh):
 	"""
-	(pandas.core.frame.DataFrame, int, float) -> (list, list)
-	return two lists of regions (keepList, excludeList) based on
-	cutoffs for depth and mapq
+	Filters a pandas dataframe for mapq and depth
+
+	depthAndMapqDf is a dataframe with 'depth' and 'mapq' columns
+	mapqCutoff is the minimum mapq for a window to be considered high quality
+	depth_thresh is the factor to use in filtering regions based on depth:
+		Li (2014) recommends:
+			mean_depth +- (depth_thresh * (depth_mean ** 0.5)),
+				where depth_thresh is 3 or 4.
+
+	Returns:
+		A tuple containing two dataframes (passing, failing)
 	"""
 	depth_mean = depthAndMapqDf["depth"].mean()
 	depth_sd = depthAndMapqDf["depth"].std()
 
-	depthMin = depth_mean - (sd_thresh * (depth_sd ** 0.5))
-	depthMax = depth_mean + (sd_thresh * (depth_sd ** 0.5))
+	depthMin = depth_mean - (depth_thresh * (depth_mean ** 0.5))
+	depthMax = depth_mean + (depth_thresh * (depth_mean ** 0.5))
 
 	good = (
-		(depthAndMapqDf.mapq > mapqCutoff) &
+		(depthAndMapqDf.mapq >= mapqCutoff) &
 		(depthAndMapqDf.depth > depthMin) &
 		(depthAndMapqDf.depth < depthMax))
 	dfGood = depthAndMapqDf[good]
@@ -1229,12 +1259,15 @@ def make_region_lists(depthAndMapqDf, mapqCutoff, sd_thresh):
 
 
 def output_bed(outBed, *regionDfs):
-	'''
-	(list, list, str) -> bedtoolsObject
-	Take two sorted lists.  Each list is a list of tuples
-	(chrom[str], start[int], end[int])
-	Return a pybedtools object and output a bed file.
-	'''
+	"""
+	Takes a list of dataframes to concatenate and merge into an output bed file
+
+	outBed is the full path to and name of the output bed file
+	*regionDfs is an arbitrary number of dataframes to be included
+
+	Returns:
+		Nothing
+	"""
 	dfComb = pd.concat(regionDfs)
 	regionList = dfComb.ix[:, "chrom":"stop"].values.tolist()
 	merge = pybedtools.BedTool(regionList).sort().merge()
@@ -1246,9 +1279,10 @@ def output_bed(outBed, *regionDfs):
 def chromosome_wide_plot(
 	chrom, positions, y_value, measure_name, sampleID, output_prefix,
 	MarkerSize, MarkerAlpha, Xlim, Ylim):
-	'''
+	"""
 	Plots values across a chromosome, where the x axis is the position along the
 	chromosome and the Y axis is the value of the measure of interest.
+
 	positions is an array of coordinates
 	y_value is an array of the values of the measure of interest
 	measure_name is the name of the measure of interest (y axis title)
@@ -1258,7 +1292,10 @@ def chromosome_wide_plot(
 	MarkerAlpha is the transparency (0 to 1)
 	Xlim is the maximum X value
 	Ylim is the maximum Y value
-	'''
+
+	Returns:
+		Nothing
+	"""
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():
@@ -1292,7 +1329,7 @@ def plot_depth_mapq(
 		sampleID: name/ID of sample
 		chrom_length: length of chromosome
 	Returns:
-		None
+		Nothing
 	"""
 
 	window_df = None if "windows" not in data_dict else data_dict[
@@ -1353,8 +1390,23 @@ def plot_depth_mapq(
 def switch_sex_chromosomes_bam(
 	samtools_path, bam_orig, bam_new, sex_chroms, output_directory,
 	output_prefix, cram=False):
-	""" Removes sex chromosomes from original bam and merges in remmapped
+	"""
+	Removes sex chromosomes from original bam and merges in remmapped
 	sex chromosomes, while retaining the original bam header
+
+
+		samtools_path is the path to samtools
+		bam_orig is the original full bam file
+		bam_new is the bam containing the sex chromosomes
+		sex_chroms is a list of sex chromosomes (to be removed from bam_orig)
+		output_directory is the path to directory where all files (inc. temp) will
+				be output
+		cram (default is False) - if True, will treat input as cram files and
+			output cram files.  Right now slower, with more intermediate/temp files
+
+		Returns:
+			New bam or cram file path with original header (plus new @PG line), but sex
+				chromosomes swapped out
 	"""
 	# Grab original header
 	subprocess.call(
