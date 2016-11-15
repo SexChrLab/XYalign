@@ -863,6 +863,97 @@ def switch_sex_chromosomes_bam_sambamba(
 		return "{}/{}.cram".format(output_directory, output_prefix)
 
 
+def switch_sex_chromosomes_bam_sambamba_output_temps(
+	samtools_path, sambamba_path, bam_orig, bam_new, sex_chroms,
+	output_directory, output_prefix, threads, pg_header_dict, cram=False):
+	"""
+	Note: troubleshooting function. Does not currently incorporate the new bam
+	header.
+
+	Removes sex chromosomes from original bam and merges in remmapped
+	sex chromosomes, while retaining the original bam header (and adding new
+	@PG line)
+
+	samtools_path is the path to samtools
+	sambamba_path is the path to sambamba
+	bam_orig is the original full bam file
+	bam_new is the bam containing the sex chromosomes
+	sex_chroms is a list of sex chromosomes (to be removed from bam_orig)
+	output_directory is the path to directory where all files (inc. temp) will
+			be output
+	threads is the number of threads/cpus to use
+	pg_header_dict is a dictionary with information to be included in the new
+		@PG line
+			- must contain:
+				Key = 'CL', value = list of command line values
+				Key = 'ID', value = string of program ID
+			- optional:
+				Key = 'VN', value = string of program version
+	cram (default is False) - if True, will treat input as cram files and
+		output cram files.  Right now slower, with more intermediate/temp files
+
+	Returns:
+		New bam or cram file path with original header (plus new @PG line), but sex
+			chromosomes swapped out
+	"""
+	# Grab original header
+	with open("{}/header.sam".format(output_directory), "w") as f:
+		subprocess.call(
+			[samtools_path, "view", "-H", bam_orig], stdout=f)
+	# Reheader new bam (for merge)
+	with open("{}/reheadered.temp.new.bam".format(output_directory), "w") as f:
+		subprocess.call(
+			[samtools_path, "reheader", "-P", "{}/header.sam".format(
+				output_directory), bam_new], stdout=f)
+	# Add XYalign @PG line to header
+	cl_string = " ".join(pg_header_dict["CL"])
+	if "VN" in pg_header_dict:
+		pg_line = [
+			"@PG", "ID:{}".format(pg_header_dict["ID"]), "VN:{}".format(
+				pg_header_dict["VN"]), "CL:{}".format(cl_string)]
+	subprocess.call("echo '{}' >> {}/header.sam".format(
+		"\t".join(pg_line), output_directory), shell=True)
+	if cram is False:
+		# Remove sex chromosomes from original bam and merge
+		samfile = pysam.AlignmentFile(bam_orig, "rb")
+		non_sex_scaffolds = filter(
+			lambda x: x not in sex_chroms, list(samfile.references))
+		subprocess.call(
+			[sambamba_path, "view", "-h", "-t", "{}".format(threads), "-f",
+				"bam", "-o", "{}/temp.nosexchr.bam".format(output_directory),
+				"{}".format(" ".join(non_sex_scaffolds))])
+		subprocess.call(
+			[sambamba_path, "merge", "-t", "{}".format(threads),
+				"{}/{}.merged.bam".format(output_directory, output_prefix),
+				"{}/temp.nosexchr.bam".format(output_directory), bam_new])
+		return "{}/{}.merged.bam".format(output_directory, output_prefix)
+
+	else:
+		# Remove sex chromosomes from original bam
+		# samfile = pysam.AlignmentFile(bam_orig, "rc")
+		# non_sex_scaffolds = filter(
+		# 	lambda x: x not in sex_chroms, list(samfile.references))
+		# with open("{}/no_sex.cram".format(output_directory), "w") as f:
+		# 	subprocess.call(
+		# 		[samtools_path, "view", "-h", "-b",
+		# 			bam_orig, "{}".format(" ".join(non_sex_scaffolds))],
+		# 		stdout=f)
+		# subprocess.call(
+		# 	[samtools_path, "index", "{}/no_sex.cram".format(output_directory)])
+		#
+		# # Merge bam files
+		# subprocess.call(
+		# 	[samtools_path, "merge", "-h",
+		# 		"{}/header.sam".format(output_directory), "{}/{}.cram".format(
+		# 			output_directory, output_prefix), "{}/no_sex.cram".format(
+		# 				output_directory), bam_new])
+		# subprocess.call(
+		# 	[samtools_path, "index", "{}/{}.cram".format(
+		# 		output_directory, output_prefix)])
+		# return "{}/{}.cram".format(output_directory, output_prefix)
+		print("This function does not currently handle cram files")
+		return None
+
 def platypus_caller(
 	platypus_path, log_path, bam, ref, chroms, cpus, output_file,
 	regions_file=None):
