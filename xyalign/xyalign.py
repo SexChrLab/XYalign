@@ -919,6 +919,9 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 		subprocess.call(
 			[samtools_path, "reheader", "-P", "{}/header.sam".format(
 				output_directory), bam_new], stdout=f)
+	subprocess.call(
+		[samtools_path, "index", "{}/reheadered.temp.new.bam".format(
+			output_directory)])
 	# Add XYalign @PG line to header
 	cl_string = " ".join(pg_header_dict["CL"])
 	if "VN" in pg_header_dict:
@@ -936,6 +939,9 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 			[sambamba_path, "view", "-h", "-t", "{}".format(threads), "-f",
 				"bam", "-o", "{}/temp.nosexchr.bam".format(output_directory),
 				bam_orig, "{}".format(" ".join(non_sex_scaffolds))])
+		subprocess.call(
+			[samtools_path, "index", "{}/temp.nosexchr.bam".format(
+				output_directory)])
 		subprocess.call(
 			[sambamba_path, "merge", "-t", "{}".format(threads),
 				"{}/{}.merged.bam".format(output_directory, output_prefix),
