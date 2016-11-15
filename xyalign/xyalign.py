@@ -314,12 +314,12 @@ def main():
 						bam_path, args.sample_id), args.cpus)
 			# Merge bam files
 			if args.bam is not None:
-				merged_bam = switch_sex_chromosomes_bam_sambamba(
+				merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
 					args.samtools_path, args.sambamba_path, args.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 			else:
-				merged_bam = switch_sex_chromosomes_bam_sambamba(
+				merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
 					args.samtools_path, args.sambamba_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
@@ -371,12 +371,12 @@ def main():
 						bam_path, args.sample_id), args.cpus)
 			# Merge bam files
 			if args.bam is not None:
-				merged_bam = switch_sex_chromosomes_bam_sambamba(
+				merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
 					args.samtools_path, args.sambamba_path, args.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 			else:
-				merged_bam = switch_sex_chromosomes_bam_sambamba(
+				merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
 					args.samtools_path, args.sambamba_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
