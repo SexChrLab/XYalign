@@ -812,7 +812,7 @@ def switch_sex_chromosomes_bam_sambamba(
 		subprocess.call(
 			[samtools_path, "view", "-H", bam_orig], stdout=f)
 	# Reheader new bam (for merge)
-	with open("{}/reheadered.temp.new.bam", "w") as f:
+	with open("{}/reheadered.temp.new.bam".format(output_directory), "w") as f:
 		subprocess.call(
 			[samtools_path, "reheader", "-P", "{}/header.sam".format(
 				output_directory), bam_new], stdout=f)
