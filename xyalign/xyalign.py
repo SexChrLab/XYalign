@@ -209,14 +209,14 @@ def main():
 		output_bed(output_bed_low, *fail_df)
 		bam_analysis_end = time.time()
 		print("Bam-cram analyses complete. Elapsed time: {} seconds\n".format(
-			bam_analysis_end - bam analysis_start))
+			bam_analysis_end - bam_analysis_start))
 		if args.bam is not None:
 			log_open.write(
-				"Bam analyses plotting on {}. Elapsed time: {} seconds\n".format(
+				"Bam analyses complete on {}. Elapsed time: {} seconds\n".format(
 					args.bam, (bam_analysis_end - bam analysis_start)))
 		else:
 			log_open.write(
-				"Cram analyses plotting on {}. Elapsed time: {} seconds\n".format(
+				"Cram analyses complete on {}. Elapsed time: {} seconds\n".format(
 					args.cram, (bam_analysis_end - bam analysis_start)))
 
 	# Infer ploidy (needs to be finished)
