@@ -935,6 +935,7 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 		samfile = pysam.AlignmentFile(bam_orig, "rb")
 		non_sex_scaffolds = filter(
 			lambda x: x not in sex_chroms, list(samfile.references))
+		print(non_sex_scaffolds)
 		subprocess.call(
 			[sambamba_path, "view", "-h", "-t", "{}".format(threads), "-f",
 				"bam", "-o", "{}/temp.nosexchr.bam".format(output_directory),
