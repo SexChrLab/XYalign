@@ -186,9 +186,12 @@ def main():
 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
 	# Analyze bam for depth and mapq
 	if args.no_bam_analysis is not True:
+		bam_analysis_start = time.time()
 		if args.bam is not None:
+			print("Beginning bam analyses on {}\n".format(args.bam))
 			samfile = pysam.AlignmentFile(args.bam, "rb")
 		else:
+			print("Beginning cram analyses on {}\n".format(args.cram))
 			samfile = pysam.AlignmentFile(args.cram, "rc")
 		pass_df = []
 		fail_df = []
@@ -204,6 +207,17 @@ def main():
 				args.marker_transparency)
 		output_bed(output_bed_high, *pass_df)
 		output_bed(output_bed_low, *fail_df)
+		bam_analysis_end = time.time()
+		print("Bam-cram analyses complete. Elapsed time: {} seconds\n".format(
+			bam_analysis_end - bam analysis_start))
+		if args.bam is not None:
+			log_open.write(
+				"Bam analyses plotting on {}. Elapsed time: {} seconds\n".format(
+					args.bam, (bam_analysis_end - bam analysis_start)))
+		else:
+			log_open.write(
+				"Cram analyses plotting on {}. Elapsed time: {} seconds\n".format(
+					args.cram, (bam_analysis_end - bam analysis_start)))
 
 	# Infer ploidy (needs to be finished)
 
@@ -921,7 +935,7 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 		subprocess.call(
 			[sambamba_path, "view", "-h", "-t", "{}".format(threads), "-f",
 				"bam", "-o", "{}/temp.nosexchr.bam".format(output_directory),
-				"{}".format(" ".join(non_sex_scaffolds))])
+				bam_orig, "{}".format(" ".join(non_sex_scaffolds))])
 		subprocess.call(
 			[sambamba_path, "merge", "-t", "{}".format(threads),
 				"{}/{}.merged.bam".format(output_directory, output_prefix),
