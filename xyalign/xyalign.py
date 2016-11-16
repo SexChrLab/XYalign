@@ -69,11 +69,13 @@ def main():
 	log_open.write("{}\n\n".format(citation))
 	print("{}\n".format("Parameters:"))
 	log_open.write("{}\n\n".format("Parameters:"))
+
 	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
 	for arg in args.__dict__:
 		print("{}:\t{}".format(arg, args.__dict__[arg]))
 		log_open.write("{}:\t{}\n".format(arg, args.__dict__[arg]))
 		xyalign_params_dict['CL'].append("{}={}".format(arg, args.__dict__[arg]))
+
 	print("\n")
 	log_open.write("\n\n")
 
@@ -115,19 +117,48 @@ def main():
 		plots_path, "{}_noprocessing".format(args.sample_id))
 	readbalance_prefix_postprocessing = os.path.join(
 		plots_path, "{}_postprocessing".format(args.sample_id))
-	depth_mapq_prefix = os.path.join(
+	depth_mapq_prefix_noprocessing = os.path.join(
 		plots_path, "{}_noprocessing".format(args.sample_id))
+	depth_mapq_prefix_postprocessing = os.path.join(
+		plots_path, "{}_postprocessing".format(args.sample_id))
 	if args.high_quality_bed_out is not None:
-		high_prefix = args.high_quality_bed_out
+		# high_prefix = args.high_quality_bed_out
+		print(
+			"--high_quality_bed_out is currently unsupported.  Please remove "
+			"this flag")
+		sys.exit(1)
 	else:
-		high_prefix = "{}_highquality".format(args.sample_id)
+		high_prefix = "{}_highquality_preprocessing".format(args.sample_id)
 	output_bed_high = os.path.join(
 		bed_path, "{}.bed".format(high_prefix))
 	if args.low_quality_bed_out is not None:
-		low_prefix = args.low_quality_bed_out
+		# low_prefix = args.low_quality_bed_out
+		print(
+			"--low_quality_bed_out is currently unsupported.  Please remove "
+			"this flag")
 	else:
-		low_prefix = "{}_lowquality".format(args.sample_id)
+		low_prefix = "{}_lowquality_preprocessing".format(args.sample_id)
 	output_bed_low = os.path.join(
+		bed_path, "{}.bed".format(low_prefix))
+	if args.high_quality_bed_out is not None:
+		# high_prefix_postprocessing = args.high_quality_bed_out
+		print(
+			"--high_quality_bed_out is currently unsupported.  Please remove "
+			"this flag")
+	else:
+		high_prefix_postprocessing = "{}_highquality_postprocessing".format(
+			args.sample_id)
+	output_bed_high_postprocessing = os.path.join(
+		bed_path, "{}.bed".format(high_prefix))
+	if args.low_quality_bed_out is not None:
+		# low_prefix_postprocessing = args.low_quality_bed_out
+		print(
+			"--low_quality_bed_out is currently unsupported.  Please remove "
+			"this flag")
+	else:
+		low_prefix_postprocessing = "{}_lowquality_postprocessing".format(
+			args.sample_id)
+	output_bed_low_postprocessing = os.path.join(
 		bed_path, "{}.bed".format(low_prefix))
 
 	# First round of Platypus calling and plotting
@@ -184,6 +215,7 @@ def main():
 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
 				log_open.write("VCF plotting on {}. Elapsed time: {} seconds\n".format(
 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
+
 	# Analyze bam for depth and mapq
 	if args.no_bam_analysis is not True:
 		bam_analysis_start = time.time()
@@ -202,7 +234,7 @@ def main():
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			plot_depth_mapq(
-				data, depth_mapq_prefix, args.sample_id,
+				data, depth_mapq_prefix_noprocessing, args.sample_id,
 				get_length(samfile, chromosome), args.marker_size,
 				args.marker_transparency)
 		output_bed(output_bed_high, *pass_df)
@@ -247,6 +279,7 @@ def main():
 				"chrom", "depth", args.num_permutations,
 				results_path + "/{}_{}_permutation_results.txt".format(
 					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+
 			# Right now this implements a simple and rather inelegant test for
 			# 	a Y chromosome that assumes approximately equal depth on the
 			# 	X and the Y in XY individuals.
@@ -264,6 +297,7 @@ def main():
 					"depth", args.num_permutations,
 					results_path + "/{}_{}_permutation_results.txt".format(
 						c, str(args.x_chromosome[0]))))
+
 			# Right now this implements a simple and rather inelegant test for
 			# 	a Y chromosome that assumes approximately equal depth on the
 			# 	X and the Y in XY individuals.
@@ -271,6 +305,7 @@ def main():
 			# 	y_present_perm = True
 			# else:
 			# 	y_present_perm = False
+
 		perm_end = time.time()
 		print("Permutation tests complete.  Elapsed time: {}\n\n".format(
 			perm_end - perm_start))
@@ -320,10 +355,7 @@ def main():
 				read_group_and_fastqs = [line.strip() for line in f]
 				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
 			with open(new_fastqs[1]) as f:
-				read_group_and_fastqs = [line.strip() for line in f]
-				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
-				while "" in read_group_and_fastqs:
-					read_group_and_fastqs.remove("")
+				read_group_headers = [line.split() for line in f]
 			temp_bam_list = []
 			for i in read_group_and_fastqs:
 				if i != [""]:
@@ -381,8 +413,7 @@ def main():
 				read_group_and_fastqs = [line.strip() for line in f]
 				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
 			with open(new_fastqs[1]) as f:
-				read_group_and_fastqs = [line.strip() for line in f]
-				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
+				read_group_headers = [line.split() for line in f]
 			temp_bam_list = []
 			for i in read_group_and_fastqs:
 				if i != [""]:
@@ -418,8 +449,43 @@ def main():
 					args.x_chromosome + args.y_chromosome,
 					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 
+	# Analyze new bam for depth and mapq
+	if args.no_bam_analysis is not True and args.no_remapping is not True:
+		bam_analysis_start = time.time()
+		if args.bam is not None:
+			print("Beginning final bam analyses on {}\n".format(merged_bam))
+			samfile = pysam.AlignmentFile(merged_bam, "rb")
+		else:
+			print("Beginning final cram analyses on {}\n".format(merged_bam))
+			samfile = pysam.AlignmentFile(merged_bam, "rc")
+		pass_df_second = []
+		fail_df_second = []
+		for chromosome in args.chromosomes:
+			data = traverse_bam_fetch(samfile, chromosome, args.window_size)
+			tup = make_region_lists(
+				data["windows"], args.mapq_cutoff, args.depth_filter)
+			pass_df_second.append(tup[0])
+			fail_df_second.append(tup[1])
+			plot_depth_mapq(
+				data, depth_mapq_prefix_postprocessing, args.sample_id,
+				get_length(samfile, chromosome), args.marker_size,
+				args.marker_transparency)
+		output_bed(output_bed_high_postprocessing, *pass_df_second)
+		output_bed(output_bed_low_postprocessing, *fail_df_second)
+		bam_analysis_end = time.time()
+		print("Final bam-cram analyses complete. Elapsed time: {} seconds\n".format(
+			bam_analysis_end - bam_analysis_start))
+		if args.bam is not None:
+			log_open.write(
+				"Final bam analyses complete on {}. Elapsed time: {} seconds\n".format(
+					merged_bed, (bam_analysis_end - bam_analysis_start)))
+		else:
+			log_open.write(
+				"Final cram analyses complete on {}. Elapsed time: {} seconds\n".format(
+					merged_bed, (bam_analysis_end - bam_analysis_start)))
+
 	# Final round of calling and plotting
-	include_bed = output_bed_high
+	include_bed = output_bed_high_postprocessing
 
 	if args.platypus_calling == "both" or args.platypus_calling == "after":
 		a = platypus_caller(
