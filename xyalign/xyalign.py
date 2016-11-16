@@ -955,6 +955,7 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 		command_line = "{} view -h -t {} -f bam -o {}/temp.nosexchr.bam {} {}".format(
 			sambamba_path, threads, output_directory, bam_orig,
 			" ".join(non_sex_scaffolds))
+		print("Merging bam files with command: {}".format(command_line))
 		subprocess.call(command_line, shell=True)
 		# subprocess.call(
 		# 	[sambamba_path, "view", "-h", "-t", "{}".format(threads), "-f",
