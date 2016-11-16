@@ -15,6 +15,39 @@ def main():
 
 	args = parse_args()
 
+	# Setup output paths
+	fastq_path = os.path.join(args.output_dir, "fastq")
+	bam_path = os.path.join(args.output_dir, "bam")
+	reference_path = os.path.join(args.output_dir, "reference")
+	bed_path = os.path.join(args.output_dir, "bed")
+	vcf_path = os.path.join(args.output_dir, "vcf")
+	plots_path = os.path.join(args.output_dir, "plots")
+	results_path = os.path.join(args.output_dir, "results")
+
+	depth_mapq_prefix_noprocessing = os.path.join(
+		plots_path, "{}_noprocessing".format(args.sample_id))
+	depth_mapq_prefix_postprocessing = os.path.join(
+		plots_path, "{}_postprocessing".format(args.sample_id))
+	if args.high_quality_bed_out is not None:
+		# high_prefix = args.high_quality_bed_out
+		print(
+			"--high_quality_bed_out is currently unsupported.  Please remove "
+			"this flag")
+		sys.exit(1)
+	else:
+		high_prefix = "{}_highquality_preprocessing".format(args.sample_id)
+	output_bed_high = os.path.join(
+		bed_path, "{}.bed".format(high_prefix))
+	if args.low_quality_bed_out is not None:
+		# low_prefix = args.low_quality_bed_out
+		print(
+			"--low_quality_bed_out is currently unsupported.  Please remove "
+			"this flag")
+	else:
+		low_prefix = "{}_lowquality_preprocessing".format(args.sample_id)
+	output_bed_low = os.path.join(
+		bed_path, "{}.bed".format(low_prefix))
+
 	bam_analysis_start = time.time()
 	if args.bam is not None:
 		print("Beginning bam analyses on {}\n".format(args.bam))
