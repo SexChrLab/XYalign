@@ -9,11 +9,14 @@ Sex chromosome aneuploidies are currently estimated to be as common as 1/400 in 
 
 October 17, 2016 slide show of concept and inital results for Hackseq: https://docs.google.com/presentation/d/1OB2d_mu5zC742N_NKfzHjVpUm4BFtm5lUzniLLI--OQ/edit?usp=sharing
 
+## Please note the XYalign is still in pre-release stages
+Changes are made to the master branch quite frequently, so there still might be a number of known or unknown bugs at any given time.  If you'd like to try things before release (which will be early December), please feel free to contact us (either via an Issue or by email to Tim Webster - address at the bottom of this page) to inquire about the current status of the program.
+
+
 ## To-Do Items Before Release
 
 Program
 - [ ] Write commands, time, etc. to logfile
-- [ ] Switch subprocess calls to "shell=False" syntax
 - [ ] Add support for arbitrary bwa flags
 - [ ] Add support for additional mappers
 - [ ] Handle duplicate reads
