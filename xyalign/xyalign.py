@@ -317,13 +317,11 @@ def main():
 					args.x_chromosome + args.y_chromosome)
 			# Remap
 			with open(new_fastqs[0]) as f:
-				read_group_and_fastqs = [line.split() for line in f]
-				read_group_and_fastqs = [x.strip() for x in read_group_and_fastqs]
-				while "" in read_group_and_fastqs:
-					read_group_and_fastqs.remove("")
+				read_group_and_fastqs = [line.strip() for line in f]
+				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
 			with open(new_fastqs[1]) as f:
-				read_group_and_fastqs = [line.split() for line in f]
-				read_group_and_fastqs = [x.strip() for x in read_group_and_fastqs]
+				read_group_and_fastqs = [line.strip() for line in f]
+				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
 				while "" in read_group_and_fastqs:
 					read_group_and_fastqs.remove("")
 			temp_bam_list = []
@@ -380,15 +378,11 @@ def main():
 					args.x_chromosome)
 			# Remap
 			with open(new_fastqs[0]) as f:
-				read_group_and_fastqs = [line.split() for line in f]
-				read_group_and_fastqs = [x.strip() for x in read_group_and_fastqs]
-				while "" in read_group_and_fastqs:
-					read_group_and_fastqs.remove("")
+				read_group_and_fastqs = [line.strip() for line in f]
+				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
 			with open(new_fastqs[1]) as f:
-				read_group_and_fastqs = [line.split() for line in f]
-				read_group_and_fastqs = [x.strip() for x in read_group_and_fastqs]
-				while "" in read_group_and_fastqs:
-					read_group_and_fastqs.remove("")
+				read_group_and_fastqs = [line.strip() for line in f]
+				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
 			temp_bam_list = []
 			for i in read_group_and_fastqs:
 				if i != [""]:
