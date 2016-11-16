@@ -317,9 +317,13 @@ def main():
 					args.x_chromosome + args.y_chromosome)
 			# Remap
 			with open(new_fastqs[0]) as f:
-				read_group_and_fastqs = [line.split() for line in f]
+				read_group_and_fastqs = [line.split() for line.strip() in f]
+				while "" in read_group_and_fastqs:
+					read_group_and_fastqs.remove("")
 			with open(new_fastqs[1]) as f:
-				read_group_headers = [line.split() for line in f]
+				read_group_headers = [line.split() for line.strip() in f]
+				while "" in read_group_and_fastqs:
+					read_group_and_fastqs.remove("")
 			temp_bam_list = []
 			for i in read_group_and_fastqs:
 				if i != [""]:
@@ -374,9 +378,13 @@ def main():
 					args.x_chromosome)
 			# Remap
 			with open(new_fastqs[0]) as f:
-				read_group_and_fastqs = [line.split() for line in f]
+				read_group_and_fastqs = [line.split() for line.strip() in f]
+				while "" in read_group_and_fastqs:
+					read_group_and_fastqs.remove("")
 			with open(new_fastqs[1]) as f:
-				read_group_headers = [line.split() for line in f]
+				read_group_headers = [line.split() for line.strip() in f]
+				while "" in read_group_and_fastqs:
+					read_group_and_fastqs.remove("")
 			temp_bam_list = []
 			for i in read_group_and_fastqs:
 				if i != [""]:
@@ -1123,7 +1131,7 @@ def bam_to_fastq(
 							output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
 							output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
 						subprocess.call(command_line, shell=True)
-						ortab.write("{}\t{}\t{}".format(
+						ortab.write("{}\t{}\t{}\n".format(
 							rg,
 							output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
 							output_directory + "/" + output_prefix + "_" + rg + "_2.fastq"))
@@ -1137,7 +1145,7 @@ def bam_to_fastq(
 							output_directory + "/temp.fastq",
 							output_directory + "/" + output_prefix + "_" + rg + ".fastq")
 						# write line
-						ortab.write("{}\t{}".format(
+						ortab.write("{}\t{}\n".format(
 							rg,
 							output_directory + "/" + output_prefix + "_" + rg + ".fastq"))
 	return [out_rg_table, rg_header_lines]
