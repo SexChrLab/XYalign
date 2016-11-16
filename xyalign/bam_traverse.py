@@ -30,8 +30,8 @@ def main():
 
 	depth_mapq_prefix_noprocessing = os.path.join(
 		plots_path, "{}_noprocessing".format(args.sample_id))
-	depth_mapq_prefix_postprocessing = os.path.join(
-		plots_path, "{}_postprocessing".format(args.sample_id))
+	depth_mapq_prefix_highquality = os.path.join(
+		plots_path, "{}_noprocessing_high_qual".format(args.sample_id))
 	if args.high_quality_bed_out is not None:
 		# high_prefix = args.high_quality_bed_out
 		print(
@@ -69,6 +69,10 @@ def main():
 		fail_df.append(tup[1])
 		plot_depth_mapq(
 			data, depth_mapq_prefix_noprocessing, args.sample_id,
+			get_length(samfile, chromosome), args.marker_size,
+			args.marker_transparency)
+		plot_depth_mapq(
+			tup[0], depth_mapq_prefix_highquality, args.sample_id,
 			get_length(samfile, chromosome), args.marker_size,
 			args.marker_transparency)
 	output_bed(output_bed_high, *pass_df)
