@@ -250,7 +250,7 @@ def main():
 			# Right now this implements a simple and rather inelegant test for
 			# 	a Y chromosome that assumes approximately equal depth on the
 			# 	X and the Y in XY individuals.
-			if 0.025 < sex_perm_res[2] < 0.95:
+			if sex_perm_res[3] < 1.0 < sex_perm_res[4]:
 				y_present_perm = True
 			else:
 				y_present_perm = False
@@ -267,10 +267,10 @@ def main():
 			# Right now this implements a simple and rather inelegant test for
 			# 	a Y chromosome that assumes approximately equal depth on the
 			# 	X and the Y in XY individuals.
-			if 0.025 < sex_perm_res[2] < 0.95:
-				y_present_perm = True
-			else:
-				y_present_perm = False
+			# if 0.025 < sex_perm_res[2] < 0.95:
+			# 	y_present_perm = True
+			# else:
+			# 	y_present_perm = False
 		perm_end = time.time()
 		print("Permutation tests complete.  Elapsed time: {}\n\n".format(
 			perm_end - perm_start))
@@ -748,7 +748,9 @@ def permutation_test_chromosomes(
 		with open(output_file, "w") as f:
 			w = csv.writer(f, dialect="excel-tab")
 			w.writerows([a, b])
-	return (first_mean, second_mean, sig)
+	return (
+		first_mean, second_mean, sig, np.percentile(perms, 2.5),
+		np.percentile(perms, 97.5))
 
 
 def bwa_mem_mapping_sambamba(
@@ -955,7 +957,7 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 		command_line = "{} view -h -t {} -f bam -o {}/temp.nosexchr.bam {} {}".format(
 			sambamba_path, threads, output_directory, bam_orig,
 			" ".join(non_sex_scaffolds))
-		print("Merging bam files with command: {}".format(command_line))
+		print("Removing sex chromosomes with command: {}".format(command_line))
 		subprocess.call(command_line, shell=True)
 		# subprocess.call(
 		# 	[sambamba_path, "view", "-h", "-t", "{}".format(threads), "-f",

@@ -1,5 +1,6 @@
 # Part of XYalign
 # Collection of functions for mapping reads, processing bams, etc.
+from future import print_function
 import subprocess
 
 
@@ -27,6 +28,7 @@ def bwa_mem_mapping_sambamba(
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
 				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
 				sambamba_path, threads, output_prefix)
+		print("\Mapping reads with the command: {}\n".format(command_line))
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			[sambamba_path, "index", "-t", str(threads),
@@ -37,6 +39,7 @@ def bwa_mem_mapping_sambamba(
 			"{} sort -O cram -o {}_sorted.cram -".format(
 				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
 				samtools_path, output_prefix)
+		print("\Mapping reads with the command: {}\n".format(command_line))
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			[samtools_path, "index", "{}_sorted.cram".format(output_prefix)])
@@ -67,6 +70,7 @@ def bwa_mem_mapping(
 			"{} sort -O bam -o {}_sorted.bam -".format(
 				bwa_path, threads, reference, fastqs, samtools_path,
 				samtools_path, output_prefix)
+		print("\Mapping reads with the command: {}\n".format(command_line))
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			[samtools_path, "index", "{}_sorted.bam".format(output_prefix)])
@@ -76,6 +80,7 @@ def bwa_mem_mapping(
 			"{} sort -O cram -o {}_sorted.cram -".format(
 				bwa_path, threads, reference, fastqs, samtools_path,
 				samtools_path, output_prefix)
+		print("\Mapping reads with the command: {}\n".format(command_line))
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			[samtools_path, "index", "{}_sorted.cram".format(output_prefix)])
