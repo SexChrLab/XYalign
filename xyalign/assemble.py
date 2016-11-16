@@ -1,6 +1,6 @@
 # Part of XYalign
 # Collection of functions for mapping reads, processing bams, etc.
-from future import print_function
+from __future__ import print_function
 import subprocess
 
 
