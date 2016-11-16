@@ -1140,6 +1140,44 @@ def isolate_chromosomes_reference(
 		return outpath
 
 
+def new_reference(
+	samtools_path, reference_fasta, new_ref_prefix, chroms, bed_mask):
+	"""
+
+	samtools_path is the path to samtools
+	reference_fasta is the path to the reference genome (in fasta format)
+	new_ref_prefix is the desired path to and prefix of the output files
+	chroms should be a list of chromosomes to include in the output fasta
+	bed_mask is a bed file of regions to mask (as N) in the new reference
+
+	Returns:
+		Path to new, indexed (optionally masked) fasta
+	"""
+	outpath = "{}.fa".format(new_ref_prefix)
+	if type(chroms) != list:
+		chroms = list(chroms)
+	if bed_mask is not None:
+		maskedpath = "{}.masked.fa".format(new_ref_prefix)
+		with open(outpath, "w") as f:
+			subprocess.call(
+				[samtools_path, "faidx", reference_fasta, "{}".format(
+					" ".join(chroms))], stdout=f)
+		subprocess.call(
+			[samtools_path, "faidx", outpath])
+		b_fasta = pybedtools.BedTool(outpath)
+		b_tool = pybedtools.BedTool(bed_mask)
+		b = b_tool.mask_fasta(fi=b_fasta, fo=maskedpath)
+		subprocess.call(
+			[samtools_path, "faidx", "{}".format(maskedpath)])
+	else:
+		with open(outpath, "w") as f:
+			subprocess.call(
+				[samtools_path, "faidx", reference_fasta, "{}".format(
+					" ".join(chroms))], stdout=f)
+		subprocess.call([samtools_path, "faidx", outpath])
+		return outpath
+
+
 def bam_to_fastq(
 	samtools_path, repairsh_path, bamfile, single, output_directory,
 	output_prefix, regions):
@@ -1320,6 +1358,7 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 	Returns:
 		Nothing
 	"""
+	read_balance = readBalance[0.05 < readBalance < 0.95]
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():
