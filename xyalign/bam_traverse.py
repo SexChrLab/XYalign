@@ -9,6 +9,10 @@ import pandas as pd
 import pybedtools
 import pysam
 import time
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 
 def main():
