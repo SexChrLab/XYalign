@@ -67,6 +67,9 @@ def main():
 			data["windows"], args.mapq_cutoff, args.depth_filter)
 		pass_df.append(tup[0])
 		fail_df.append(tup[1])
+		print(data)
+		print(tup[0])
+		print(tup[1])
 		plot_depth_mapq(
 			data, depth_mapq_prefix_noprocessing, args.sample_id,
 			get_length(samfile, chromosome), args.marker_size,
