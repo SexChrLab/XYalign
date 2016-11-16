@@ -111,21 +111,13 @@ def parse_args():
 	group.add_argument(
 		"--cram", help="Input cram file.")
 
+	args = parser.parse_args()
+
 	# Create directory structure if not already in place
-	if not os.path.exists(os.path.join(args.output_dir, "fastq")):
-		os.makedirs(os.path.join(args.output_dir, "fastq"))
-	if not os.path.exists(os.path.join(args.output_dir, "bam")):
-		os.makedirs(os.path.join(args.output_dir, "bam"))
-	if not os.path.exists(os.path.join(args.output_dir, "reference")):
-		os.makedirs(os.path.join(args.output_dir, "reference"))
 	if not os.path.exists(os.path.join(args.output_dir, "bed")):
 		os.makedirs(os.path.join(args.output_dir, "bed"))
-	if not os.path.exists(os.path.join(args.output_dir, "vcf")):
-		os.makedirs(os.path.join(args.output_dir, "vcf"))
 	if not os.path.exists(os.path.join(args.output_dir, "plots")):
 		os.makedirs(os.path.join(args.output_dir, "plots"))
-	if not os.path.exists(os.path.join(args.output_dir, "results")):
-		os.makedirs(os.path.join(args.output_dir, "results"))
 	if not os.path.exists(os.path.join(args.output_dir, "logfiles")):
 		os.makedirs(os.path.join(args.output_dir, "logfiles"))
 
