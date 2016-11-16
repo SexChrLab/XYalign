@@ -72,7 +72,7 @@ def main():
 			get_length(samfile, chromosome), args.marker_size,
 			args.marker_transparency)
 		plot_depth_mapq(
-			tup[0], depth_mapq_prefix_highquality, args.sample_id,
+			{"windows": tup[0]}, depth_mapq_prefix_highquality, args.sample_id,
 			get_length(samfile, chromosome), args.marker_size,
 			args.marker_transparency)
 	output_bed(output_bed_high, *pass_df)
