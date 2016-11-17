@@ -67,17 +67,17 @@ def main():
 			data["windows"], args.mapq_cutoff, args.depth_filter)
 		pass_df.append(tup[0])
 		fail_df.append(tup[1])
-		print(data)
-		print({"windows": tup[0]})
-		print({"windows": tup[1]})
 		plot_depth_mapq(
 			data, depth_mapq_prefix_noprocessing, args.sample_id,
 			get_length(samfile, chromosome), args.marker_size,
 			args.marker_transparency)
-		plot_depth_mapq(
-			{"windows": tup[0]}, depth_mapq_prefix_highquality, args.sample_id,
-			get_length(samfile, chromosome), args.marker_size,
-			args.marker_transparency)
+
+		# Right now this doesn't work
+		# plot_depth_mapq(
+		# 	{"windows": tup[0]}, depth_mapq_prefix_highquality, args.sample_id,
+		# 	get_length(samfile, chromosome), args.marker_size,
+		# 	args.marker_transparency)
+
 	output_bed(output_bed_high, *pass_df)
 	output_bed(output_bed_low, *fail_df)
 	bam_analysis_end = time.time()
