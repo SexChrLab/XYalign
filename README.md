@@ -3,7 +3,7 @@
 </p>
 
 # XYalign: Inferring Sex Chromosome Ploidy in NGS Data
-Madeline Couse, Bruno Grande, Eric Karlins, Tanya Phung, Phillip Richmond, Timothy H. Webster, Whitney Whitford, Melissa A. Wilson Sayres
+Timothy H. Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres
 
 Sex chromosome aneuploidies are currently estimated to be as common as 1/400 in humans. Atypical ploidy will affect variant calling and measures of genomic variation that are central to most clinical genomic studies. Further, the high degree of similarity between gametologous sequences on the X and Y chromosomes can lead to the misalignment of sequencing reads and substantially affect variant calling. Here we present XYalign, a new tool that (1) quickly infers sex chromosome ploidy in NGS data (DNA and RNA), (2) remaps reads based on the inferred sex chromosome complement of the individual, and (3) outputs quality, depth, and allele-balance metrics across the sex chromosomes.
 
@@ -28,12 +28,12 @@ Program
 Testing
 - [ ] Simulate and assemble XX, XY, XXY, and XO genomes 
   - [ ] Test XYalign on these genomes
-- [ ] Download data for XX and XY:
+- [x] Download data for XX and XY:
   - [ ] high coverage whole genome
     - [ ] Test XYalign
-  - [ ] low coverage whole genome
+  - [x] low coverage whole genome
     - [ ] Test XYalign
-  - [ ] exome 
+  - [x] exome 
     - [ ] Test XYalign
 - [ ] In an example case, plot runtimes with increasing numbers of threads (e.g., 1, 2, 4, 8, 16)
 
