@@ -28,7 +28,7 @@ Program
 Testing
 - [ ] Simulate and assemble XX, XY, XXY, and XO genomes 
   - [ ] Test XYalign on these genomes
-- [x] Download data for XX and XY:
+- [ ] Download data for XX and XY:
   - [ ] high coverage whole genome
     - [ ] Test XYalign
   - [x] low coverage whole genome
