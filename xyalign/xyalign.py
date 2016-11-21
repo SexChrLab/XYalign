@@ -333,6 +333,7 @@ def main():
 
 	# Remapping
 	if args.no_remapping is not True:
+		print("Beginning remapping process\n")
 		if y_present is True:
 			# Isolate sex chromosomes from reference and index new reference
 			new_reference = isolate_chromosomes_reference(
