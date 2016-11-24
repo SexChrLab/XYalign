@@ -8,9 +8,6 @@
 # 		- Add checkpointing
 # 5) Generalize mapping and calling (perhaps by allowing users to
 # 		add command lines as  strings)
-# 6) Add plotting of high-quality windows (depth, mapq), also after remapping
-# 7) Check for behavior when files already exist (e.g., overwrite, quit, etc.?)
-# 8) Incorporate mask integration on the fly
 
 from __future__ import division
 from __future__ import print_function
@@ -392,7 +389,7 @@ def main():
 									break
 						temp_bam = assemble.bwa_mem_mapping_sambamba(
 							args.bwa_path, args.samtools_path, args.sambamba_path,
-							args.ref, "{}/{}.sex_chroms.{}.".format(
+							new_reference, "{}/{}.sex_chroms.{}.".format(
 								bam_path, args.sample_id, rg_id),
 							fastq_files, args.cpus, rg_tag)
 						temp_bam_list.append(temp_bam)
@@ -507,7 +504,7 @@ def main():
 								break
 					temp_bam = assemble.bwa_mem_mapping_sambamba(
 						args.bwa_path, args.samtools_path, args.sambamba_path,
-						args.ref, "{}/{}.sex_chroms.{}.".format(
+						new_reference, "{}/{}.sex_chroms.{}.".format(
 							bam_path, args.sample_id, rg_id),
 						fastq_files, args.cpus, rg_tag)
 					temp_bam_list.append(temp_bam)

@@ -1,6 +1,7 @@
 # Part of XYalign
 # Collection of functions for mapping reads, processing bams, etc.
 from __future__ import print_function
+import os
 import subprocess
 
 
@@ -22,7 +23,17 @@ def bwa_mem_mapping_sambamba(
 	cram (default is False) - if True, will output a sorted cram file
 	"""
 	fastqs = ' '.join(fastqs)
-	# subprocess.call([bwa_path, "index", reference])
+	ref_time = os.path.getmtime("{}".format(reference))
+	try:
+		amb = os.path.getmtime("{}.amb".format(reference))
+		ann = os.path.getmtime("{}.ann".format(reference))
+		bwt = os.path.getmtime("{}.bwt".format(reference))
+		pac = os.path.getmtime("{}.pac".format(reference))
+		sa = os.path.getmtime("{}.sa".format(reference))
+	except:
+		subprocess.call([bwa_path, "index", reference])
+	if not all(x > ref_time for x in (amb, ann, bwt, pac, sa)):
+		subprocess.call([bwa_path, "index", reference])
 	if cram is False:
 		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
