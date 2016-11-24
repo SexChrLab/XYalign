@@ -580,11 +580,11 @@ def main():
 		if args.bam is not None:
 			log_open.write(
 				"Final bam analyses complete on {}. Elapsed time: {} seconds\n".format(
-					merged_bed, (bam_analysis_end - bam_analysis_start)))
+					merged_bam, (bam_analysis_end - bam_analysis_start)))
 		else:
 			log_open.write(
 				"Final cram analyses complete on {}. Elapsed time: {} seconds\n".format(
-					merged_bed, (bam_analysis_end - bam_analysis_start)))
+					merged_bam, (bam_analysis_end - bam_analysis_start)))
 
 	# Final round of calling and plotting
 	include_bed = output_bed_high_postprocessing
