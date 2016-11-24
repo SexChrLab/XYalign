@@ -30,9 +30,9 @@ def bwa_mem_mapping_sambamba(
 		bwt = os.path.getmtime("{}.bwt".format(reference))
 		pac = os.path.getmtime("{}.pac".format(reference))
 		sa = os.path.getmtime("{}.sa".format(reference))
+		if not all(x > ref_time for x in (amb, ann, bwt, pac, sa)):
+			subprocess.call([bwa_path, "index", reference])
 	except:
-		subprocess.call([bwa_path, "index", reference])
-	if not all(x > ref_time for x in (amb, ann, bwt, pac, sa)):
 		subprocess.call([bwa_path, "index", reference])
 	if cram is False:
 		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
