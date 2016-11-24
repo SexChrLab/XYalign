@@ -168,8 +168,9 @@ def main():
 				args.platypus_path, noprocessing_vcf_log, args.bam, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
 			platy_end = time.time()
-			print("\nPlatypus calling complete on {}. Elapsed Time: {}\n\n".format(
-				args.bam, (platy_end - platy_start)))
+			print(
+				"\nPlatypus calling complete on {}. Elapsed Time: {} seconds\n\n".format(
+					args.bam, (platy_end - platy_start)))
 			log_open.write("Platypus calling on {}. Elapsed time: {} seconds\n".format(
 				args.bam, (platy_end - platy_start)))
 			if a != 0:
@@ -184,7 +185,7 @@ def main():
 					args.variant_quality_cutoff, args.marker_size,
 					args.marker_transparency, args.bam)
 				plot_var_end = time.time()
-				print("\nVCF plotting complete on {}. Elapsed Time: {}\n\n".format(
+				print("\nVCF plotting complete on {}. Elapsed Time: {} seconds\n\n".format(
 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
 				log_open.write("VCF plotting on {}. Elapsed time: {} seconds\n".format(
 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
@@ -193,8 +194,9 @@ def main():
 				args.platypus_path, noprocessing_vcf_log, args.cram, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
 			platy_end = time.time()
-			print("\nPlatypus calling complete on {}. Elapsed Time: {}\n\n".format(
-				args.bam, (platy_end - platy_timer)))
+			print(
+				"Platypus calling complete on {}. Elapsed Time: {} seconds\n\n".format(
+					args.bam, (platy_end - platy_timer)))
 			log_open.write("Platypus calling on {}. Elapsed time: {} seconds\n".format(
 				args.bam, (platy_end - platy_timer)))
 			if a != 0:
@@ -208,7 +210,7 @@ def main():
 					args.sample_id, readbalance_prefix_noprocessing,
 					args.variant_quality_cutoff, args.marker_size,
 					args.marker_transparency, args.cram)
-				print("\nVCF plotting complete on {}. Elapsed Time: {}\n\n".format(
+				print("VCF plotting complete on {}. Elapsed Time: {} seconds\n\n".format(
 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
 				log_open.write("VCF plotting on {}. Elapsed time: {} seconds\n".format(
 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
@@ -304,10 +306,11 @@ def main():
 			# 	y_present_perm = False
 
 		perm_end = time.time()
-		print("Permutation tests complete.  Elapsed time: {}\n\n".format(
+		print("Permutation tests complete.  Elapsed time: {} seconds\n\n".format(
 			perm_end - perm_start))
-		log_open.write("Permutation tests complete.  Elapsed time: {}\n".format(
-			perm_end - perm_start))
+		log_open.write(
+			"Permutation tests complete.  Elapsed time: {} seconds\n".format(
+				perm_end - perm_start))
 
 	if args.y_present is True:
 		y_present = True
@@ -606,8 +609,9 @@ def main():
 
 	# Final timestamp
 	end_time = time.time()
-	print("XYalign complete. Elapsed time: {}".format(end_time - start_time))
-	log_open.write("XYalign complete. Elapsed time: {}".format(
+	print(
+		"XYalign complete. Elapsed time: {} seconds".format(end_time - start_time))
+	log_open.write("XYalign complete. Elapsed time: {} seconds".format(
 		end_time - start_time))
 
 	# Close log file
