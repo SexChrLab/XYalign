@@ -1473,7 +1473,7 @@ def plot_read_balance(
 		output_prefix, chrom))
 	plt.savefig("{}_{}_ReadBalance_GenomicScatter.png".format(
 		output_prefix, chrom))
-	# plt.show()
+	plt.close(fig)
 
 
 def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
@@ -1505,7 +1505,7 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 	axes.hist(readBalance, bins=50, color=Color)
 	plt.savefig("{}_{}_ReadBalance_Hist.svg".format(output_prefix, chrom))
 	plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
-	# plt.show()
+	plt.close(fig)
 
 
 def plot_variants_per_chrom(
@@ -1699,7 +1699,7 @@ def chromosome_wide_plot(
 		output_prefix, chrom, measure_name))
 	plt.savefig("{}_{}_{}_GenomicScatter.png".format(
 		output_prefix, chrom, measure_name))
-	# plt.show()
+	plt.close(fig)
 
 
 def plot_depth_mapq(
