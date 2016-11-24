@@ -16,24 +16,24 @@ Changes are made to the master branch quite frequently, so there still might be 
 ## To-Do Items Before Release
 
 Program
-- [ ] Write commands, time, etc. to logfile
+- [x] Write commands, time, etc. to logfile
 - [ ] Add support for arbitrary bwa flags
 - [ ] Add support for additional mappers
 - [ ] Handle duplicate reads
 - [x] Write @PG line to final bam
-- [ ] Accept and integrate external bed files for excluding and including regions
+- [x] Accept and integrate external bed files for excluding regions
 - [ ] Incorporate likelihood model for ploidy estimation
 - [x] Second round of bam window analysis and plotting after remapping and filtering low-quality regions
 
 Testing
-- [ ] Simulate and assemble XX, XY, XXY, and XO genomes 
+- [ ] Simulate and assemble XX, XY, XXY, and XO genomes
   - [ ] Test XYalign on these genomes
 - [ ] Download data for XX and XY:
   - [ ] high coverage whole genome
     - [ ] Test XYalign
   - [x] low coverage whole genome
     - [ ] Test XYalign
-  - [x] exome 
+  - [x] exome
     - [ ] Test XYalign
 - [ ] In an example case, plot runtimes with increasing numbers of threads (e.g., 1, 2, 4, 8, 16)
 
@@ -46,7 +46,7 @@ Minimally, you'll need:
 
 2. The reference genome against which reads were mapped to create the BAM/CRAM file in (1)
 
-3. A .fai index of the reference genome in (2) located in the same directory as the reference.  This can be generated using the command ```samtools faidx <reference_fasta>```.  See the [samtools documentation](http://www.htslib.org/doc/samtools.html) for more information 
+3. A .fai index of the reference genome in (2) located in the same directory as the reference.  This can be generated using the command ```samtools faidx <reference_fasta>```.  See the [samtools documentation](http://www.htslib.org/doc/samtools.html) for more information
 
 4. An environment with a host of python packages (numpy, pandas, matplotlib, seaborn, pysam, and pybedtools) and external programs (platypus, bwa, samtools, and bbmap) installed.  Note that we only support Python 2.7 right now (because of Platypus). Probably the easiest way to do this is to download [miniconda](http://conda.pydata.org/miniconda.html) and let it append its path to your .bashrc file.  You should then be able to set up and environment with the following commands:
 ```

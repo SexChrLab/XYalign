@@ -333,71 +333,143 @@ def main():
 
 	# Remapping
 	if args.no_remapping is not True:
+		print("Beginning remapping steps\n")
 		if y_present is True:
-			# Isolate sex chromosomes from reference and index new reference
-			new_reference = isolate_chromosomes_reference(
-				args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
-					reference_path, args.sample_id),
-				args.x_chromosome + args.y_chromosome, args.reference_mask)
-			# Strip reads from sex chromosomes
-			if args.bam is not None:
-				new_fastqs = bam_to_fastq(
-					args.samtools_path, args.repairsh_path, args.bam,
-					args.single_end, fastq_path, args.sample_id,
-					args.x_chromosome + args.y_chromosome)
-			else:
-				new_fastqs = bam_to_fastq(
-					args.samtools_path, args.repairsh_path, args.cram,
-					args.single_end, fastq_path, args.sample_id,
-					args.x_chromosome + args.y_chromosome)
-			# Remap
-			with open(new_fastqs[0]) as f:
-				read_group_and_fastqs = [line.strip() for line in f]
-				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
-			with open(new_fastqs[1]) as f:
-				read_group_headers = [line.split() for line in f]
-			temp_bam_list = []
-			for i in read_group_and_fastqs:
-				if i != [""]:
-					rg_id = i[0]
-					fastq_files = i[1:]
-					for j in read_group_headers:
-						for k in j:
-							if k[0:2] == 'ID':
-								if k[3:] == rg_id:
-									rg_tag = "\t".join(j)
-								break
-					temp_bam = assemble.bwa_mem_mapping_sambamba(
-						args.bwa_path, args.samtools_path, args.sambamba_path,
-						args.ref, "{}/{}.sex_chroms.{}.".format(
-							bam_path, args.sample_id, rg_id),
-						fastq_files, args.cpus, rg_tag)
-					temp_bam_list.append(temp_bam)
-			if len(temp_bam_list) < 2:
-				new_bam = temp_bam_list[0]
-			else:
-				new_bam = sambamba_merge(
-					args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
-						bam_path, args.sample_id), args.cpus)
-			# Merge bam files
-			if args.bam is not None:
-				merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
-					args.samtools_path, args.sambamba_path, args.bam, new_bam,
-					args.x_chromosome + args.y_chromosome,
-					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
-			else:
-				merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
-					args.samtools_path, args.sambamba_path, args.cram, new_bam,
-					args.x_chromosome + args.y_chromosome,
-					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
+			if args.reference_mask != [None]:
+				if len(args.reference_mask) > 1:
+					reference_mask = merge_bed_files("{}/reference_mask.merged.bed".format(
+						bed_path), *args.reference_mask)
+				else:
+					reference_mask = args.reference_mask[0]
+				# Isolate sex chromosomes from reference and index new reference
+				new_ref_start = time.time()
+				print("Creating new reference\n")
+				new_reference = create_masked_reference(
+					args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
+						reference_path, args.sample_id), reference_mask)
+				new_ref_end = time.time()
+				print("New reference complete. Elapsed time: {} seconds\n\n".format(
+					new_ref_end - new_ref_start))
+				log_open.write("New reference complete. Elapsed time: {} seconds\n".format(
+					new_ref_end - new_ref_start))
+				# Strip reads from sex chromosomes
+				strip_reads_start = time.time()
+				print("Stripping and cleaning reads from sex chromosomes\n")
+				if args.bam is not None:
+					new_fastqs = bam_to_fastq(
+						args.samtools_path, args.repairsh_path, args.bam,
+						args.single_end, fastq_path, args.sample_id,
+						args.x_chromosome + args.y_chromosome)
+				else:
+					new_fastqs = bam_to_fastq(
+						args.samtools_path, args.repairsh_path, args.cram,
+						args.single_end, fastq_path, args.sample_id,
+						args.x_chromosome + args.y_chromosome)
+				strip_reads_end = time.time()
+				print("Stripping reads complete. Elapsed time: {} seconds\n\n".format(
+					strip_reads_end - strip_reads_start))
+				log_open.write(
+					"Stripping reads complete. Elapsed time: {} seconds\n".format(
+						strip_reads_end - strip_reads_start))
+				# Remap
+				remap_start = time.time()
+				print("Beginning remapping reads to new reference\n")
+				with open(new_fastqs[0]) as f:
+					read_group_and_fastqs = [line.strip() for line in f]
+					read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
+				with open(new_fastqs[1]) as f:
+					read_group_headers = [line.split() for line in f]
+				temp_bam_list = []
+				for i in read_group_and_fastqs:
+					if i != [""]:
+						rg_id = i[0]
+						fastq_files = i[1:]
+						for j in read_group_headers:
+							for k in j:
+								if k[0:2] == 'ID':
+									if k[3:] == rg_id:
+										rg_tag = "\t".join(j)
+									break
+						temp_bam = assemble.bwa_mem_mapping_sambamba(
+							args.bwa_path, args.samtools_path, args.sambamba_path,
+							args.ref, "{}/{}.sex_chroms.{}.".format(
+								bam_path, args.sample_id, rg_id),
+							fastq_files, args.cpus, rg_tag)
+						temp_bam_list.append(temp_bam)
+				remap_end = time.time()
+				print("Remapping complete. Elapsed time: {} seconds\n\n".format(
+					remap_end - remap_start))
+				log_open.write("Remapping complete. Elapsed time: {} seconds\n".format(
+					remap_end - remap_start))
 
+				if len(temp_bam_list) < 2:
+					new_bam = temp_bam_list[0]
+				else:
+					merge_start = time.time()
+					print("Merging bams from different read groups\n")
+					new_bam = sambamba_merge(
+						args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
+							bam_path, args.sample_id), args.cpus)
+					merge_end = time.time()
+					print(
+						"Merging bams from different reads groups complete. "
+						"Elapsed time: {} seconds\n\n".format(
+							merge_end - merge_start))
+					log_open.write(
+						"Merging bams from different reads groups complete. "
+						"Elapsed time: {} seconds\n".format(
+							merge_end - merge_start))
+				# Merge bam files
+				switch_bam_start = time.time()
+				print("Replacing old sex chromosomes with new in bam\n")
+				if args.bam is not None:
+					merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
+						args.samtools_path, args.sambamba_path, args.bam, new_bam,
+						args.x_chromosome + args.y_chromosome,
+						bam_path, args.sample_id, args.cpus, xyalign_params_dict)
+				else:
+					merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
+						args.samtools_path, args.sambamba_path, args.cram, new_bam,
+						args.x_chromosome + args.y_chromosome,
+						bam_path, args.sample_id, args.cpus, xyalign_params_dict)
+				switch_bam_end = time.time()
+				print(
+					"Sex chromosome replacement (bam) complete: "
+					"Elapsed time: {} seconds\n\n".format(switch_bam_end - switch_bam_start))
+				log_open.write(
+					"Sex chromosome replacement (bam) complete: "
+					"Elapsed time: {} seconds\n".format(switch_bam_end - switch_bam_start))
+			else:
+				print(
+					"Y chromosome present, but no mask provided (--reference_mask). "
+					"Skipping remapping\n")
+				log_open.write(
+					"Y chromosome present, but no mask provided (--reference_mask). "
+					"Skipping remapping\n")
 		else:
+			# Create Y mask and combine it with other masks
+				# Note - doesn't handle CRAM yet
+			y_mask = chromosome_bed(args.bam, "{}/{}.mask.bed".format(
+				bed_path, args.y_chromosome))
+			if args.reference_mask != [None]:
+				reference_mask = merge_bed_files("{}/reference_mask.merged.bed".format(
+					bed_path), y_mask, *args.reference_mask)
+			else:
+				reference_mask = y_mask
 			# Isolate sex chromosomes from reference and index new reference
-			new_reference = isolate_chromosomes_reference(
-				args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
-					reference_path, args.sample_id),
-				args.x_chromosome, args.reference_mask)
+				new_ref_start = time.time()
+				print("Creating new reference\n")
+				new_reference = create_masked_reference(
+					args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
+						reference_path, args.sample_id), reference_mask)
+				new_ref_end = time.time()
+				print("New reference complete. Elapsed time: {} seconds\n\n".format(
+					new_ref_end - new_ref_start))
+				log_open.write("New reference complete. Elapsed time: {} seconds\n".format(
+					new_ref_end - new_ref_start))
 			# Strip reads from sex chromosomes
+			strip_reads_start = time.time()
+			print("Stripping and cleaning reads from sex chromosomes\n")
 			if args.bam is not None:
 				new_fastqs = bam_to_fastq(
 					args.samtools_path, args.repairsh_path, args.bam,
@@ -408,7 +480,15 @@ def main():
 					args.samtools_path, args.repairsh_path, args.cram,
 					args.single_end, fastq_path, args.sample_id,
 					args.x_chromosome)
+			strip_reads_end = time.time()
+			print("Stripping reads complete. Elapsed time: {} seconds\n\n".format(
+				strip_reads_end - strip_reads_start))
+			log_open.write(
+				"Stripping reads complete. Elapsed time: {} seconds\n".format(
+					strip_reads_end - strip_reads_start))
 			# Remap
+			remap_start = time.time()
+			print("Beginning remapping reads to new reference\n")
 			with open(new_fastqs[0]) as f:
 				read_group_and_fastqs = [line.strip() for line in f]
 				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
@@ -431,13 +511,31 @@ def main():
 							bam_path, args.sample_id, rg_id),
 						fastq_files, args.cpus, rg_tag)
 					temp_bam_list.append(temp_bam)
+			remap_end = time.time()
+			print("Remapping complete. Elapsed time: {} seconds\n\n".format(
+				remap_end - remap_start))
+			log_open.write("Remapping complete. Elapsed time: {} seconds\n".format(
+				remap_end - remap_start))
+
 			if len(temp_bam_list) < 2:
 				new_bam = temp_bam_list[0]
 			else:
+				merge_start = time.time()
+				print("Merging bams from different read groups\n")
 				new_bam = sambamba_merge(
 					args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
 						bam_path, args.sample_id), args.cpus)
+				merge_end = time.time()
+				print(
+					"Merging bams from different reads groups complete. "
+					"Elapsed time: {} seconds\n\n".format(
+						merge_end - merge_start))
+				log_open.write(
+					"Merging bams from different reads groups complete. "
+					"Elapsed time: {} seconds\n".format(
+						merge_end - merge_start))
 			# Merge bam files
+			print("Replacing old sex chromosomes with new in bam\n")
 			if args.bam is not None:
 				merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
 					args.samtools_path, args.sambamba_path, args.bam, new_bam,
@@ -448,6 +546,13 @@ def main():
 					args.samtools_path, args.sambamba_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
+				switch_bam_end = time.time()
+			print(
+				"Sex chromosome replacement (bam) complete: "
+				"Elapsed time: {} seconds\n\n".format(switch_bam_end - switch_bam_start))
+			log_open.write(
+				"Sex chromosome replacement (bam) complete: "
+				"Elapsed time: {} seconds\n".format(switch_bam_end - switch_bam_start))
 
 	# Analyze new bam for depth and mapq
 	if args.no_bam_analysis is not True and args.no_remapping is not True:
@@ -612,7 +717,7 @@ def parse_args():
 
 	# Mapping/remapping Flags
 	parser.add_argument(
-		"--reference_mask", default=None,
+		"--reference_mask", nargs="+", default=[None],
 		help="Bed file containing regions to replace with Ns in the sex "
 		"chromosome reference.  Examples might include the pseudoautosomal "
 		"regions on the Y to force all mapping/calling on those regions of the "
@@ -762,6 +867,51 @@ def get_length(bamfile, chrom):
 	"""
 	lengths = dict(zip(bamfile.references, bamfile.lengths))
 	return lengths[chrom]
+
+
+def chromosome_bed(bamfile, output_file, chromosome_list):
+	"""
+	Takes list of chromosomes and outputs a bed file with the length of each
+	chromosome on each line (e.g., chr1    0   247249719).
+
+	args:
+		bamfile: full path to bam file - for calculating length
+		output_file: name of (including full path to) desired output file
+		chromosome_list: list of chromosome/scaffolds to include
+
+	returns:
+		output_file
+	"""
+	with open(output_file, "w") as f:
+		sam_file = pysam.AlignmentFile(bamfile, "rb")
+		for i in chromosome_list:
+			try:
+				l = get_length(sam_file, i)
+				f.write("{}\t{}\t{}\n".format(i, "0", l))
+			except:
+				print("Error finding chromosome length in bam file (for bed file)")
+				sys.exit(1)
+	return output_file
+
+
+def merge_bed_files(ouput_file, *bed_files):
+	"""
+	This function simply takes an output_file (full path to desired ouput file)
+	and an arbitrary number of external bed files (including full path),
+	and merges the bed files into the output_file
+
+	args:
+		output_file: full path to and name of desired output bed file
+		*bed_files: arbitrary number of external bed files (include full path)
+	returns:
+		path to output_file
+	"""
+	a = pybedtools.BedTool(bed_files[0])
+	for i in bed_files[1:]:
+		b = a.cat(i)
+	c = b.sort().merge()
+	c.saveas(output_file)
+	return output_file
 
 
 def permutation_test_chromosomes(
