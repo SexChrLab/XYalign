@@ -34,6 +34,13 @@ def bwa_mem_mapping_sambamba(
 			subprocess.call([bwa_path, "index", reference])
 	except:
 		subprocess.call([bwa_path, "index", reference])
+
+	try:
+		faidx = os.path.getmtime("{}.fai".format(reference))
+		if ref_time >= faidx:
+			subprocess.call([samtools_path, "faidx", reference])
+	else:
+		subprocess.call([samtools_path, "faidx", reference])
 	if cram is False:
 		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
