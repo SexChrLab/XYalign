@@ -24,6 +24,8 @@ def bwa_mem_mapping_sambamba(
 	"""
 	fastqs = ' '.join(fastqs)
 	ref_time = os.path.getmtime("{}".format(reference))
+
+	# Check that bwa index is not newer than reference (and re-index if it is)
 	try:
 		amb = os.path.getmtime("{}.amb".format(reference))
 		ann = os.path.getmtime("{}.ann".format(reference))
@@ -35,12 +37,15 @@ def bwa_mem_mapping_sambamba(
 	except:
 		subprocess.call([bwa_path, "index", reference])
 
+	# Check that .fai is not newer than reference (and re-index if it is)
 	try:
 		faidx = os.path.getmtime("{}.fai".format(reference))
 		if ref_time >= faidx:
 			subprocess.call([samtools_path, "faidx", reference])
 	else:
 		subprocess.call([samtools_path, "faidx", reference])
+
+	# BAM mapping
 	if cram is False:
 		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
@@ -52,6 +57,8 @@ def bwa_mem_mapping_sambamba(
 			[sambamba_path, "index", "-t", str(threads),
 				"{}_sorted.bam".format(output_prefix)])
 		return "{}_sorted.bam".format(output_prefix)
+
+	# CRAM mapping
 	else:
 		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O cram - - | "\
 			"{} sort -O cram -o {}_sorted.cram -".format(
