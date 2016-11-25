@@ -1194,6 +1194,9 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 				"{}/header.sam".format(output_directory), "-f",
 				"{}/{}.merged.bam".format(output_directory, output_prefix),
 				"{}/temp.nosexchr.bam".format(output_directory), bam_new])
+		subprocess.call(
+			[samtools_path, "index", "{}/{}.merged.bam".format(
+				output_directory)])
 		return "{}/{}.merged.bam".format(output_directory, output_prefix)
 
 	else:
