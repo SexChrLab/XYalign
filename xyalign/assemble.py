@@ -42,7 +42,7 @@ def bwa_mem_mapping_sambamba(
 		faidx = os.path.getmtime("{}.fai".format(reference))
 		if ref_time >= faidx:
 			subprocess.call([samtools_path, "faidx", reference])
-	else:
+	except:
 		subprocess.call([samtools_path, "faidx", reference])
 
 	# BAM mapping
