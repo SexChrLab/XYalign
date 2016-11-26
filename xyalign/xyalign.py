@@ -724,6 +724,18 @@ def parse_args():
 		"regions on the Y to force all mapping/calling on those regions of the "
 		"X chromosome.  Default is none.")
 
+	parser.add_argument(
+		"--xx_reference", default=None,
+		help="Path to preprocessed reference fasta to be used for remapping in "
+		"X0 or XX samples.  Default is None.  If none, will produce a "
+		"sample-specific reference for remapping.")
+
+	parser.add_argument(
+		"--xy_reference", default=None,
+		help="Path to preprocessed reference fasta to be used for remapping in "
+		"samples containing Y chromosome.  Default is None.  If none, will "
+		"produce a sample-specific reference for remapping.")
+
 	# Bam Analysis Flags
 	parser.add_argument(
 		"--window_size", "-w", type=int, default=50000,
