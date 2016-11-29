@@ -231,7 +231,7 @@ def main():
 		pass_df = []
 		fail_df = []
 		for chromosome in args.chromosomes:
-			data = traverse_bam_fetch(samfile, chromosome, args.window_size)
+			data = bam.traverse_bam_fetch(samfile, chromosome, args.window_size)
 			tup = make_region_lists(
 				data["windows"], args.mapq_cutoff, args.depth_filter)
 			pass_df.append(tup[0])
@@ -570,7 +570,7 @@ def main():
 		pass_df_second = []
 		fail_df_second = []
 		for chromosome in args.chromosomes:
-			data = traverse_bam_fetch(samfile, chromosome, args.window_size)
+			data = bam.traverse_bam_fetch(samfile, chromosome, args.window_size)
 			tup = make_region_lists(
 				data["windows"], args.mapq_cutoff, args.depth_filter)
 			pass_df_second.append(tup[0])
