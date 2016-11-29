@@ -1,7 +1,14 @@
 # Part of XYalign
 # Functions for calling and processing variants
+
 from __future__ import division
 import subprocess
+import pysam
+import bam
+# Matplotlib needs to be called in this way to set the display variable
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 
 
 def platypus_caller(
@@ -130,9 +137,9 @@ def plot_read_balance(
 		Nothing
 	"""
 	if bamfile[-3] == "bam" or bamfile[-3] == "BAM":
-		chrom_len = get_length(pysam.AlignmentFile(bamfile, "rb"), chrom)
+		chrom_len = bam.get_length(pysam.AlignmentFile(bamfile, "rb"), chrom)
 	else:
-		chrom_len = get_length(pysam.AlignmentFile(bamfile, "rc"), chrom)
+		chrom_len = bam.get_length(pysam.AlignmentFile(bamfile, "rc"), chrom)
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():
