@@ -51,7 +51,7 @@ def bwa_mem_mapping_sambamba(
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
 				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
 				sambamba_path, threads, output_prefix)
-		print("\Mapping reads with the command: {}\n".format(command_line))
+		print("\nMapping reads with the command: {}\n".format(command_line))
 		subprocess.call(command_line, shell=True)
 		subprocess.call(
 			[sambamba_path, "index", "-t", str(threads),

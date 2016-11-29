@@ -739,6 +739,13 @@ def parse_args():
 		"samples containing Y chromosome.  Default is None.  If none, will "
 		"produce a sample-specific reference for remapping.")
 
+	parser.add_argument(
+		"--bwa_flags", type=str, default="",
+		help="Provide a string (in quotes, with spaces between arguments) "
+		"for additional flags desired for BWA mapping (other than -R and -t). "
+		"Example: '-M -T 20 -v 4'.  Note that those are spaces between "
+		"arguments.")
+
 	# Bam Analysis Flags
 	parser.add_argument(
 		"--window_size", "-w", type=int, default=50000,
@@ -815,7 +822,7 @@ def parse_args():
 
 	args = parser.parse_args()
 
-	# Validate arguments
+	# Validate permutation test arguments
 	if args.no_perm_test is True:
 		if args.y_present is False and args.y_absent is False:
 			print("Error. Either --y_present or --y_absent needs to be "
@@ -826,6 +833,7 @@ def parse_args():
 								"Default is both.")
 		sys.exit(1)
 
+	# Validate chromosome arguments
 	if len(args.chromosomes) == 0:
 		print("Please provide chromosome names to analyze (--chromosomes)")
 		sys.exit(1)
@@ -844,6 +852,15 @@ def parse_args():
 				"but think carefully about "
 				"how this will affect analyses.  We recommend including at "
 				"least one autosome, X, and Y when possible.")
+
+	# Validate bwa arguments
+	bwa_args = [str(x).strip() for x in args.bwa_flags.split()]
+	red_list = ["-rm", "rm", "-rf", "rf"]
+	if any(x in bwa_args for x in red_list):
+		print(
+			"Found either rm or rf in your bwa flags. Exiting to prevent "
+			"unintended shell consequences")
+		sys.exit(1)
 
 	# Create directory structure if not already in place
 	if not os.path.exists(os.path.join(args.output_dir, "fastq")):
