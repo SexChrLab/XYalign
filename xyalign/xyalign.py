@@ -864,7 +864,7 @@ def parse_args():
 			"unintended shell consequences")
 		sys.exit(1)
 	yellow_list = ["-R", "-t"]
-	if any(x in bwa_ars for x in yellow_list):
+	if any(x in bwa_args for x in yellow_list):
 		print(
 			"Found either -R or -t in bwa flags.  These flags are already used "
 			"in XYalign.  Please remove.")
