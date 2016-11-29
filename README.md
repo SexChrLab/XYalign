@@ -16,7 +16,12 @@ Changes are made to the master branch quite frequently, so there still might be 
 ## To-Do Items Before Release
 
 Program
-- [x] Write commands, time, etc. to logfile
+- [ ] Replace current logging and printing with logging module
+- [ ] Fix permutation test
+- [ ] Add option to create new references up front (and not have to run process for every sample)
+- [ ] Test exact depth (vs. current approximation) - time and results
+	- [ ] Implement exact depth if not too slow or if results differ substantially
+- [ ] Create classes for reference fastas and bam/cram files
 - [ ] Add support for arbitrary bwa flags
 - [ ] Add support for additional mappers
 - [ ] Handle duplicate reads
@@ -27,14 +32,14 @@ Program
 
 Testing
 - [ ] Simulate and assemble XX, XY, XXY, and XO genomes
-  - [ ] Test XYalign on these genomes
+	- [ ] Test XYalign on these genomes
 - [ ] Download data for XX and XY:
-  - [ ] high coverage whole genome
-    - [ ] Test XYalign
-  - [x] low coverage whole genome
-    - [ ] Test XYalign
-  - [x] exome
-    - [ ] Test XYalign
+	- [ ] high coverage whole genome
+		- [ ] Test XYalign
+	- [x] low coverage whole genome
+		- [ ] Test XYalign
+	- [x] exome
+		- [ ] Test XYalign
 - [ ] In an example case, plot runtimes with increasing numbers of threads (e.g., 1, 2, 4, 8, 16)
 
 
