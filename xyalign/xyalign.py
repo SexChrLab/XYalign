@@ -344,7 +344,7 @@ def main():
 				# Isolate sex chromosomes from reference and index new reference
 				new_ref_start = time.time()
 				print("Creating new reference\n")
-				new_reference = create_masked_reference(
+				new_reference = reftools.create_masked_reference(
 					args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
 						reference_path, args.sample_id), reference_mask)
 				new_ref_end = time.time()
@@ -459,7 +459,7 @@ def main():
 			# Isolate sex chromosomes from reference and index new reference
 				new_ref_start = time.time()
 				print("Creating new reference\n")
-				new_reference = create_masked_reference(
+				new_reference = reftools.create_masked_reference(
 					args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
 						reference_path, args.sample_id), reference_mask)
 				new_ref_end = time.time()
