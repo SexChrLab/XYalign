@@ -7,7 +7,7 @@ import subprocess
 
 def bwa_mem_mapping_sambamba(
 	bwa_path, samtools_path, sambamba_path, reference, output_prefix, fastqs,
-	threads, read_group_line, cram=False):
+	threads, read_group_line, bwa_params, cram=False):
 	"""
 	Maps reads to a reference genome using bwa mem.  If output is in bam format,
 	will sort using sambamba, else will sort with samtools
@@ -20,6 +20,8 @@ def bwa_mem_mapping_sambamba(
 	fastqs is a list of fastqs, e.g. ['sample_1.fastq', 'sample_2.fastq']
 	threads is the number of threads/cpus to use
 	read_group_line is a string containing read group info for bwa to add
+	bwa_params is a list of bwa parameters to be joined into a string and
+		inserted into the command
 	cram (default is False) - if True, will output a sorted cram file
 	"""
 	fastqs = ' '.join(fastqs)
@@ -47,9 +49,10 @@ def bwa_mem_mapping_sambamba(
 
 	# BAM mapping
 	if cram is False:
-		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
+		command_line = "{} mem -t {} -R {} {} {} {} | {} fixmate -O bam - - | "\
 			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
-				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
+				bwa_path, threads, repr(read_group_line), " ".join(bwa_params),
+				reference, fastqs, samtools_path,
 				sambamba_path, threads, output_prefix)
 		print("\nMapping reads with the command: {}\n".format(command_line))
 		subprocess.call(command_line, shell=True)
@@ -60,9 +63,10 @@ def bwa_mem_mapping_sambamba(
 
 	# CRAM mapping
 	else:
-		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O cram - - | "\
+		command_line = "{} mem -t {} -R {} {} {} {} | {} fixmate -O cram - - | "\
 			"{} sort -O cram -o {}_sorted.cram -".format(
-				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
+				bwa_path, threads, repr(read_group_line), " ".join(bwa_params),
+				reference, fastqs, samtools_path,
 				samtools_path, output_prefix)
 		print("\Mapping reads with the command: {}\n".format(command_line))
 		subprocess.call(command_line, shell=True)

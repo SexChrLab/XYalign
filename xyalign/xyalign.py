@@ -397,7 +397,8 @@ def main():
 							args.bwa_path, args.samtools_path, args.sambamba_path,
 							new_reference, "{}/{}.sex_chroms.{}.".format(
 								bam_path, args.sample_id, rg_id),
-							fastq_files, args.cpus, rg_tag)
+							fastq_files, args.cpus, rg_tag,
+							[str(x).strip() for x in args.bwa_flags.split()])
 						temp_bam_list.append(temp_bam)
 				remap_end = time.time()
 				print("Remapping complete. Elapsed time: {} seconds\n\n".format(
@@ -512,7 +513,8 @@ def main():
 						args.bwa_path, args.samtools_path, args.sambamba_path,
 						new_reference, "{}/{}.sex_chroms.{}.".format(
 							bam_path, args.sample_id, rg_id),
-						fastq_files, args.cpus, rg_tag)
+						fastq_files, args.cpus, rg_tag,
+						[str(x).strip() for x in args.bwa_flags.split()])
 					temp_bam_list.append(temp_bam)
 			remap_end = time.time()
 			print("Remapping complete. Elapsed time: {} seconds\n\n".format(
@@ -613,8 +615,8 @@ def main():
 	# Final timestamp
 	end_time = time.time()
 	print(
-		"XYalign complete. Elapsed time: {} seconds".format(end_time - start_time))
-	log_open.write("XYalign complete. Elapsed time: {} seconds".format(
+		"XYalign complete. Elapsed time: {} seconds\n".format(end_time - start_time))
+	log_open.write("XYalign complete. Elapsed time: {} seconds\n".format(
 		end_time - start_time))
 
 	# Close log file
