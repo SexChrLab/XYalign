@@ -698,6 +698,7 @@ def parse_args():
 
 	parser.add_argument(
 		"--platypus_calling", default="both",
+		choices=["both", "none", "before", "after"],
 		help="Platypus calling withing the pipeline "
 		"(before processing, after processing, both, "
 		"or neither). Options: both, none, before, after.")
