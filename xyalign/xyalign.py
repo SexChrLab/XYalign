@@ -164,7 +164,7 @@ def main():
 			args.bam))
 		platy_start = time.time()
 		if args.bam is not None:
-			a = platypus_caller(
+			a = variants.platypus_caller(
 				args.platypus_path, noprocessing_vcf_log, args.bam, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
 			platy_end = time.time()
@@ -179,7 +179,7 @@ def main():
 			if args.no_variant_plots is not True:
 				plot_var_begin = time.time()
 				print("Beginning plotting of vcf, {}\n".format(noprocessing_vcf))
-				plot_variants_per_chrom(
+				variants.plot_variants_per_chrom(
 					args.chromosomes, noprocessing_vcf,
 					args.sample_id, readbalance_prefix_noprocessing,
 					args.variant_quality_cutoff, args.marker_size,
@@ -190,7 +190,7 @@ def main():
 				log_open.write("VCF plotting on {}. Elapsed time: {} seconds\n".format(
 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
 		else:
-			a = platypus_caller(
+			a = variants.platypus_caller(
 				args.platypus_path, noprocessing_vcf_log, args.cram, args.ref,
 				args.chromosomes, args.cpus, noprocessing_vcf, None)
 			platy_end = time.time()
@@ -205,7 +205,7 @@ def main():
 			if args.no_variant_plots is not True:
 				plot_var_begin = time.time()
 				print("Beginning plotting of vcf, {}\n".format(noprocessing_vcf))
-				plot_variants_per_chrom(
+				variants.plot_variants_per_chrom(
 					args.chromosomes, noprocessing_vcf,
 					args.sample_id, readbalance_prefix_noprocessing,
 					args.variant_quality_cutoff, args.marker_size,
@@ -593,14 +593,14 @@ def main():
 	include_bed = output_bed_high_postprocessing
 
 	if args.platypus_calling == "both" or args.platypus_calling == "after":
-		a = platypus_caller(
+		a = variants.platypus_caller(
 			args.platypus_path, postprocessing_vcf_log, merged_bam, args.ref,
 			args.chromosomes, args.cpus, postprocessing_vcf, include_bed)
 		if a != 0:
 			print("Error in second round of Platypus calling.")
 			sys.exit(1)
 		if args.no_variant_plots is not True:
-			plot_variants_per_chrom(
+			variants.plot_variants_per_chrom(
 				args.chromosomes,
 				postprocessing_vcf,
 				args.sample_id, readbalance_prefix_postprocessing,
