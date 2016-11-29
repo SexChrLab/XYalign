@@ -16,18 +16,22 @@ import csv
 import os
 import subprocess
 import sys
+import time
 import numpy as np
 import pandas as pd
 import pybedtools
 import pysam
-import time
+import assemble
+import bam
+import reftools
+import variants
 # Setting the matplotlib display variable requires importing
 # 	in exactly the following order:
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import seaborn as sns
-import assemble
+
 
 
 def main():
@@ -234,7 +238,7 @@ def main():
 			fail_df.append(tup[1])
 			plot_depth_mapq(
 				data, depth_mapq_prefix_noprocessing, args.sample_id,
-				get_length(samfile, chromosome), args.marker_size,
+				bam.get_length(samfile, chromosome), args.marker_size,
 				args.marker_transparency)
 		output_bed(output_bed_high, *pass_df)
 		output_bed(output_bed_low, *fail_df)
@@ -573,7 +577,7 @@ def main():
 			fail_df_second.append(tup[1])
 			plot_depth_mapq(
 				data, depth_mapq_prefix_postprocessing, args.sample_id,
-				get_length(samfile, chromosome), args.marker_size,
+				bam.get_length(samfile, chromosome), args.marker_size,
 				args.marker_transparency)
 		output_bed(output_bed_high_postprocessing, *pass_df_second)
 		output_bed(output_bed_low_postprocessing, *fail_df_second)
