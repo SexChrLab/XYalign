@@ -855,11 +855,17 @@ def parse_args():
 
 	# Validate bwa arguments
 	bwa_args = [str(x).strip() for x in args.bwa_flags.split()]
-	red_list = ["-rm", "rm", "-rf", "rf"]
+	red_list = ["-rm", "rm", "-rf", "rf", "-RM", "RM", "-RF", "RF"]
 	if any(x in bwa_args for x in red_list):
 		print(
 			"Found either rm or rf in your bwa flags. Exiting to prevent "
 			"unintended shell consequences")
+		sys.exit(1)
+	yellow_list = ["-R", "-t"]
+	if any(x in bwa_ars for x in yellow_list):
+		print(
+			"Found either -R or -t in bwa flags.  These flags are already used "
+			"in XYalign.  Please remove.")
 		sys.exit(1)
 
 	# Create directory structure if not already in place
