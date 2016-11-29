@@ -33,7 +33,6 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 
 
-
 def main():
 	""" Main program"""
 
@@ -1194,7 +1193,7 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 				"{}/temp.nosexchr.bam".format(output_directory), bam_new])
 		subprocess.call(
 			[samtools_path, "index", "{}/{}.merged.bam".format(
-				output_directory)])
+				output_directory, output_prefix)])
 		return "{}/{}.merged.bam".format(output_directory, output_prefix)
 
 	else:
