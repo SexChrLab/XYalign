@@ -22,7 +22,7 @@ Program
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
 - [ ] Create classes for reference fastas and bam/cram files
-- [ ] Add support for arbitrary bwa flags
+- [x] Add support for arbitrary bwa flags
 - [ ] Add support for additional mappers
 - [ ] Handle duplicate reads
 - [x] Write @PG line to final bam
