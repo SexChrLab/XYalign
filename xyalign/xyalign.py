@@ -359,12 +359,12 @@ def main():
 				strip_reads_start = time.time()
 				print("Stripping and cleaning reads from sex chromosomes\n")
 				if args.bam is not None:
-					new_fastqs = bam_to_fastq(
+					new_fastqs = bam.bam_to_fastq(
 						args.samtools_path, args.repairsh_path, args.bam,
 						args.single_end, fastq_path, args.sample_id,
 						args.x_chromosome + args.y_chromosome)
 				else:
-					new_fastqs = bam_to_fastq(
+					new_fastqs = bam.bam_to_fastq(
 						args.samtools_path, args.repairsh_path, args.cram,
 						args.single_end, fastq_path, args.sample_id,
 						args.x_chromosome + args.y_chromosome)
@@ -411,7 +411,7 @@ def main():
 				else:
 					merge_start = time.time()
 					print("Merging bams from different read groups\n")
-					new_bam = sambamba_merge(
+					new_bam = bam.sambamba_merge(
 						args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
 							bam_path, args.sample_id), args.cpus)
 					merge_end = time.time()
@@ -427,12 +427,12 @@ def main():
 				switch_bam_start = time.time()
 				print("Replacing old sex chromosomes with new in bam\n")
 				if args.bam is not None:
-					merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
+					merged_bam = bam.switch_sex_chromosomes_bam_sambamba_output_temps(
 						args.samtools_path, args.sambamba_path, args.bam, new_bam,
 						args.x_chromosome + args.y_chromosome,
 						bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 				else:
-					merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
+					merged_bam = bam.switch_sex_chromosomes_bam_sambamba_output_temps(
 						args.samtools_path, args.sambamba_path, args.cram, new_bam,
 						args.x_chromosome + args.y_chromosome,
 						bam_path, args.sample_id, args.cpus, xyalign_params_dict)
@@ -475,12 +475,12 @@ def main():
 			strip_reads_start = time.time()
 			print("Stripping and cleaning reads from sex chromosomes\n")
 			if args.bam is not None:
-				new_fastqs = bam_to_fastq(
+				new_fastqs = bam.bam_to_fastq(
 					args.samtools_path, args.repairsh_path, args.bam,
 					args.single_end, fastq_path, args.sample_id,
 					args.x_chromosome)
 			else:
-				new_fastqs = bam_to_fastq(
+				new_fastqs = bam.bam_to_fastq(
 					args.samtools_path, args.repairsh_path, args.cram,
 					args.single_end, fastq_path, args.sample_id,
 					args.x_chromosome)
@@ -527,7 +527,7 @@ def main():
 			else:
 				merge_start = time.time()
 				print("Merging bams from different read groups\n")
-				new_bam = sambamba_merge(
+				new_bam = bam.sambamba_merge(
 					args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
 						bam_path, args.sample_id), args.cpus)
 				merge_end = time.time()
@@ -542,12 +542,12 @@ def main():
 			# Merge bam files
 			print("Replacing old sex chromosomes with new in bam\n")
 			if args.bam is not None:
-				merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
+				merged_bam = bam.switch_sex_chromosomes_bam_sambamba_output_temps(
 					args.samtools_path, args.sambamba_path, args.bam, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 			else:
-				merged_bam = switch_sex_chromosomes_bam_sambamba_output_temps(
+				merged_bam = bam.switch_sex_chromosomes_bam_sambamba_output_temps(
 					args.samtools_path, args.sambamba_path, args.cram, new_bam,
 					args.x_chromosome + args.y_chromosome,
 					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
