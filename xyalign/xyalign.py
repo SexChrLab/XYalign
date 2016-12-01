@@ -979,22 +979,6 @@ def bwa_mem_mapping_sambamba(
 		return "{}_sorted.cram".format(output_prefix)
 
 
-def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
-	"""
-	Takes a list of bam files, e.g., [bam1,bam2,bam3,...], and merges them
-	using sambamba
-
-	Returns:
-		path to merged bam
-	"""
-	subprocess.call(
-		[sambamba_path, "merge", "-t", str(threads), output_prefix, "{}".format(
-			" ".join(bam_list))])
-	subprocess.call([
-		sambamba_path, "index", "{}.merged.bam".format(output_prefix)])
-	return "{}.merged.bam".format(output_prefix)
-
-
 def make_region_lists(depthAndMapqDf, mapqCutoff, depth_thresh):
 	"""
 	Filters a pandas dataframe for mapq and depth
