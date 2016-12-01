@@ -938,47 +938,6 @@ def merge_bed_files(ouput_file, *bed_files):
 	return output_file
 
 
-def bwa_mem_mapping_sambamba(
-	bwa_path, samtools_path, sambamba_path, reference, output_prefix, fastqs,
-	threads, read_group_line, cram=False):
-	"""
-	Maps reads to a reference genome using bwa mem.
-
-		bwa_path is path to bwa
-		samtools_path is path to samtools
-		sambamba_path is path to sambamba
-		reference is path to reference fasta (does not need to be indexed)
-		output_prefix is the desired path to where output files will be deposited
-		fastqs is a list of fastq files for the sample,
-			e.g. ['sam_1.fq', 'sam_2.fq']
-		threads are the number of threads/cores/cpus for programs to use
-		read_group_line is the literal string to be inserted for -R in bwa
-		cram (default False) will trigger handling of cram files if True
-	"""
-
-	fastqs = ' '.join(fastqs)
-	subprocess.call([bwa_path, "index", reference])
-	if cram is False:
-		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O bam - - | "\
-			"{} sort -t {} -o {}_sorted.bam /dev/stdin".format(
-				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
-				sambamba_path, threads, output_prefix)
-		subprocess.call(command_line, shell=True)
-		subprocess.call(
-			[sambamba_path, "index", "-t", str(threads),
-				"{}_sorted.bam".format(output_prefix)])
-		return "{}_sorted.bam".format(output_prefix)
-	else:
-		command_line = "{} mem -t {} -R {} {} {} | {} fixmate -O cram - - | "\
-			"{} sort -O cram -o {}_sorted.cram -".format(
-				bwa_path, threads, repr(read_group_line), reference, fastqs, samtools_path,
-				samtools_path, output_prefix)
-		subprocess.call(command_line, shell=True)
-		subprocess.call(
-			[samtools_path, "index", "{}_sorted.cram".format(output_prefix)])
-		return "{}_sorted.cram".format(output_prefix)
-
-
 def make_region_lists(depthAndMapqDf, mapqCutoff, depth_thresh):
 	"""
 	Filters a pandas dataframe for mapq and depth
