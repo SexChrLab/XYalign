@@ -18,9 +18,12 @@ Changes are made to the master branch quite frequently, so there still might be 
 Program
 - [ ] Replace current logging and printing with logging module
 - [ ] Fix permutation test
+- [x] Add KS 2 Sample Test
 - [ ] Add option to create new references up front (and not have to run process for every sample)
+	- [ ] Add option to directly read in preformatted references
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
+- [ ] Add ability to take targets instead of fixed window sizes for traverse_bam
 - [ ] Create classes for reference fastas and bam/cram files
 - [x] Add support for arbitrary bwa flags
 - [ ] Add support for additional mappers
