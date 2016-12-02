@@ -74,7 +74,7 @@ def ks_two_sample(
 	data_frame, first_chrom, second_chrom, chrom_column,
 	value_column, output_file=None):
 	"""
-	Takes a dataframe and runs a Two-sample Kolmogorov–Smirnov test on desired
+	Takes a dataframe and runs a Two-sample Kolmogorov-Smirnov test on desired
 	value column
 
 	data_frame is a pandas dataframe
