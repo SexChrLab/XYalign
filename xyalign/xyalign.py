@@ -23,6 +23,7 @@ import pybedtools
 import pysam
 import assemble
 import bam
+import ploidy
 import reftools
 import variants
 # Setting the matplotlib display variable requires importing
