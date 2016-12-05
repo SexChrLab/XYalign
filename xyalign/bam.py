@@ -2,11 +2,16 @@
 # Functions for calling and processing variants
 from __future__ import division
 from __future__ import print_function
+import logging
 import numpy as np
 import os
 import pandas as pd
 import pysam
 import subprocess
+import time
+
+# Create logger for bam submodule
+module_logger = logging.getLogger("xyalign.bam")
 
 
 class BamFile():
@@ -21,6 +26,9 @@ class BamFile():
 		""" Initiate object with an associated filepath """
 		self.filepath = filepath
 		self.samtools = samtools
+		self.logger = logging.getLogger("xyalign.bam.BamFile")
+		self.logger.info("Creating a BamFile instance for {}".format(
+			self.filepath))
 		if self.is_index() is False:
 			self.index_bam()
 
@@ -29,33 +37,45 @@ class BamFile():
 		Checks that bam index exists, is not empty, and is newer than bam.
 		If either cases is false, returns False.  Otherwise, returns True.
 		"""
+		self.logger.info("Checking indexing of {}".format(self.filepath))
 		if os.path.exists("{}.bai".format(self.filepath)):
 			if os.stat("{}.bai".format(self.filepath)).st_size != 0:
 				idx_stamp = os.path.getmtime("{}.bai".format(self.filepath))
 			else:
+				self.logger.info("Bam index empty")
 				return False
 		elif os.path.exists("{}.bai".format(self.filepath[:-3])):
 			if os.stat("{}.bai".format(self.filepath[:-3])).st_size != 0:
 				idx_stamp = os.path.getmtime("{}.bai".format(self.filepath[:-3]))
 			else:
+				self.logger.info("Bam index empty")
 				return False
 		else:
+			self.logger.info("No bam index detected")
 			return False
 
 		bam_stamp = os.path.getmtime(self.filepath)
 		if bam_stamp < idx_stamp:
+			self.logger.info("Bam index present and newer than bam file")
 			return True
 		else:
+			self.logger.info("Bam index is older than bam file")
 			return False
 
 	def index_bam(self):
 		"""
 		Indexes a bam using samtools
 		"""
+		self.logger.info("Indexing bam file: {}".format(self.filepath))
+		idx_start = time.time()
 		rc = subprocess.call([self.samtools, "index", self.filepath])
 		if rc == 0:
+			self.logger.info("Indexing complete. Elapsed time: {}".format(
+				time.time() - idx_start))
 			return True
 		else:
+			self.logger.error("Unable to index bamfile {}. Exiting".format(
+				self.filepath))
 			raise RuntimeError("Unable to index bamfile. Exiting")
 
 	def get_chrom_length(self, chrom):
@@ -74,7 +94,14 @@ class BamFile():
 		"""
 		bamfile = pysam.Alignmentfile(self.filepath, "rb")
 		lengths = dict(zip(bamfile.references, bamfile.lengths))
-		return lengths[chrom]
+		try:
+			return lengths[chrom]
+		else:
+			self.logger.error(
+				"{} not present in bam header for {}. Exiting.".format(
+					chrom, self.filepath))
+			raise RuntimeError(
+				"Chromosome name not present in bam header. Exiting")
 
 	def strip_reads(
 		self, repairsh_path, single, output_directory,
@@ -96,6 +123,7 @@ class BamFile():
 				list of @RG lines associated with each read group
 		"""
 		# Collect RGs
+		rg_start = time.time()
 		rg_list = output_directory + "/" + "full_rg.list"
 		command_line = """{} view -H {} | awk '$1=="\x40RG"' | """\
 			"""awk {} """\
@@ -103,24 +131,37 @@ class BamFile():
 				self.samtools, self.filepath,
 				repr('{for(i=1;i<=NF;i++){if (substr($i,1,2) ~ /ID/){print $i}}}'),
 				rg_list)
+		self.logger.info("Grabbing read groups from {} with the command: {}".format(
+			self.filepath, command_line))
 		subprocess.call(command_line, shell=True)
 		rg_header_lines = output_directory + "/" + "header_lines_rg.list"
 		command_line = """{} view -H {} | awk '$1=="\x40RG"' > {}""".format(
 			self.samtools, self.filepath, rg_header_lines)
+		self.logger.info(
+			"Grabbing RG header lines from {} with the command: {}".format(
+				self.filepath, command_line))
 		subprocess.call(command_line, shell=True)
 		with open(rg_list, "r") as f:
 			out_rg_table = output_directory + "/" + "rg_fastq_key.list"
+			self.logger.info(
+				"Iteratively removing reads by read group. Writing table of RGs and "
+				"fastqs to {}".format(out_rg_table))
 			with open(out_rg_table, "w") as ortab:
 				for line in f:
 					rg = line.strip()
 					if rg != "":
-						with open("{}/{}.txt".format(output_directory, rg), "w") as o:
+						self.logger.info("Removing reads from group: {}".format(rg))
+						tmp_out = "{}/{}.txt".format(output_directory, rg)
+						with open(tmp_out, "w") as o:
 							o.write(rg)
 						if single is False:
-							command_line = "{} view -b {} {} | {} bam2fq -1 {}/temp_1.fastq "\
+							command_line = "{} view -R {} -b {} {} | {} bam2fq -1 {}/temp_1.fastq "\
 								"-2 {}/temp_2.fastq -t -n - ".format(
-									self.samtools, self.filepath, ' '.join(map(str, regions)),
+									self.samtools, tmp_out, self.filepath, ' '.join(map(str, regions)),
 									self.samtools, output_directory, output_directory)
+							self.logger.info(
+								"Stripping paired reads with command: {}".format(
+									command_line))
 							subprocess.call(command_line, shell=True)
 							command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
 								repairsh_path,
@@ -128,25 +169,38 @@ class BamFile():
 								output_directory + "/temp_2.fastq",
 								output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
 								output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
+							self.logger.info(
+								"Sorting reads with command: {}".format(
+									command_line))
 							subprocess.call(command_line, shell=True)
 							ortab.write("{}\t{}\t{}\n".format(
 								rg,
 								output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
 								output_directory + "/" + output_prefix + "_" + rg + "_2.fastq"))
 						else:
-							command_line = "{} view -b {} {} | {} bam2fq -t -n - > "\
+							command_line = "{} view -R {} -b {} {} | {} bam2fq -t -n - > "\
 								"{}/temp.fastq".format(
-									self.samtools, self.filepath, ' '.join(map(
+									self.samtools, tmp_out, self.filepath, ' '.join(map(
 										str, regions)), self.samtools, output_directory)
+							self.logger.info(
+								"Stripping single-end reads with command: {}".format(
+									command_line))
 							subprocess.call(command_line, shell=True)
 							command_line = "{} in={} out={} overwrite=true".format(
 								repairsh_path,
 								output_directory + "/temp.fastq",
 								output_directory + "/" + output_prefix + "_" + rg + ".fastq")
+							self.logger.info(
+								"Sorting reads with command: {}".format(
+									command_line))
+							subprocess.call(command_line, shell=True)
 							# write line
 							ortab.write("{}\t{}\n".format(
 								rg,
 								output_directory + "/" + output_prefix + "_" + rg + ".fastq"))
+		self.logger.info(
+			"Stripping and sorting reads complete. Elapsed time: {}".format(
+				time.time() - rg_start))
 		return [out_rg_table, rg_header_lines]
 
 	def analyze_bam_fetch(self, chrom, window_size):
@@ -165,6 +219,10 @@ class BamFile():
 			A dictionary of pandas data frames with the following key:
 				- windows: The averages for each metric for each window
 		"""
+		self.logger.info(
+			"Analyzing {} in {} for depth and mapq using windows of size {}".format(
+				chrom, self.filepath, window_size))
+		analyze_start = time.time()
 		samfile = self.filepath
 		chr_len = self.get_chrom_length(chrom)
 		num_windows = chr_len // window_size + 1
@@ -218,6 +276,8 @@ class BamFile():
 		})[["chrom", "start", "stop", "depth", "mapq"]]
 
 		results = {"windows": windows_df}
+		self.logger.info("Analysis complete. Elapsed time: {}".format(
+			time.time() - analyze_start))
 		return results
 
 ###############################################################################
@@ -355,12 +415,13 @@ def bam_to_fastq(
 			for line in f:
 				rg = line.strip()
 				if rg != "":
-					with open("{}/{}.txt".format(output_directory, rg), "w") as o:
+					tmp_out = "{}/{}.txt".format(output_directory, rg)
+					with open(tmp_out, "w") as o:
 						o.write(rg)
 					if single is False:
-						command_line = "{} view -b {} {} | {} bam2fq -1 {}/temp_1.fastq "\
+						command_line = "{} view -R {} -b {} {} | {} bam2fq -1 {}/temp_1.fastq "\
 							"-2 {}/temp_2.fastq -t -n - ".format(
-								samtools_path, bamfile, ' '.join(map(str, regions)),
+								samtools_path, tmp_out, bamfile, ' '.join(map(str, regions)),
 								samtools_path, output_directory, output_directory)
 						subprocess.call(command_line, shell=True)
 						command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
@@ -375,8 +436,8 @@ def bam_to_fastq(
 							output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
 							output_directory + "/" + output_prefix + "_" + rg + "_2.fastq"))
 					else:
-						command_line = "{} view -b {} {} | {} bam2fq -t -n - > "\
-							"{}/temp.fastq".format(samtools_path, bamfile, ' '.join(map(
+						command_line = "{} view -R {} -b {} {} | {} bam2fq -t -n - > "\
+							"{}/temp.fastq".format(samtools_path, tmp_out, bamfile, ' '.join(map(
 								str, regions)), samtools_path, output_directory)
 						subprocess.call(command_line, shell=True)
 						command_line = "{} in={} out={} overwrite=true".format(
