@@ -96,7 +96,7 @@ class BamFile():
 		lengths = dict(zip(bamfile.references, bamfile.lengths))
 		try:
 			return lengths[chrom]
-		else:
+		except:
 			self.logger.error(
 				"{} not present in bam header for {}. Exiting.".format(
 					chrom, self.filepath))
