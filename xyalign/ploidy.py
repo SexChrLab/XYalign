@@ -5,8 +5,13 @@
 from __future__ import division
 from __future__ import print_function
 import csv
+import logging
 import numpy as np
 from scipy.stats import ks_2samp
+import time
+
+# Create logger for ploidy submodule
+ploidy_logger = logging.getLogger("xyalign.ploidy")
 
 
 def permutation_test_chromosomes(
@@ -27,6 +32,10 @@ def permutation_test_chromosomes(
 	Returns:
 		A tuple containing (mean of first chrom, mean of second chrom, p-value)
 	"""
+	perm_start = time.time()
+	ploidy_logger.info(
+		"Running permutation test ({} reps) comparing ratio of {} over {}".format(
+			num_perms, first_chrom, second_chrom))
 	first_vals = data_frame[
 		data_frame[chrom_column] == first_chrom][value_column]
 	second_vals = data_frame[
@@ -51,9 +60,9 @@ def permutation_test_chromosomes(
 			"{}_mean".format(second_chrom),
 			"{}_{}_ratio".format(first_chrom, second_chrom),
 			"p_val_({}_/_{})".format(first_chrom, second_chrom),
-			"perm_2.5",
-			"perm_50",
-			"perm_97.5"]
+			"perm_dist_2.5",
+			"perm_dist_50",
+			"perm_dist_97.5"]
 		b = [
 			"{}".format(first_mean),
 			"{}".format(second_mean),
@@ -65,9 +74,10 @@ def permutation_test_chromosomes(
 		with open(output_file, "w") as f:
 			w = csv.writer(f, dialect="excel-tab")
 			w.writerows([a, b])
-	return (
-		first_mean, second_mean, sig, np.percentile(perms, 2.5),
-		np.percentile(perms, 97.5))
+	ploidy_logger.info(
+		"Permutations on {} and {} complete. Elapsed time: {}".format(
+			first_chrom, second_chrom, time.time() - perm_start))
+	return (first_mean, second_mean, sig)
 
 
 def ks_two_sample(
@@ -88,6 +98,10 @@ def ks_two_sample(
 	Returns:
 		A tuple containing (ks_statistic, ks_pvalue)
 	"""
+	ks_start = time.time()
+	ploidy_logger.info(
+		"Running KS two sample test on {} and {}".format(
+			first_chrom, second_chrom))
 	first_vals = data_frame[
 		data_frame[chrom_column] == first_chrom][value_column]
 	second_vals = data_frame[
@@ -116,5 +130,28 @@ def ks_two_sample(
 		with open(output_file, "w") as f:
 			w = csv.writer(f, dialect="excel-tab")
 			w.writerows([a, b])
-
+	ploidy_logger.info(
+		"KS two sample test on {} and {} complete. Elapsed time: {}".format(
+			first_chrom, second_chrom, time.time() - ks_start))
 	return result
+
+
+def bootstrap(
+	data_frame, first_chrom, second_chrom, chrom_column,
+	value_column, num_reps, output_file=None):
+	"""
+	Takes a dataframe and bootstraps the 95 percent confidence interval
+	of the mean ratio of measure for two chromosomes (chrom1 / chrom2).
+
+	data_frame is a pandas dataframe
+	first_chrom is the name of the first chromosome in comparison
+	second_chrom is the name of the second chromosome in comparison
+	chrom_column is the name of the column containing chromosome names
+	value_column is the name of the column containing the value of interest
+	num_perms is the number of permutations to use
+	output_file: if not none, will print results to this file
+
+	Returns:
+		A tuple containing (0.025 percentile, 0.5 percentile, 0.975 percentile)
+	"""
+	pass

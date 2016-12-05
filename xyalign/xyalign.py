@@ -286,7 +286,7 @@ def main():
 			# Right now this implements a simple and rather inelegant test for
 			# 	a Y chromosome that assumes approximately equal depth on the
 			# 	X and the Y in XY individuals.
-			if sex_perm_res[3] < 1.0 < sex_perm_res[4]:
+			if sex_perm_res[2] < 0.05:
 				y_present_perm = True
 			else:
 				y_present_perm = False

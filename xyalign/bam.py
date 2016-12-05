@@ -11,7 +11,7 @@ import subprocess
 import time
 
 # Create logger for bam submodule
-module_logger = logging.getLogger("xyalign.bam")
+bam_logger = logging.getLogger("xyalign.bam")
 
 
 class BamFile():
