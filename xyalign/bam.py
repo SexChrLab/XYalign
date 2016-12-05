@@ -58,7 +58,7 @@ class BamFile():
 		else:
 			raise RuntimeError("Unable to index bamfile. Exiting")
 
-	def get_length(self, chrom):
+	def get_chrom_length(self, chrom):
 		"""
 		Extract chromosome length from BAM header.
 
@@ -76,7 +76,7 @@ class BamFile():
 		lengths = dict(zip(bamfile.references, bamfile.lengths))
 		return lengths[chrom]
 
-	def bam_to_fastq(
+	def strip_reads(
 		self, repairsh_path, single, output_directory,
 		output_prefix, regions):
 		"""
@@ -149,7 +149,7 @@ class BamFile():
 								output_directory + "/" + output_prefix + "_" + rg + ".fastq"))
 		return [out_rg_table, rg_header_lines]
 
-	def traverse_bam_fetch(self, chrom, window_size):
+	def analyze_bam_fetch(self, chrom, window_size):
 		"""Analyze BAM (or CRAM) file for various metrics.
 		Currently, this function looks at the following metrics across genomic
 		windows:
@@ -166,7 +166,7 @@ class BamFile():
 				- windows: The averages for each metric for each window
 		"""
 		samfile = self.filepath
-		chr_len = self.get_length(chrom)
+		chr_len = self.get_chrom_length(chrom)
 		num_windows = chr_len // window_size + 1
 		if chr_len % num_windows == 0:
 			last_window_len = window_size
