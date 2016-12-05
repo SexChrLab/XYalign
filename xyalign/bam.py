@@ -3,9 +3,225 @@
 from __future__ import division
 from __future__ import print_function
 import numpy as np
+import os
 import pandas as pd
 import pysam
 import subprocess
+
+
+class BamFile():
+	"""
+	A class for working with external bam files
+
+	Attributes:
+		filepath is full path to external bam file
+		samtools path is path to samtools (defaults to "samtools")
+	"""
+	def __init__(self, filepath, samtools="samtools"):
+		""" Initiate object with an associated filepath """
+		self.filepath = filepath
+		self.samtools = samtools
+		if self.is_index() is False:
+			self.index_bam()
+
+	def is_indexed(self):
+		"""
+		Checks that bam index exists, is not empty, and is newer than bam.
+		If either cases is false, returns False.  Otherwise, returns True.
+		"""
+		if os.path.exists("{}.bai".format(self.filepath)):
+			if os.stat("{}.bai".format(self.filepath)).st_size != 0:
+				idx_stamp = os.path.getmtime("{}.bai".format(self.filepath))
+			else:
+				return False
+		elif os.path.exists("{}.bai".format(self.filepath[:-3])):
+			if os.stat("{}.bai".format(self.filepath[:-3])).st_size != 0:
+				idx_stamp = os.path.getmtime("{}.bai".format(self.filepath[:-3]))
+			else:
+				return False
+		else:
+			return False
+
+		bam_stamp = os.path.getmtime(self.filepath)
+		if bam_stamp < idx_stamp:
+			return True
+		else:
+			return False
+
+	def index_bam(self):
+		"""
+		Indexes a bam using samtools
+		"""
+		rc = subprocess.call([self.samtools, "index", self.filepath])
+		if rc == 0:
+			return True
+		else:
+			raise RuntimeError("Unable to index bamfile. Exiting")
+
+	def get_length(self, chrom):
+		"""
+		Extract chromosome length from BAM header.
+
+		args:
+			bamfile: pysam AlignmentFile object
+				- can be bam, cram, or sam, needs to be declared
+					in pysam.AlignmentFile call before passing to function
+			chrom: chromosome name (string)
+
+		returns:
+			Length (int)
+
+		"""
+		bamfile = pysam.Alignmentfile(self.filepath, "rb")
+		lengths = dict(zip(bamfile.references, bamfile.lengths))
+		return lengths[chrom]
+
+	def bam_to_fastq(
+		self, repairsh_path, single, output_directory,
+		output_prefix, regions):
+		"""
+		Strips reads from a bam or cram file in provided regions and outputs
+		sorted fastqs containing reads, one set of fastq files per read group.
+
+		repairsh_path is the path to repair.sh (from BBmap)
+		single is either True or False; if true will output single-end fastq file,
+			if False, will output paired-end fastq files
+		output_directory is the directory for ALL output (including temporary files)
+		output_prefix is the name (without path) to use for prefix to output fastqs
+		regions is a list of regions from which reads will be stripped
+
+		Returns:
+			A two-item list containing the path to a text file pairing read group
+				names with associated output fastqs, and a text file containing a
+				list of @RG lines associated with each read group
+		"""
+		# Collect RGs
+		rg_list = output_directory + "/" + "full_rg.list"
+		command_line = """{} view -H {} | awk '$1=="\x40RG"' | """\
+			"""awk {} """\
+			"""| cut -d':' -f 2 > {}""".format(
+				self.samtools, self.filepath,
+				repr('{for(i=1;i<=NF;i++){if (substr($i,1,2) ~ /ID/){print $i}}}'),
+				rg_list)
+		subprocess.call(command_line, shell=True)
+		rg_header_lines = output_directory + "/" + "header_lines_rg.list"
+		command_line = """{} view -H {} | awk '$1=="\x40RG"' > {}""".format(
+			self.samtools, self.filepath, rg_header_lines)
+		subprocess.call(command_line, shell=True)
+		with open(rg_list, "r") as f:
+			out_rg_table = output_directory + "/" + "rg_fastq_key.list"
+			with open(out_rg_table, "w") as ortab:
+				for line in f:
+					rg = line.strip()
+					if rg != "":
+						with open("{}/{}.txt".format(output_directory, rg), "w") as o:
+							o.write(rg)
+						if single is False:
+							command_line = "{} view -b {} {} | {} bam2fq -1 {}/temp_1.fastq "\
+								"-2 {}/temp_2.fastq -t -n - ".format(
+									self.samtools, self.filepath, ' '.join(map(str, regions)),
+									self.samtools, output_directory, output_directory)
+							subprocess.call(command_line, shell=True)
+							command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
+								repairsh_path,
+								output_directory + "/temp_1.fastq",
+								output_directory + "/temp_2.fastq",
+								output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
+								output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
+							subprocess.call(command_line, shell=True)
+							ortab.write("{}\t{}\t{}\n".format(
+								rg,
+								output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
+								output_directory + "/" + output_prefix + "_" + rg + "_2.fastq"))
+						else:
+							command_line = "{} view -b {} {} | {} bam2fq -t -n - > "\
+								"{}/temp.fastq".format(
+									self.samtools, self.filepath, ' '.join(map(
+										str, regions)), self.samtools, output_directory)
+							subprocess.call(command_line, shell=True)
+							command_line = "{} in={} out={} overwrite=true".format(
+								repairsh_path,
+								output_directory + "/temp.fastq",
+								output_directory + "/" + output_prefix + "_" + rg + ".fastq")
+							# write line
+							ortab.write("{}\t{}\n".format(
+								rg,
+								output_directory + "/" + output_prefix + "_" + rg + ".fastq"))
+		return [out_rg_table, rg_header_lines]
+
+	def traverse_bam_fetch(self, chrom, window_size):
+		"""Analyze BAM (or CRAM) file for various metrics.
+		Currently, this function looks at the following metrics across genomic
+		windows:
+		- Read depth
+		- Mapping quality
+		The average of each metric will be calculated for each window of
+		size `window_size` and stored altogether in a pandas data frame.
+
+		chrom is the chromosome to analyze
+		window size is the integer window size to use for sliding window analyses
+
+		Returns:
+			A dictionary of pandas data frames with the following key:
+				- windows: The averages for each metric for each window
+		"""
+		samfile = self.filepath
+		chr_len = self.get_length(chrom)
+		num_windows = chr_len // window_size + 1
+		if chr_len % num_windows == 0:
+			last_window_len = window_size
+		else:
+			last_window_len = chr_len % num_windows
+
+		window_id = 0
+
+		chr_list = [chrom] * num_windows
+		start_list = []
+		stop_list = []
+		depth_list = []
+		mapq_list = []
+
+		start = 0
+		end = window_size
+		for window in range(0, num_windows):
+			mapq = []
+			total_read_length = 0
+			for read in samfile.fetch(chrom, start, end):
+				if read.is_secondary is False:
+					if read.is_supplementary is False:
+						total_read_length += read.infer_query_length()
+						mapq.append(read.mapping_quality)
+			start_list.append(start)
+			stop_list.append(end)
+			depth_list.append(total_read_length / window_size)
+			mapq_list.append(np.mean(np.asarray(mapq)))
+
+			window_id += 1
+			if window_id == num_windows - 1:
+				start += window_size
+				end += last_window_len
+			else:
+				start += window_size
+				end += window_size
+
+			# Print progress
+			print("{} out of {} windows processed on {}".format(
+				window_id, num_windows, chrom))
+
+		# Convert data into pandas data frames
+		windows_df = pd.DataFrame({
+			"chrom": np.asarray(chr_list),
+			"start": np.asarray(start_list),
+			"stop": np.asarray(stop_list),
+			"depth": np.asarray(depth_list),
+			"mapq": np.asarray(mapq_list)
+		})[["chrom", "start", "stop", "depth", "mapq"]]
+
+		results = {"windows": windows_df}
+		return results
+
+###############################################################################
+# Functions associated with bam files
 
 
 def get_length(bamfile, chrom):
