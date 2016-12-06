@@ -2,13 +2,18 @@
 # Functions for calling and processing variants
 
 from __future__ import division
+import logging
 import subprocess
+import time
 import pysam
 import bam
 # Matplotlib needs to be called in this way to set the display variable
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
+
+# Create logger for bam submodule
+variants_logger = logging.getLogger("xyalign.variants")
 
 
 def platypus_caller(
@@ -29,14 +34,21 @@ def platypus_caller(
 
 	Outputs a vcf, but returns the exit code of the Platypus call
 	"""
+	platy_start = time.time()
 	if regions_file is None:
 		regions = ','.join(map(str, chroms))
 	else:
 		regions = regions_file
-	return_code = subprocess.call(
-		[platypus_path, "callVariants", "--bamFiles", bam, "-o", output_file,
-			"--refFile", ref, "--nCPU", str(cpus), "--regions", regions,
-			"--assemble", "1", "--logFileName", log_path])
+	command_line = [
+		platypus_path, "callVariants", "--bamFiles", bam, "-o",
+		output_file, "--refFile", ref, "--nCPU", str(cpus), "--regions", regions,
+		"--assemble", "1", "--logFileName", log_path]
+	variants_logger.info("Calling variants with command line: {}".format(
+		command_line))
+	return_code = subprocess.call(command_line)
+	variants_logger.info(
+		"Variant calling complete. Elapsed time: {} seconds".format(
+			time.time() - platy_start))
 	return return_code
 
 
@@ -54,6 +66,8 @@ def parse_platypus_VCF(filename, qual_cutoff, chrom):
 			site quality
 			read balance
 	"""
+	parse_start = time.time()
+	variants_logger.info("Parsing {} for read balance.".format(filename))
 	infile = open("{}".format(filename), 'r')
 	positions = []
 	quality = []
@@ -78,7 +92,8 @@ def parse_platypus_VCF(filename, qual_cutoff, chrom):
 		readBalance.append(ReadRatio)
 		positions.append(pos)
 		quality.append(qual)
-
+	variants_logger.info("Parsing complete. Elapsed time: {} seconds".format(
+		time.time() - parse_start))
 	return (positions, quality, readBalance)
 
 
@@ -103,6 +118,9 @@ def plot_variants_per_chrom(
 	Returns:
 		Nothing
 	"""
+	plot_start = time.time()
+	variants_logger.info("Plotting read balance from {} for chroms: {}".format(
+		vcf_file, " ".join(chrom_list)))
 	for i in chrom_list:
 		parse_results = parse_platypus_VCF(vcf_file, qual_cutoff, i)
 		plot_read_balance(
@@ -110,6 +128,9 @@ def plot_variants_per_chrom(
 			sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile)
 		hist_read_balance(
 			i, parse_results[2], sampleID, output_prefix)
+	variants_logger.info(
+		"Read balance plotting complete. Elapsed time: {} seconds".format(
+			time.time() - plot_start))
 	pass
 
 
@@ -160,6 +181,9 @@ def plot_read_balance(
 	plt.savefig("{}_{}_ReadBalance_GenomicScatter.png".format(
 		output_prefix, chrom))
 	plt.close(fig)
+	variant_logger.info("Genomic read balance plot of {} complete.".format(
+		chrom))
+	pass
 
 
 def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
@@ -192,3 +216,6 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 	plt.savefig("{}_{}_ReadBalance_Hist.svg".format(output_prefix, chrom))
 	plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
 	plt.close(fig)
+	variant_logger.info("Genomic read balance histogram of {} complete.".format(
+		chrom))
+	pass

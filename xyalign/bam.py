@@ -70,7 +70,7 @@ class BamFile():
 		idx_start = time.time()
 		rc = subprocess.call([self.samtools, "index", self.filepath])
 		if rc == 0:
-			self.logger.info("Indexing complete. Elapsed time: {}".format(
+			self.logger.info("Indexing complete. Elapsed time: {} seconds".format(
 				time.time() - idx_start))
 			return True
 		else:
@@ -199,7 +199,7 @@ class BamFile():
 								rg,
 								output_directory + "/" + output_prefix + "_" + rg + ".fastq"))
 		self.logger.info(
-			"Stripping and sorting reads complete. Elapsed time: {}".format(
+			"Stripping and sorting reads complete. Elapsed time: {} seconds".format(
 				time.time() - rg_start))
 		return [out_rg_table, rg_header_lines]
 
@@ -276,7 +276,7 @@ class BamFile():
 		})[["chrom", "start", "stop", "depth", "mapq"]]
 
 		results = {"windows": windows_df}
-		self.logger.info("Analysis complete. Elapsed time: {}".format(
+		self.logger.info("Analysis complete. Elapsed time: {} seconds".format(
 			time.time() - analyze_start))
 		return results
 
@@ -319,26 +319,20 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 	bam_logger.info(
 		"Beginning process of swapping sex chromosomes into full assembly")
 	# Grab original header
+	command_line = [samtools_path, "view", "-H", bam_orig]
 	bam_logger.info(
-		"Isolating header with command: {}".format(
-			" ".join(
-				[samtools_path, "view", "-H", bam_orig,
-					">", "{}/header.sam".format(output_directory)])))
+		"Isolating header with command: {} > {}/header.sam".format(
+			" ".join(command_line), output_directory))
 	with open("{}/header.sam".format(output_directory), "w") as f:
-		subprocess.call(
-			[samtools_path, "view", "-H", bam_orig], stdout=f)
+		subprocess.call(command_line, stdout=f)
 	# Reheader new bam (for merge)
+	command_line = [samtools_path, "reheader", "-P", "{}/header.sam".format(
+		output_directory), bam_new]
 	bam_logger.info(
-		"Reheading {} with command: {}".format(
-			bam_new, " ".join(
-				[samtools_path, "reheader", "-P", "{}/header.sam".format(
-					output_directory),
-					bam_new, ">", "{}/reheadered.temp.new.bam".format(
-						output_directory)])))
+		"Reheading {} with command: {} > {}/reheadered.temp.new.bam".format(
+			bam_new, " ".join(command_line), output_directory))
 	with open("{}/reheadered.temp.new.bam".format(output_directory), "w") as f:
-		subprocess.call(
-			[samtools_path, "reheader", "-P", "{}/header.sam".format(
-				output_directory), bam_new], stdout=f)
+		subprocess.call(command_line, stdout=f)
 	bam_logger.info("Indexing {}".format("{}/reheadered.temp.new.bam".format(
 		output_directory)))
 	subprocess.call(
@@ -373,23 +367,21 @@ def switch_sex_chromosomes_bam_sambamba_output_temps(
 		subprocess.call(
 			[samtools_path, "index", "{}/temp.nosexchr.bam".format(
 				output_directory)])
+		command_line = [
+			samtools_path, "merge", "-@", "{}".format(threads), "-h",
+			"{}/header.sam".format(output_directory), "-f",
+			"{}/{}.merged.bam".format(output_directory, output_prefix),
+			"{}/temp.nosexchr.bam".format(output_directory), bam_new]
 		bam_logger.info("Merging bam files with command: {}".format(
-			[samtools_path, "merge", "-@", "{}".format(threads), "-h",
-				"{}/header.sam".format(output_directory), "-f",
-				"{}/{}.merged.bam".format(output_directory, output_prefix),
-				"{}/temp.nosexchr.bam".format(output_directory), bam_new]))
-		subprocess.call(
-			[samtools_path, "merge", "-@", "{}".format(threads), "-h",
-				"{}/header.sam".format(output_directory), "-f",
-				"{}/{}.merged.bam".format(output_directory, output_prefix),
-				"{}/temp.nosexchr.bam".format(output_directory), bam_new])
+			" ".join(command_line)))
+		subprocess.call(command_line)
 		bam_logger.info("Indexing {}".format(
 			"{}/{}.merged.bam".format(
 				output_directory, output_prefix)))
 		subprocess.call(
 			[samtools_path, "index", "{}/{}.merged.bam".format(
 				output_directory, output_prefix)])
-		bam_logger.info("Swapping complete.  Elapsed time: {}".format(
+		bam_logger.info("Swapping complete.  Elapsed time: {} seconds".format(
 			time.time() - switch_start))
 		return "{}/{}.merged.bam".format(output_directory, output_prefix)
 
@@ -435,7 +427,7 @@ def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
 			" ".join(bam_list))])
 	subprocess.call([
 		sambamba_path, "index", "{}.merged.bam".format(output_prefix)])
-	bam_logger.info("Merging complete. Elapsed time: {}".format(
+	bam_logger.info("Merging complete. Elapsed time: {} seconds".format(
 		time.time() - merge_start))
 	return "{}.merged.bam".format(output_prefix)
 

@@ -88,7 +88,7 @@ def bwa_mem_mapping_sambamba(
 				"{}_sorted.bam".format(output_prefix)])
 		assemble_logger.info(
 			"Completed mapping for fastqs ({}) to reference ({}). "
-			"Elapsed time: {}".format(
+			"Elapsed time: {} seconds".format(
 				fastqs, reference, time.time() - map_start))
 		return "{}_sorted.bam".format(output_prefix)
 
@@ -109,7 +109,7 @@ def bwa_mem_mapping_sambamba(
 			[samtools_path, "index", "{}_sorted.cram".format(output_prefix)])
 		assemble_logger.info(
 			"Completed mapping for fastqs ({}) to reference ({}). "
-			"Elapsed time: {}".format(
+			"Elapsed time: {} seconds".format(
 				fastqs, reference, time.time() - map_start))
 		return "{}_sorted.cram".format(output_prefix)
 

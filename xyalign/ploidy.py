@@ -75,7 +75,7 @@ def permutation_test_chromosomes(
 			w = csv.writer(f, dialect="excel-tab")
 			w.writerows([a, b])
 	ploidy_logger.info(
-		"Permutations on {} and {} complete. Elapsed time: {}".format(
+		"Permutations on {} and {} complete. Elapsed time: {} seconds".format(
 			first_chrom, second_chrom, time.time() - perm_start))
 	return (first_mean, second_mean, sig)
 
@@ -131,7 +131,7 @@ def ks_two_sample(
 			w = csv.writer(f, dialect="excel-tab")
 			w.writerows([a, b])
 	ploidy_logger.info(
-		"KS two sample test on {} and {} complete. Elapsed time: {}".format(
+		"KS two sample test on {} and {} complete. Elapsed time: {} seconds".format(
 			first_chrom, second_chrom, time.time() - ks_start))
 	return result
 
