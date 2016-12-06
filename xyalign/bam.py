@@ -29,7 +29,7 @@ class BamFile():
 		self.logger = logging.getLogger("xyalign.bam.BamFile")
 		self.logger.info("Creating a BamFile instance for {}".format(
 			self.filepath))
-		if self.is_index() is False:
+		if self.is_indexed() is False:
 			self.index_bam()
 
 	def is_indexed(self):

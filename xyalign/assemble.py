@@ -6,7 +6,7 @@ import os
 import subprocess
 import time
 
-# Create logger for bam submodule
+# Create logger for assemble submodule
 assemble_logger = logging.getLogger("xyalign.assemble")
 
 

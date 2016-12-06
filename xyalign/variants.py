@@ -12,7 +12,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
-# Create logger for bam submodule
+# Create logger for variants submodule
 variants_logger = logging.getLogger("xyalign.variants")
 
 
