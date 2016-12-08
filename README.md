@@ -19,24 +19,25 @@ Changes are made to the master branch quite frequently, so there still might be 
 
 Program
 - [ ] Replace current logging and printing with logging module
-- [ ] Fix permutation test
+- [x] Fix permutation test
 - [x] Add KS 2 Sample Test
+- [x] Add bootstrap
+- [ ] Incorporate likelihood model for ploidy estimation
 - [ ] Add option to create new references up front (and not have to run process for every sample)
 	- [ ] Add option to directly read in preformatted references
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
 - [ ] Add ability to take targets instead of fixed window sizes for traverse_bam
-- [ ] Create classes for reference fastas and bam/cram files
+- [x] Create classes for reference fastas and bam/cram files
 - [x] Add support for arbitrary bwa flags
 - [ ] Add support for additional mappers
 - [ ] Handle duplicate reads
 - [x] Write @PG line to final bam
 - [x] Accept and integrate external bed files for excluding regions
-- [ ] Incorporate likelihood model for ploidy estimation
 - [x] Second round of bam window analysis and plotting after remapping and filtering low-quality regions
 
 Testing
-- [ ] Simulate and assemble XX, XY, XXY, and XO genomes
+- [x] Simulate and assemble XX, XY, XXY, and XO genomes
 	- [ ] Test XYalign on these genomes
 - [ ] Download data for XX and XY:
 	- [ ] high coverage whole genome

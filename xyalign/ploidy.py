@@ -154,4 +154,49 @@ def bootstrap(
 	Returns:
 		A tuple containing (0.025 percentile, 0.5 percentile, 0.975 percentile)
 	"""
-	pass
+	boot_start = time.time()
+
+	ks_start = time.time()
+	ploidy_logger.info(
+		"Bootstrapping mean depth ratio of {} over {}".format(
+			first_chrom, second_chrom))
+	first_vals = data_frame[
+		data_frame[chrom_column] == first_chrom][value_column]
+	second_vals = data_frame[
+		data_frame[chrom_column] == second_chrom][value_column]
+
+	first_mean = np.mean(first_vals)
+	second_mean = np.mean(second_vals)
+	mean_ratio = first_vals / second_vals
+
+	samples = []
+	for i in range(0, num_reps):
+		first_boot = np.random.shuffle(first_vals)
+		second_boot = np.random.shuffle(second_vals)
+		samples.append(np.mean(first_boot / second_boot))
+
+	samples = np.asarray(samples)
+
+	if output_file is not None:
+		a = [
+			"{}_mean".format(first_chrom),
+			"{}_mean".format(second_chrom),
+			"{}_{}_ratio".format(first_chrom, second_chrom),
+			"boot_2.5_percentile",
+			"boot_50_percentile",
+			"boot_97.5_percentile"]
+		b = [
+			"{}".format(first_mean),
+			"{}".format(second_mean),
+			"{}".format(mean_ratio),
+			"{}".format(np.percentile(samples, 2.5)),
+			"{}".format(np.percentile(samples, 50)),
+			"{}".format(np.percentile(samples, 97.5))]
+		with open(output_file, "w") as f:
+			w = csv.writer(f, dialect="excel-tab")
+			w.writerows([a, b])
+	ploidy_logger.info(
+		"Bootstrapping of {} and {} (ratio) complete. "
+		"Elapsed time: {} seconds".format(
+			first_chrom, second_chrom, time.time() - boot_start))
+	return (mean_ratio, np.percentile(samples, 2.5), np.percentile(samples, 97.5))
