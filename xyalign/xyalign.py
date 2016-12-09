@@ -109,6 +109,18 @@ def main():
 	results_path = os.path.join(args.output_dir, "results")
 
 	# Create paths for output files
+	# reference-related
+	if args.xx_ref_out is not None:
+		xx_out = os.path.join(fastq_path, args.xx_ref_out)
+	else:
+		xx_out = os.path.join(fastq_path, "{}".format(
+			xyalign_noY.masked.fa))
+	if args.xy_ref_out is not None:
+		xy_out = os.path.join(fastq_path, args.xy_ref_out)
+	else:
+		xy_out = os.path.join(fastq_path, "{}".format(
+			xyalign_withY.masked.fa))
+	# variant/vcf related
 	noprocessing_vcf = os.path.join(
 		vcf_path, "{}.noprocessing.vcf".format(
 			args.sample_id))
@@ -129,10 +141,12 @@ def main():
 		plots_path, "{}_noprocessing".format(args.sample_id))
 	readbalance_prefix_postprocessing = os.path.join(
 		plots_path, "{}_postprocessing".format(args.sample_id))
+	# Depth/mapq related
 	depth_mapq_prefix_noprocessing = os.path.join(
 		plots_path, "{}_noprocessing".format(args.sample_id))
 	depth_mapq_prefix_postprocessing = os.path.join(
 		plots_path, "{}_postprocessing".format(args.sample_id))
+	# Bedfile related
 	if args.high_quality_bed_out is not None:
 		# high_prefix = args.high_quality_bed_out
 		print(
@@ -173,12 +187,16 @@ def main():
 	output_bed_low_postprocessing = os.path.join(
 		bed_path, "{}.bed".format(low_prefix))
 
-	# Run XYalign
+	######################################
+	############ Run XYalign #############
+	######################################
 	ref = reftools.RefFasta(args.ref, args.samtools_path)
 	input_bam = bam.BamFile(args.bam, args.samtools_path)
 
 	# Reference Prep Only
 	if args.PREPARE_REFERENCE is True:
+		logger.info(
+			"PREPARE_REFERENCE set, so only preparing reference fastas.")
 		# Combine masks, if more than one present
 		if args.reference_mask != [None]:
 			if len(args.reference_mask) > 1:
@@ -187,7 +205,9 @@ def main():
 						bed_path), *args.reference_mask)
 			else:
 				reference_mask = args.reference_mask
+		# Create masked noY reference
 
+		# Create masked withY reference
 		pass
 
 	# Stats Only
@@ -808,13 +828,27 @@ def parse_args():
 		"X chromosome.  Default is none.")
 
 	parser.add_argument(
-		"--xx_reference", default=None,
+		"--xx_ref_out", default=None,
+		help="Desired name for masked output fasta for "
+		"samples WITHOUT a Y chromosome (e.g., XX, XXX, XO, etc.). "
+		"Defaults to 'xyalign_noY.masked.fa'. Will be output "
+		"in the XYalign reference directory.")
+
+	parser.add_argument(
+		"--xy_ref_out", default=None,
+		help="Desired name for masked output fasta for "
+		"samples WITH a Y chromosome (e.g., XY, XXY, etc.). "
+		"Defaults to 'xyalign_withY.masked.fa'. Will be output "
+		"in the XYalign reference directory.")
+
+	parser.add_argument(
+		"--xx_ref_in", default=None,
 		help="Path to preprocessed reference fasta to be used for remapping in "
 		"X0 or XX samples.  Default is None.  If none, will produce a "
 		"sample-specific reference for remapping.")
 
 	parser.add_argument(
-		"--xy_reference", default=None,
+		"--xy_ref_in", default=None,
 		help="Path to preprocessed reference fasta to be used for remapping in "
 		"samples containing Y chromosome.  Default is None.  If none, will "
 		"produce a sample-specific reference for remapping.")

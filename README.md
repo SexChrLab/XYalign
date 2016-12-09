@@ -18,13 +18,13 @@ Changes are made to the master branch quite frequently, so there still might be 
 ## To-Do Items Before Release
 
 Program
-- [ ] Replace current logging and printing with logging module
+- [x] Replace current logging and printing with logging module
 - [x] Fix permutation test
 - [x] Add KS 2 Sample Test
 - [x] Add bootstrap
 - [ ] Incorporate likelihood model for ploidy estimation
-- [ ] Add option to create new references up front (and not have to run process for every sample)
-	- [ ] Add option to directly read in preformatted references
+- [x] Add option to create new references up front (and not have to run process for every sample)
+	- [x] Add option to directly read in preformatted references
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
 - [ ] Add ability to take targets instead of fixed window sizes for traverse_bam
@@ -35,6 +35,9 @@ Program
 - [x] Write @PG line to final bam
 - [x] Accept and integrate external bed files for excluding regions
 - [x] Second round of bam window analysis and plotting after remapping and filtering low-quality regions
+- [ ] Add histogram plotting for depth and mapq
+- [ ] Add cram and sam support
+	- probably not necessary for initial release
 
 Testing
 - [x] Simulate and assemble XX, XY, XXY, and XO genomes
