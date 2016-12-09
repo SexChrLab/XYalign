@@ -88,15 +88,15 @@ def main():
 	# Log citation
 	logger.INFO("{}".format(citation))
 
-	# Log parameters and set up dictionary for @PG line in bam
+	# Set up param dictionary
 	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
 	p = ""
 	for arg in args.__dict__:
 		p = p + "{}={}, ".format(arg, args.__dict__[arg])
 		xyalign_params_dict['CL'].append("{}={}".format(arg, args.__dict__[arg]))
 
+	# Log parameters and pipeline start
 	logger.INFO("Parameters: {}".format(p))
-
 	logger.INFO("Beginning XYalign")
 
 	# Setup output paths
@@ -173,19 +173,33 @@ def main():
 	output_bed_low_postprocessing = os.path.join(
 		bed_path, "{}.bed".format(low_prefix))
 
+	# Run XYalign
+	ref = reftools.RefFasta(args.ref, args.samtools_path)
+	input_bam = bam.BamFile(args.bam, args.samtools_path)
+
 	# Reference Prep Only
+	if args.PREPARE_REFERENCE is True:
+		if args.reference_mask != [None]:
+			if len(args.reference_mask) > 1:
+				reference_mask = merge_bed_files(
+					"{}/reference_mask.merged.bed".format(
+						bed_path), *args.reference_mask)
+			else:
+				reference_mask = args.reference_mask
 
-
+		pass
 
 	# Stats Only
-
-
+	elif args.ANALYZE_BAM is True:
+		pass
 
 	# Ploidy Estimation Only
-
-
+	elif args.CHARACTERIZE_SEX_CHROMS is True:
+		pass
 
 	# Pipeline
+	else:
+		pass
 
 
 

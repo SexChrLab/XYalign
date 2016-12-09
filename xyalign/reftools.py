@@ -65,6 +65,53 @@ class RefFasta():
 				self.filepath))
 			raise RuntimeError("Unable to create faidx. Exiting")
 
+	def index_bwa(self, bwa="bwa"):
+		"""
+		Index reference using bwa
+
+		bwa is path to bwa program (default is 'bwa')
+		"""
+		self.logger.info("Creating bwa indices for: {}".format(
+			self.filepath))
+		bwa_idx_start = time.time()
+		rc = subprocess.call([bwa, "index", self.filepath])
+		if rc == 0:
+			self.logger.info(
+				"BWA indexing complete. Elapsed time: {} seconds".format(
+					time.time() - bwa_idx_start))
+			return True
+		else:
+			self.logger.error(
+				"Unable to create bwa indices for {}. Exiting".format(
+					self.filepath))
+			raise RuntimeError("Unable to create bwa indicies. Exiting")
+
+	def seq_dict(self, out_dict="{}.dict".format(self.filepath)):
+		"""
+		Create sequence dictionary .dict file using samtools
+
+		out_dict is the desired file name for the sequence dictionary -
+			defaults to adding '.dict' to the fasta name
+		"""
+		self.logger.info("Creating sequence dictionary for: {}".format(
+			self.filepath))
+		dict_start = time.time()
+		rc = subprocess.call(
+			[self.samtools, "dict", "-o", out_dict, self.filepath])
+		if rc == 0:
+			self.logger.info(
+				"Sequence dictionary complete. "
+				"Elapsed time: {} seconds".format(
+					time.time() - dict_start))
+			return True
+		else:
+			self.logger.error(
+				"Unable to create sequence dictionary for {}. "
+				"Exiting".format(
+					self.filepath))
+			raise RuntimeError(
+				"Unable to create sequence dictionary. Exiting")
+
 	def mask_reference(new_ref_prefix, bed_mask):
 		"""
 		Creates a new masked references by hardmasking regions included
@@ -137,6 +184,7 @@ class RefFasta():
 				"Isolating (un-masked) chromosomes complete. "
 				"Elapsed time: {} seconds".format(time.time() - iso_start))
 			return outpath
+
 
 # Legacy functions - saved in case useful in future
 # def isolate_chromosomes_reference(
