@@ -937,7 +937,9 @@ def parse_args():
 if __name__ == "__main__":
 	main()
 
-# Old main function
+# # Old main function
+#
+#
 # def main():
 # 	""" Main program"""
 #
@@ -1068,8 +1070,9 @@ if __name__ == "__main__":
 #
 # 	# First round of Platypus calling and plotting
 # 	if args.platypus_calling == "both" or args.platypus_calling == "before":
-# 		print("Beginning Platypus variant calling on unprocessed bam, {}\n".format(
-# 			args.bam))
+# 		print(
+# 			"Beginning Platypus variant calling on unprocessed bam, {}\n".format(
+# 				args.bam))
 # 		platy_start = time.time()
 # 		if args.bam is not None:
 # 			a = variants.platypus_caller(
@@ -1077,51 +1080,66 @@ if __name__ == "__main__":
 # 				args.chromosomes, args.cpus, noprocessing_vcf, None)
 # 			platy_end = time.time()
 # 			print(
-# 				"\nPlatypus calling complete on {}. Elapsed Time: {} seconds\n\n".format(
+# 				"\nPlatypus calling complete on {}. "
+# 				"Elapsed Time: {} seconds\n\n".format(
 # 					args.bam, (platy_end - platy_start)))
-# 			log_open.write("Platypus calling on {}. Elapsed time: {} seconds\n".format(
-# 				args.bam, (platy_end - platy_start)))
+# 			log_open.write(
+# 				"Platypus calling on {}. Elapsed time: {} seconds\n".format(
+# 					args.bam, (platy_end - platy_start)))
 # 			if a != 0:
 # 				print("Error in initial Platypus calling.")
 # 				sys.exit(1)
 # 			if args.no_variant_plots is not True:
 # 				plot_var_begin = time.time()
-# 				print("Beginning plotting of vcf, {}\n".format(noprocessing_vcf))
+# 				print("Beginning plotting of vcf, {}\n".format(
+# 					noprocessing_vcf))
 # 				variants.plot_variants_per_chrom(
 # 					args.chromosomes, noprocessing_vcf,
 # 					args.sample_id, readbalance_prefix_noprocessing,
 # 					args.variant_quality_cutoff, args.marker_size,
 # 					args.marker_transparency, args.bam)
 # 				plot_var_end = time.time()
-# 				print("\nVCF plotting complete on {}. Elapsed Time: {} seconds\n\n".format(
-# 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
-# 				log_open.write("VCF plotting on {}. Elapsed time: {} seconds\n".format(
-# 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
+# 				print(
+# 					"\nVCF plotting complete on {}. "
+# 					"Elapsed Time: {} seconds\n\n".format(
+# 						noprocessing_vcf,
+# 						(plot_var_end - plot_var_begin)))
+# 				log_open.write(
+# 					"VCF plotting on {}. Elapsed time: {} seconds\n".format(
+# 						noprocessing_vcf, (plot_var_end - plot_var_begin)))
 # 		else:
 # 			a = variants.platypus_caller(
 # 				args.platypus_path, noprocessing_vcf_log, args.cram, args.ref,
 # 				args.chromosomes, args.cpus, noprocessing_vcf, None)
 # 			platy_end = time.time()
 # 			print(
-# 				"Platypus calling complete on {}. Elapsed Time: {} seconds\n\n".format(
+# 				"Platypus calling complete on {}. "
+# 				"Elapsed Time: {} seconds\n\n".format(
 # 					args.bam, (platy_end - platy_timer)))
-# 			log_open.write("Platypus calling on {}. Elapsed time: {} seconds\n".format(
-# 				args.bam, (platy_end - platy_timer)))
+# 			log_open.write(
+# 				"Platypus calling on {}. "
+# 				"Elapsed time: {} seconds\n".format(
+# 					args.bam, (platy_end - platy_timer)))
 # 			if a != 0:
 # 				print("Error in initial Platypus calling.")
 # 				sys.exit(1)
 # 			if args.no_variant_plots is not True:
 # 				plot_var_begin = time.time()
-# 				print("Beginning plotting of vcf, {}\n".format(noprocessing_vcf))
+# 				print(
+# 					"Beginning plotting of vcf, {}\n".format(
+# 						noprocessing_vcf))
 # 				variants.plot_variants_per_chrom(
 # 					args.chromosomes, noprocessing_vcf,
 # 					args.sample_id, readbalance_prefix_noprocessing,
 # 					args.variant_quality_cutoff, args.marker_size,
 # 					args.marker_transparency, args.cram)
-# 				print("VCF plotting complete on {}. Elapsed Time: {} seconds\n\n".format(
-# 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
-# 				log_open.write("VCF plotting on {}. Elapsed time: {} seconds\n".format(
-# 					noprocessing_vcf, (plot_var_end - plot_var_begin)))
+# 				print(
+# 					"VCF plotting complete on {}. "
+# 					"Elapsed Time: {} seconds\n\n".format(
+# 						noprocessing_vcf, (plot_var_end - plot_var_begin)))
+# 				log_open.write(
+# 					"VCF plotting on {}. Elapsed time: {} seconds\n".format(
+# 						noprocessing_vcf, (plot_var_end - plot_var_begin)))
 #
 # 	# Analyze bam for depth and mapq
 # 	if args.no_bam_analysis is not True:
@@ -1135,7 +1153,8 @@ if __name__ == "__main__":
 # 		pass_df = []
 # 		fail_df = []
 # 		for chromosome in args.chromosomes:
-# 			data = bam.traverse_bam_fetch(samfile, chromosome, args.window_size)
+# 			data = bam.traverse_bam_fetch(
+# 				samfile, chromosome, args.window_size)
 # 			tup = make_region_lists(
 # 				data["windows"], args.mapq_cutoff, args.depth_filter)
 # 			pass_df.append(tup[0])
@@ -1147,15 +1166,18 @@ if __name__ == "__main__":
 # 		output_bed(output_bed_high, *pass_df)
 # 		output_bed(output_bed_low, *fail_df)
 # 		bam_analysis_end = time.time()
-# 		print("Bam-cram analyses complete. Elapsed time: {} seconds\n".format(
-# 			bam_analysis_end - bam_analysis_start))
+# 		print(
+# 			"Bam-cram analyses complete. Elapsed time: {} seconds\n".format(
+# 				bam_analysis_end - bam_analysis_start))
 # 		if args.bam is not None:
 # 			log_open.write(
-# 				"Bam analyses complete on {}. Elapsed time: {} seconds\n".format(
+# 				"Bam analyses complete on {}. "
+# 				"Elapsed time: {} seconds\n".format(
 # 					args.bam, (bam_analysis_end - bam_analysis_start)))
 # 		else:
 # 			log_open.write(
-# 				"Cram analyses complete on {}. Elapsed time: {} seconds\n".format(
+# 				"Cram analyses complete on {}. "
+# 				"Elapsed time: {} seconds\n".format(
 # 					args.cram, (bam_analysis_end - bam_analysis_start)))
 #
 # 	# Infer ploidy (needs to be finished)
@@ -1167,7 +1189,8 @@ if __name__ == "__main__":
 # 		print("Beginning permutation tests\n")
 # 		if args.y_chromosome is not None:
 # 			sex_chromosomes = args.x_chromosome + args.y_chromosome
-# 			autosomes = [x for x in args.chromosomes if x not in sex_chromosomes]
+# 			autosomes = [
+# 				x for x in args.chromosomes if x not in sex_chromosomes]
 # 			perm_res_x = []
 # 			perm_res_y = []
 # 			for c in autosomes:
@@ -1182,7 +1205,8 @@ if __name__ == "__main__":
 # 					results_path + "/{}_{}_permutation_results.txt".format(
 # 						c, str(args.y_chromosome[0]))))
 # 			sex_perm_res = ploidy.permutation_test_chromosomes(
-# 				pd.concat(pass_df), str(args.x_chromosome[0]), str(args.y_chromosome[0]),
+# 				pd.concat(pass_df), str(args.x_chromosome[0]),
+# 				str(args.y_chromosome[0]),
 # 				"chrom", "depth", args.num_permutations,
 # 				results_path + "/{}_{}_permutation_results.txt".format(
 # 					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
@@ -1196,7 +1220,8 @@ if __name__ == "__main__":
 # 				y_present_perm = False
 # 		else:
 # 			sex_chromosomes = args.x_chromosome
-# 			autosomes = [x for x in args.chromosomes if x not in sex_chromosomes]
+# 			autosomes = [
+# 				x for x in args.chromosomes if x not in sex_chromosomes]
 # 			perm_res_x = []
 # 			for c in autosomes:
 # 				perm_res_x.append(ploidy.permutation_test_chromosomes(
@@ -1214,10 +1239,11 @@ if __name__ == "__main__":
 # 			# 	y_present_perm = False
 #
 # 		perm_end = time.time()
-# 		print("Permutation tests complete.  Elapsed time: {} seconds\n\n".format(
-# 			perm_end - perm_start))
+# 		print(
+# 			"Permutation tests complete. Elapsed time: {} seconds\n\n".format(
+# 				perm_end - perm_start))
 # 		log_open.write(
-# 			"Permutation tests complete.  Elapsed time: {} seconds\n".format(
+# 			"Permutation tests complete. Elapsed time: {} seconds\n".format(
 # 				perm_end - perm_start))
 #
 # 	if args.y_present is True:
@@ -1245,8 +1271,9 @@ if __name__ == "__main__":
 # 		if y_present is True:
 # 			if args.reference_mask != [None]:
 # 				if len(args.reference_mask) > 1:
-# 					reference_mask = merge_bed_files("{}/reference_mask.merged.bed".format(
-# 						bed_path), *args.reference_mask)
+# 					reference_mask = merge_bed_files(
+# 						"{}/reference_mask.merged.bed".format(
+# 							bed_path), *args.reference_mask)
 # 				else:
 # 					reference_mask = args.reference_mask[0]
 # 				# Isolate sex chromosomes from reference and index new reference
@@ -1256,10 +1283,13 @@ if __name__ == "__main__":
 # 					args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
 # 						reference_path, args.sample_id), reference_mask)
 # 				new_ref_end = time.time()
-# 				print("New reference complete. Elapsed time: {} seconds\n\n".format(
-# 					new_ref_end - new_ref_start))
-# 				log_open.write("New reference complete. Elapsed time: {} seconds\n".format(
-# 					new_ref_end - new_ref_start))
+# 				print(
+# 					"New reference complete. Elapsed time: {} seconds\n\n".format(
+# 						new_ref_end - new_ref_start))
+# 				log_open.write(
+# 					"New reference complete. "
+# 					"Elapsed time: {} seconds\n".format(
+# 						new_ref_end - new_ref_start))
 # 				# Strip reads from sex chromosomes
 # 				strip_reads_start = time.time()
 # 				print("Stripping and cleaning reads from sex chromosomes\n")
@@ -1274,17 +1304,21 @@ if __name__ == "__main__":
 # 						args.single_end, fastq_path, args.sample_id,
 # 						args.x_chromosome + args.y_chromosome)
 # 				strip_reads_end = time.time()
-# 				print("Stripping reads complete. Elapsed time: {} seconds\n\n".format(
-# 					strip_reads_end - strip_reads_start))
+# 				print(
+# 					"Stripping reads complete. "
+# 					"Elapsed time: {} seconds\n\n".format(
+# 						strip_reads_end - strip_reads_start))
 # 				log_open.write(
-# 					"Stripping reads complete. Elapsed time: {} seconds\n".format(
+# 					"Stripping reads complete. "
+# 					"Elapsed time: {} seconds\n".format(
 # 						strip_reads_end - strip_reads_start))
 # 				# Remap
 # 				remap_start = time.time()
 # 				print("Beginning remapping reads to new reference\n")
 # 				with open(new_fastqs[0]) as f:
 # 					read_group_and_fastqs = [line.strip() for line in f]
-# 					read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
+# 					read_group_and_fastqs = [
+# 						x.split() for x in read_group_and_fastqs]
 # 				with open(new_fastqs[1]) as f:
 # 					read_group_headers = [line.split() for line in f]
 # 				temp_bam_list = []
@@ -1299,17 +1333,20 @@ if __name__ == "__main__":
 # 										rg_tag = "\t".join(j)
 # 									break
 # 						temp_bam = assemble.bwa_mem_mapping_sambamba(
-# 							args.bwa_path, args.samtools_path, args.sambamba_path,
-# 							new_reference, "{}/{}.sex_chroms.{}.".format(
+# 							args.bwa_path, args.samtools_path,
+# 							args.sambamba_path, new_reference,
+# 							"{}/{}.sex_chroms.{}.".format(
 # 								bam_path, args.sample_id, rg_id),
 # 							fastq_files, args.cpus, rg_tag,
 # 							[str(x).strip() for x in args.bwa_flags.split()])
 # 						temp_bam_list.append(temp_bam)
 # 				remap_end = time.time()
-# 				print("Remapping complete. Elapsed time: {} seconds\n\n".format(
-# 					remap_end - remap_start))
-# 				log_open.write("Remapping complete. Elapsed time: {} seconds\n".format(
-# 					remap_end - remap_start))
+# 				print(
+# 					"Remapping complete. Elapsed time: {} seconds\n\n".format(
+# 						remap_end - remap_start))
+# 				log_open.write(
+# 					"Remapping complete. Elapsed time: {} seconds\n".format(
+# 						remap_end - remap_start))
 #
 # 				if len(temp_bam_list) < 2:
 # 					new_bam = temp_bam_list[0]
@@ -1317,7 +1354,8 @@ if __name__ == "__main__":
 # 					merge_start = time.time()
 # 					print("Merging bams from different read groups\n")
 # 					new_bam = bam.sambamba_merge(
-# 						args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
+# 						args.sambamba_path, temp_bam_list,
+# 						"{}/{}.sex_chroms".format(
 # 							bam_path, args.sample_id), args.cpus)
 # 					merge_end = time.time()
 # 					print(
@@ -1333,27 +1371,33 @@ if __name__ == "__main__":
 # 				print("Replacing old sex chromosomes with new in bam\n")
 # 				if args.bam is not None:
 # 					merged_bam = bam.switch_sex_chromosomes_bam_sambamba_output_temps(
-# 						args.samtools_path, args.sambamba_path, args.bam, new_bam,
+# 						args.samtools_path, args.sambamba_path,
+# 						args.bam, new_bam,
 # 						args.x_chromosome + args.y_chromosome,
 # 						bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 # 				else:
 # 					merged_bam = bam.switch_sex_chromosomes_bam_sambamba_output_temps(
-# 						args.samtools_path, args.sambamba_path, args.cram, new_bam,
+# 						args.samtools_path, args.sambamba_path,
+# 						args.cram, new_bam,
 # 						args.x_chromosome + args.y_chromosome,
 # 						bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 # 				switch_bam_end = time.time()
 # 				print(
 # 					"Sex chromosome replacement (bam) complete: "
-# 					"Elapsed time: {} seconds\n\n".format(switch_bam_end - switch_bam_start))
+# 					"Elapsed time: {} seconds\n\n".format(
+# 						switch_bam_end - switch_bam_start))
 # 				log_open.write(
 # 					"Sex chromosome replacement (bam) complete: "
-# 					"Elapsed time: {} seconds\n".format(switch_bam_end - switch_bam_start))
+# 					"Elapsed time: {} seconds\n".format(
+# 						switch_bam_end - switch_bam_start))
 # 			else:
 # 				print(
-# 					"Y chromosome present, but no mask provided (--reference_mask). "
+# 					"Y chromosome present, but no mask provided "
+# 					"(--reference_mask). "
 # 					"Skipping remapping\n")
 # 				log_open.write(
-# 					"Y chromosome present, but no mask provided (--reference_mask). "
+# 					"Y chromosome present, but no mask provided "
+# 					"(--reference_mask). "
 # 					"Skipping remapping\n")
 # 		else:
 # 			# Create Y mask and combine it with other masks
@@ -1361,8 +1405,9 @@ if __name__ == "__main__":
 # 			y_mask = chromosome_bed(args.bam, "{}/{}.mask.bed".format(
 # 				bed_path, args.y_chromosome))
 # 			if args.reference_mask != [None]:
-# 				reference_mask = merge_bed_files("{}/reference_mask.merged.bed".format(
-# 					bed_path), y_mask, *args.reference_mask)
+# 				reference_mask = merge_bed_files(
+# 					"{}/reference_mask.merged.bed".format(
+# 						bed_path), y_mask, *args.reference_mask)
 # 			else:
 # 				reference_mask = y_mask
 # 			# Isolate sex chromosomes from reference and index new reference
@@ -1372,10 +1417,14 @@ if __name__ == "__main__":
 # 					args.samtools_path, args.ref, "{}/{}.sex_chroms".format(
 # 						reference_path, args.sample_id), reference_mask)
 # 				new_ref_end = time.time()
-# 				print("New reference complete. Elapsed time: {} seconds\n\n".format(
-# 					new_ref_end - new_ref_start))
-# 				log_open.write("New reference complete. Elapsed time: {} seconds\n".format(
-# 					new_ref_end - new_ref_start))
+# 				print(
+# 					"New reference complete. "
+# 					"Elapsed time: {} seconds\n\n".format(
+# 						new_ref_end - new_ref_start))
+# 				log_open.write(
+# 					"New reference complete. "
+# 					"Elapsed time: {} seconds\n".format(
+# 						new_ref_end - new_ref_start))
 # 			# Strip reads from sex chromosomes
 # 			strip_reads_start = time.time()
 # 			print("Stripping and cleaning reads from sex chromosomes\n")
@@ -1390,17 +1439,21 @@ if __name__ == "__main__":
 # 					args.single_end, fastq_path, args.sample_id,
 # 					args.x_chromosome)
 # 			strip_reads_end = time.time()
-# 			print("Stripping reads complete. Elapsed time: {} seconds\n\n".format(
-# 				strip_reads_end - strip_reads_start))
+# 			print(
+# 				"Stripping reads complete. "
+# 				"Elapsed time: {} seconds\n\n".format(
+# 					strip_reads_end - strip_reads_start))
 # 			log_open.write(
-# 				"Stripping reads complete. Elapsed time: {} seconds\n".format(
+# 				"Stripping reads complete. "
+# 				"Elapsed time: {} seconds\n".format(
 # 					strip_reads_end - strip_reads_start))
 # 			# Remap
 # 			remap_start = time.time()
 # 			print("Beginning remapping reads to new reference\n")
 # 			with open(new_fastqs[0]) as f:
 # 				read_group_and_fastqs = [line.strip() for line in f]
-# 				read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
+# 				read_group_and_fastqs = [
+# 					x.split() for x in read_group_and_fastqs]
 # 			with open(new_fastqs[1]) as f:
 # 				read_group_headers = [line.split() for line in f]
 # 			temp_bam_list = []
@@ -1415,25 +1468,30 @@ if __name__ == "__main__":
 # 									rg_tag = "\t".join(j)
 # 								break
 # 					temp_bam = assemble.bwa_mem_mapping_sambamba(
-# 						args.bwa_path, args.samtools_path, args.sambamba_path,
-# 						new_reference, "{}/{}.sex_chroms.{}.".format(
+# 						args.bwa_path, args.samtools_path,
+# 						args.sambamba_path, new_reference,
+# 						"{}/{}.sex_chroms.{}.".format(
 # 							bam_path, args.sample_id, rg_id),
 # 						fastq_files, args.cpus, rg_tag,
 # 						[str(x).strip() for x in args.bwa_flags.split()])
 # 					temp_bam_list.append(temp_bam)
 # 			remap_end = time.time()
-# 			print("Remapping complete. Elapsed time: {} seconds\n\n".format(
-# 				remap_end - remap_start))
-# 			log_open.write("Remapping complete. Elapsed time: {} seconds\n".format(
-# 				remap_end - remap_start))
+# 			print(
+# 				"Remapping complete. Elapsed time: {} seconds\n\n".format(
+# 					remap_end - remap_start))
+# 			log_open.write(
+# 				"Remapping complete. Elapsed time: {} seconds\n".format(
+# 					remap_end - remap_start))
 #
 # 			if len(temp_bam_list) < 2:
 # 				new_bam = temp_bam_list[0]
 # 			else:
 # 				merge_start = time.time()
-# 				print("Merging bams from different read groups\n")
+# 				print(
+# 					"Merging bams from different read groups\n")
 # 				new_bam = bam.sambamba_merge(
-# 					args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
+# 					args.sambamba_path, temp_bam_list,
+# 					"{}/{}.sex_chroms".format(
 # 						bam_path, args.sample_id), args.cpus)
 # 				merge_end = time.time()
 # 				print(
@@ -1448,35 +1506,42 @@ if __name__ == "__main__":
 # 			print("Replacing old sex chromosomes with new in bam\n")
 # 			if args.bam is not None:
 # 				merged_bam = bam.switch_sex_chromosomes_bam_sambamba_output_temps(
-# 					args.samtools_path, args.sambamba_path, args.bam, new_bam,
+# 					args.samtools_path, args.sambamba_path,
+# 					args.bam, new_bam,
 # 					args.x_chromosome + args.y_chromosome,
 # 					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 # 			else:
 # 				merged_bam = bam.switch_sex_chromosomes_bam_sambamba_output_temps(
-# 					args.samtools_path, args.sambamba_path, args.cram, new_bam,
+# 					args.samtools_path, args.sambamba_path,
+# 					args.cram, new_bam,
 # 					args.x_chromosome + args.y_chromosome,
 # 					bam_path, args.sample_id, args.cpus, xyalign_params_dict)
 # 				switch_bam_end = time.time()
 # 			print(
 # 				"Sex chromosome replacement (bam) complete: "
-# 				"Elapsed time: {} seconds\n\n".format(switch_bam_end - switch_bam_start))
+# 				"Elapsed time: {} seconds\n\n".format(
+# 					switch_bam_end - switch_bam_start))
 # 			log_open.write(
 # 				"Sex chromosome replacement (bam) complete: "
-# 				"Elapsed time: {} seconds\n".format(switch_bam_end - switch_bam_start))
+# 				"Elapsed time: {} seconds\n".format(
+# 					switch_bam_end - switch_bam_start))
 #
 # 	# Analyze new bam for depth and mapq
 # 	if args.no_bam_analysis is not True and args.no_remapping is not True:
 # 		bam_analysis_start = time.time()
 # 		if args.bam is not None:
-# 			print("Beginning final bam analyses on {}\n".format(merged_bam))
+# 			print("Beginning final bam analyses on {}\n".format(
+# 				merged_bam))
 # 			samfile = pysam.AlignmentFile(merged_bam, "rb")
 # 		else:
-# 			print("Beginning final cram analyses on {}\n".format(merged_bam))
+# 			print("Beginning final cram analyses on {}\n".format(
+# 				merged_bam))
 # 			samfile = pysam.AlignmentFile(merged_bam, "rc")
 # 		pass_df_second = []
 # 		fail_df_second = []
 # 		for chromosome in args.chromosomes:
-# 			data = bam.traverse_bam_fetch(samfile, chromosome, args.window_size)
+# 			data = bam.traverse_bam_fetch(
+# 				samfile, chromosome, args.window_size)
 # 			tup = make_region_lists(
 # 				data["windows"], args.mapq_cutoff, args.depth_filter)
 # 			pass_df_second.append(tup[0])
@@ -1488,15 +1553,19 @@ if __name__ == "__main__":
 # 		output_bed(output_bed_high_postprocessing, *pass_df_second)
 # 		output_bed(output_bed_low_postprocessing, *fail_df_second)
 # 		bam_analysis_end = time.time()
-# 		print("Final bam-cram analyses complete. Elapsed time: {} seconds\n".format(
-# 			bam_analysis_end - bam_analysis_start))
+# 		print(
+# 			"Final bam-cram analyses complete. "
+# 			"Elapsed time: {} seconds\n".format(
+# 				bam_analysis_end - bam_analysis_start))
 # 		if args.bam is not None:
 # 			log_open.write(
-# 				"Final bam analyses complete on {}. Elapsed time: {} seconds\n".format(
+# 				"Final bam analyses complete on {}. "
+# 				"Elapsed time: {} seconds\n".format(
 # 					merged_bam, (bam_analysis_end - bam_analysis_start)))
 # 		else:
 # 			log_open.write(
-# 				"Final cram analyses complete on {}. Elapsed time: {} seconds\n".format(
+# 				"Final cram analyses complete on {}. "
+# 				"Elapsed time: {} seconds\n".format(
 # 					merged_bam, (bam_analysis_end - bam_analysis_start)))
 #
 # 	# Final round of calling and plotting
@@ -1504,7 +1573,8 @@ if __name__ == "__main__":
 #
 # 	if args.platypus_calling == "both" or args.platypus_calling == "after":
 # 		a = variants.platypus_caller(
-# 			args.platypus_path, postprocessing_vcf_log, merged_bam, args.ref,
+# 			args.platypus_path, postprocessing_vcf_log,
+# 			merged_bam, args.ref,
 # 			args.chromosomes, args.cpus, postprocessing_vcf, include_bed)
 # 		if a != 0:
 # 			print("Error in second round of Platypus calling.")
@@ -1520,7 +1590,8 @@ if __name__ == "__main__":
 # 	# Final timestamp
 # 	end_time = time.time()
 # 	print(
-# 		"XYalign complete. Elapsed time: {} seconds\n".format(end_time - start_time))
+# 		"XYalign complete. Elapsed time: {} seconds\n".format(
+# 			end_time - start_time))
 # 	log_open.write("XYalign complete. Elapsed time: {} seconds\n".format(
 # 		end_time - start_time))
 #
