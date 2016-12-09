@@ -86,7 +86,7 @@ class RefFasta():
 					self.filepath))
 			raise RuntimeError("Unable to create bwa indicies. Exiting")
 
-	def seq_dict(self, out_dict="{}.dict".format(self.filepath)):
+	def seq_dict(self, out_dict=None):
 		"""
 		Create sequence dictionary .dict file using samtools
 
@@ -95,6 +95,8 @@ class RefFasta():
 		"""
 		self.logger.info("Creating sequence dictionary for: {}".format(
 			self.filepath))
+		if out_dict is None:
+			out_dict = "{}.dict".format(self.filepath)
 		dict_start = time.time()
 		rc = subprocess.call(
 			[self.samtools, "dict", "-o", out_dict, self.filepath])

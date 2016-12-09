@@ -179,6 +179,7 @@ def main():
 
 	# Reference Prep Only
 	if args.PREPARE_REFERENCE is True:
+		# Combine masks, if more than one present
 		if args.reference_mask != [None]:
 			if len(args.reference_mask) > 1:
 				reference_mask = merge_bed_files(
@@ -713,6 +714,26 @@ def parse_args():
 		"--single_end", action="store_true", default=False,
 		help="Include flag if reads are single-end and NOT paired-end.")
 
+	# Options to run specific parts of the pipeline
+	pipeline_group = parser.add_mutually_exclusive_group(required=False)
+	pipeline_group.add_argument(
+		"--PREPARE_REFERENCE", action="store_true", default=False,
+		help="This flag will limit XYalign to only preparing reference fastas "
+		"for individuals with and without Y chromosomes.  These fastas can "
+		"then be passed with each sample to save subsequent processing time.")
+
+	pipeline_group.add_argument(
+		"--ANALYZE_BAM", action="store_true", default=False,
+		help="This flag will limit XYalign to only analyzing the bam file for "
+		"(optionally) depth, mapq, and read balance and outputting plots.")
+
+	pipeline_group.add_argument(
+		"--CHARACTERIZE_SEX_CHROMS", action="store_true", default=False,
+		help="This flag will limit XYalign to the steps required to "
+		"characterize sex chromosome content (i.e., analyzing the bam "
+		"for depth, mapq, and read balance and running statistical tests "
+		"to help infer ploidy)")
+
 	# Logging options
 	parser.add_argument(
 		"--logfile", default=None,
@@ -778,7 +799,7 @@ def parse_args():
 		help="Prefix to use for Platypus log files.  Will default to the "
 		"sample_id argument provided")
 
-	# Mapping/remapping Flags
+	# Reference-related Flags
 	parser.add_argument(
 		"--reference_mask", nargs="+", default=[None],
 		help="Bed file containing regions to replace with Ns in the sex "
@@ -798,6 +819,7 @@ def parse_args():
 		"samples containing Y chromosome.  Default is None.  If none, will "
 		"produce a sample-specific reference for remapping.")
 
+	# Mapping/remapping arguments
 	parser.add_argument(
 		"--bwa_flags", type=str, default="",
 		help="Provide a string (in quotes, with spaces between arguments) "
@@ -836,6 +858,11 @@ def parse_args():
 		"--num_permutations", type=int, default=10000,
 		help="Number of permutations to use for permutation analyses. "
 		"Default is 10000")
+
+	parser.add_argument(
+		"--num_bootstraps", type=int, default=10000,
+		help="Number of bootstrap replicates to use when bootstrapping mean "
+		"depth ratios among chromosomes. Default is 10000")
 
 	# Plotting flags
 	parser.add_argument(
