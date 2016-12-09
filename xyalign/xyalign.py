@@ -57,7 +57,6 @@ def main():
 		logfile = os.path.join(
 			logfile_path, "{}_xyalign.log".format(
 				args.sample_id))
-	log_open = open(logfile, "w")
 
 	# Initiate logging
 	logger = logging.getLogger("xyalign")
@@ -77,7 +76,7 @@ def main():
 		ch.setLevel(logging.CRITICAL)
 	else:
 		ch.setLevel(logging.INFO)
-	# Create Formatter
+	# Set Formatter
 	formatter = logging.Formatter(
 		'%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 	fh.setFormatter(formatter)
@@ -86,29 +85,19 @@ def main():
 	logger.addHandler(fh)
 	logger.addHandler(ch)
 
-	# Print XYalign info and set up dictionary of version and parameters for
-	# bam header updating
-	print("{}\n\n".format(citation))
-	log_open.write("{}\n\n".format(citation))
-	print("{}\n".format("Parameters:"))
-	log_open.write("{}\n\n".format("Parameters:"))
+	# Log citation
+	logger.INFO("{}".format(citation))
 
+	# Log parameters and set up dictionary for @PG line in bam
 	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
+	p = ""
 	for arg in args.__dict__:
-		print("{}:\t{}".format(arg, args.__dict__[arg]))
-		log_open.write("{}:\t{}\n".format(arg, args.__dict__[arg]))
+		p = p + "{}={}, ".format(arg, args.__dict__[arg])
 		xyalign_params_dict['CL'].append("{}={}".format(arg, args.__dict__[arg]))
 
-	print("\n")
-	log_open.write("\n\n")
+	logger.INFO("Parameters: {}".format(p))
 
-	print("Beginning Pipeline at {}\n".format(
-		time.asctime(time.localtime(time.time()))))
-	log_open.write("Beginning Pipeline at {}\n\n".format(
-		time.asctime(time.localtime(time.time()))))
-
-	# Initialize timer
-	start_time = time.time()
+	logger.INFO("Beginning XYalign")
 
 	# Setup output paths
 	fastq_path = os.path.join(args.output_dir, "fastq")
@@ -183,6 +172,28 @@ def main():
 			args.sample_id)
 	output_bed_low_postprocessing = os.path.join(
 		bed_path, "{}.bed".format(low_prefix))
+
+	# Reference Prep Only
+
+
+
+	# Stats Only
+
+
+
+	# Ploidy Estimation Only
+
+
+
+	# Pipeline
+
+
+
+
+
+
+
+
 
 	# First round of Platypus calling and plotting
 	if args.platypus_calling == "both" or args.platypus_calling == "before":
