@@ -712,8 +712,6 @@ def parse_args():
 		"Choose from (in decreasing amount of reporting) DEBUG, INFO, ERROR "
 		"or CRITICAL")
 
-	parser.add_argument()
-
 	# Program paths
 	parser.add_argument(
 		"--platypus_path", default="platypus",

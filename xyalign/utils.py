@@ -1,8 +1,8 @@
 # Part of XYalign
 # Collection of miscellaneous functions
 
-from __future__import division
-from __future__import print_function
+from __future__ import division
+from __future__ import print_function
 import logging
 import pandas as pd
 import pybedtools
