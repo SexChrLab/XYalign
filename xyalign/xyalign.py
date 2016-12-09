@@ -200,15 +200,29 @@ def main():
 		# Combine masks, if more than one present
 		if args.reference_mask != [None]:
 			if len(args.reference_mask) > 1:
-				reference_mask = merge_bed_files(
+				reference_mask = utils.merge_bed_files(
 					"{}/reference_mask.merged.bed".format(
 						bed_path), *args.reference_mask)
 			else:
 				reference_mask = args.reference_mask
 		# Create masked noY reference
-
+		y_mask = utils.chromosome_bed(args.bam, "{}/Y.bed".format(
+			bed_path), args.y_chromosome)
+		noy_out = ref.mask_reference(
+			utils.merge_bed_files(
+				"{}/reference_mask.maskY.merged.bed".format(
+					bed_path), reference_mask, y_mask))
+		noy_ref = reftools.RefFasta(noy_out)
+		noy_ref.index_bwa(args.bwa_path)
+		noy_ref.seq_dict()
 		# Create masked withY reference
-		pass
+		withy_out = ref.mask_reference(reference_mask)
+		withy_ref = reftools.RefFasta(withy_out)
+		withy_ref.index_bwa(args.bwa_path)
+		withy_ref.seq_dict()
+		logger.info("PREPARE_REFERENCE complete.")
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
 
 	# Stats Only
 	elif args.ANALYZE_BAM is True:

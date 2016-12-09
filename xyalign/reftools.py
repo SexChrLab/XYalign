@@ -114,13 +114,13 @@ class RefFasta():
 			raise RuntimeError(
 				"Unable to create sequence dictionary. Exiting")
 
-	def mask_reference(new_ref_prefix, bed_mask):
+	def mask_reference(bed_mask, output_fasta=None):
 		"""
 		Creates a new masked references by hardmasking regions included
 		in the bed_mask
 
-		new_ref_prefix is the desired path to and prefix of the output files
 		bed_mask is a bed file of regions to mask (as N) in the new reference
+		output_fasta is the full path to and filename of the output fasta
 
 		Returns:
 			Path to new, indexed, masked) fasta
@@ -128,7 +128,7 @@ class RefFasta():
 		mask_start = time.time()
 		reftools_logger.info("Masking {} using regions in {}".format(
 			self.filepath, bed_mask))
-		maskedpath = "{}.masked.fa".format(new_ref_prefix)
+		maskedpath = output_fasta
 		b_fasta = pybedtools.BedTool(self.filepath)
 		b_tool = pybedtools.BedTool(bed_mask)
 		b = b_tool.mask_fasta(fi=b_fasta, fo=maskedpath)
