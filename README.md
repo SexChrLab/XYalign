@@ -38,6 +38,9 @@ Program
 - [ ] Add histogram plotting for depth and mapq
 - [ ] Add cram and sam support
 	- probably not necessary for initial release
+- [ ] Clean up parse_args() and update checks/validation
+- [ ] Move subsections of pipeline to individual functions to clean up main()
+- [ ] Write documentation
 
 Testing
 - [x] Simulate and assemble XX, XY, XXY, and XO genomes
