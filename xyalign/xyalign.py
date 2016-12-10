@@ -226,7 +226,43 @@ def main():
 
 	# Stats Only
 	elif args.ANALYZE_BAM is True:
-		pass
+		logger.info(
+			"ANALYZE_BAM set, so only running steps required "
+			"for bam analysis.")
+		if args.platypus_calling in ["both", "before"]:
+			a = variants.platypus_caller(
+				args.platypus_path, noprocessing_vcf_log, input_bam.filepath,
+				ref.filepath, args.chromosomes, args.cpus, noprocessing_vcf,
+				None)
+			if a != 0:
+				logger.error("Error in platypus calling on {}".format(
+					input_bam.filepath))
+				sys.exit(1)
+			if args.no_variant_plots is not True:
+				variants.plot_variants_per_chrom(
+					args.chromosomes, noprocessing_vcf,
+					args.sample_id, read_balance_prefix_noprocessing,
+					args.variant_quality_cutoff, args.marker_size,
+					args.marker_transparency, input_bam.filepath)
+		if args.no_bam_analysis is not True:
+			pass_df = []
+			fail_df = []
+			for chromosome in args.chromosome:
+				data = input_bam.analyze_bam_fetch(
+					chromosome, args.window_size)
+				tup = utils.make_region_lists(
+					data["windows"], args.mapq_cutoff, args.depth_filter)
+				pass_df.append(tup[0])
+				fail_df.append(tup[1])
+				utils.plot_depth_mapq(
+					data, depth_mapq_prefix_noprocessing, args.sample_id,
+					input_bam.get_chrom_length(chromosome), args.marker_size,
+					args.marker_transparency)
+			utils.output_bed(output_bed_high, *pass_df)
+			utils.output_bed(output_bed_low, *fail_df)
+			logger.info("ANALYZE_BAM complete.")
+			logger.info("XYalign complete. Elapsed time: {} seconds".format(
+				time.time() - xyalign_start))
 
 	# Ploidy Estimation Only
 	elif args.CHARACTERIZE_SEX_CHROMS is True:
@@ -536,7 +572,7 @@ def main():
 		else:
 			# Create Y mask and combine it with other masks
 				# Note - doesn't handle CRAM yet
-			y_mask = chromosome_bed(args.bam, "{}/{}.mask.bed".format(
+			y_mask = (args.bam, "{}/{}.mask.bed".format(
 				bed_path, args.y_chromosome))
 			if args.reference_mask != [None]:
 				reference_mask = merge_bed_files("{}/reference_mask.merged.bed".format(

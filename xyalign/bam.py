@@ -223,7 +223,7 @@ class BamFile():
 			"Analyzing {} in {} for depth and mapq using windows of size {}".format(
 				chrom, self.filepath, window_size))
 		analyze_start = time.time()
-		samfile = self.filepath
+		samfile = pysam.AlignmentFile(self.filepath, "rb")
 		chr_len = self.get_chrom_length(chrom)
 		num_windows = chr_len // window_size + 1
 		if chr_len % num_windows == 0:
