@@ -308,11 +308,109 @@ def main():
 		utils.output_bed(output_bed_high, *pass_df)
 		utils.output_bed(output_bed_low, *fail_df)
 		# Permutations
+		if args.no_perm_test is not False:
+			autosomes = [
+				x for x in args.chromosomes if x not in sex_chromosomes]
+			if args.y_chromosome is not None:
+				sex_chromosomes = args.x_chromosome + args.y_chromosome
+				perm_res_x = []
+				perm_res_y = []
+			else:
+				sex_chromosomes = args.x_chromsome
+				perm_res_x = []
+				perm_res_y = None
+			for c in autosomes:
+				perm_res_x.append(ploidy.permutation_test_chromosomes(
+					pd.concat(pass_df), c,
+					str(args.x_chromosome[0]), "chrom",
+					"depth", args.num_permutations,
+					results_path + "/{}_{}_permutation_results.txt".format(
+						c, str(args.x_chromosome[0]))))
+				if perm_res_y is not None:
+					perm_res_y.append(ploidy.permutation_test_chromosomes(
+						pd.concat(pass_df), c,
+						str(args.y_chromosome[0]), "chrom",
+						"depth", args.num_permutations,
+						results_path + "/{}_{}_permutation_results.txt".format(
+							c, str(args.y_chromosome[0]))))
+			if perm_res_y is not None:
+				sex_perm_res = ploidy.permutation_test_chromosomes(
+					pd.concat(pass_df), str(args.x_chromosome[0]),
+					str(args.y_chromosome[0]),
+					"chrom", "depth", args.num_permutations,
+					results_path + "/{}_{}_permutation_results.txt".format(
+						str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 
 		# K-S Two Sample
-
+		if args.no_ks_test is not False:
+			autosomes = [
+				x for x in args.chromosomes if x not in sex_chromosomes]
+			if args.y_chromosome is not None:
+				sex_chromosomes = args.x_chromosome + args.y_chromosome
+				ks_res_x = []
+				ks_res_y = []
+			else:
+				sex_chromosomes = args.x_chromsome
+				ks_res_x = []
+				ks_res_y = None
+			for c in autosomes:
+				ks_res_x.append(ploidy.ks_two_sample(
+					pd.concat(pass_df), c,
+					str(args.x_chromosome[0]), "chrom", "depth",
+					results_path + "/{}_{}_ks_results.txt".format(
+						c, str(args.x_chromosome[0]))))
+				if ks_res_y is not None:
+					ks_res_y.append(ploidy.ks_two_sample(
+						pd.concat(pass_df), c,
+						str(args.y_chromosome[0]), "chrom", "depth",
+						results_path + "/{}_{}_ks_results.txt".format(
+							c, str(args.y_chromosome[0]))))
+			if ks_res_y is not None:
+				sex_ks_res = ploidy.ks_two_sample(
+					pd.concat(pass_df), str(args.x_chromosome[0]),
+					str(args.y_chromosome[0]), "chrom", "depth",
+					results_path + "/{}_{}_ks_results.txt".format(
+						str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 		# Bootstrap
-
+		if args.no_bootstrap is not False:
+			autosomes = [
+				x for x in args.chromosomes if x not in sex_chromosomes]
+			if args.y_chromosome is not None:
+				sex_chromosomes = args.x_chromosome + args.y_chromosome
+				boot_res_x = []
+				boot_res_y = []
+			else:
+				sex_chromosomes = args.x_chromsome
+				boot_res_x = []
+				boot_res_y = None
+			for c in autosomes:
+				boot_res_x.append(ploidy.bootstrap(
+					pd.concat(pass_df), c,
+					str(args.x_chromosome[0]), "chrom",
+					"depth", args.num_bootstraps,
+					results_path + "/{}_{}_bootstrap_results.txt".format(
+						c, str(args.x_chromosome[0]))))
+				if boot_res_y is not None:
+					boot_res_y.append(ploidy.bootstrap(
+						pd.concat(pass_df), c,
+						str(args.y_chromosome[0]), "chrom",
+						"depth", args.num_bootstraps,
+						results_path + "/{}_{}_bootstrap_results.txt".format(
+							c, str(args.y_chromosome[0]))))
+			if boot_res_y is not None:
+				sex_boot_res = ploidy.bootstrap(
+					pd.concat(pass_df), str(args.x_chromosome[0]),
+					str(args.y_chromosome[0]),
+					"chrom", "depth", args.num_bootstraps,
+					results_path + "/{}_{}_bootstrap_results.txt".format(
+						str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+		logger.info("CHARACTERIZE_SEX_CHROMS complete.")
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
+		sys.exit(0)
+	# Remapping Only
+	elif args.REMAPPING is True:
+		pass
 	# Pipeline
 	else:
 		pass
@@ -1023,6 +1121,16 @@ def parse_args():
 	parser.add_argument(
 		"--no_perm_test", action="store_true", default=False,
 		help="Include flag to turn off permutation tests. Requires either "
+		"--y_present or --y_absent to also be called")
+
+	parser.add_argument(
+		"--no_ks_test", action="store_true", default=False,
+		help="Include flag to turn off KS Two Sample tests. Requires either "
+		"--y_present or --y_absent to also be called")
+
+	parser.add_argument(
+		"--no_bootstrap", action="store_true", default=False,
+		help="Include flag to turn off bootstrap analyses. Requires either "
 		"--y_present or --y_absent to also be called")
 
 	group2 = parser.add_mutually_exclusive_group(required=False)
