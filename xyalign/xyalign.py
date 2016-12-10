@@ -230,6 +230,7 @@ def main():
 		logger.info(
 			"ANALYZE_BAM set, so only running steps required "
 			"for bam analysis.")
+		# Platypus
 		if args.platypus_calling in ["both", "before"]:
 			a = variants.platypus_caller(
 				args.platypus_path, noprocessing_vcf_log, input_bam.filepath,
@@ -245,6 +246,7 @@ def main():
 					args.sample_id, read_balance_prefix_noprocessing,
 					args.variant_quality_cutoff, args.marker_size,
 					args.marker_transparency, input_bam.filepath)
+		# Depth/MAPQ
 		if args.no_bam_analysis is not True:
 			pass_df = []
 			fail_df = []
@@ -268,7 +270,48 @@ def main():
 
 	# Ploidy Estimation Only
 	elif args.CHARACTERIZE_SEX_CHROMS is True:
-		pass
+		# Right now, defaulting to running platypus and depth/mapq, as both
+		# will likely play a role in ploidy estimation
+		logger.info(
+			"CHARACTERIZE_SEX_CHROMS set, so only running steps required "
+			"for to characterize sex chromosome complement. Note that "
+			"this involve both playtpus calling and bam analysis too.")
+		# Platypus
+		a = variants.platypus_caller(
+			args.platypus_path, noprocessing_vcf_log, input_bam.filepath,
+			ref.filepath, args.chromosomes, args.cpus, noprocessing_vcf,
+			None)
+		if a != 0:
+			logger.error("Error in platypus calling on {}".format(
+				input_bam.filepath))
+			sys.exit(1)
+		if args.no_variant_plots is not True:
+			variants.plot_variants_per_chrom(
+				args.chromosomes, noprocessing_vcf,
+				args.sample_id, read_balance_prefix_noprocessing,
+				args.variant_quality_cutoff, args.marker_size,
+				args.marker_transparency, input_bam.filepath)
+		# Depth/MAPQ
+		pass_df = []
+		fail_df = []
+		for chromosome in args.chromosome:
+			data = input_bam.analyze_bam_fetch(
+				chromosome, args.window_size)
+			tup = utils.make_region_lists(
+				data["windows"], args.mapq_cutoff, args.depth_filter)
+			pass_df.append(tup[0])
+			fail_df.append(tup[1])
+			utils.plot_depth_mapq(
+				data, depth_mapq_prefix_noprocessing, args.sample_id,
+				input_bam.get_chrom_length(chromosome), args.marker_size,
+				args.marker_transparency)
+		utils.output_bed(output_bed_high, *pass_df)
+		utils.output_bed(output_bed_low, *fail_df)
+		# Permutations
+
+		# K-S Two Sample
+
+		# Bootstrap
 
 	# Pipeline
 	else:
