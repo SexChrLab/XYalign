@@ -223,6 +223,7 @@ def main():
 		logger.info("PREPARE_REFERENCE complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
+		sys.exit(0)
 
 	# Stats Only
 	elif args.ANALYZE_BAM is True:
@@ -260,9 +261,10 @@ def main():
 					args.marker_transparency)
 			utils.output_bed(output_bed_high, *pass_df)
 			utils.output_bed(output_bed_low, *fail_df)
-			logger.info("ANALYZE_BAM complete.")
-			logger.info("XYalign complete. Elapsed time: {} seconds".format(
-				time.time() - xyalign_start))
+		logger.info("ANALYZE_BAM complete.")
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
+		sys.exit(0)
 
 	# Ploidy Estimation Only
 	elif args.CHARACTERIZE_SEX_CHROMS is True:
@@ -572,7 +574,7 @@ def main():
 		else:
 			# Create Y mask and combine it with other masks
 				# Note - doesn't handle CRAM yet
-			y_mask = (args.bam, "{}/{}.mask.bed".format(
+			y_mask = chromosome_bed(args.bam, "{}/{}.mask.bed".format(
 				bed_path, args.y_chromosome))
 			if args.reference_mask != [None]:
 				reference_mask = merge_bed_files("{}/reference_mask.merged.bed".format(
