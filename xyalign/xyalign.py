@@ -17,289 +17,6 @@ import utils
 import variants
 
 
-def main():
-	""" Main program"""
-
-	# Version - placeholder for now - need to incorporate it into __init__.py
-	version = "0.1"
-	citation = """
-	XYalign: Inferring Sex Chromosome Ploidy in NGS Data
-
-	Timothy H Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins,
-	Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres
-
-	2016
-
-	Version: {}
-	""".format(version)
-
-	# Start timer
-	xyalign_start = time.time()
-
-	# Grab arguments
-	args = parse_args()
-
-	# Set up logfile
-	logfile_path = os.path.join(args.output_dir, "logfiles")
-	if args.logfile is not None:
-		logfile = os.path.join(
-			logfile_path, args.logfile)
-	else:
-		logfile = os.path.join(
-			logfile_path, "{}_xyalign.log".format(
-				args.sample_id))
-
-	# Initiate logging
-	logger = logging.getLogger("xyalign")
-	logger.setLevel(logging.DEBUG)
-	# Create File Handler
-	fh = logging.FileHandler(logfile, mode="w")
-	fh.setLevel(logging.DEBUG)
-	# Create Console Handler
-	ch = logging.StreamHandler()
-	if args.reporting_level == "DEBUG":
-		ch.setLevel(logging.DEBUG)
-	elif args.reporting_level == "INFO":
-		ch.setLevel(logging.INFO)
-	elif args.reporting_level == "ERROR":
-		ch.setLevel(logging.ERROR)
-	elif args.reporting_level == "CRITICAL":
-		ch.setLevel(logging.CRITICAL)
-	else:
-		ch.setLevel(logging.INFO)
-	# Set Formatter
-	formatter = logging.Formatter(
-		'%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-	fh.setFormatter(formatter)
-	ch.setFormatter(formatter)
-	# Add handlers to logger
-	logger.addHandler(fh)
-	logger.addHandler(ch)
-
-	# Log citation
-	logger.info("{}".format(citation))
-
-	# Set up param dictionary
-	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
-	p = ""
-	for arg in args.__dict__:
-		p = p + "{}={}, ".format(arg, args.__dict__[arg])
-		xyalign_params_dict['CL'].append("{}={}".format(arg, args.__dict__[arg]))
-
-	# Log parameters and pipeline start
-	logger.info("Parameters: {}".format(p))
-	logger.info("Beginning XYalign")
-
-	# Setup output paths
-	fastq_path = os.path.join(args.output_dir, "fastq")
-	bam_path = os.path.join(args.output_dir, "bam")
-	reference_path = os.path.join(args.output_dir, "reference")
-	bed_path = os.path.join(args.output_dir, "bed")
-	vcf_path = os.path.join(args.output_dir, "vcf")
-	plots_path = os.path.join(args.output_dir, "plots")
-	results_path = os.path.join(args.output_dir, "results")
-
-	# Create paths for output files
-	# reference-related
-	if args.xx_ref_out is not None:
-		xx_out = os.path.join(fastq_path, args.xx_ref_out)
-	else:
-		xx_out = os.path.join(fastq_path, "xyalign_noY.masked.fa")
-	if args.xy_ref_out is not None:
-		xy_out = os.path.join(fastq_path, args.xy_ref_out)
-	else:
-		xy_out = os.path.join(fastq_path, "xyalign_withY.masked.fa")
-	# variant/vcf related
-	noprocessing_vcf = os.path.join(
-		vcf_path, "{}.noprocessing.vcf".format(
-			args.sample_id))
-	postprocessing_vcf = os.path.join(
-		vcf_path, "{}.postprocessing.vcf".format(
-			args.sample_id))
-	if args.platypus_logfile is not None:
-		plat_log = args.platypus_logfile
-	else:
-		plat_log = args.sample_id
-	noprocessing_vcf_log = os.path.join(
-		logfile_path, "{}_noprocessing_platypus.log".format(
-			plat_log))
-	postprocessing_vcf_log = os.path.join(
-		logfile_path, "{}_postprocessing_platypus.log".format(
-			plat_log))
-	readbalance_prefix_noprocessing = os.path.join(
-		plots_path, "{}_noprocessing".format(args.sample_id))
-	readbalance_prefix_postprocessing = os.path.join(
-		plots_path, "{}_postprocessing".format(args.sample_id))
-	# Depth/mapq related
-	depth_mapq_prefix_noprocessing = os.path.join(
-		plots_path, "{}_noprocessing".format(args.sample_id))
-	depth_mapq_prefix_postprocessing = os.path.join(
-		plots_path, "{}_postprocessing".format(args.sample_id))
-	# Bedfile related
-	if args.high_quality_bed_out is not None:
-		# high_prefix = args.high_quality_bed_out
-		print(
-			"--high_quality_bed_out is currently unsupported.  Please remove "
-			"this flag")
-		sys.exit(1)
-	else:
-		high_prefix = "{}_highquality_preprocessing".format(args.sample_id)
-	output_bed_high = os.path.join(
-		bed_path, "{}.bed".format(high_prefix))
-	if args.low_quality_bed_out is not None:
-		# low_prefix = args.low_quality_bed_out
-		print(
-			"--low_quality_bed_out is currently unsupported.  Please remove "
-			"this flag")
-	else:
-		low_prefix = "{}_lowquality_preprocessing".format(args.sample_id)
-	output_bed_low = os.path.join(
-		bed_path, "{}.bed".format(low_prefix))
-	if args.high_quality_bed_out is not None:
-		# high_prefix_postprocessing = args.high_quality_bed_out
-		print(
-			"--high_quality_bed_out is currently unsupported.  Please remove "
-			"this flag")
-	else:
-		high_prefix_postprocessing = "{}_highquality_postprocessing".format(
-			args.sample_id)
-	output_bed_high_postprocessing = os.path.join(
-		bed_path, "{}.bed".format(high_prefix))
-	if args.low_quality_bed_out is not None:
-		# low_prefix_postprocessing = args.low_quality_bed_out
-		print(
-			"--low_quality_bed_out is currently unsupported.  Please remove "
-			"this flag")
-	else:
-		low_prefix_postprocessing = "{}_lowquality_postprocessing".format(
-			args.sample_id)
-	output_bed_low_postprocessing = os.path.join(
-		bed_path, "{}.bed".format(low_prefix))
-
-	######################################
-	############ Run XYalign #############
-	######################################
-	ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
-	input_bam = bam.BamFile(args.bam, args.samtools_path)
-
-	# Reference Prep Only
-	if args.PREPARE_REFERENCE is True:
-		logger.info(
-			"PREPARE_REFERENCE set, so only preparing reference fastas.")
-		ref_prep()
-		logger.info("PREPARE_REFERENCE complete.")
-		logger.info("XYalign complete. Elapsed time: {} seconds".format(
-			time.time() - xyalign_start))
-		logging.shutdown()
-		sys.exit(0)
-
-	# Stats Only
-	elif args.ANALYZE_BAM is True:
-		logger.info(
-			"ANALYZE_BAM set, so only running steps required "
-			"for bam analysis.")
-		bam_analysis_noprocessing()
-		logger.info("ANALYZE_BAM complete.")
-		logger.info("XYalign complete. Elapsed time: {} seconds".format(
-			time.time() - xyalign_start))
-		logging.shutdown()
-		sys.exit(0)
-
-	# Ploidy Estimation Only
-	elif args.CHARACTERIZE_SEX_CHROMS is True:
-		logger.info(
-			"CHARACTERIZE_SEX_CHROMS set, so only running steps required "
-			"for to characterize sex chromosome complement. Note that "
-			"this involve both playtpus calling and bam analysis too.")
-		bam_dfs = bam_analysis_noprocessing()
-		ploidy_results = ploidy_analysis(bam_dfs[0], bam_dfs[1])
-		logger.info("CHARACTERIZE_SEX_CHROMS complete.")
-		logger.info("XYalign complete. Elapsed time: {} seconds".format(
-			time.time() - xyalign_start))
-		logging.shutdown()
-		sys.exit(0)
-
-	# Remapping Only
-	elif args.REMAPPING is True:
-		logger.info(
-			"REMAPPING set, so only running steps required for remapping. "
-			"Requires --y_present or --y_absent to be set")
-		if args.y_present is True:
-			y_present = True
-		elif args.y_absent is True:
-			y_present = False
-		else:
-			logger.error("--y_present or --y_absent required for --REMAPPING. "
-			"Exiting.")
-			sys.exit(1)
-		if args.xx_ref_in is None or args.xy_ref_in is None:
-			logger.info(
-				"Input masked reference not provided for both "
-				"XX and XY mapping, so creating both")
-			masked_refs = ref_prep()
-		else:
-			xx = reftools.RefFasta(
-				args.xx_ref_in, args.samtools_path, args.bwa_path)
-			xy = reftools.RefFasta(
-				args.xy_ref_in, args.samtools_path, args.bwa_path)
-			xx.conditional_index_bwa()
-			xx.seq_dict()
-			xy.conditional_index_bwa()
-			xy.seq_dict()
-			masked_refs = (xx, xy)
-		sex_chrom_bam = bam.BamFile(remapping(), args.samtools_path)
-		if args.sex_chrom_bam_only is True:
-			final_bam = sex_chrom_bam
-		else:
-			final_bam = bam.BamFile(
-				swap_sex_chroms(sex_chrom_bam), args.samtools_path)
-		logger.info("REMAPPING complete.")
-		logger.info("XYalign complete. Elapsed time: {} seconds".format(
-			time.time() - xyalign_start))
-		logging.shutdown()
-		sys.exit(0)
-
-	# Full Pipeline
-	else:
-		logger.info(
-			"Running entire XYalign pipeline")
-		if args.xx_ref_in is None or args.xy_ref_in is None:
-			logger.info(
-				"Input masked reference not provided for both "
-				"XX and XY mapping, so creating both")
-			masked_refs = ref_prep()
-		else:
-			xx = reftools.RefFasta(
-				args.xx_ref_in, args.samtools_path, args.bwa_path)
-			xy = reftools.RefFasta(
-				args.xy_ref_in, args.samtools_path, args.bwa_path)
-			xx.conditional_index_bwa()
-			xx.seq_dict()
-			xy.conditional_index_bwa()
-			xy.seq_dict()
-			masked_refs = (xx, xy)
-		bam_dfs = bam_analysis_noprocessing()
-		ploidy_results = ploidy_analysis(bam_dfs[0], bam_dfs[1])
-		if args.y_present is True:
-			y_present = True
-		elif args.y_absent is True:
-			y_present = False
-		else:
-			logger.error("Need to implement ploidy decision. Exiting.")
-			sys.exit(1)
-		sex_chrom_bam = bam.BamFile(remapping(), args.samtools_path)
-		if args.sex_chrom_bam_only is True:
-			final_bam = sex_chrom_bam
-		else:
-			final_bam = bam.BamFile(
-				swap_sex_chroms(sex_chrom_bam), args.samtools_path)
-		bam_analysis_postprocessing()
-		logger.info("XYalign complete. Elapsed time: {} seconds".format(
-			time.time() - xyalign_start))
-		logging.shutdown()
-		sys.exit(0)
-
-
 def parse_args():
 	"""Parse command-line arguments"""
 	parser = argparse.ArgumentParser(description="XYalign")
@@ -924,7 +641,285 @@ def bam_analysis_postprocessing():
 	return(pass_df, fail_df)
 
 if __name__ == "__main__":
-	main()
+	# Version - placeholder for now - need to incorporate it into __init__.py
+	version = "0.1"
+	citation = """
+	XYalign: Inferring Sex Chromosome Ploidy in NGS Data
+
+	Timothy H Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins,
+	Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres
+
+	2016
+
+	Version: {}
+	""".format(version)
+
+	# Start timer
+	xyalign_start = time.time()
+
+	# Grab arguments
+	args = parse_args()
+
+	# Set up logfile
+	logfile_path = os.path.join(args.output_dir, "logfiles")
+	if args.logfile is not None:
+		logfile = os.path.join(
+			logfile_path, args.logfile)
+	else:
+		logfile = os.path.join(
+			logfile_path, "{}_xyalign.log".format(
+				args.sample_id))
+
+	# Initiate logging
+	logger = logging.getLogger("xyalign")
+	logger.setLevel(logging.DEBUG)
+	# Create File Handler
+	fh = logging.FileHandler(logfile, mode="w")
+	fh.setLevel(logging.DEBUG)
+	# Create Console Handler
+	ch = logging.StreamHandler()
+	if args.reporting_level == "DEBUG":
+		ch.setLevel(logging.DEBUG)
+	elif args.reporting_level == "INFO":
+		ch.setLevel(logging.INFO)
+	elif args.reporting_level == "ERROR":
+		ch.setLevel(logging.ERROR)
+	elif args.reporting_level == "CRITICAL":
+		ch.setLevel(logging.CRITICAL)
+	else:
+		ch.setLevel(logging.INFO)
+	# Set Formatter
+	formatter = logging.Formatter(
+		'%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+	fh.setFormatter(formatter)
+	ch.setFormatter(formatter)
+	# Add handlers to logger
+	logger.addHandler(fh)
+	logger.addHandler(ch)
+
+	# Log citation
+	logger.info("{}".format(citation))
+
+	# Set up param dictionary
+	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
+	p = ""
+	for arg in args.__dict__:
+		p = p + "{}={}, ".format(arg, args.__dict__[arg])
+		xyalign_params_dict['CL'].append("{}={}".format(arg, args.__dict__[arg]))
+
+	# Log parameters and pipeline start
+	logger.info("Parameters: {}".format(p))
+	logger.info("Beginning XYalign")
+
+	# Setup output paths
+	fastq_path = os.path.join(args.output_dir, "fastq")
+	bam_path = os.path.join(args.output_dir, "bam")
+	reference_path = os.path.join(args.output_dir, "reference")
+	bed_path = os.path.join(args.output_dir, "bed")
+	vcf_path = os.path.join(args.output_dir, "vcf")
+	plots_path = os.path.join(args.output_dir, "plots")
+	results_path = os.path.join(args.output_dir, "results")
+
+	# Create paths for output files
+	# reference-related
+	if args.xx_ref_out is not None:
+		xx_out = os.path.join(fastq_path, args.xx_ref_out)
+	else:
+		xx_out = os.path.join(fastq_path, "xyalign_noY.masked.fa")
+	if args.xy_ref_out is not None:
+		xy_out = os.path.join(fastq_path, args.xy_ref_out)
+	else:
+		xy_out = os.path.join(fastq_path, "xyalign_withY.masked.fa")
+	# variant/vcf related
+	noprocessing_vcf = os.path.join(
+		vcf_path, "{}.noprocessing.vcf".format(
+			args.sample_id))
+	postprocessing_vcf = os.path.join(
+		vcf_path, "{}.postprocessing.vcf".format(
+			args.sample_id))
+	if args.platypus_logfile is not None:
+		plat_log = args.platypus_logfile
+	else:
+		plat_log = args.sample_id
+	noprocessing_vcf_log = os.path.join(
+		logfile_path, "{}_noprocessing_platypus.log".format(
+			plat_log))
+	postprocessing_vcf_log = os.path.join(
+		logfile_path, "{}_postprocessing_platypus.log".format(
+			plat_log))
+	readbalance_prefix_noprocessing = os.path.join(
+		plots_path, "{}_noprocessing".format(args.sample_id))
+	readbalance_prefix_postprocessing = os.path.join(
+		plots_path, "{}_postprocessing".format(args.sample_id))
+	# Depth/mapq related
+	depth_mapq_prefix_noprocessing = os.path.join(
+		plots_path, "{}_noprocessing".format(args.sample_id))
+	depth_mapq_prefix_postprocessing = os.path.join(
+		plots_path, "{}_postprocessing".format(args.sample_id))
+	# Bedfile related
+	if args.high_quality_bed_out is not None:
+		# high_prefix = args.high_quality_bed_out
+		print(
+			"--high_quality_bed_out is currently unsupported.  Please remove "
+			"this flag")
+		sys.exit(1)
+	else:
+		high_prefix = "{}_highquality_preprocessing".format(args.sample_id)
+	output_bed_high = os.path.join(
+		bed_path, "{}.bed".format(high_prefix))
+	if args.low_quality_bed_out is not None:
+		# low_prefix = args.low_quality_bed_out
+		print(
+			"--low_quality_bed_out is currently unsupported.  Please remove "
+			"this flag")
+	else:
+		low_prefix = "{}_lowquality_preprocessing".format(args.sample_id)
+	output_bed_low = os.path.join(
+		bed_path, "{}.bed".format(low_prefix))
+	if args.high_quality_bed_out is not None:
+		# high_prefix_postprocessing = args.high_quality_bed_out
+		print(
+			"--high_quality_bed_out is currently unsupported.  Please remove "
+			"this flag")
+	else:
+		high_prefix_postprocessing = "{}_highquality_postprocessing".format(
+			args.sample_id)
+	output_bed_high_postprocessing = os.path.join(
+		bed_path, "{}.bed".format(high_prefix))
+	if args.low_quality_bed_out is not None:
+		# low_prefix_postprocessing = args.low_quality_bed_out
+		print(
+			"--low_quality_bed_out is currently unsupported.  Please remove "
+			"this flag")
+	else:
+		low_prefix_postprocessing = "{}_lowquality_postprocessing".format(
+			args.sample_id)
+	output_bed_low_postprocessing = os.path.join(
+		bed_path, "{}.bed".format(low_prefix))
+
+	######################################
+	############ Run XYalign #############
+	######################################
+	ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
+	input_bam = bam.BamFile(args.bam, args.samtools_path)
+
+	# Reference Prep Only
+	if args.PREPARE_REFERENCE is True:
+		logger.info(
+			"PREPARE_REFERENCE set, so only preparing reference fastas.")
+		ref_prep()
+		logger.info("PREPARE_REFERENCE complete.")
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
+		logging.shutdown()
+		sys.exit(0)
+
+	# Stats Only
+	elif args.ANALYZE_BAM is True:
+		logger.info(
+			"ANALYZE_BAM set, so only running steps required "
+			"for bam analysis.")
+		bam_analysis_noprocessing()
+		logger.info("ANALYZE_BAM complete.")
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
+		logging.shutdown()
+		sys.exit(0)
+
+	# Ploidy Estimation Only
+	elif args.CHARACTERIZE_SEX_CHROMS is True:
+		logger.info(
+			"CHARACTERIZE_SEX_CHROMS set, so only running steps required "
+			"for to characterize sex chromosome complement. Note that "
+			"this involve both playtpus calling and bam analysis too.")
+		bam_dfs = bam_analysis_noprocessing()
+		ploidy_results = ploidy_analysis(bam_dfs[0], bam_dfs[1])
+		logger.info("CHARACTERIZE_SEX_CHROMS complete.")
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
+		logging.shutdown()
+		sys.exit(0)
+
+	# Remapping Only
+	elif args.REMAPPING is True:
+		logger.info(
+			"REMAPPING set, so only running steps required for remapping. "
+			"Requires --y_present or --y_absent to be set")
+		if args.y_present is True:
+			y_present = True
+		elif args.y_absent is True:
+			y_present = False
+		else:
+			logger.error(
+				"--y_present or --y_absent required for --REMAPPING. "
+				"Exiting.")
+			sys.exit(1)
+		if args.xx_ref_in is None or args.xy_ref_in is None:
+			logger.info(
+				"Input masked reference not provided for both "
+				"XX and XY mapping, so creating both")
+			masked_refs = ref_prep()
+		else:
+			xx = reftools.RefFasta(
+				args.xx_ref_in, args.samtools_path, args.bwa_path)
+			xy = reftools.RefFasta(
+				args.xy_ref_in, args.samtools_path, args.bwa_path)
+			xx.conditional_index_bwa()
+			xx.seq_dict()
+			xy.conditional_index_bwa()
+			xy.seq_dict()
+			masked_refs = (xx, xy)
+		sex_chrom_bam = bam.BamFile(remapping(), args.samtools_path)
+		if args.sex_chrom_bam_only is True:
+			final_bam = sex_chrom_bam
+		else:
+			final_bam = bam.BamFile(
+				swap_sex_chroms(sex_chrom_bam), args.samtools_path)
+		logger.info("REMAPPING complete.")
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
+		logging.shutdown()
+		sys.exit(0)
+
+	# Full Pipeline
+	else:
+		logger.info(
+			"Running entire XYalign pipeline")
+		if args.xx_ref_in is None or args.xy_ref_in is None:
+			logger.info(
+				"Input masked reference not provided for both "
+				"XX and XY mapping, so creating both")
+			masked_refs = ref_prep()
+		else:
+			xx = reftools.RefFasta(
+				args.xx_ref_in, args.samtools_path, args.bwa_path)
+			xy = reftools.RefFasta(
+				args.xy_ref_in, args.samtools_path, args.bwa_path)
+			xx.conditional_index_bwa()
+			xx.seq_dict()
+			xy.conditional_index_bwa()
+			xy.seq_dict()
+			masked_refs = (xx, xy)
+		bam_dfs = bam_analysis_noprocessing()
+		ploidy_results = ploidy_analysis(bam_dfs[0], bam_dfs[1])
+		if args.y_present is True:
+			y_present = True
+		elif args.y_absent is True:
+			y_present = False
+		else:
+			logger.error("Need to implement ploidy decision. Exiting.")
+			sys.exit(1)
+		sex_chrom_bam = bam.BamFile(remapping(), args.samtools_path)
+		if args.sex_chrom_bam_only is True:
+			final_bam = sex_chrom_bam
+		else:
+			final_bam = bam.BamFile(
+				swap_sex_chroms(sex_chrom_bam), args.samtools_path)
+		bam_analysis_postprocessing()
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
+		logging.shutdown()
+		sys.exit(0)
 
 # # Old main function
 #
