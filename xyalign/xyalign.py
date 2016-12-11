@@ -381,14 +381,14 @@ def ref_prep():
 		noy_out = ref.mask_reference(
 			utils.merge_bed_files(
 				"{}/reference_mask.maskY.merged.bed".format(
-					bed_path), reference_mask, y_mask))
+					bed_path), reference_mask, y_mask), xx_out)
 	else:
-		noy_out = ref.mask_reference(y_mask)
+		noy_out = ref.mask_reference(y_mask, xx_out)
 	noy_ref = reftools.RefFasta(noy_out, args.samtools_path, args.bwa_path)
 	noy_ref.index_bwa(args.bwa_path)
 	noy_ref.seq_dict()
 	# Create masked withY reference
-	withy_out = ref.mask_reference(reference_mask)
+	withy_out = ref.mask_reference(reference_mask, xy_out)
 	withy_ref = reftools.RefFasta(withy_out, args.samtools_path, args.bwa_path)
 	withy_ref.index_bwa(args.bwa_path)
 	withy_ref.seq_dict()
