@@ -43,7 +43,7 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 			# 	utils_logger.error(
 			# 		"Error finding chromosome length in bam file {} "
 			# 		"(for bed file)".format(bamfile_obj.filepath))
-				sys.exit(1)
+				# sys.exit(1)
 	utils_logger.info("Bed file ({}) created. Elapsed time: {} seconds".format(
 		output_file, time.time() - c_bed_start))
 	return output_file
