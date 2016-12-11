@@ -385,12 +385,12 @@ def ref_prep():
 	else:
 		noy_out = ref.mask_reference(y_mask, xx_out)
 	noy_ref = reftools.RefFasta(noy_out, args.samtools_path, args.bwa_path)
-	noy_ref.index_bwa(args.bwa_path)
+	noy_ref.index_bwa()
 	noy_ref.seq_dict()
 	# Create masked withY reference
 	withy_out = ref.mask_reference(reference_mask, xy_out)
 	withy_ref = reftools.RefFasta(withy_out, args.samtools_path, args.bwa_path)
-	withy_ref.index_bwa(args.bwa_path)
+	withy_ref.index_bwa()
 	withy_ref.seq_dict()
 	return (noy_ref, withy_ref)
 
