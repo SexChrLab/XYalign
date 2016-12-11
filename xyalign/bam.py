@@ -92,7 +92,7 @@ class BamFile():
 			Length (int)
 
 		"""
-		bamfile = pysam.Alignmentfile(self.filepath, "rb")
+		bamfile = pysam.AlignmentFile(self.filepath, "rb")
 		lengths = dict(zip(bamfile.references, bamfile.lengths))
 		try:
 			return lengths[chrom]
