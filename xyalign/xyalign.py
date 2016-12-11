@@ -197,29 +197,7 @@ def main():
 	if args.PREPARE_REFERENCE is True:
 		logger.info(
 			"PREPARE_REFERENCE set, so only preparing reference fastas.")
-		# Combine masks, if more than one present
-		if args.reference_mask != [None]:
-			if len(args.reference_mask) > 1:
-				reference_mask = utils.merge_bed_files(
-					"{}/reference_mask.merged.bed".format(
-						bed_path), *args.reference_mask)
-			else:
-				reference_mask = args.reference_mask
-		# Create masked noY reference
-		y_mask = utils.chromosome_bed(args.bam, "{}/Y.bed".format(
-			bed_path), args.y_chromosome)
-		noy_out = ref.mask_reference(
-			utils.merge_bed_files(
-				"{}/reference_mask.maskY.merged.bed".format(
-					bed_path), reference_mask, y_mask))
-		noy_ref = reftools.RefFasta(noy_out)
-		noy_ref.index_bwa(args.bwa_path)
-		noy_ref.seq_dict()
-		# Create masked withY reference
-		withy_out = ref.mask_reference(reference_mask)
-		withy_ref = reftools.RefFasta(withy_out)
-		withy_ref.index_bwa(args.bwa_path)
-		withy_ref.seq_dict()
+		ref_prep()
 		logger.info("PREPARE_REFERENCE complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -230,39 +208,7 @@ def main():
 		logger.info(
 			"ANALYZE_BAM set, so only running steps required "
 			"for bam analysis.")
-		# Platypus
-		if args.platypus_calling in ["both", "before"]:
-			a = variants.platypus_caller(
-				args.platypus_path, noprocessing_vcf_log, input_bam.filepath,
-				ref.filepath, args.chromosomes, args.cpus, noprocessing_vcf,
-				None)
-			if a != 0:
-				logger.error("Error in platypus calling on {}".format(
-					input_bam.filepath))
-				sys.exit(1)
-			if args.no_variant_plots is not True:
-				variants.plot_variants_per_chrom(
-					args.chromosomes, noprocessing_vcf,
-					args.sample_id, read_balance_prefix_noprocessing,
-					args.variant_quality_cutoff, args.marker_size,
-					args.marker_transparency, input_bam.filepath)
-		# Depth/MAPQ
-		if args.no_bam_analysis is not True:
-			pass_df = []
-			fail_df = []
-			for chromosome in args.chromosome:
-				data = input_bam.analyze_bam_fetch(
-					chromosome, args.window_size)
-				tup = utils.make_region_lists(
-					data["windows"], args.mapq_cutoff, args.depth_filter)
-				pass_df.append(tup[0])
-				fail_df.append(tup[1])
-				utils.plot_depth_mapq(
-					data, depth_mapq_prefix_noprocessing, args.sample_id,
-					input_bam.get_chrom_length(chromosome), args.marker_size,
-					args.marker_transparency)
-			utils.output_bed(output_bed_high, *pass_df)
-			utils.output_bed(output_bed_low, *fail_df)
+		bam_analysis_noprocessing()
 		logger.info("ANALYZE_BAM complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -270,140 +216,12 @@ def main():
 
 	# Ploidy Estimation Only
 	elif args.CHARACTERIZE_SEX_CHROMS is True:
-		# Right now, defaulting to running platypus and depth/mapq, as both
-		# will likely play a role in ploidy estimation
 		logger.info(
 			"CHARACTERIZE_SEX_CHROMS set, so only running steps required "
 			"for to characterize sex chromosome complement. Note that "
 			"this involve both playtpus calling and bam analysis too.")
-		# Platypus
-		a = variants.platypus_caller(
-			args.platypus_path, noprocessing_vcf_log, input_bam.filepath,
-			ref.filepath, args.chromosomes, args.cpus, noprocessing_vcf,
-			None)
-		if a != 0:
-			logger.error("Error in platypus calling on {}".format(
-				input_bam.filepath))
-			sys.exit(1)
-		if args.no_variant_plots is not True:
-			variants.plot_variants_per_chrom(
-				args.chromosomes, noprocessing_vcf,
-				args.sample_id, read_balance_prefix_noprocessing,
-				args.variant_quality_cutoff, args.marker_size,
-				args.marker_transparency, input_bam.filepath)
-		# Depth/MAPQ
-		pass_df = []
-		fail_df = []
-		for chromosome in args.chromosome:
-			data = input_bam.analyze_bam_fetch(
-				chromosome, args.window_size)
-			tup = utils.make_region_lists(
-				data["windows"], args.mapq_cutoff, args.depth_filter)
-			pass_df.append(tup[0])
-			fail_df.append(tup[1])
-			utils.plot_depth_mapq(
-				data, depth_mapq_prefix_noprocessing, args.sample_id,
-				input_bam.get_chrom_length(chromosome), args.marker_size,
-				args.marker_transparency)
-		utils.output_bed(output_bed_high, *pass_df)
-		utils.output_bed(output_bed_low, *fail_df)
-		# Permutations
-		if args.no_perm_test is not False:
-			autosomes = [
-				x for x in args.chromosomes if x not in sex_chromosomes]
-			if args.y_chromosome is not None:
-				sex_chromosomes = args.x_chromosome + args.y_chromosome
-				perm_res_x = []
-				perm_res_y = []
-			else:
-				sex_chromosomes = args.x_chromsome
-				perm_res_x = []
-				perm_res_y = None
-			for c in autosomes:
-				perm_res_x.append(ploidy.permutation_test_chromosomes(
-					pd.concat(pass_df), c,
-					str(args.x_chromosome[0]), "chrom",
-					"depth", args.num_permutations,
-					results_path + "/{}_{}_permutation_results.txt".format(
-						c, str(args.x_chromosome[0]))))
-				if perm_res_y is not None:
-					perm_res_y.append(ploidy.permutation_test_chromosomes(
-						pd.concat(pass_df), c,
-						str(args.y_chromosome[0]), "chrom",
-						"depth", args.num_permutations,
-						results_path + "/{}_{}_permutation_results.txt".format(
-							c, str(args.y_chromosome[0]))))
-			if perm_res_y is not None:
-				sex_perm_res = ploidy.permutation_test_chromosomes(
-					pd.concat(pass_df), str(args.x_chromosome[0]),
-					str(args.y_chromosome[0]),
-					"chrom", "depth", args.num_permutations,
-					results_path + "/{}_{}_permutation_results.txt".format(
-						str(args.x_chromosome[0]), str(args.y_chromosome[0])))
-
-		# K-S Two Sample
-		if args.no_ks_test is not False:
-			autosomes = [
-				x for x in args.chromosomes if x not in sex_chromosomes]
-			if args.y_chromosome is not None:
-				sex_chromosomes = args.x_chromosome + args.y_chromosome
-				ks_res_x = []
-				ks_res_y = []
-			else:
-				sex_chromosomes = args.x_chromsome
-				ks_res_x = []
-				ks_res_y = None
-			for c in autosomes:
-				ks_res_x.append(ploidy.ks_two_sample(
-					pd.concat(pass_df), c,
-					str(args.x_chromosome[0]), "chrom", "depth",
-					results_path + "/{}_{}_ks_results.txt".format(
-						c, str(args.x_chromosome[0]))))
-				if ks_res_y is not None:
-					ks_res_y.append(ploidy.ks_two_sample(
-						pd.concat(pass_df), c,
-						str(args.y_chromosome[0]), "chrom", "depth",
-						results_path + "/{}_{}_ks_results.txt".format(
-							c, str(args.y_chromosome[0]))))
-			if ks_res_y is not None:
-				sex_ks_res = ploidy.ks_two_sample(
-					pd.concat(pass_df), str(args.x_chromosome[0]),
-					str(args.y_chromosome[0]), "chrom", "depth",
-					results_path + "/{}_{}_ks_results.txt".format(
-						str(args.x_chromosome[0]), str(args.y_chromosome[0])))
-		# Bootstrap
-		if args.no_bootstrap is not False:
-			autosomes = [
-				x for x in args.chromosomes if x not in sex_chromosomes]
-			if args.y_chromosome is not None:
-				sex_chromosomes = args.x_chromosome + args.y_chromosome
-				boot_res_x = []
-				boot_res_y = []
-			else:
-				sex_chromosomes = args.x_chromsome
-				boot_res_x = []
-				boot_res_y = None
-			for c in autosomes:
-				boot_res_x.append(ploidy.bootstrap(
-					pd.concat(pass_df), c,
-					str(args.x_chromosome[0]), "chrom",
-					"depth", args.num_bootstraps,
-					results_path + "/{}_{}_bootstrap_results.txt".format(
-						c, str(args.x_chromosome[0]))))
-				if boot_res_y is not None:
-					boot_res_y.append(ploidy.bootstrap(
-						pd.concat(pass_df), c,
-						str(args.y_chromosome[0]), "chrom",
-						"depth", args.num_bootstraps,
-						results_path + "/{}_{}_bootstrap_results.txt".format(
-							c, str(args.y_chromosome[0]))))
-			if boot_res_y is not None:
-				sex_boot_res = ploidy.bootstrap(
-					pd.concat(pass_df), str(args.x_chromosome[0]),
-					str(args.y_chromosome[0]),
-					"chrom", "depth", args.num_bootstraps,
-					results_path + "/{}_{}_bootstrap_results.txt".format(
-						str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+		bam_dfs = bam_analysis_noprocessing()
+		ploidy_results = ploidy_analysis(bam_dfs[0], bam_dfs[1])
 		logger.info("CHARACTERIZE_SEX_CHROMS complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -1211,6 +1029,189 @@ def parse_args():
 
 	# Return arguments namespace
 	return args
+
+def ref_prep():
+	"""
+	Reference prep part of the pipeline
+
+	Returns a tuple with the two masked references (one with the y masked, "
+	"one with the y present")
+	"""
+	# Combine masks, if more than one present
+	if args.reference_mask != [None]:
+		if len(args.reference_mask) > 1:
+			reference_mask = utils.merge_bed_files(
+				"{}/reference_mask.merged.bed".format(
+					bed_path), *args.reference_mask)
+		else:
+			reference_mask = args.reference_mask
+	# Create masked noY reference
+	y_mask = utils.chromosome_bed(args.bam, "{}/Y.bed".format(
+		bed_path), args.y_chromosome)
+	noy_out = ref.mask_reference(
+		utils.merge_bed_files(
+			"{}/reference_mask.maskY.merged.bed".format(
+				bed_path), reference_mask, y_mask))
+	noy_ref = reftools.RefFasta(noy_out)
+	noy_ref.index_bwa(args.bwa_path)
+	noy_ref.seq_dict()
+	# Create masked withY reference
+	withy_out = ref.mask_reference(reference_mask)
+	withy_ref = reftools.RefFasta(withy_out)
+	withy_ref.index_bwa(args.bwa_path)
+	withy_ref.seq_dict()
+	return (noy_ref, withy_ref)
+
+def bam_analysis_noprocessing():
+	"""
+	Runs bam analyis part of pipeline for unprocessed bam files
+
+	Returns a tuple containing two lists, one containing pandas dataframes with
+	passing windows, and one containting pandas dataframes with failing windows
+	"""
+	# Platypus
+	if args.platypus_calling in ["both", "before"]:
+		a = variants.platypus_caller(
+			args.platypus_path, noprocessing_vcf_log, input_bam.filepath,
+			ref.filepath, args.chromosomes, args.cpus, noprocessing_vcf,
+			None)
+		if a != 0:
+			logger.error("Error in platypus calling on {}".format(
+				input_bam.filepath))
+			sys.exit(1)
+		if args.no_variant_plots is not True:
+			variants.plot_variants_per_chrom(
+				args.chromosomes, noprocessing_vcf,
+				args.sample_id, read_balance_prefix_noprocessing,
+				args.variant_quality_cutoff, args.marker_size,
+				args.marker_transparency, input_bam.filepath)
+	# Depth/MAPQ
+	if args.no_bam_analysis is not True:
+		pass_df = []
+		fail_df = []
+		for chromosome in args.chromosome:
+			data = input_bam.analyze_bam_fetch(
+				chromosome, args.window_size)
+			tup = utils.make_region_lists(
+				data["windows"], args.mapq_cutoff, args.depth_filter)
+			pass_df.append(tup[0])
+			fail_df.append(tup[1])
+			utils.plot_depth_mapq(
+				data, depth_mapq_prefix_noprocessing, args.sample_id,
+				input_bam.get_chrom_length(chromosome), args.marker_size,
+				args.marker_transparency)
+		utils.output_bed(output_bed_high, *pass_df)
+		utils.output_bed(output_bed_low, *fail_df)
+	return(pass_df, fail_df)
+
+def ploidy_analysis(passing_df, failing_df):
+	"""
+	Runs the ploidy analysis part of the pipeline.  Takes passing_df and
+	failing_df (the output of bam_analysis_noprocessing()) as input.
+
+	Returns a dictionary with results for each test.
+	"""
+	# Permutations
+	if args.no_perm_test is not False:
+		autosomes = [
+			x for x in args.chromosomes if x not in sex_chromosomes]
+		if args.y_chromosome is not None:
+			sex_chromosomes = args.x_chromosome + args.y_chromosome
+			perm_res_x = []
+			perm_res_y = []
+		else:
+			sex_chromosomes = args.x_chromsome
+			perm_res_x = []
+			perm_res_y = None
+		for c in autosomes:
+			perm_res_x.append(ploidy.permutation_test_chromosomes(
+				pd.concat(passing_df), c,
+				str(args.x_chromosome[0]), "chrom",
+				"depth", args.num_permutations,
+				results_path + "/{}_{}_permutation_results.txt".format(
+					c, str(args.x_chromosome[0]))))
+			if perm_res_y is not None:
+				perm_res_y.append(ploidy.permutation_test_chromosomes(
+					pd.concat(passing_df), c,
+					str(args.y_chromosome[0]), "chrom",
+					"depth", args.num_permutations,
+					results_path + "/{}_{}_permutation_results.txt".format(
+						c, str(args.y_chromosome[0]))))
+		if perm_res_y is not None:
+			sex_perm_res = ploidy.permutation_test_chromosomes(
+				pd.concat(passing_df), str(args.x_chromosome[0]),
+				str(args.y_chromosome[0]),
+				"chrom", "depth", args.num_permutations,
+				results_path + "/{}_{}_permutation_results.txt".format(
+					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+
+	# K-S Two Sample
+	if args.no_ks_test is not False:
+		autosomes = [
+			x for x in args.chromosomes if x not in sex_chromosomes]
+		if args.y_chromosome is not None:
+			sex_chromosomes = args.x_chromosome + args.y_chromosome
+			ks_res_x = []
+			ks_res_y = []
+		else:
+			sex_chromosomes = args.x_chromsome
+			ks_res_x = []
+			ks_res_y = None
+		for c in autosomes:
+			ks_res_x.append(ploidy.ks_two_sample(
+				pd.concat(passing_df), c,
+				str(args.x_chromosome[0]), "chrom", "depth",
+				results_path + "/{}_{}_ks_results.txt".format(
+					c, str(args.x_chromosome[0]))))
+			if ks_res_y is not None:
+				ks_res_y.append(ploidy.ks_two_sample(
+					pd.concat(passing_df), c,
+					str(args.y_chromosome[0]), "chrom", "depth",
+					results_path + "/{}_{}_ks_results.txt".format(
+						c, str(args.y_chromosome[0]))))
+		if ks_res_y is not None:
+			sex_ks_res = ploidy.ks_two_sample(
+				pd.concat(passing_df), str(args.x_chromosome[0]),
+				str(args.y_chromosome[0]), "chrom", "depth",
+				results_path + "/{}_{}_ks_results.txt".format(
+					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+	# Bootstrap
+	if args.no_bootstrap is not False:
+		autosomes = [
+			x for x in args.chromosomes if x not in sex_chromosomes]
+		if args.y_chromosome is not None:
+			sex_chromosomes = args.x_chromosome + args.y_chromosome
+			boot_res_x = []
+			boot_res_y = []
+		else:
+			sex_chromosomes = args.x_chromsome
+			boot_res_x = []
+			boot_res_y = None
+		for c in autosomes:
+			boot_res_x.append(ploidy.bootstrap(
+				pd.concat(passing_df), c,
+				str(args.x_chromosome[0]), "chrom",
+				"depth", args.num_bootstraps,
+				results_path + "/{}_{}_bootstrap_results.txt".format(
+					c, str(args.x_chromosome[0]))))
+			if boot_res_y is not None:
+				boot_res_y.append(ploidy.bootstrap(
+					pd.concat(passing_df), c,
+					str(args.y_chromosome[0]), "chrom",
+					"depth", args.num_bootstraps,
+					results_path + "/{}_{}_bootstrap_results.txt".format(
+						c, str(args.y_chromosome[0]))))
+		if boot_res_y is not None:
+			sex_boot_res = ploidy.bootstrap(
+				pd.concat(passing_df), str(args.x_chromosome[0]),
+				str(args.y_chromosome[0]),
+				"chrom", "depth", args.num_bootstraps,
+				results_path + "/{}_{}_bootstrap_results.txt".format(
+					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+	return {
+		perm: [perm_res_x, perm_res_y, sex_perm_res],
+		ks: [ks_res_x, ks_res_y, sex_ks_res],
+		boot: [boot_res_x, boot_res_y, sex_boot_res]}
 
 if __name__ == "__main__":
 	main()
