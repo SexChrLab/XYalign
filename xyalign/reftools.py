@@ -165,7 +165,7 @@ class RefFasta():
 			raise RuntimeError(
 				"Unable to create sequence dictionary. Exiting")
 
-	def mask_reference(bed_mask, output_fasta=None):
+	def mask_reference(self, bed_mask, output_fasta=None):
 		"""
 		Creates a new masked references by hardmasking regions included
 		in the bed_mask
@@ -192,7 +192,7 @@ class RefFasta():
 				maskedpath, time.time() - mask_start))
 		return maskedpath
 
-	def isolate_chroms(new_ref_prefix, chroms, bed_mask):
+	def isolate_chroms(self, new_ref_prefix, chroms, bed_mask):
 		"""
 		Takes a reference fasta file and a list of chromosomes to include
 		and outputs a new, indexed (and optionally masked) reference fasta.
