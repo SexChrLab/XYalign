@@ -37,7 +37,7 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 	with open(output_file, "w") as f:
 		for i in chromosome_list:
 			try:
-				l = bamfile_obj(i)
+				l = bamfile_obj.get_chrom_length(i)
 				f.write("{}\t{}\t{}\n".format(i, "0", l))
 			except:
 				utils_logger.error(
