@@ -104,13 +104,13 @@ class BamFile():
 				"Chromosome name not present in bam header. Exiting")
 
 	def strip_reads(
-		self, repairsh_path, single, output_directory,
+		self, repairsh, single, output_directory,
 		output_prefix, regions):
 		"""
 		Strips reads from a bam or cram file in provided regions and outputs
 		sorted fastqs containing reads, one set of fastq files per read group.
 
-		repairsh_path is the path to repair.sh (from BBmap)
+		repairsh is the path to repair.sh (from BBmap)
 		single is either True or False; if true will output single-end fastq file,
 			if False, will output paired-end fastq files
 		output_directory is the directory for ALL output (including temporary files)
@@ -284,7 +284,7 @@ class BamFile():
 # Functions associated with bam files
 
 
-def switch_sex_chromosomes_bam_sambamba_output_temps(
+def switch_sex_chromosomes_sambamba(
 	samtools_path, sambamba_path, bam_orig, bam_new, sex_chroms,
 	output_directory, output_prefix, threads, pg_header_dict, cram=False):
 	"""

@@ -14,10 +14,11 @@ class RefFasta():
 	"""
 	A class for working with external reference fasta files
 	"""
-	def __init__(self, filepath, samtools="samtools"):
+	def __init__(self, filepath, samtools="samtools", bwa="bwa"):
 		""" Initiate object with associated filepath """
 		self.filepath = filepath
 		self.samtools = samtools
+		self.bwa = bwa
 		self.logger = logging.getLogger("xyalign.reftools.RefFasta")
 		self.logger.info("Creating a RefFasta instance for {}".format(
 			self.filepath))
@@ -65,7 +66,7 @@ class RefFasta():
 				self.filepath))
 			raise RuntimeError("Unable to create faidx. Exiting")
 
-	def index_bwa(self, bwa="bwa"):
+	def index_bwa(self):
 		"""
 		Index reference using bwa
 
@@ -74,7 +75,7 @@ class RefFasta():
 		self.logger.info("Creating bwa indices for: {}".format(
 			self.filepath))
 		bwa_idx_start = time.time()
-		rc = subprocess.call([bwa, "index", self.filepath])
+		rc = subprocess.call([self.bwa, "index", self.filepath])
 		if rc == 0:
 			self.logger.info(
 				"BWA indexing complete. Elapsed time: {} seconds".format(
@@ -85,6 +86,56 @@ class RefFasta():
 				"Unable to create bwa indices for {}. Exiting".format(
 					self.filepath))
 			raise RuntimeError("Unable to create bwa indicies. Exiting")
+
+	def check_bwa_index(self):
+		"""
+		Checks to see if bwa indices are newer than fasta.  Returns True if so,
+		and False if any of the indices are the same age as the fasta or
+		older.
+		"""
+		self.logger.info("Checking bwa indexing of {}".format(self.filepath))
+		if (
+			os.path.exists("{}.amb".format(self.filepath)) and
+			os.path.exists("{}.ann".format(self.filepath)) and
+			os.path.exists("{}.bwt".format(self.filepath)) and
+			os.path.exists("{}.pac".format(self.filepath)) and
+			os.path.exists("{}.sa".format(self.filepath))):
+			if (
+				os.stat("{}.amb".format(self.filepath)).st_size != 0 and
+				os.stat("{}.ann".format(self.filepath)).st_size != 0 and
+				os.stat("{}.bwt".format(self.filepath)).st_size != 0 and
+				os.stat("{}.pac".format(self.filepath)).st_size != 0 and
+				os.stat("{}.sa".format(self.filepath)).st_size != 0):
+					bwa_idx_stamp = [
+						os.path.getmtime("{}.amb".format(self.filepath)),
+						os.path.getmtime("{}.ann".format(self.filepath)),
+						os.path.getmtime("{}.bwt".format(self.filepath)),
+						os.path.getmtime("{}.pac".format(self.filepath)),
+						os.path.getmtime("{}.sa".format(self.filepath))]
+			else:
+				self.logger.info("One or more BWA indices empty")
+				return False
+		else:
+			self.logger.info("Bwa index incomplete or absent")
+			return False
+
+		ref_stamp = os.path.getmtime(self.filepath)
+		if all(x > ref_stamp for x in bwa_idx_stamp) is True:
+			self.logger.info("BWA index present and newer than ref file")
+			return True
+		else:
+			self.logger.info("BWA index is older than ref file")
+			return False
+
+	def conditional_index_bwa(self, bwa="bwa"):
+		"""
+		Like index_bwa, but only indexes if indices are the same age or older
+		than the fasta.  Use index_bwa to force indexing.
+
+		bwa is path to bwa program (default is 'bwa')
+		"""
+		if self.check_bwa_index is False:
+			self.index_bwa()
 
 	def seq_dict(self, out_dict=None):
 		"""

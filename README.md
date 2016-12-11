@@ -39,7 +39,7 @@ Program
 - [ ] Add cram and sam support
 	- probably not necessary for initial release
 - [ ] Clean up parse_args() and update checks/validation
-- [ ] Move subsections of pipeline to individual functions to clean up main()
+- [x] Move subsections of pipeline to individual functions to clean up main()
 - [ ] Add thorough module testing (e.g. unittest, doctest, etc.)
 - [ ] Write documentation
 
