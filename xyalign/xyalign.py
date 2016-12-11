@@ -388,7 +388,10 @@ def ref_prep():
 	noy_ref.index_bwa()
 	noy_ref.seq_dict()
 	# Create masked withY reference
-	withy_out = ref.mask_reference(reference_mask, xy_out)
+	if reference_mask is not None:
+		withy_out = ref.mask_reference(reference_mask, xy_out)
+	else:
+		subprocess.call(["cp", ref.filepath, xy_out])
 	withy_ref = reftools.RefFasta(withy_out, args.samtools_path, args.bwa_path)
 	withy_ref.index_bwa()
 	withy_ref.seq_dict()
