@@ -7,6 +7,7 @@ import logging
 import pandas as pd
 import pybedtools
 import pysam
+import sys
 import time
 # Matplotlib needs to be called in this way to set the display variable
 import matplotlib
