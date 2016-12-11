@@ -391,6 +391,10 @@ def ref_prep():
 	if reference_mask is not None:
 		withy_out = ref.mask_reference(reference_mask, xy_out)
 	else:
+		logger.info(
+			"No reference mask provided, copying full reference to {} as "
+			"XY reference to prevent damage, modification, etc. to original "
+			"reference.".format(xy_out))
 		subprocess.call(["cp", ref.filepath, xy_out])
 	withy_ref = reftools.RefFasta(withy_out, args.samtools_path, args.bwa_path)
 	withy_ref.index_bwa()
