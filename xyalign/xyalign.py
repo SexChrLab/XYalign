@@ -373,7 +373,7 @@ def ref_prep():
 		else:
 			reference_mask = args.reference_mask
 	# Create masked noY reference
-	y_mask = utils.chromosome_bed(args.bam, "{}/Y.bed".format(
+	y_mask = utils.chromosome_bed(input_bam, "{}/Y.bed".format(
 		bed_path), args.y_chromosome)
 	noy_out = ref.mask_reference(
 		utils.merge_bed_files(

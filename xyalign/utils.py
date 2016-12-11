@@ -18,13 +18,13 @@ from matplotlib import pyplot as plt
 utils_logger = logging.getLogger("xyalign.utils")
 
 
-def chromosome_bed(bamfile, output_file, chromosome_list):
+def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 	"""
 	Takes list of chromosomes and outputs a bed file with the length of each
 	chromosome on each line (e.g., chr1    0   247249719).
 
 	args:
-		bamfile: full path to bam file - for calculating length
+		bamfile_obj: a BamFile object for calculating length
 		output_file: name of (including full path to) desired output file
 		chromosome_list: list of chromosome/scaffolds to include
 
@@ -35,14 +35,14 @@ def chromosome_bed(bamfile, output_file, chromosome_list):
 	utils_logger.info("Creating bed file with chromosome lengths for {}".format(
 		" ".join(chromosome_list)))
 	with open(output_file, "w") as f:
-		sam_file = pysam.AlignmentFile(bamfile, "rb")
 		for i in chromosome_list:
 			try:
-				l = get_length(sam_file, i)
+				l = bamfile_obj(i)
 				f.write("{}\t{}\t{}\n".format(i, "0", l))
 			except:
 				utils_logger.error(
-					"Error finding chromosome length in bam file (for bed file)")
+					"Error finding chromosome length in bam file {} "
+					"(for bed file)".format(bamfile_obj.filepath))
 				sys.exit(1)
 	utils_logger.info("Bed file ({}) created. Elapsed time: {} seconds".format(
 		output_file, time.time() - c_bed_start))
