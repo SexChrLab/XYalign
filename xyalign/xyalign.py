@@ -77,7 +77,7 @@ def main():
 	logger.addHandler(ch)
 
 	# Log citation
-	logger.INFO("{}".format(citation))
+	logger.info("{}".format(citation))
 
 	# Set up param dictionary
 	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
@@ -87,8 +87,8 @@ def main():
 		xyalign_params_dict['CL'].append("{}={}".format(arg, args.__dict__[arg]))
 
 	# Log parameters and pipeline start
-	logger.INFO("Parameters: {}".format(p))
-	logger.INFO("Beginning XYalign")
+	logger.info("Parameters: {}".format(p))
+	logger.info("Beginning XYalign")
 
 	# Setup output paths
 	fastq_path = os.path.join(args.output_dir, "fastq")
