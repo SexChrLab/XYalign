@@ -737,13 +737,13 @@ if __name__ == "__main__":
 	# Create paths for output files
 	# reference-related
 	if args.xx_ref_out is not None:
-		xx_out = os.path.join(fastq_path, args.xx_ref_out)
+		xx_out = os.path.join(reference_path, args.xx_ref_out)
 	else:
-		xx_out = os.path.join(fastq_path, "xyalign_noY.masked.fa")
+		xx_out = os.path.join(reference_path, "xyalign_noY.masked.fa")
 	if args.xy_ref_out is not None:
-		xy_out = os.path.join(fastq_path, args.xy_ref_out)
+		xy_out = os.path.join(reference_path, args.xy_ref_out)
 	else:
-		xy_out = os.path.join(fastq_path, "xyalign_withY.masked.fa")
+		xy_out = os.path.join(reference_path, "xyalign_withY.masked.fa")
 	# variant/vcf related
 	noprocessing_vcf = os.path.join(
 		vcf_path, "{}.noprocessing.vcf".format(
