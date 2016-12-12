@@ -165,6 +165,9 @@ def bootstrap(
 	second_vals = data_frame[
 		data_frame[chrom_column] == second_chrom][value_column]
 
+	first_vals = np.asarray(first_vals)
+	second_vals = np.asarray(second_vals)
+
 	first_mean = np.mean(first_vals)
 	second_mean = np.mean(second_vals)
 	mean_ratio = first_vals / second_vals
