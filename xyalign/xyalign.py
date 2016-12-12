@@ -397,6 +397,7 @@ def ref_prep():
 			"XY reference to prevent damage, modification, etc. to original "
 			"reference.".format(xy_out))
 		subprocess.call(["cp", ref.filepath, xy_out])
+		withy_out = xy_out
 	withy_ref = reftools.RefFasta(withy_out, args.samtools_path, args.bwa_path)
 	withy_ref.index_bwa()
 	withy_ref.seq_dict()
