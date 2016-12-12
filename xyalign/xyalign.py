@@ -461,7 +461,7 @@ def ploidy_analysis(passing_df, failing_df):
 			perm_res_x = []
 			perm_res_y = []
 		else:
-			sex_chromosomes = args.x_chromsome
+			sex_chromosomes = args.x_chromosome
 			perm_res_x = []
 			perm_res_y = None
 		autosomes = [
@@ -495,7 +495,7 @@ def ploidy_analysis(passing_df, failing_df):
 			ks_res_x = []
 			ks_res_y = []
 		else:
-			sex_chromosomes = args.x_chromsome
+			sex_chromosomes = args.x_chromosome
 			ks_res_x = []
 			ks_res_y = None
 		autosomes = [
@@ -525,7 +525,7 @@ def ploidy_analysis(passing_df, failing_df):
 			boot_res_x = []
 			boot_res_y = []
 		else:
-			sex_chromosomes = args.x_chromsome
+			sex_chromosomes = args.x_chromosome
 			boot_res_x = []
 			boot_res_y = None
 		autosomes = [
@@ -569,7 +569,7 @@ def remapping():
 		new_reference = masked_refs[0]
 	new_fastqs = input_bam.strip_reads(
 		args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-		args.x_chromsome + args.y_chromosome)
+		args.x_chromosome + args.y_chromosome)
 	with open(new_fastqs[0]) as f:
 		read_group_and_fastqs = [line.strip() for line in f]
 		read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
