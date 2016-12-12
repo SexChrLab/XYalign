@@ -167,26 +167,19 @@ def bootstrap(
 
 	first_vals = np.asarray(first_vals)
 	second_vals = np.asarray(second_vals)
-	print(first_vals)
-	print(type(first_vals))
-	print(type(first_vals[0]))
-	print(second_vals)
-	print(type(second_vals))
-	print(type(second_vals[0]))
 
 	first_mean = np.mean(first_vals)
 	second_mean = np.mean(second_vals)
 	mean_ratio = first_mean / second_mean
-	print(first_mean)
-	print(second_mean)
-	print(mean_ratio)
-	print(np.random.shuffle(first_vals))
-	print(type(np.random.shuffle(first_vals)))
 
 	samples = []
+	dim1 = len(first_vals)
+	dim2 = len(second_vals)
 	for i in range(0, num_reps):
-		first_boot = np.random.shuffle(first_vals)
-		second_boot = np.random.shuffle(second_vals)
+		indices1 = np.random.random_integers(0, dim1, dim1)
+		indices2 = np.random.random_integers(0, dim2, dim2)
+		boot1 = np.take(first_vals, indices1)
+		boot2 = np.take(second_vals, indices2)
 		samples.append(np.mean(first_boot) / np.mean(second_boot))
 
 	samples = np.asarray(samples)
