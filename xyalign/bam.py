@@ -164,7 +164,7 @@ class BamFile():
 									command_line))
 							subprocess.call(command_line, shell=True)
 							command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
-								repairsh_path,
+								repairsh,
 								output_directory + "/temp_1.fastq",
 								output_directory + "/temp_2.fastq",
 								output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
@@ -187,7 +187,7 @@ class BamFile():
 									command_line))
 							subprocess.call(command_line, shell=True)
 							command_line = "{} in={} out={} overwrite=true".format(
-								repairsh_path,
+								repairsh,
 								output_directory + "/temp.fastq",
 								output_directory + "/" + output_prefix + "_" + rg + ".fastq")
 							self.logger.info(
