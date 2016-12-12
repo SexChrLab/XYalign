@@ -431,7 +431,7 @@ def bam_analysis_noprocessing():
 	if args.no_bam_analysis is not True:
 		pass_df = []
 		fail_df = []
-		for chromosome in args.chromosome:
+		for chromosome in args.chromosomes:
 			data = input_bam.analyze_bam_fetch(
 				chromosome, args.window_size)
 			tup = utils.make_region_lists(
@@ -620,7 +620,7 @@ def bam_analysis_postprocessing():
 	if args.no_bam_analysis is not True:
 		pass_df = []
 		fail_df = []
-		for chromosome in args.chromosome:
+		for chromosome in args.chromosomes:
 			data = final_bam.analyze_bam_fetch(
 				chromosome, args.window_size)
 			tup = utils.make_region_lists(
