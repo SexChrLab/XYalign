@@ -174,10 +174,14 @@ def bootstrap(
 	print(type(second_vals))
 	print(type(second_vals[0]))
 
-
 	first_mean = np.mean(first_vals)
 	second_mean = np.mean(second_vals)
 	mean_ratio = first_mean / second_mean
+	print(first_mean)
+	print(second_mean)
+	print(mean_ratio)
+	print(np.random.shuffle(first_vals))
+	print(type(np.random.shuffle(first_vals)))
 
 	samples = []
 	for i in range(0, num_reps):
