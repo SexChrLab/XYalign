@@ -5,3 +5,5 @@ https://www.ncbi.nlm.nih.gov/grc/human/data
 
 Total length of GRCh37/hg19 chromosomes:
 https://genome.ucsc.edu/goldenpath/help/hg19.chrom.sizes
+
+Update on Dec 12, 2015: Coordinates updated to reflect 0 based indexing in bed files
