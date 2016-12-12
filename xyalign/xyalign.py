@@ -456,8 +456,6 @@ def ploidy_analysis(passing_df, failing_df):
 	"""
 	# Permutations
 	if args.no_perm_test is False:
-		autosomes = [
-			x for x in args.chromosomes if x not in sex_chromosomes]
 		if args.y_chromosome is not None:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			perm_res_x = []
@@ -466,6 +464,8 @@ def ploidy_analysis(passing_df, failing_df):
 			sex_chromosomes = args.x_chromsome
 			perm_res_x = []
 			perm_res_y = None
+		autosomes = [
+			x for x in args.chromosomes if x not in sex_chromosomes]
 		for c in autosomes:
 			perm_res_x.append(ploidy.permutation_test_chromosomes(
 				pd.concat(passing_df), c,
@@ -490,8 +490,6 @@ def ploidy_analysis(passing_df, failing_df):
 
 	# K-S Two Sample
 	if args.no_ks_test is False:
-		autosomes = [
-			x for x in args.chromosomes if x not in sex_chromosomes]
 		if args.y_chromosome is not None:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			ks_res_x = []
@@ -500,6 +498,8 @@ def ploidy_analysis(passing_df, failing_df):
 			sex_chromosomes = args.x_chromsome
 			ks_res_x = []
 			ks_res_y = None
+		autosomes = [
+			x for x in args.chromosomes if x not in sex_chromosomes]
 		for c in autosomes:
 			ks_res_x.append(ploidy.ks_two_sample(
 				pd.concat(passing_df), c,
@@ -520,8 +520,6 @@ def ploidy_analysis(passing_df, failing_df):
 					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 	# Bootstrap
 	if args.no_bootstrap is False:
-		autosomes = [
-			x for x in args.chromosomes if x not in sex_chromosomes]
 		if args.y_chromosome is not None:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			boot_res_x = []
@@ -530,6 +528,8 @@ def ploidy_analysis(passing_df, failing_df):
 			sex_chromosomes = args.x_chromsome
 			boot_res_x = []
 			boot_res_y = None
+		autosomes = [
+			x for x in args.chromosomes if x not in sex_chromosomes]
 		for c in autosomes:
 			boot_res_x.append(ploidy.bootstrap(
 				pd.concat(passing_df), c,
