@@ -44,7 +44,7 @@ def platypus_caller(
 		output_file, "--refFile", ref, "--nCPU", str(cpus), "--regions", regions,
 		"--assemble", "1", "--logFileName", log_path]
 	variants_logger.info("Calling variants with command line: {}".format(
-		command_line))
+		" ".join(command_line)))
 	return_code = subprocess.call(command_line)
 	variants_logger.info(
 		"Variant calling complete. Elapsed time: {} seconds".format(

@@ -424,7 +424,7 @@ def bam_analysis_noprocessing():
 		if args.no_variant_plots is not True:
 			variants.plot_variants_per_chrom(
 				args.chromosomes, noprocessing_vcf,
-				args.sample_id, read_balance_prefix_noprocessing,
+				args.sample_id, readbalance_prefix_noprocessing,
 				args.variant_quality_cutoff, args.marker_size,
 				args.marker_transparency, input_bam.filepath)
 	# Depth/MAPQ
@@ -648,7 +648,7 @@ def bam_analysis_postprocessing():
 		if args.no_variant_plots is not True:
 			variants.plot_variants_per_chrom(
 				args.chromosomes, postprocessing_vcf,
-				args.sample_id, read_balance_prefix_postprocessing,
+				args.sample_id, readbalance_prefix_postprocessing,
 				args.variant_quality_cutoff, args.marker_size,
 				args.marker_transparency, final_bam.filepath)
 
