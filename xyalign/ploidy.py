@@ -168,7 +168,12 @@ def bootstrap(
 	first_vals = np.asarray(first_vals)
 	second_vals = np.asarray(second_vals)
 	print(first_vals)
+	print type(first_vals)
+	print(type(first_vals[0]))
 	print(second_vals)
+	print type(second_vals)
+	print(type(second_vals[0]))
+
 
 	first_mean = np.mean(first_vals)
 	second_mean = np.mean(second_vals)
