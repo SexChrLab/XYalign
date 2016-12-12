@@ -180,7 +180,7 @@ def bootstrap(
 		indices2 = np.random.random_integers(0, dim2 - 1, dim2)
 		boot1 = np.take(first_vals, indices1)
 		boot2 = np.take(second_vals, indices2)
-		samples.append(np.mean(first_boot) / np.mean(second_boot))
+		samples.append(np.mean(boot1) / np.mean(boot2))
 
 	samples = np.asarray(samples)
 
