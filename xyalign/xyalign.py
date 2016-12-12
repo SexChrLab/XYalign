@@ -426,7 +426,7 @@ def bam_analysis_noprocessing():
 				args.chromosomes, noprocessing_vcf,
 				args.sample_id, readbalance_prefix_noprocessing,
 				args.variant_quality_cutoff, args.marker_size,
-				args.marker_transparency, input_bam.filepath)
+				args.marker_transparency, input_bam)
 	# Depth/MAPQ
 	if args.no_bam_analysis is not True:
 		pass_df = []
@@ -650,7 +650,7 @@ def bam_analysis_postprocessing():
 				args.chromosomes, postprocessing_vcf,
 				args.sample_id, readbalance_prefix_postprocessing,
 				args.variant_quality_cutoff, args.marker_size,
-				args.marker_transparency, final_bam.filepath)
+				args.marker_transparency, final_bam)
 
 	return(pass_df, fail_df)
 

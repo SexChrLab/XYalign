@@ -99,7 +99,7 @@ def parse_platypus_VCF(filename, qual_cutoff, chrom):
 
 def plot_variants_per_chrom(
 	chrom_list, vcf_file, sampleID, output_prefix, qual_cutoff,
-	MarkerSize, MarkerAlpha, bamfile):
+	MarkerSize, MarkerAlpha, bamfile_obj):
 	"""
 	Parses a vcf file and plots read balance in separate plots
 	for each chromosome in the input list
@@ -112,7 +112,7 @@ def plot_variants_per_chrom(
 	qual_cutoff is the minimum (Phred) quality to consider a site in the vcf
 	MarkerSize is the size of markers (matplotlib sizes) to use in the figure
 	MarkerAlpha is the transparency (matplotlib values) of markers for the figure
-	bamfile is the name of the corresponding bam file (used to get chromosome
+	bamfile_obj is a BamFile() object (used to get chromosome
 		lengths only)
 
 	Returns:
@@ -125,7 +125,7 @@ def plot_variants_per_chrom(
 		parse_results = parse_platypus_VCF(vcf_file, qual_cutoff, i)
 		plot_read_balance(
 			i, parse_results[0], parse_results[2],
-			sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile)
+			sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile_obj)
 		hist_read_balance(
 			i, parse_results[2], sampleID, output_prefix)
 	variants_logger.info(
@@ -136,7 +136,7 @@ def plot_variants_per_chrom(
 
 def plot_read_balance(
 	chrom, positions, readBalance, sampleID, output_prefix, MarkerSize,
-	MarkerAlpha, bamfile):
+	MarkerAlpha, bamfile_obj):
 	"""
 	Plots read balance at each SNP along a chromosome
 
@@ -149,7 +149,7 @@ def plot_read_balance(
 	output_prefix is the desired prefix (including full path) of the output files
 	MarkerSize is the size of markers (matplotlib sizes) to use in the figure
 	MarkerAlpha is the transparency (matplotlib values) of markers for the figure
-	bamfile is the name of the corresponding bam file (used to get chromosome
+	bamfile_obj is a BamFile() object (used to get chromosome
 		lengths only)
 
 	Outputs:
@@ -157,10 +157,7 @@ def plot_read_balance(
 	Returns:
 		Nothing
 	"""
-	if bamfile[-3] == "bam" or bamfile[-3] == "BAM":
-		chrom_len = bam.get_length(pysam.AlignmentFile(bamfile, "rb"), chrom)
-	else:
-		chrom_len = bam.get_length(pysam.AlignmentFile(bamfile, "rc"), chrom)
+	chrom_len = bamfile_obj(chrom)
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():
