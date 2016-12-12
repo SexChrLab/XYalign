@@ -178,7 +178,7 @@ def plot_read_balance(
 	plt.savefig("{}_{}_ReadBalance_GenomicScatter.png".format(
 		output_prefix, chrom))
 	plt.close(fig)
-	variant_logger.info("Genomic read balance plot of {} complete.".format(
+	variants_logger.info("Genomic read balance plot of {} complete.".format(
 		chrom))
 	pass
 
@@ -213,6 +213,6 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 	plt.savefig("{}_{}_ReadBalance_Hist.svg".format(output_prefix, chrom))
 	plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
 	plt.close(fig)
-	variant_logger.info("Genomic read balance histogram of {} complete.".format(
+	variants_logger.info("Genomic read balance histogram of {} complete.".format(
 		chrom))
 	pass
