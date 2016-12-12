@@ -157,7 +157,7 @@ def plot_read_balance(
 	Returns:
 		Nothing
 	"""
-	chrom_len = bamfile_obj(chrom)
+	chrom_len = bamfile_obj.get_chrom_length(chrom)
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():
