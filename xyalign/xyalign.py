@@ -552,9 +552,9 @@ def ploidy_analysis(passing_df, failing_df):
 				results_path + "/{}_{}_bootstrap_results.txt".format(
 					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 	return {
-		perm: [perm_res_x, perm_res_y, sex_perm_res],
-		ks: [ks_res_x, ks_res_y, sex_ks_res],
-		boot: [boot_res_x, boot_res_y, sex_boot_res]}
+		"perm": [perm_res_x, perm_res_y, sex_perm_res],
+		"ks": [ks_res_x, ks_res_y, sex_ks_res],
+		"boot": [boot_res_x, boot_res_y, sex_boot_res]}
 
 
 def remapping():
