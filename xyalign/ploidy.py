@@ -170,13 +170,13 @@ def bootstrap(
 
 	first_mean = np.mean(first_vals)
 	second_mean = np.mean(second_vals)
-	mean_ratio = first_vals / second_vals
+	mean_ratio = first_mean / second_mean
 
 	samples = []
 	for i in range(0, num_reps):
 		first_boot = np.random.shuffle(first_vals)
 		second_boot = np.random.shuffle(second_vals)
-		samples.append(np.mean(first_boot / second_boot))
+		samples.append(np.mean(first_boot) / np.mean(second_boot))
 
 	samples = np.asarray(samples)
 
