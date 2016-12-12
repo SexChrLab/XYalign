@@ -88,7 +88,7 @@ source activate xyalign_env
 See [Anaconda's documentation](http://conda.pydata.org/docs/using/envs.html) for details on working with environments.
 
 ### Running XYalign
-XYalign is located in ```XYalign/xyalign/xyalign.py``` and can be run, in the simplest cases, with a command along the lines of:
+XYalign is located in ```XYalign/xyalign/``` and can be run, in the simplest cases, with a command along the lines of:
 ```
 python <path/to/xyalign.py> --ref <path/to/reference.fasta> --bam </path/to/bam --sample_id <name_of_sample> --output_dir <path/to/outputdirectory - will be created if doesn't already exist> --cpus <number of cores/threads to use>
 ```
