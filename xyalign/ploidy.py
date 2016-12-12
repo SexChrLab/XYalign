@@ -176,8 +176,8 @@ def bootstrap(
 	dim1 = len(first_vals)
 	dim2 = len(second_vals)
 	for i in range(0, num_reps):
-		indices1 = np.random.random_integers(0, dim1, dim1)
-		indices2 = np.random.random_integers(0, dim2, dim2)
+		indices1 = np.random.random_integers(0, dim1 - 1, dim1)
+		indices2 = np.random.random_integers(0, dim2 - 1, dim2)
 		boot1 = np.take(first_vals, indices1)
 		boot2 = np.take(second_vals, indices2)
 		samples.append(np.mean(first_boot) / np.mean(second_boot))
