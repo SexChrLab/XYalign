@@ -455,7 +455,7 @@ def ploidy_analysis(passing_df, failing_df):
 	Returns a dictionary with results for each test.
 	"""
 	# Permutations
-	if args.no_perm_test is not False:
+	if args.no_perm_test is False:
 		autosomes = [
 			x for x in args.chromosomes if x not in sex_chromosomes]
 		if args.y_chromosome is not None:
@@ -489,7 +489,7 @@ def ploidy_analysis(passing_df, failing_df):
 					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 
 	# K-S Two Sample
-	if args.no_ks_test is not False:
+	if args.no_ks_test is False:
 		autosomes = [
 			x for x in args.chromosomes if x not in sex_chromosomes]
 		if args.y_chromosome is not None:
@@ -519,7 +519,7 @@ def ploidy_analysis(passing_df, failing_df):
 				results_path + "/{}_{}_ks_results.txt".format(
 					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 	# Bootstrap
-	if args.no_bootstrap is not False:
+	if args.no_bootstrap is False:
 		autosomes = [
 			x for x in args.chromosomes if x not in sex_chromosomes]
 		if args.y_chromosome is not None:
