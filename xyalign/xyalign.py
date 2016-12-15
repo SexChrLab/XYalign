@@ -351,17 +351,17 @@ def parse_args():
 	if args.window_size is not None:
 		if args.window_size.isdigit() is False:
 			print(
-			"--window_size needs to be either None or a positive integer. "
-			"Exiting.")
+				"--window_size needs to be either None or a positive integer. "
+				"Exiting.")
 			sys.exit(1)
 	else:
 		if args.target_bed is None:
 			print(
-			"If --window_size is None, --target_bed needs to be used. Exiting.")
+				"If --window_size is None, --target_bed needs to be used. Exiting.")
 			sys.exit(1)
 		elif os.path.exists(args.target_bed) is False:
 			print(
-			"Invalid file provided with --target_bed. Check path. Exiting.")
+				"Invalid file provided with --target_bed. Check path. Exiting.")
 			sys.exit(1)
 
 	# Create directory structure if not already in place
