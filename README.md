@@ -73,11 +73,11 @@ conda config --add channels conda-forge
 
 conda config --add channels bioconda
 
-conda create -n xyalign_env python=2.7 pysam pybedtools numpy pandas matplotlib seaborn platypus-variant bwa bbmap samtools sambamba
+conda create -n xyalign_env python=2.7 pysam pybedtools numpy pandas matplotlib seaborn platypus-variant bwa bbmap samtools bedtools sambamba
 ```
 This will work in within a Linux operating system.  As of right now, bioconda won't install platypus on Macs, so Mac users will have to replace the final command with:
 ```
-conda create -n xyalign_env python=2.7 pysam pybedtools numpy pandas matplotlib seaborn bwa bbmap samtools sambamba
+conda create -n xyalign_env python=2.7 pysam pybedtools numpy pandas matplotlib seaborn bwa bbmap samtools bedtools sambamba
 ```
 and [install platypus on their own](http://www.well.ox.ac.uk/platypus).
 
