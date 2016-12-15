@@ -28,6 +28,7 @@ Program
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
 - [ ] Add ability to take targets instead of fixed window sizes for traverse_bam
+- [ ] Add "batch" option (for CHARACTERIZE_SEX_CHROMS and/or ANALYZE_BAM)
 - [x] Create classes for reference fastas and bam/cram files
 - [x] Add support for arbitrary bwa flags
 - [ ] Add support for additional mappers
@@ -41,8 +42,10 @@ Program
 	- probably not necessary for initial release
 - [ ] Clean up parse_args() and update checks/validation
 - [x] Move subsections of pipeline to individual functions to clean up main()
+- [ ] Implement check for dependencies upon loading
 - [ ] Add thorough module testing (e.g. unittest, doctest, etc.)
 - [ ] Write documentation
+- [ ] Implement some kind of checkpointing functionality
 
 Testing
 - [x] Simulate and assemble XX, XY, XXY, and XO genomes
