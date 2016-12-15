@@ -201,9 +201,20 @@ def parse_args():
 
 	# Bam Analysis Flags
 	parser.add_argument(
-		"--window_size", "-w", type=int, default=50000,
+		"--window_size", "-w", default=50000,
 		help="Window size (integer) for sliding window calculations. Default "
-		"is 50000.")
+		"is 50000.  If set to None, will use targets provided using "
+		"--target_bed.")
+
+	parser.add_argument(
+		"--target_bed", default=None,
+		help="Bed file containing targets to use in sliding window analyses "
+		"instead of a fixed window width. Either this or --window_size needs "
+		"to be set.  Default is None, which will use window size provided "
+		"with --window_size.  If not None, and --window_size is None, analyses "
+		"will use targets in provided file.  Must be typical bed format, "
+		"0-based indexing, with the first three columns containing "
+		"the chromosome name, start coordinate, stop coordinate.")
 
 	parser.add_argument(
 		"--mapq_cutoff", "-mq", type=int, default=20,
@@ -335,6 +346,23 @@ def parse_args():
 			"Found either -R or -t in bwa flags.  These flags are already used "
 			"in XYalign.  Please remove.")
 		sys.exit(1)
+
+	# Validate sliding window options
+	if args.window_size is not None:
+		if args.window_size.isdigit() is False:
+			print(
+			"--window_size needs to be either None or a positive integer. "
+			"Exiting.")
+			sys.exit(1)
+	else:
+		if args.target_bed is None:
+			print(
+			"If --window_size is None, --target_bed needs to be used. Exiting.")
+			sys.exit(1)
+		elif os.path.exists(args.target_bed) is False:
+			print(
+			"Invalid file provided with --target_bed. Check path. Exiting.")
+			sys.exit(1)
 
 	# Create directory structure if not already in place
 	if not os.path.exists(os.path.join(args.output_dir, "fastq")):
