@@ -203,7 +203,7 @@ class BamFile():
 				time.time() - rg_start))
 		return [out_rg_table, rg_header_lines]
 
-	def analyze_bam_fetch(self, chrom, window_size):
+	def analyze_bam_fetch(self, chrom, window_size, target_file=None):
 		"""Analyze BAM (or CRAM) file for various metrics.
 		Currently, this function looks at the following metrics across genomic
 		windows:
@@ -213,58 +213,116 @@ class BamFile():
 		size `window_size` and stored altogether in a pandas data frame.
 
 		chrom is the chromosome to analyze
-		window size is the integer window size to use for sliding window analyses
+		window_size is the integer window size to use for sliding window analyses
+			- if set to None, will use intervals from target_file
+		target_file is a bed_file containing regions to analyze instead of
+			windows of a fixed size
+				- will only be engaged if window_size is None
 
 		Returns:
 			A dictionary of pandas data frames with the following key:
 				- windows: The averages for each metric for each window
 		"""
 		self.logger.info(
-			"Analyzing {} in {} for depth and mapq using windows of size {}".format(
-				chrom, self.filepath, window_size))
+			"Traversing {} in {} to analyze depth and mapping quality".format(
+				chrom, self.filepath))
 		analyze_start = time.time()
 		samfile = pysam.AlignmentFile(self.filepath, "rb")
 		chr_len = self.get_chrom_length(chrom)
-		num_windows = chr_len // window_size + 1
-		if chr_len % num_windows == 0:
-			last_window_len = window_size
-		else:
-			last_window_len = chr_len % num_windows
 
-		window_id = 0
+		if window_size is not None:
+			self.logger.info(
+				"Using windows size: {}".format(window_size))
 
-		chr_list = [chrom] * num_windows
-		start_list = []
-		stop_list = []
-		depth_list = []
-		mapq_list = []
-
-		start = 0
-		end = window_size
-		for window in range(0, num_windows):
-			mapq = []
-			total_read_length = 0
-			for read in samfile.fetch(chrom, start, end):
-				if read.is_secondary is False:
-					if read.is_supplementary is False:
-						total_read_length += read.infer_query_length()
-						mapq.append(read.mapping_quality)
-			start_list.append(start)
-			stop_list.append(end)
-			depth_list.append(total_read_length / window_size)
-			mapq_list.append(np.mean(np.asarray(mapq)))
-
-			window_id += 1
-			if window_id == num_windows - 1:
-				start += window_size
-				end += last_window_len
+			num_windows = chr_len // window_size + 1
+			if chr_len % num_windows == 0:
+				last_window_len = window_size
 			else:
-				start += window_size
-				end += window_size
+				last_window_len = chr_len % num_windows
 
-			# Print progress
-			print("{} out of {} windows processed on {}".format(
-				window_id, num_windows, chrom))
+			window_id = 0
+
+			chr_list = [chrom] * num_windows
+			start_list = []
+			stop_list = []
+			depth_list = []
+			mapq_list = []
+
+			start = 0
+			end = window_size
+			for window in range(0, num_windows):
+				mapq = []
+				total_read_length = 0
+				for read in samfile.fetch(chrom, start, end):
+					if read.is_secondary is False:
+						if read.is_supplementary is False:
+							total_read_length += read.infer_query_length()
+							mapq.append(read.mapping_quality)
+				start_list.append(start)
+				stop_list.append(end)
+				depth_list.append(total_read_length / window_size)
+				mapq_list.append(np.mean(np.asarray(mapq)))
+
+				window_id += 1
+				if window_id == num_windows - 1:
+					start += window_size
+					end += last_window_len
+				else:
+					start += window_size
+					end += window_size
+
+				# Print progress
+				self.logger.info("{} out of {} windows processed on {}".format(
+					window_id, num_windows, chrom))
+
+		elif target_file is not None:
+			self.logger.info(
+				"Using targets from: {}".format(target_file))
+			with open(target_file) as f:
+				targets = [x.strip() for x in f]
+				targets = [x.split() for x in targets]
+				targets = [x for x in targets if x[0] == chrom]
+				while [""] in targets:
+					targets.remove([""])
+
+			num_windows = len(targets)
+
+			window_id = 0
+
+			chr_list = []
+			start_list = []
+			stop_list = []
+			depth_list = []
+			mapq_list = []
+
+			for window in targets:
+				mapq = []
+				total_read_length = 0
+				start = int(window[1])
+				end = int(window[2])
+				window_size = end - start
+				for read in samfile.fetch(window[0], start, end):
+					if read.is_secondary is False:
+						if read.is_supplementary is False:
+							total_read_length += read.infer_query_length()
+							mapq.append(read.mapping_quality)
+				chr_list.append(window[0])
+				start_list.append(window[1])
+				stop_list.append(window[2])
+				depth_list.append(total_read_length / window_size)
+				mapq_list.append(np.mean(np.asarray(mapq)))
+
+				window_id += 1
+
+				# Print progress
+				self.logger.info("{} out of {} targets processed on {}".format(
+					window_id, num_windows, chrom))
+
+		else:
+			self.logger.error(
+				"Both window_size and target_file set to None. "
+				"Cannot proceed with bam traversal. Exiting.")
+			sys.exit(1)
 
 		# Convert data into pandas data frames
 		windows_df = pd.DataFrame({
