@@ -460,8 +460,12 @@ def bam_analysis_noprocessing():
 		pass_df = []
 		fail_df = []
 		for chromosome in args.chromosomes:
-			data = input_bam.analyze_bam_fetch(
-				chromosome, args.window_size)
+			if args.window_size is not None:
+				data = input_bam.analyze_bam_fetch(
+					chromosome, int(args.window_size))
+			else:
+				data = input_bam.analyze_bam_fetch(
+					chromosome, None, args.target_bed)
 			tup = utils.make_region_lists(
 				data["windows"], args.mapq_cutoff, args.depth_filter)
 			pass_df.append(tup[0])
@@ -649,8 +653,12 @@ def bam_analysis_postprocessing():
 		pass_df = []
 		fail_df = []
 		for chromosome in args.chromosomes:
-			data = final_bam.analyze_bam_fetch(
-				chromosome, args.window_size)
+			if args.window_size is not None:
+				data = final_bam.analyze_bam_fetch(
+					chromosome, int(args.window_size))
+			else:
+				data = final_bam.analyze_bam_fetch(
+					chromosome, None, args.target_bed)
 			tup = utils.make_region_lists(
 				data["windows"], args.mapq_cutoff, args.depth_filter)
 			pass_df.append(tup[0])
