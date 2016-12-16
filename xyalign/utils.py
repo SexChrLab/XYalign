@@ -49,6 +49,31 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 	return output_file
 
 
+def check_bam_fasta_compatibility(bam_object, fasta_object):
+	"""
+	Takes as input BamFile() and RefFasta() objects and checks to see if
+	sequence names and lengths are equivalent (i.e., if it is likely that the
+	bam file was generated using the fasta in question).
+
+	Returns:
+		True if sequence names and lengths match.
+		False if names or lengths do not match.
+	"""
+	utils_logger.info(
+		"Checking compatibility of {} and {}".format(bam_object.filepath,
+			fasta_object.filepath))
+
+	if bam_object.chromsome_lengths() == fasta_object.chromosome_lengths and\
+		bam_object.chromosome_names() == fasta_object.chromosome_names:
+			utils_logger.info("Bam and Fasta are compatible")
+			return True
+	else:
+		utils_logger.error(
+			"Bam and Fasta are incompatible. Check sequence names and lengths "
+			"to ensure correct fasta was used as input.")
+		return False
+
+
 def merge_bed_files(output_file, *bed_files):
 	"""
 	This function simply takes an output_file (full path to desired output file)

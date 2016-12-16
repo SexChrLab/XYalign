@@ -853,6 +853,21 @@ if __name__ == "__main__":
 	ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
 	input_bam = bam.BamFile(args.bam, args.samtools_path)
 
+	# Check to ensure bam and fasta are compatible and imports work
+	if args.skip_compatibility_check is False:
+		compatible = utils.check_bam_fasta_compatibility(input_bam, ref)
+		if compatible is False:
+			logger.error(
+				"Exiting due to compatibility issues between {} and {}. Check: "
+				"1) that this fasta was used when generating this bam, 2) that "
+				"sequence lengths and names are identical between the two files. "
+				"You can check 2) by comparing the bam header (e.g., "
+				"samtools -H {}) with a sequence dictionary (.dict) created for "
+				"{}.  If you think this is an error, you can use the flag "
+				"--skip_compatibility_check.")
+			logging.shutdown()
+			sys.exit(1)
+
 	# Reference Prep Only
 	if args.PREPARE_REFERENCE is True:
 		logger.info(

@@ -237,3 +237,21 @@ class RefFasta():
 				"Isolating (un-masked) chromosomes complete. "
 				"Elapsed time: {} seconds".format(time.time() - iso_start))
 			return outpath
+
+	def chromosome_lengths(self):
+		"""
+		Returns tuple of chromosome lengths ordered by sequence order in fasta
+		"""
+		fastafile = pysam.FastaFile(self.filepath)
+		lengths = fastafile.lengths
+		fastafile.close()
+		return lengths
+
+	def chromosome_names(self):
+		"""
+		Returns tuple of chromosome names ordered by sequence order in fasta
+		"""
+		fastafile = pysam.FastaFile(self.filepath)
+		names = fastafile.references
+		fastafile.close()
+		return names

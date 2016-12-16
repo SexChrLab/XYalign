@@ -95,13 +95,33 @@ class BamFile():
 		bamfile = pysam.AlignmentFile(self.filepath, "rb")
 		lengths = dict(zip(bamfile.references, bamfile.lengths))
 		try:
-			return lengths[chrom]
+			l = lengths[chrom]
+			bamfile.close()
+			return l
 		except:
 			self.logger.error(
 				"{} not present in bam header for {}. Exiting.".format(
 					chrom, self.filepath))
 			raise RuntimeError(
 				"Chromosome name not present in bam header. Exiting")
+
+	def chromosome_lengths(self):
+		"""
+		Returns tuple of chromosome lengths ordered by sequence order in bam
+		"""
+		bamfile = pysam.AlignmentFile(self.filepath, "rb")
+		lengths = bamfile.lengths
+		bamfile.close()
+		return lengths
+
+	def chromosome_names(self):
+		"""
+		Returns tuple of chromosome names ordered by sequence order in bam
+		"""
+		bamfile = pysam.AlignmentFile(self.filepath, "rb")
+		names = bamfile.references
+		bamfile.close()
+		return names
 
 	def strip_reads(
 		self, repairsh, single, output_directory,
@@ -335,6 +355,7 @@ class BamFile():
 		})[["chrom", "start", "stop", "depth", "mapq"]]
 
 		results = {"windows": windows_df}
+		samfile.close()
 		self.logger.info("Analysis complete. Elapsed time: {} seconds".format(
 			time.time() - analyze_start))
 		return results
@@ -445,6 +466,7 @@ def switch_sex_chromosomes_sambamba(
 		subprocess.call(
 			[samtools_path, "index", "{}/{}.merged.bam".format(
 				output_directory, output_prefix)])
+		samfile.close()
 		bam_logger.info("Swapping complete.  Elapsed time: {} seconds".format(
 			time.time() - switch_start))
 		return "{}/{}.merged.bam".format(output_directory, output_prefix)
