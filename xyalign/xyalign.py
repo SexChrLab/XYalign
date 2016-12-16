@@ -140,6 +140,11 @@ def parse_args():
 		"--no_bam_analysis", action="store_true", default=False,
 		help="Include flag to prevent depth/mapq analysis of bam file")
 
+	parser.add_argument(
+		"--skip_compatibility_check", action="store_true", default=False,
+		help="Include flag to prevent check of compability between input bam "
+		"and reference fasta")
+
 	# Variant Calling Flags
 	parser.add_argument(
 		"--variant_quality_cutoff", "-vqc", type=int, default=20,
