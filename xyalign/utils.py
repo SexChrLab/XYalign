@@ -150,6 +150,8 @@ def chromosome_wide_plot(
 	Returns:
 		Nothing
 	"""
+	print(positions)
+	print(y_value)
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():
