@@ -150,8 +150,6 @@ def chromosome_wide_plot(
 	Returns:
 		Nothing
 	"""
-	print(positions)
-	print(y_value)
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():
@@ -199,7 +197,6 @@ def plot_depth_mapq(
 		"mapq_freq"]
 
 	chromosome = window_df["chrom"][1]
-	print(window_df)
 
 	# Create genome-wide plots based on window means
 	if window_df is not None:
