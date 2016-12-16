@@ -307,8 +307,8 @@ class BamFile():
 							total_read_length += read.infer_query_length()
 							mapq.append(read.mapping_quality)
 				chr_list.append(window[0])
-				start_list.append(window[1])
-				stop_list.append(window[2])
+				start_list.append(start)
+				stop_list.append(end)
 				depth_list.append(total_read_length / window_size)
 				mapq_list.append(np.mean(np.asarray(mapq)))
 
