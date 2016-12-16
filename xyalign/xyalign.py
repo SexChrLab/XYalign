@@ -468,8 +468,7 @@ def bam_analysis_noprocessing():
 					chromosome, None, args.target_bed)
 			tup = utils.make_region_lists(
 				data["windows"], args.mapq_cutoff, args.depth_filter)
-			print(tup[0])
-			print(tup[1])
+			print(data)
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			utils.plot_depth_mapq(
