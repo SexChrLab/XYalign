@@ -27,7 +27,7 @@ Program
 	- [x] Add option to directly read in preformatted references
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
-- [ ] Add ability to take targets instead of fixed window sizes for traverse_bam
+- [x] Add ability to take targets instead of fixed window sizes for traverse_bam
 - [ ] Add "batch" option (for CHARACTERIZE_SEX_CHROMS and/or ANALYZE_BAM)
 - [x] Create classes for reference fastas and bam/cram files
 - [x] Add support for arbitrary bwa flags
