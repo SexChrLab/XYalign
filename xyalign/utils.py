@@ -197,6 +197,7 @@ def plot_depth_mapq(
 		"mapq_freq"]
 
 	chromosome = window_df["chrom"][1]
+	print(window_df)
 
 	# Create genome-wide plots based on window means
 	if window_df is not None:
