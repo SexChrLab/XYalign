@@ -5,6 +5,7 @@ import os
 import subprocess
 import time
 import pybedtools
+import pysam
 
 # Create logger for reftools submodule
 reftools_logger = logging.getLogger("xyalign.reftools")
