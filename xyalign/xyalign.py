@@ -201,10 +201,10 @@ def parse_args():
 
 	# Bam Analysis Flags
 	parser.add_argument(
-		"--window_size", "-w", default=50000,
+		"--window_size", "-w", default=None,
 		help="Window size (integer) for sliding window calculations. Default "
-		"is 50000.  If set to None, will use targets provided using "
-		"--target_bed.")
+		"is 50000.  Default is None. If set to None, will use targets "
+		"provided using --target_bed.")
 
 	parser.add_argument(
 		"--target_bed", default=None,
