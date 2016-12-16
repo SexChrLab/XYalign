@@ -142,7 +142,7 @@ class BamFile():
 				self.filepath, command_line))
 		subprocess.call(command_line, shell=True)
 		with open(rg_list, "r") as f:
-			out_rg_table = output_directory + "/" + output_prefix + "rg_fastq_key.list"
+			out_rg_table = output_directory + "/" + output_prefix + ".rg_fastq_key.list"
 			self.logger.info(
 				"Iteratively removing reads by read group. Writing table of RGs and "
 				"fastqs to {}".format(out_rg_table))
@@ -383,7 +383,8 @@ def switch_sex_chromosomes_sambamba(
 	bam_logger.info(
 		"Isolating header with command: {} > {}/{}.header.sam".format(
 			" ".join(command_line), output_directory, output_prefix))
-	with open("{}/header.sam".format(output_directory), "w") as f:
+	with open(
+		"{}/{}.header.sam".format(output_directory, output_prefix), "w") as f:
 		subprocess.call(command_line, stdout=f)
 	# Reheader new bam (for merge)
 	command_line = [samtools_path, "reheader", "-P", "{}/{}.header.sam".format(
