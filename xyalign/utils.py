@@ -66,7 +66,7 @@ def check_bam_fasta_compatibility(bam_object, fasta_object):
 	b_names = bam_object.chromosome_names()
 	f_names = fasta_object.chromosome_names()
 	b_lengths = bam_object.chromosome_lengths()
-	f_lenghts = fasta_object.chromosome_lengths()
+	f_lengths = fasta_object.chromosome_lengths()
 
 	if b_lengths == f_lengths:
 		if b_names == f_names():
