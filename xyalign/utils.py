@@ -90,7 +90,7 @@ def check_bam_fasta_compatibility(bam_object, fasta_object):
 			"Chromosome ids and lengths for {} are:\n"
 			"{}".format(
 				bam_object.filepath, zip(b_names, b_lengths),
-				fasta_object.filepath, zip(f_names, f_lenghts)))
+				fasta_object.filepath, zip(f_names, f_lengths)))
 		return False
 
 
