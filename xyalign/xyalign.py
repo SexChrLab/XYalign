@@ -400,7 +400,7 @@ def ref_prep():
 				"{}/reference_mask.merged.bed".format(
 					bed_path), *args.reference_mask)
 		else:
-			reference_mask = args.reference_mask
+			reference_mask = args.reference_mask[0]
 	else:
 		reference_mask = None
 	# Create masked noY reference
