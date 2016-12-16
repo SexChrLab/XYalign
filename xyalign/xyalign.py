@@ -503,22 +503,22 @@ def ploidy_analysis(passing_df, failing_df):
 				pd.concat(passing_df), c,
 				str(args.x_chromosome[0]), "chrom",
 				"depth", args.num_permutations,
-				results_path + "/{}_{}_permutation_results.txt".format(
-					c, str(args.x_chromosome[0]))))
+				results_path + "/{}.{}_{}_permutation_results.txt".format(
+					args.sample_id, c, str(args.x_chromosome[0]))))
 			if perm_res_y is not None:
 				perm_res_y.append(ploidy.permutation_test_chromosomes(
 					pd.concat(passing_df), c,
 					str(args.y_chromosome[0]), "chrom",
 					"depth", args.num_permutations,
-					results_path + "/{}_{}_permutation_results.txt".format(
-						c, str(args.y_chromosome[0]))))
+					results_path + "/{}.{}_{}_permutation_results.txt".format(
+						args.sample_id, c, str(args.y_chromosome[0]))))
 		if perm_res_y is not None:
 			sex_perm_res = ploidy.permutation_test_chromosomes(
 				pd.concat(passing_df), str(args.x_chromosome[0]),
 				str(args.y_chromosome[0]),
 				"chrom", "depth", args.num_permutations,
-				results_path + "/{}_{}_permutation_results.txt".format(
-					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+				results_path + "/{}.{}_{}_permutation_results.txt".format(
+					args.sample_id, str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 
 	# K-S Two Sample
 	if args.no_ks_test is False:
@@ -536,20 +536,20 @@ def ploidy_analysis(passing_df, failing_df):
 			ks_res_x.append(ploidy.ks_two_sample(
 				pd.concat(passing_df), c,
 				str(args.x_chromosome[0]), "chrom", "depth",
-				results_path + "/{}_{}_ks_results.txt".format(
-					c, str(args.x_chromosome[0]))))
+				results_path + "/{}.{}_{}_ks_results.txt".format(
+					args.sample_id, c, str(args.x_chromosome[0]))))
 			if ks_res_y is not None:
 				ks_res_y.append(ploidy.ks_two_sample(
 					pd.concat(passing_df), c,
 					str(args.y_chromosome[0]), "chrom", "depth",
-					results_path + "/{}_{}_ks_results.txt".format(
-						c, str(args.y_chromosome[0]))))
+					results_path + "/{}.{}_{}_ks_results.txt".format(
+						args.sample_id, c, str(args.y_chromosome[0]))))
 		if ks_res_y is not None:
 			sex_ks_res = ploidy.ks_two_sample(
 				pd.concat(passing_df), str(args.x_chromosome[0]),
 				str(args.y_chromosome[0]), "chrom", "depth",
-				results_path + "/{}_{}_ks_results.txt".format(
-					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+				results_path + "/{}.{}_{}_ks_results.txt".format(
+					args.sample_id, str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 	# Bootstrap
 	if args.no_bootstrap is False:
 		if args.y_chromosome is not None:
@@ -567,22 +567,22 @@ def ploidy_analysis(passing_df, failing_df):
 				pd.concat(passing_df), c,
 				str(args.x_chromosome[0]), "chrom",
 				"depth", args.num_bootstraps,
-				results_path + "/{}_{}_bootstrap_results.txt".format(
-					c, str(args.x_chromosome[0]))))
+				results_path + "/{}.{}_{}_bootstrap_results.txt".format(
+					args.sample_id, c, str(args.x_chromosome[0]))))
 			if boot_res_y is not None:
 				boot_res_y.append(ploidy.bootstrap(
 					pd.concat(passing_df), c,
 					str(args.y_chromosome[0]), "chrom",
 					"depth", args.num_bootstraps,
-					results_path + "/{}_{}_bootstrap_results.txt".format(
-						c, str(args.y_chromosome[0]))))
+					results_path + "/{}.{}_{}_bootstrap_results.txt".format(
+						args.sample_id, c, str(args.y_chromosome[0]))))
 		if boot_res_y is not None:
 			sex_boot_res = ploidy.bootstrap(
 				pd.concat(passing_df), str(args.x_chromosome[0]),
 				str(args.y_chromosome[0]),
 				"chrom", "depth", args.num_bootstraps,
-				results_path + "/{}_{}_bootstrap_results.txt".format(
-					str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+				results_path + "/{}.{}_{}_bootstrap_results.txt".format(
+					args.sample_id, str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 	return {
 		"perm": [perm_res_x, perm_res_y, sex_perm_res],
 		"ks": [ks_res_x, ks_res_y, sex_ks_res],

@@ -124,7 +124,7 @@ class BamFile():
 		"""
 		# Collect RGs
 		rg_start = time.time()
-		rg_list = output_directory + "/" + "full_rg.list"
+		rg_list = output_directory + "/" + output_prefix + ".full_rg.list"
 		command_line = """{} view -H {} | awk '$1=="\x40RG"' | """\
 			"""awk {} """\
 			"""| cut -d':' -f 2 > {}""".format(
@@ -134,7 +134,7 @@ class BamFile():
 		self.logger.info("Grabbing read groups from {} with the command: {}".format(
 			self.filepath, command_line))
 		subprocess.call(command_line, shell=True)
-		rg_header_lines = output_directory + "/" + "header_lines_rg.list"
+		rg_header_lines = output_directory + "/" + output_prefix + ".header_lines_rg.list"
 		command_line = """{} view -H {} | awk '$1=="\x40RG"' > {}""".format(
 			self.samtools, self.filepath, rg_header_lines)
 		self.logger.info(
@@ -142,7 +142,7 @@ class BamFile():
 				self.filepath, command_line))
 		subprocess.call(command_line, shell=True)
 		with open(rg_list, "r") as f:
-			out_rg_table = output_directory + "/" + "rg_fastq_key.list"
+			out_rg_table = output_directory + "/" + output_prefix + "rg_fastq_key.list"
 			self.logger.info(
 				"Iteratively removing reads by read group. Writing table of RGs and "
 				"fastqs to {}".format(out_rg_table))
@@ -155,18 +155,19 @@ class BamFile():
 						with open(tmp_out, "w") as o:
 							o.write(rg)
 						if single is False:
-							command_line = "{} view -R {} -b {} {} | {} bam2fq -1 {}/temp_1.fastq "\
-								"-2 {}/temp_2.fastq -t -n - ".format(
+							command_line = "{} view -R {} -b {} {} | {} bam2fq -1 {}/{}.temp_1.fastq "\
+								"-2 {}/{}.temp_2.fastq -t -n - ".format(
 									self.samtools, tmp_out, self.filepath, ' '.join(map(str, regions)),
-									self.samtools, output_directory, output_directory)
+									self.samtools, output_directory, output_prefix,
+									output_directory, output_prefix)
 							self.logger.info(
 								"Stripping paired reads with command: {}".format(
 									command_line))
 							subprocess.call(command_line, shell=True)
 							command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
 								repairsh,
-								output_directory + "/temp_1.fastq",
-								output_directory + "/temp_2.fastq",
+								output_directory + "/{}.temp_1.fastq".format(output_prefix),
+								output_directory + "/{}.temp_2.fastq".format(output_prefix),
 								output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
 								output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
 							self.logger.info(
@@ -179,16 +180,16 @@ class BamFile():
 								output_directory + "/" + output_prefix + "_" + rg + "_2.fastq"))
 						else:
 							command_line = "{} view -R {} -b {} {} | {} bam2fq -t -n - > "\
-								"{}/temp.fastq".format(
+								"{}/{}.temp.fastq".format(
 									self.samtools, tmp_out, self.filepath, ' '.join(map(
-										str, regions)), self.samtools, output_directory)
+										str, regions)), self.samtools, output_directory, output_prefix)
 							self.logger.info(
 								"Stripping single-end reads with command: {}".format(
 									command_line))
 							subprocess.call(command_line, shell=True)
 							command_line = "{} in={} out={} overwrite=true".format(
 								repairsh,
-								output_directory + "/temp.fastq",
+								output_directory + "/{}.temp.fastq".format(output_prefix),
 								output_directory + "/" + output_prefix + "_" + rg + ".fastq")
 							self.logger.info(
 								"Sorting reads with command: {}".format(
@@ -358,6 +359,7 @@ def switch_sex_chromosomes_sambamba(
 	sex_chroms is a list of sex chromosomes (to be removed from bam_orig)
 	output_directory is the path to directory where all files (inc. temp) will
 			be output
+	output_prefix is the name (without path) to use for prefix for all files
 	threads is the number of threads/cpus to use
 	pg_header_dict is a dictionary with information to be included in the new
 		@PG line
@@ -379,23 +381,25 @@ def switch_sex_chromosomes_sambamba(
 	# Grab original header
 	command_line = [samtools_path, "view", "-H", bam_orig]
 	bam_logger.info(
-		"Isolating header with command: {} > {}/header.sam".format(
-			" ".join(command_line), output_directory))
+		"Isolating header with command: {} > {}/{}.header.sam".format(
+			" ".join(command_line), output_directory, output_prefix))
 	with open("{}/header.sam".format(output_directory), "w") as f:
 		subprocess.call(command_line, stdout=f)
 	# Reheader new bam (for merge)
-	command_line = [samtools_path, "reheader", "-P", "{}/header.sam".format(
-		output_directory), bam_new]
+	command_line = [samtools_path, "reheader", "-P", "{}/{}.header.sam".format(
+		output_directory, output_prefix), bam_new]
 	bam_logger.info(
-		"Reheading {} with command: {} > {}/reheadered.temp.new.bam".format(
-			bam_new, " ".join(command_line), output_directory))
-	with open("{}/reheadered.temp.new.bam".format(output_directory), "w") as f:
-		subprocess.call(command_line, stdout=f)
-	bam_logger.info("Indexing {}".format("{}/reheadered.temp.new.bam".format(
-		output_directory)))
+		"Reheading {} with command: {} > {}/{}.reheadered.temp.new.bam".format(
+			bam_new, " ".join(command_line), output_directory, output_prefix))
+	with open(
+		"{}/{}.reheadered.temp.new.bam".format(
+			output_directory, output_prefix), "w") as f:
+			subprocess.call(command_line, stdout=f)
+	bam_logger.info("Indexing {}".format("{}/{}.reheadered.temp.new.bam".format(
+		output_directory, output_prefix)))
 	subprocess.call(
-		[samtools_path, "index", "{}/reheadered.temp.new.bam".format(
-			output_directory)])
+		[samtools_path, "index", "{}/{}.reheadered.temp.new.bam".format(
+			output_directory, output_prefix)])
 	# Add XYalign @PG line to header
 	bam_logger.info("Adding new PG line to header")
 	cl_string = " ".join(pg_header_dict["CL"])
@@ -403,15 +407,15 @@ def switch_sex_chromosomes_sambamba(
 		pg_line = [
 			"@PG", "ID:{}".format(pg_header_dict["ID"]), "VN:{}".format(
 				pg_header_dict["VN"]), "CL:{}".format(cl_string)]
-	subprocess.call("echo '{}' >> {}/header.sam".format(
-		"\t".join(pg_line), output_directory), shell=True)
+	subprocess.call("echo '{}' >> {}/{}.header.sam".format(
+		"\t".join(pg_line), output_directory, output_prefix), shell=True)
 	if cram is False:
 		# Remove sex chromosomes from original bam and merge
 		samfile = pysam.AlignmentFile(bam_orig, "rb")
 		non_sex_scaffolds = filter(
 			lambda x: x not in sex_chroms, list(samfile.references))
-		command_line = "{} view -h -t {} -f bam -o {}/temp.nosexchr.bam {} {}".format(
-			sambamba_path, threads, output_directory, bam_orig,
+		command_line = "{} view -h -t {} -f bam -o {}/{}.temp.nosexchr.bam {} {}".format(
+			sambamba_path, threads, output_directory, output_prefix, bam_orig,
 			" ".join(non_sex_scaffolds))
 		bam_logger.info(
 			"Removing sex chromosomes with command: {}".format(command_line))
@@ -420,16 +424,17 @@ def switch_sex_chromosomes_sambamba(
 		# 	[sambamba_path, "view", "-h", "-t", "{}".format(threads), "-f",
 		# 		"bam", "-o", "{}/temp.nosexchr.bam".format(output_directory),
 		# 		bam_orig, "{}".format(" ".join(non_sex_scaffolds))])
-		bam_logger.info("Indexing {}".format("{}/temp.nosexchr.bam".format(
-			output_directory)))
+		bam_logger.info("Indexing {}".format("{}/{}.temp.nosexchr.bam".format(
+			output_directory, output_prefix)))
 		subprocess.call(
-			[samtools_path, "index", "{}/temp.nosexchr.bam".format(
-				output_directory)])
+			[samtools_path, "index", "{}/{}.temp.nosexchr.bam".format(
+				output_directory, output_prefix)])
 		command_line = [
 			samtools_path, "merge", "-@", "{}".format(threads), "-h",
-			"{}/header.sam".format(output_directory), "-f",
+			"{}/{}.header.sam".format(output_directory, output_prefix), "-f",
 			"{}/{}.merged.bam".format(output_directory, output_prefix),
-			"{}/temp.nosexchr.bam".format(output_directory), bam_new]
+			"{}/{}.temp.nosexchr.bam".format(
+				output_directory, output_prefix), bam_new]
 		bam_logger.info("Merging bam files with command: {}".format(
 			" ".join(command_line)))
 		subprocess.call(command_line)
