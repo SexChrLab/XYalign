@@ -49,9 +49,9 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 	return output_file
 
 
-def merge_bed_files(ouput_file, *bed_files):
+def merge_bed_files(output_file, *bed_files):
 	"""
-	This function simply takes an output_file (full path to desired ouput file)
+	This function simply takes an output_file (full path to desired output file)
 	and an arbitrary number of external bed files (including full path),
 	and merges the bed files into the output_file
 
