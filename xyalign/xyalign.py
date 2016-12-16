@@ -142,7 +142,7 @@ def parse_args():
 
 	parser.add_argument(
 		"--skip_compatibility_check", action="store_true", default=False,
-		help="Include flag to prevent check of compability between input bam "
+		help="Include flag to prevent check of compatibility between input bam "
 		"and reference fasta")
 
 	# Variant Calling Flags
@@ -869,7 +869,9 @@ if __name__ == "__main__":
 				"You can check 2) by comparing the bam header (e.g., "
 				"samtools -H {}) with a sequence dictionary (.dict) created for "
 				"{}.  If you think this is an error, you can use the flag "
-				"--skip_compatibility_check.")
+				"--skip_compatibility_check.".format(
+					input_bam.filepath, ref.filepath, input_bam.filepath,
+					ref.filepath))
 			logging.shutdown()
 			sys.exit(1)
 

@@ -63,19 +63,34 @@ def check_bam_fasta_compatibility(bam_object, fasta_object):
 		"Checking compatibility of {} and {}".format(bam_object.filepath,
 			fasta_object.filepath))
 
-	if bam_object.chromosome_lengths() == fasta_object.chromosome_lengths:
-		if bam_object.chromosome_names() == fasta_object.chromosome_names:
+	b_names = bam_object.chromosome_names()
+	f_names = fasta_object.chromosome_names()
+	b_lengths = bam_object.chromosome_lengths()
+	f_lenghts = fasta_object.chromosome_lengths()
+
+	if b_lengths == f_lengths:
+		if b_names == f_names():
 			utils_logger.info("Bam and Fasta are compatible")
 			return True
 		else:
 			utils_logger.error(
 				"Bam and Fasta are incompatible.  Sequence lengths are identical "
-				"but names are not.  Check chromosome ids to ensure compatibility.")
+				"but names are not.  Check chromosome ids to ensure compatibility. "
+				"{} ids are: {}\n"
+				"{} ids are: {}".format(
+					bam_object.filepath, b_names,
+					fasta_object.filepath, f_names))
 			return False
 	else:
 		utils_logger.error(
 			"Bam and Fasta are incompatible. Check sequence names and lengths "
-			"to ensure correct fasta was used as input.")
+			"to ensure correct fasta was used as input. Chromosome ids and "
+			"lengths for {} are:\n"
+			"{}\n"
+			"Chromosome ids and lengths for {} are:\n"
+			"{}".format(
+				bam_object.filepath, " ".join(zip(b_names, b_lenghts)),
+				fasta_object.filepath, " ".join(zip(f_names, f_lenghts))))
 		return False
 
 
