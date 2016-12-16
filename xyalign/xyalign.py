@@ -348,7 +348,7 @@ def parse_args():
 		sys.exit(1)
 
 	# Validate sliding window options
-	if args.window_size is not None:
+	if args.window_size is not None and args.window_size != "None":
 		if args.window_size.isdigit() is False:
 			print(
 				"--window_size needs to be either None or a positive integer. "
@@ -460,7 +460,7 @@ def bam_analysis_noprocessing():
 		pass_df = []
 		fail_df = []
 		for chromosome in args.chromosomes:
-			if args.window_size is not None:
+			if args.window_size is not None and args.window_size != "None":
 				data = input_bam.analyze_bam_fetch(
 					chromosome, int(args.window_size))
 			else:
@@ -653,7 +653,7 @@ def bam_analysis_postprocessing():
 		pass_df = []
 		fail_df = []
 		for chromosome in args.chromosomes:
-			if args.window_size is not None:
+			if args.window_size is not None and args.window_size != "None":
 				data = final_bam.analyze_bam_fetch(
 					chromosome, int(args.window_size))
 			else:
