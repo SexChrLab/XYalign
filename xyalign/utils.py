@@ -63,7 +63,7 @@ def check_bam_fasta_compatibility(bam_object, fasta_object):
 		"Checking compatibility of {} and {}".format(bam_object.filepath,
 			fasta_object.filepath))
 
-	if bam_object.chromsome_lengths() == fasta_object.chromosome_lengths and\
+	if bam_object.chromosome_lengths() == fasta_object.chromosome_lengths and\
 		bam_object.chromosome_names() == fasta_object.chromosome_names:
 			utils_logger.info("Bam and Fasta are compatible")
 			return True
