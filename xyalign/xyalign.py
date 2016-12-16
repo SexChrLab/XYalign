@@ -398,19 +398,19 @@ def ref_prep():
 		if len(args.reference_mask) > 1:
 			reference_mask = utils.merge_bed_files(
 				"{}/reference_mask.merged.bed".format(
-					bed_path), *args.reference_mask)
+					reference_path), *args.reference_mask)
 		else:
 			reference_mask = args.reference_mask[0]
 	else:
 		reference_mask = None
 	# Create masked noY reference
 	y_mask = utils.chromosome_bed(input_bam, "{}/Y.bed".format(
-		bed_path), args.y_chromosome)
+		reference_path), args.y_chromosome)
 	if reference_mask is not None:
 		noy_out = ref.mask_reference(
 			utils.merge_bed_files(
 				"{}/reference_mask.maskY.merged.bed".format(
-					bed_path), reference_mask, y_mask), xx_out)
+					reference_path), reference_mask, y_mask), xx_out)
 	else:
 		noy_out = ref.mask_reference(y_mask, xx_out)
 	noy_ref = reftools.RefFasta(noy_out, args.samtools_path, args.bwa_path)
