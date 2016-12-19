@@ -5,6 +5,7 @@ final_list = [
 	"HG00513_exome", "HG00513_lowcov", "HG00513_wgs"]
 
 ref_path = "reference/ucsc.hg19.fasta"
+ref_prefix = "reference/ucsc.hg19"
 
 rule all:
 	input:
