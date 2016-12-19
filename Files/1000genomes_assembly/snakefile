@@ -1,4 +1,4 @@
-configfile: 1000genomes_assembly.config.json
+configfile: "1000genomes_assembly.config.json"
 
 final_list = [
 	"HG00512_exome", "HG00512_lowcov", "HG00512_wgs",
