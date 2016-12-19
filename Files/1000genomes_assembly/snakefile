@@ -4,6 +4,8 @@ final_list = [
 	"HG00512_exome", "HG00512_lowcov", "HG00512_wgs",
 	"HG00513_exome", "HG00513_lowcov", "HG00513_wgs"]
 
+ref_path = "reference/ucsc.hg19.fasta"
+
 rule all:
 	input:
 		expand("processed_bams/{sample}.mkdup.sorted.bam", sample=final_list),
