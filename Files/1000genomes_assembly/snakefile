@@ -21,11 +21,11 @@ rule prepare_reference:
 		dict = ref_prefix + ".dict"
 	run:
 		# faidx
-		shell("samtools faidx {genome_path}")
+		shell("samtools faidx {input}")
 		# .dict
-		shell("samtools dict -o {output.dict} {genome_path}")
+		shell("samtools dict -o {output.dict} {input}")
 		# bwa
-		shell("bwa index {genome_path}")
+		shell("bwa index {input}")
 
 rule map_and_process_reads:
 	input:
