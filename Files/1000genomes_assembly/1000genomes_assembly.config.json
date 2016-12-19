@@ -103,4 +103,46 @@
 		"PU": ["I358_3.1"],
 		"PL": ["Illumina"]
 	},
+	"HG00513_wgs_run1":{
+		"ID": ["HG00513_wgs_run1"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6L9WANXX.3"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run2":{
+		"ID": ["HG00513_wgs_run2"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6L9WANXX.4"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run3":{
+		"ID": ["HG00513_wgs_run3"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6A74ANXX.4"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run4":{
+		"ID": ["HG00513_wgs_run4"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6A74ANXX.7"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run5":{
+		"ID": ["HG00513_wgs_run5"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6A74ANXX.8"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run6":{
+		"ID": ["HG00513_wgs_run6"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6L01ANXX.2"],
+		"PL": ["Illumina"]
+	}
 }
