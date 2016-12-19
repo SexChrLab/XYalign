@@ -1,0 +1,127 @@
+configfile: 1000genomes_assembly.config.json
+
+final_list = [
+	"HG00512_exome", "HG00512_lowcov", "HG00512_wgs",
+	"HG00513_exome", "HG00513_lowcov", "HG00513_wgs"]
+
+rule all:
+	input:
+		expand("processed_bams/{sample}.mkdup.sorted.bam", sample=final_list),
+		expand("processed_bams/{sample}.mkdup.sorted.bam.bai", sample=final_list)
+
+rule prepare_reference:
+	input:
+		ref_path
+	output:
+		fai = ref_path + ".fai",
+		amb = ref_path + ".amb",
+		dict = ref_prefix + ".dict"
+	run:
+		# faidx
+		shell("samtools faidx {genome_path}")
+		# .dict
+		shell("samtools dict -o {output.dict} {genome_path}")
+		# bwa
+		shell("bwa index {genome_path}")
+
+rule map_and_process_reads:
+	input:
+		fq = lambda wildcards: config["samples"][wildcards.sample],
+		fai = ref_path + ".fai",
+		amb = ref_path + ".amb",
+		ref = ref_path
+	output:
+		"processed_bams/{sample}.mkdup.sorted.bam"
+	params:
+		id = lambda wildcards: config[wildcards.sample]["ID"],
+		sm = lambda wildcards: config[wildcards.sample]["SM"],
+		lb = lambda wildcards: config[wildcards.sample]["LB"],
+		pu = lambda wildcards: config[wildcards.sample]["PU"],
+		pl = lambda wildcards: config[wildcards.sample]["PL"]
+	threads: 4
+	shell:
+		" bwa mem -t {threads} -R "
+		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
+		"{input.ref} {input.fq} "
+		"| samblaster | samtools fixmate -O bam - - | samtools sort "
+		"-O bam -o {output}"
+
+rule index_bam:
+	input:
+		"processed_bams/{sample}.mkdup.sorted.bam"
+	output:
+		"processed_bams/{sample}.mkdup.sorted.bam.bai"
+	shell:
+		"samtools index {input}"
+
+rule merge_lcov_HG00512:
+	input:
+		run1 = "processed_bams/HG00512_lowcov_run1.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00512_lowcov_run1.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00512_lowcov_run2.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00512_lowcov_run2.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00512_lowcov.mkdup.sorted.bam",
+		bai = "processed_bams/HG00512_lowcov.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2}")
+		shell("samtools index {output.bam}")
+
+rule merge_lcov_HG00513:
+	input:
+		run1 = "processed_bams/HG00513_lowcov_run1.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00513_lowcov_run1.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00513_lowcov_run2.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00513_lowcov_run2.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/HG00513_lowcov_run3.mkdup.sorted.bam",
+		run3_idx = "processed_bams/HG00513_lowcov_run3.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00513_lowcov.mkdup.sorted.bam",
+		bai = "processed_bams/HG00513_lowcov.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3}")
+		shell("samtools index {output.bam}")
+
+rule merge_wgs_HG00512:
+	input:
+		run1 = "processed_bams/HG00512_wgs_run1.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00512_wgs_run1.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00512_wgs_run2.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00512_wgs_run2.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/HG00512_wgs_run3.mkdup.sorted.bam",
+		run3_idx = "processed_bams/HG00512_wgs_run3.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/HG00512_wgs_run4.mkdup.sorted.bam",
+		run4_idx = "processed_bams/HG00512_wgs_run4.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/HG00512_wgs_run5.mkdup.sorted.bam",
+		run5_idx = "processed_bams/HG00512_wgs_run5.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00512_wgs.mkdup.sorted.bam",
+		bai = "processed_bams/HG00512_wgs.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
+		shell("samtools index {output.bam}")
+
+rule merge_wgs_HG00513:
+	input:
+		run1 = "processed_bams/HG00513_wgs_run1.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00513_wgs_run1.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00513_wgs_run2.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00513_wgs_run2.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/HG00513_wgs_run3.mkdup.sorted.bam",
+		run3_idx = "processed_bams/HG00513_wgs_run3.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/HG00513_wgs_run4.mkdup.sorted.bam",
+		run4_idx = "processed_bams/HG00513_wgs_run4.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/HG00513_wgs_run5.mkdup.sorted.bam",
+		run5_idx = "processed_bams/HG00513_wgs_run5.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/HG00513_wgs_run6.mkdup.sorted.bam",
+		run6_idx = "processed_bams/HG00513_wgs_run6.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00513_wgs.mkdup.sorted.bam",
+		bai = "processed_bams/HG00513_wgs.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("samtools index {output.bam}")

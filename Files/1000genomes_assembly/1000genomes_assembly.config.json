@@ -1,0 +1,106 @@
+{
+	"samples":{
+		"HG00512_exome": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/exome/ERR034508_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/exome/ERR034508_2.fastq.gz"],
+		"HG00512_lowcov_run1": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/low_coverage_WGS/ERR016114_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/low_coverage_WGS/ERR016116_2.fastq.gz"],
+		"HG00512_lowcov_run2": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/low_coverage_WGS/ERR016116_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/low_coverage_WGS/ERR016116_2.fastq.gz"],
+		"HG00512_wgs_run1": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR894725_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR894725_2.fastq.gz"],
+		"HG00512_wgs_run2": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR894726_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR894726_2.fastq.gz"],
+		"HG00512_wgs_run3": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR899712_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR899712_2.fastq.gz"],
+		"HG00512_wgs_run4": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR899713_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR899713_2.fastq.gz"],
+		"HG00512_wgs_run5": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR903029_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR903029_2.fastq.gz"],
+		"HG00513_exome": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/exome/ERR034509_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/exome/ERR034509_2.fastq.gz"],
+		"HG00513_lowcov_run1": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/low_coverage_WGS/ERR016118_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/low_coverage_WGS/ERR016118_2.fastq.gz"],
+		"HG00513_lowcov_run2": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/low_coverage_WGS/ERR016119_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/low_coverage_WGS/ERR016119_2.fastq.gz"],
+		"HG00513_lowcov_run3": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/low_coverage_WGS/ERR016121_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/low_coverage_WGS/ERR016121_2.fastq.gz"],
+		"HG00513_wgs_run1": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR894727_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR894727_2.fastq.gz"],
+		"HG00513_wgs_run2": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR894728_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR894728_2.fastq.gz"],
+		"HG00513_wgs_run3": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR899714_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR899714_2.fastq.gz"],
+		"HG00513_wgs_run4": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR899715_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR899715_2.fastq.gz"],
+		"HG00513_wgs_run5": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR899716_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR899716_2.fastq.gz"],
+		"HG00513_wgs_run6": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR903027_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00513/PCR_free_WGS/ERR903027_2.fastq.gz"]
+	},
+	"HG00512_exome":{
+		"ID": ["HG00512_exome"],
+		"SM": ["HG00512_exome"],
+		"LB": ["HG00512_exome"],
+		"PU": ["FCB05VTABXX.6"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_lowcov_run1":{
+		"ID": ["HG00512_lowcov_run1"],
+		"SM": ["HG00512_lowcov"],
+		"LB": ["HG00512_lowcov"],
+		"PU": ["I331_9.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_lowcov_run2":{
+		"ID": ["HG00512_lowcov_run2"],
+		"SM": ["HG00512_lowcov"],
+		"LB": ["HG00512_lowcov"],
+		"PU": ["I354_3.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_wgs_run1":{
+		"ID": ["HG00512_wgs_run1"],
+		"SM": ["HG00512_wgs"],
+		"LB": ["HG00512_wgs"],
+		"PU": ["C6L9WANXX.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_wgs_run2":{
+		"ID": ["HG00512_wgs_run2"],
+		"SM": ["HG00512_wgs"],
+		"LB": ["HG00512_wgs"],
+		"PU": ["C6L9WANXX.2"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_wgs_run3":{
+		"ID": ["HG00512_wgs_run3"],
+		"SM": ["HG00512_wgs"],
+		"LB": ["HG00512_wgs"],
+		"PU": ["C6A74ANXX.4"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_wgs_run4":{
+		"ID": ["HG00512_wgs_run4"],
+		"SM": ["HG00512_wgs"],
+		"LB": ["HG00512_wgs"],
+		"PU": ["C6A74ANXX.8"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_wgs_run5":{
+		"ID": ["HG00512_wgs_run5"],
+		"SM": ["HG00512_wgs"],
+		"LB": ["HG00512_wgs"],
+		"PU": ["C6L01ANXX.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_exome":{
+		"ID": ["HG00513_exome"],
+		"SM": ["HG00513_exome"],
+		"LB": ["HG00513_exome"],
+		"PU": ["FCB05VTABXX.7"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_lowcov_run1":{
+		"ID": ["HG00513_lowcov_run1"],
+		"SM": ["HG00513_lowcov"],
+		"LB": ["HG00513_lowcov"],
+		"PU": ["I653_1.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_lowcov_run2":{
+		"ID": ["HG00513_lowcov_run2"],
+		"SM": ["HG00513_lowcov"],
+		"LB": ["HG00513_lowcov"],
+		"PU": ["I650_1.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_lowcov_run3":{
+		"ID": ["HG00513_lowcov_run3"],
+		"SM": ["HG00513_lowcov"],
+		"LB": ["HG00513_lowcov"],
+		"PU": ["I358_3.1"],
+		"PL": ["Illumina"]
+	},
+}
