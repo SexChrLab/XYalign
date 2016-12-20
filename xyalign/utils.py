@@ -23,13 +23,27 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 	Takes list of chromosomes and outputs a bed file with the length of each
 	chromosome on each line (e.g., chr1    0   247249719).
 
-	args:
-		bamfile_obj: a BamFile object for calculating length
-		output_file: name of (including full path to) desired output file
-		chromosome_list: list of chromosome/scaffolds to include
+	Parameters
+	----------
 
-	returns:
+	bamfile_obj : BamFile() object
+	output_file : str
+		Name of (including full path to) desired output file
+	chromosome_list : list
+		Chromosome/scaffolds to include
+
+	Returns
+	-------
+
+	str
 		output_file
+
+	Raises
+	------
+
+	RuntimeError
+		If chromocomse name is not in bam header.
+
 	"""
 	c_bed_start = time.time()
 	utils_logger.info("Creating bed file with chromosome lengths for {}".format(
@@ -43,7 +57,10 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 				utils_logger.error(
 					"Error finding chromosome length in bam file {} "
 					"(for bed file)".format(bamfile_obj.filepath))
-				sys.exit(1)
+				raise RuntimeError(
+					"Error finding chromosome length in bam file {}.  Check "
+					"chromosome names and bam header.".format(
+						bamfile_obj.filepath))
 	utils_logger.info("Bed file ({}) created. Elapsed time: {} seconds".format(
 		output_file, time.time() - c_bed_start))
 	return output_file
@@ -51,17 +68,26 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 
 def check_bam_fasta_compatibility(bam_object, fasta_object):
 	"""
-	Takes as input BamFile() and RefFasta() objects and checks to see if
-	sequence names and lengths are equivalent (i.e., if it is likely that the
-	bam file was generated using the fasta in question).
+	Checks to see if bam and fasta sequence names and lengths are
+	equivalent (i.e., if it is likely that the bam file was generated
+	using the fasta in question).
 
-	Returns:
-		True if sequence names and lengths match.
-		False if names or lengths do not match.
+	Parameters
+	----------
+
+	bam_object : BamFile() object
+	fasta_object: RefFasta() object
+
+	Returns
+	-------
+
+	bool
+		True if sequence names and lengths match. False otherwise.
+
 	"""
 	utils_logger.info(
-		"Checking compatibility of {} and {}".format(bam_object.filepath,
-			fasta_object.filepath))
+		"Checking compatibility of {} and {}".format(
+			bam_object.filepath, fasta_object.filepath))
 
 	b_names = bam_object.chromosome_names()
 	f_names = fasta_object.chromosome_names()
@@ -100,11 +126,20 @@ def merge_bed_files(output_file, *bed_files):
 	and an arbitrary number of external bed files (including full path),
 	and merges the bed files into the output_file
 
-	args:
-		output_file: full path to and name of desired output bed file
-		*bed_files: arbitrary number of external bed files (include full path)
-	returns:
+	Parameters
+	----------
+
+	output_file : str
+		Full path to and name of desired output bed file
+	*bed_files
+		Variable length argument list of external bed files (include full path)
+
+	Returns
+	-------
+
+	str
 		path to output_file
+
 	"""
 	merged_bed_start = time.time()
 	utils_logger.info("Merging bed files: {}".format(
@@ -124,15 +159,23 @@ def make_region_lists(depthAndMapqDf, mapqCutoff, depth_thresh):
 	"""
 	Filters a pandas dataframe for mapq and depth
 
-	depthAndMapqDf is a dataframe with 'depth' and 'mapq' columns
-	mapqCutoff is the minimum mapq for a window to be considered high quality
-	depth_thresh is the factor to use in filtering regions based on depth:
-		Li (2014) recommends:
-			mean_depth +- (depth_thresh * (depth_mean ** 0.5)),
-				where depth_thresh is 3 or 4.
+	Parameters
+	----------
 
-	Returns:
-		A tuple containing two dataframes (passing, failing)
+	depthAndMapqDf : pandas dataframe
+		Must have 'depth' and 'mapq' columns
+	mapqCutoff : int
+		The minimum mapq for a window to be considered high quality
+	depth_thresh : float
+		Factor to use in filtering regions based on depth. Li (2014) recommends:
+		mean_depth +- (depth_thresh * (depth_mean ** 0.5)), where depth_thresh
+		is 3 or 4.
+
+	Returns
+	-------
+
+	tuple
+		(passing dataframe, failing dataframe)
 	"""
 	make_region_lists_start = time.time()
 	depth_mean = depthAndMapqDf["depth"].mean()
@@ -159,20 +202,29 @@ def make_region_lists(depthAndMapqDf, mapqCutoff, depth_thresh):
 
 def output_bed(outBed, *regionDfs):
 	"""
-	Takes a list of dataframes to concatenate and merge into an output bed file
+	Concatenate and merges dataframes into an output bed file
 
-	outBed is the full path to and name of the output bed file
-	*regionDfs is an arbitrary number of dataframes to be included
+	Parameters
+	----------
 
-	Returns:
-		Nothing
+	outBed : str
+		The full path to and name of the output bed file
+	*regionDfs
+		Variable length list of dataframes to be included
+
+	Returns
+	-------
+
+	int
+		0
+
 	"""
 	dfComb = pd.concat(regionDfs)
 	regionList = dfComb.ix[:, "chrom":"stop"].values.tolist()
 	merge = pybedtools.BedTool(regionList).sort().merge()
 	with open(outBed, 'w') as output:
 		output.write(str(merge))
-	pass
+	return 0
 
 
 def chromosome_wide_plot(
@@ -182,18 +234,34 @@ def chromosome_wide_plot(
 	Plots values across a chromosome, where the x axis is the position along the
 	chromosome and the Y axis is the value of the measure of interest.
 
-	positions is an array of coordinates
-	y_value is an array of the values of the measure of interest
-	measure_name is the name of the measure of interest (y axis title)
-	chromosome is the name of the chromosome being plotted
-	sampleID is the name of the sample
-	MarkerSize is the size in points^2
-	MarkerAlpha is the transparency (0 to 1)
-	Xlim is the maximum X value
-	Ylim is the maximum Y value
+	Parameters
+	----------
 
-	Returns:
-		Nothing
+	positions : numpy array
+		Genomic coordinates
+	y_value : numpy	array
+		The values of the measure of interest
+	measure_name : str
+		The name of the measure of interest (y axis title)
+	chromosome : str
+		The name of the chromosome being plotted
+	sampleID : str
+		The name of the sample
+	MarkerSize : float
+		Size in points^2
+	MarkerAlpha : float
+		Transparency (0 to 1)
+	Xlim : float
+		Maximum X value
+	Ylim : float
+		Maximum Y value
+
+	Returns
+	-------
+
+	int
+		0
+
 	"""
 	if "x" in chrom.lower():
 		Color = "green"
@@ -215,21 +283,32 @@ def chromosome_wide_plot(
 	plt.savefig("{}_{}_{}_GenomicScatter.png".format(
 		output_prefix, chrom, measure_name))
 	plt.close(fig)
-	pass
+	return 0
 
 
 def plot_depth_mapq(
 	data_dict, output_prefix, sampleID, chrom_length, MarkerSize, MarkerAlpha):
 	"""
-	Takes a dictionary (output from traverseBam) and outputs histograms and
-	genome-wide plots of various metrics.
-	Args:
-		data_dict: Dictionary of pandas data frames
-		output_prefix: Path and prefix of output files to create
-		sampleID: name/ID of sample
-		chrom_length: length of chromosome
-	Returns:
-		Nothing
+	Creates histograms and genome-wide plots of various metrics.
+
+	Parameters
+	----------
+
+	data_dict : dict
+		Key must be 'windows' value is a pandas data frame
+	output_prefix : str
+		Path and prefix of output files to create
+	sampleID : str
+		Sample ID
+	chrom_length: int
+		Length of chromosome
+
+	Returns
+	-------
+
+	int
+		0
+
 	"""
 
 	window_df = None if "windows" not in data_dict else data_dict[
@@ -284,4 +363,4 @@ def plot_depth_mapq(
 		mapq_bar_plot = sns.countplot(
 			x='Mapq', y='Count', data=mapq_hist)
 		mapq_bar_plot.savefig("mapq_hist.png")
-	pass
+	return 0

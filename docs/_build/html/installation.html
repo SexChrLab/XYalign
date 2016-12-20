@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &#8212; XYalign 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="XYalign: Inferring and Correcting for Sex Chromosome Ploidy in Next-Generation Sequencing Data" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>As of Dec 20, 2016, XYalign is currently under active development as we
+prepare for our first major release.  Therefore, prerelease versions should be
+considered unstable for the time being.</p>
+<div class="section" id="obtaining-xyalign">
+<h2>Obtaining XYalign<a class="headerlink" href="#obtaining-xyalign" title="Permalink to this headline">¶</a></h2>
+<p>In the meantime, if you&#8217;re interested in using XYalign, you can obtain it by
+cloning the Github repository:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">WilsonSayresLab</span><span class="o">/</span><span class="n">XYalign</span><span class="o">/</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>XYalign has a number of required Python packages and external programs:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Python</span><span class="p">:</span> <span class="mf">2.7</span>
+
+<span class="n">Python</span> <span class="n">packages</span><span class="p">:</span>
+        <span class="n">matplotlib</span>
+        <span class="n">numpy</span>
+        <span class="n">pandas</span>
+        <span class="n">pybedtools</span>
+        <span class="n">pysam</span>
+        <span class="n">seaborn</span>
+
+<span class="n">External</span> <span class="n">Programs</span><span class="p">:</span>
+        <span class="n">bbmap</span>
+        <span class="n">bedtools</span>
+        <span class="n">bwa</span>
+        <span class="n">platypus</span>
+        <span class="n">sambamba</span>
+        <span class="n">samtools</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Bedtools is required for pybedtools and must be added to one&#8217;s <cite>PATH</cite>.
+Other external programs do not, however, and can be provided to XYalign
+using the appropriate flag(s):</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">repairsh_path</span>
+<span class="o">--</span><span class="n">bwa_path</span>
+<span class="o">--</span><span class="n">platypus_path</span>
+<span class="o">--</span><span class="n">samtools_path</span>
+<span class="o">--</span><span class="n">sambamba_path</span>
+</pre></div>
+</div>
+</div>
+<p>We strongly recommend users install and manage all packages and programs using
+Anaconda.  To do so:</p>
+<p>1. First download and install either
+<a class="reference external" href="https://www.continuum.io/downloads">Anaconda</a>
+or <a class="reference external" href="http://conda.pydata.org/miniconda.html">Miniconda</a> (both work well,
+Miniconda is a lightweight version of Anaconda).</p>
+<blockquote>
+<div><ul>
+<li><p class="first">Be sure to allow Anaconda to append to your PATH (it will ask for permission to do so during installation)</p>
+<blockquote>
+<div><ul>
+<li><p class="first">You can check this after installation with the command (from the command line):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">which</span> <span class="n">python</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>which should point you to the python installed in your Anaconda or
+Miniconda directory.</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic" start="2">
+<li><p class="first">Linux users can finish installation with the following commands (note that \ indicates a continuation of the command on the next line):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">r</span>
+
+<span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span>
+
+<span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">bioconda</span>
+
+<span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">xyalign_env</span> <span class="n">python</span><span class="o">=</span><span class="mf">2.7</span> <span class="n">pysam</span> <span class="n">pybedtools</span> \
+<span class="n">numpy</span> <span class="n">pandas</span> <span class="n">matplotlib</span> <span class="n">seaborn</span> <span class="n">platypus</span><span class="o">-</span><span class="n">variant</span> <span class="n">bwa</span> <span class="n">bbmap</span> \
+<span class="n">samtools</span> <span class="n">bedtools</span> <span class="n">sambamba</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>And load the new environment (containing all required programs and packages) with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">activate</span> <span class="n">xyalign_env</span>
+</pre></div>
+</div>
+<p>3. Mac users - as of right now, bioconda won&#8217;t install platypus on Macs, so Mac
+users will have to use the commands:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">r</span>
+
+<span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span>
+
+<span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">bioconda</span>
+
+<span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">xyalign_env</span> <span class="n">python</span><span class="o">=</span><span class="mf">2.7</span> <span class="n">pysam</span> <span class="n">pybedtools</span> \
+<span class="n">numpy</span> <span class="n">pandas</span> <span class="n">matplotlib</span> <span class="n">seaborn</span> <span class="n">bwa</span> <span class="n">bbmap</span> <span class="n">samtools</span> <span class="n">bedtools</span> <span class="n">sambamba</span>
+</pre></div>
+</div>
+<p>and then <a class="reference external" href="http://www.well.ox.ac.uk/platypus">install platypus on their own</a> and
+provide it to XYalign with the flag:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">platypus_path</span>
+</pre></div>
+</div>
+<p>Mac users can then load the environment with the command (same as Linux):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">activate</span> <span class="n">xyalign_env</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#obtaining-xyalign">Obtaining XYalign</a></li>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">XYalign: Inferring and Correcting for Sex Chromosome Ploidy in Next-Generation Sequencing Data</a></li>
+      <li>Next: <a href="usage.html" title="next chapter">Usage</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Tim Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa Wilson Sayres.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/installation.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

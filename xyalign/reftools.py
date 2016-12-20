@@ -14,9 +14,19 @@ reftools_logger = logging.getLogger("xyalign.reftools")
 class RefFasta():
 	"""
 	A class for working with external reference fasta files
+
+	Attributes
+	----------
+
+	filepath : str
+		Full path to external bam file.
+	samtools : str
+		Full path to samtools. Default = 'samtools'
+	bwa : str
+		Full path to bwa. Default = 'bwa'
+
 	"""
 	def __init__(self, filepath, samtools="samtools", bwa="bwa"):
-		""" Initiate object with associated filepath """
 		self.filepath = filepath
 		self.samtools = samtools
 		self.bwa = bwa
@@ -29,7 +39,13 @@ class RefFasta():
 	def is_faidxed(self):
 		"""
 		Checks that fai index exists, is not empty and is newer than reference.
-		If any case is False, return False.  Other wise, return True.
+
+		Returns
+		-------
+
+		bool
+			True if fai index exists and is newer than fasta, False otherwise.
+
 		"""
 		self.logger.info("Checking fai indexing of {}".format(self.filepath))
 		if os.path.exists("{}.fai".format(self.filepath)):
@@ -52,7 +68,20 @@ class RefFasta():
 
 	def index_fai(self):
 		"""
-		Create fai index for reference using samtools
+		Create fai index for reference using samtools ('samtools faidx ref.fa')
+
+		Returns
+		-------
+
+		bool
+			True if successful
+
+		Raises
+		------
+
+		RuntimeError
+			If return code from external call is not 0
+
 		"""
 		self.logger.info("Creating fai index for: {}".format(self.filepath))
 		idx_start = time.time()
@@ -71,7 +100,18 @@ class RefFasta():
 		"""
 		Index reference using bwa
 
-		bwa is path to bwa program (default is 'bwa')
+		Returns
+		-------
+
+		bool
+			True if successful
+
+		Raises
+		------
+
+		RuntimeError
+			If return code from external call is not 0
+
 		"""
 		self.logger.info("Creating bwa indices for: {}".format(
 			self.filepath))
@@ -90,9 +130,14 @@ class RefFasta():
 
 	def check_bwa_index(self):
 		"""
-		Checks to see if bwa indices are newer than fasta.  Returns True if so,
-		and False if any of the indices are the same age as the fasta or
-		older.
+		Checks to see if bwa indices are newer than fasta.
+
+		Returns
+		-------
+
+		bool
+			True if indices exist and are newer than fasta. False otherwise.
+
 		"""
 		self.logger.info("Checking bwa indexing of {}".format(self.filepath))
 		if (
@@ -130,10 +175,15 @@ class RefFasta():
 
 	def conditional_index_bwa(self, bwa="bwa"):
 		"""
-		Like index_bwa, but only indexes if indices are the same age or older
-		than the fasta.  Use index_bwa to force indexing.
+		Indexes if indices are the same age or older than the fasta.
+		Use RefFasta.index_bwa() to force indexing.
 
-		bwa is path to bwa program (default is 'bwa')
+		Parameters
+		----------
+
+		bwa : str
+			Path to bwa program (default is 'bwa')
+
 		"""
 		if self.check_bwa_index is False:
 			self.index_bwa()
@@ -142,8 +192,25 @@ class RefFasta():
 		"""
 		Create sequence dictionary .dict file using samtools
 
-		out_dict is the desired file name for the sequence dictionary -
+		Parameters
+		----------
+
+		out_dict : str
+			The desired file name for the sequence dictionary -
 			defaults to adding '.dict' to the fasta name
+
+		Returns
+		-------
+
+		bool
+			True if exit code of external call is 0.
+
+		Raises
+		------
+
+		RuntimeError
+			If external call exit code is not 0.
+
 		"""
 		self.logger.info("Creating sequence dictionary for: {}".format(
 			self.filepath))
@@ -171,11 +238,20 @@ class RefFasta():
 		Creates a new masked references by hardmasking regions included
 		in the bed_mask
 
-		bed_mask is a bed file of regions to mask (as N) in the new reference
-		output_fasta is the full path to and filename of the output fasta
+		Parameters
+		----------
 
-		Returns:
-			Path to new, indexed, masked) fasta
+		bed_mask : str
+			Bed file of regions to mask (as N) in the new reference
+		output_fasta : str
+			The full path to and filename of the output fasta
+
+		Returns
+		-------
+
+		str
+			Path to new (indexed and masked) fasta
+
 		"""
 		mask_start = time.time()
 		reftools_logger.info("Masking {} using regions in {}".format(
@@ -198,12 +274,22 @@ class RefFasta():
 		Takes a reference fasta file and a list of chromosomes to include
 		and outputs a new, indexed (and optionally masked) reference fasta.
 
-		new_ref_prefix is the desired path to and prefix of the output files
-		chroms should be a list of chromosomes to include in the output fasta
-		bed_mask is a bed file of regions to mask (as N) in the new reference
+		Parameters
+		----------
 
-		Returns:
+		new_ref_prefix : str
+			The desired path to and prefix of the output files
+		chroms : list
+			Chromosomes to include in the output fasta
+		bed_mask : str
+			Bed file of regions to mask (as N) in the new reference
+
+		Returns
+		-------
+
+		str
 			Path to new, indexed (optionally masked) fasta
+
 		"""
 		iso_start = time.time()
 		reftools_logger.info("Isolating chromosomes ({}) from {}.".format(
@@ -241,7 +327,12 @@ class RefFasta():
 
 	def chromosome_lengths(self):
 		"""
-		Returns tuple of chromosome lengths ordered by sequence order in fasta
+		Returns
+		-------
+
+		tuple
+			Chromosome lengths ordered by sequence order in fasta
+
 		"""
 		fastafile = pysam.FastaFile(self.filepath)
 		lengths = fastafile.lengths
@@ -250,7 +341,12 @@ class RefFasta():
 
 	def chromosome_names(self):
 		"""
-		Returns tuple of chromosome names ordered by sequence order in fasta
+		Returns
+		-------
+
+		tuple
+			Chromosome names ordered by sequence order in fasta
+
 		"""
 		fastafile = pysam.FastaFile(self.filepath)
 		names = fastafile.references

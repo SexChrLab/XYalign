@@ -17,17 +17,36 @@ def bwa_mem_mapping_sambamba(
 	Maps reads to a reference genome using bwa mem.  If output is in bam format,
 	will sort using sambamba, else will sort with samtools
 
-	bwa_path is the path to bwa
-	samtools_path is the path to samtools
-	sambamba_path is the path to sambamba
-	reference is the path to the reference genome (in fasta format)
-	output_prefix is the path and prefix to the desired output files
-	fastqs is a list of fastqs, e.g. ['sample_1.fastq', 'sample_2.fastq']
-	threads is the number of threads/cpus to use
-	read_group_line is a string containing read group info for bwa to add
-	bwa_params is a list of bwa parameters to be joined into a string and
-		inserted into the command
-	cram (default is False) - if True, will output a sorted cram file
+	Parameters
+	----------
+
+	bwa_path : str
+		The path to bwa
+	samtools_path : str
+		The path to samtools
+	sambamba_path : str
+		The path to sambamba
+	reference : str
+		The path to the reference genome (in fasta format)
+	output_prefix : str
+		The prefix (including path) to the desired output files
+	fastqs : list
+		Fastqs, e.g. ['sample_1.fastq', 'sample_2.fastq']
+	threads : int
+		The number of threads/cpus to use
+	read_group_line : str
+		Read group info for bwa to add
+	bwa_params : list
+		Bwa parameters to be joined into a string and inserted into the command
+	cram : bool
+		If True, will output a sorted cram, else a sorted bam. Default is False.
+
+	Returns
+	-------
+
+	str
+		Path to output bam file (indexed)
+
 	"""
 	map_start = time.time()
 

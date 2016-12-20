@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>assemble &#8212; XYalign 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for assemble</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Part of XYalign</span>
+<span class="c1"># Collection of functions for mapping reads, processing bams, etc.</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="c1"># Create logger for assemble submodule</span>
+<span class="n">assemble_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;xyalign.assemble&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="bwa_mem_mapping_sambamba"><a class="viewcode-back" href="../api.html#assemble.bwa_mem_mapping_sambamba">[docs]</a><span class="k">def</span> <span class="nf">bwa_mem_mapping_sambamba</span><span class="p">(</span>
+	<span class="n">bwa_path</span><span class="p">,</span> <span class="n">samtools_path</span><span class="p">,</span> <span class="n">sambamba_path</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">output_prefix</span><span class="p">,</span> <span class="n">fastqs</span><span class="p">,</span>
+	<span class="n">threads</span><span class="p">,</span> <span class="n">read_group_line</span><span class="p">,</span> <span class="n">bwa_params</span><span class="p">,</span> <span class="n">cram</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Maps reads to a reference genome using bwa mem.  If output is in bam format,</span>
+<span class="sd">	will sort using sambamba, else will sort with samtools</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+
+<span class="sd">	bwa_path : str</span>
+<span class="sd">		The path to bwa</span>
+<span class="sd">	samtools_path : str</span>
+<span class="sd">		The path to samtools</span>
+<span class="sd">	sambamba_path : str</span>
+<span class="sd">		The path to sambamba</span>
+<span class="sd">	reference : str</span>
+<span class="sd">		The path to the reference genome (in fasta format)</span>
+<span class="sd">	output_prefix : str</span>
+<span class="sd">		The prefix (including path) to the desired output files</span>
+<span class="sd">	fastqs : list</span>
+<span class="sd">		Fastqs, e.g. [&#39;sample_1.fastq&#39;, &#39;sample_2.fastq&#39;]</span>
+<span class="sd">	threads : int</span>
+<span class="sd">		The number of threads/cpus to use</span>
+<span class="sd">	read_group_line : str</span>
+<span class="sd">		Read group info for bwa to add</span>
+<span class="sd">	bwa_params : list</span>
+<span class="sd">		Bwa parameters to be joined into a string and inserted into the command</span>
+<span class="sd">	cram : bool</span>
+<span class="sd">		If True, will output a sorted cram, else a sorted bam. Default is False.</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	str</span>
+<span class="sd">		Path to output bam file (indexed)</span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">map_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+	<span class="n">fastqs</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fastqs</span><span class="p">)</span>
+	<span class="n">ref_time</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+	<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+		<span class="s2">&quot;Beginning steps mapping fastqs (</span><span class="si">{}</span><span class="s2">) to reference (</span><span class="si">{}</span><span class="s2">) &quot;</span>
+		<span class="s2">&quot;using bwa_mem_mapping_sambamba&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">fastqs</span><span class="p">,</span> <span class="n">reference</span><span class="p">))</span>
+	<span class="c1"># Check that bwa index is not newer than reference (and re-index if it is)</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="n">amb</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.amb&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+		<span class="n">ann</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.ann&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+		<span class="n">bwt</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.bwt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+		<span class="n">pac</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.pac&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+		<span class="n">sa</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.sa&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">ref_time</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">amb</span><span class="p">,</span> <span class="n">ann</span><span class="p">,</span> <span class="n">bwt</span><span class="p">,</span> <span class="n">pac</span><span class="p">,</span> <span class="n">sa</span><span class="p">)):</span>
+			<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;BWA indices older than reference file. Indexing&quot;</span><span class="p">)</span>
+			<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">bwa_path</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">reference</span><span class="p">])</span>
+			<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;BWA indexing of </span><span class="si">{}</span><span class="s2"> successful&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+	<span class="k">except</span><span class="p">:</span>
+		<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;Could not find all BWA indices. Indexing&quot;</span><span class="p">)</span>
+		<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">bwa_path</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">reference</span><span class="p">])</span>
+		<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;BWA indexing of </span><span class="si">{}</span><span class="s2"> successful&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+
+	<span class="c1"># Check that .fai is not newer than reference (and re-index if it is)</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="n">faidx</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.fai&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+		<span class="k">if</span> <span class="n">ref_time</span> <span class="o">&gt;=</span> <span class="n">faidx</span><span class="p">:</span>
+			<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;Reference index (fai) is older than reference. Indexing.&quot;</span><span class="p">)</span>
+			<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">samtools_path</span><span class="p">,</span> <span class="s2">&quot;faidx&quot;</span><span class="p">,</span> <span class="n">reference</span><span class="p">])</span>
+			<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;Faidx indexing complete for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+	<span class="k">except</span><span class="p">:</span>
+		<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Could not find .fai index. Indexing&quot;</span><span class="p">)</span>
+		<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">samtools_path</span><span class="p">,</span> <span class="s2">&quot;faidx&quot;</span><span class="p">,</span> <span class="n">reference</span><span class="p">])</span>
+		<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Faidx indexing complete for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+
+	<span class="c1"># BAM mapping</span>
+	<span class="k">if</span> <span class="n">cram</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+		<span class="n">command_line</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> mem -t </span><span class="si">{}</span><span class="s2"> -R </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> | </span><span class="si">{}</span><span class="s2"> fixmate -O bam - - | &quot;</span>\
+			<span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> sort -t </span><span class="si">{}</span><span class="s2"> -o </span><span class="si">{}</span><span class="s2">_sorted.bam /dev/stdin&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="n">bwa_path</span><span class="p">,</span> <span class="n">threads</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">read_group_line</span><span class="p">),</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bwa_params</span><span class="p">),</span>
+				<span class="n">reference</span><span class="p">,</span> <span class="n">fastqs</span><span class="p">,</span> <span class="n">samtools_path</span><span class="p">,</span>
+				<span class="n">sambamba_path</span><span class="p">,</span> <span class="n">threads</span><span class="p">,</span> <span class="n">output_prefix</span><span class="p">)</span>
+		<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;Mapping reads with the command: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command_line</span><span class="p">))</span>
+		<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">command_line</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+		<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;Indexing </span><span class="si">{}</span><span class="s2">_sorted.bam&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">))</span>
+		<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+			<span class="p">[</span><span class="n">sambamba_path</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">threads</span><span class="p">),</span>
+				<span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_sorted.bam&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">)])</span>
+		<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;Completed mapping for fastqs (</span><span class="si">{}</span><span class="s2">) to reference (</span><span class="si">{}</span><span class="s2">). &quot;</span>
+			<span class="s2">&quot;Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="n">fastqs</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">map_start</span><span class="p">))</span>
+		<span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_sorted.bam&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">)</span>
+
+	<span class="c1"># CRAM mapping</span>
+	<span class="c1"># 	- note, doesn&#39;t currently support sambamba sorting (samtools instead)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">command_line</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> mem -t </span><span class="si">{}</span><span class="s2"> -R </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> | </span><span class="si">{}</span><span class="s2"> fixmate -O cram - - | &quot;</span>\
+			<span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> sort -O cram -o </span><span class="si">{}</span><span class="s2">_sorted.cram -&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="n">bwa_path</span><span class="p">,</span> <span class="n">threads</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">read_group_line</span><span class="p">),</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bwa_params</span><span class="p">),</span>
+				<span class="n">reference</span><span class="p">,</span> <span class="n">fastqs</span><span class="p">,</span> <span class="n">samtools_path</span><span class="p">,</span>
+				<span class="n">samtools_path</span><span class="p">,</span> <span class="n">output_prefix</span><span class="p">)</span>
+		<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;Mapping reads with the command: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command_line</span><span class="p">))</span>
+		<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">command_line</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+		<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;Indexing </span><span class="si">{}</span><span class="s2">_sorted.cram&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">))</span>
+		<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+			<span class="p">[</span><span class="n">samtools_path</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_sorted.cram&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">)])</span>
+		<span class="n">assemble_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;Completed mapping for fastqs (</span><span class="si">{}</span><span class="s2">) to reference (</span><span class="si">{}</span><span class="s2">). &quot;</span>
+			<span class="s2">&quot;Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="n">fastqs</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">map_start</span><span class="p">))</span>
+		<span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_sorted.cram&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Tim Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa Wilson Sayres.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

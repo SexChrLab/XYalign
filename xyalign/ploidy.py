@@ -18,19 +18,29 @@ def permutation_test_chromosomes(
 	data_frame, first_chrom, second_chrom, chrom_column,
 	value_column, num_perms, output_file=None):
 	"""
-	Takes a dataframe and runs a permutation test comparing mean values
-	of two chromosomes.
+	Runs a permutation test comparing mean values of two chromosomes.
 
-	data_frame is a pandas dataframe
-	first_chrom is the name of the first chromosome in comparison
-	second_chrom is the name of the second chromosome in comparison
-	chrom_column is the name of the column containing chromosome names
-	value_column is the name of the column containing the value of interest
-	num_perms is the number of permutations to use
-	output_file: if not none, will print results to this file
+	Parameters
+	----------
+	data_frame : pandas dataframe
+	first_chrom : str
+		The name of the first chromosome in comparison
+	second_chrom : str
+		The name of the second chromosome in comparison
+	chrom_column : str
+		The name of the column containing chromosome names
+	value_column : str
+		The name of the column containing the value of interest
+	num_perms : int
+		The number of permutations to use
+	output_file : {str, None}
+		If not None, will print results to this file
 
-	Returns:
-		A tuple containing (mean of first chrom, mean of second chrom, p-value)
+	Returns
+	-------
+	tuple
+		(mean of first chrom, mean of second chrom, p-value)
+
 	"""
 	perm_start = time.time()
 	ploidy_logger.info(
@@ -84,19 +94,31 @@ def ks_two_sample(
 	data_frame, first_chrom, second_chrom, chrom_column,
 	value_column, output_file=None):
 	"""
-	Takes a dataframe and runs a Two-sample Kolmogorov-Smirnov test on desired
-	value column
+	Runs a Two-sample Kolmogorov-Smirnov test
 
-	data_frame is a pandas dataframe
-	first_chrom is the name of the first chromosome in comparison
-	second_chrom is the name of the second chromosome in comparison
-	chrom_column is the name of the column containing chromosome names
-	value_column is the name of the column containing the value of interest
-	num_perms is the number of permutations to use
-	output_file: if not none, will print results to this file
+	Parameters
+	----------
 
-	Returns:
-		A tuple containing (ks_statistic, ks_pvalue)
+	data_frame : pandas dataframe
+	first_chrom : str
+		The name of the first chromosome in comparison
+	second_chrom : str
+		The name of the second chromosome in comparison
+	chrom_column : str
+		The name of the column containing chromosome names
+	value_column : str
+		The name of the column containing the value of interest
+	num_perms : int
+		The number of permutations to use
+	output_file : {str, None}
+		If not None, will print results to this file.
+
+	Returns
+	-------
+
+	tuple
+		(ks_statistic, ks_pvalue)
+
 	"""
 	ks_start = time.time()
 	ploidy_logger.info(
@@ -140,19 +162,30 @@ def bootstrap(
 	data_frame, first_chrom, second_chrom, chrom_column,
 	value_column, num_reps, output_file=None):
 	"""
-	Takes a dataframe and bootstraps the 95 percent confidence interval
-	of the mean ratio of measure for two chromosomes (chrom1 / chrom2).
+	Bootstraps the 95 percent confidence interval of the mean ratio of
+	measure for two chromosomes (chrom1 / chrom2).
 
-	data_frame is a pandas dataframe
-	first_chrom is the name of the first chromosome in comparison
-	second_chrom is the name of the second chromosome in comparison
-	chrom_column is the name of the column containing chromosome names
-	value_column is the name of the column containing the value of interest
-	num_perms is the number of permutations to use
-	output_file: if not none, will print results to this file
+	Parameters
+	----------
 
-	Returns:
-		A tuple containing (0.025 percentile, 0.5 percentile, 0.975 percentile)
+	data_frame : pandas dataframe
+	first_chrom : str
+		The name of the first chromosome in comparison
+	second_chrom : str
+		The name of the second chromosome in comparison
+	chrom_column : str
+		The name of the column containing chromosome names
+	value_column : str
+		The name of the column containing the value of interest
+	num_perms : int
+		The number of permutations to use
+	output_file : {str, None}
+		If not None, will print results to this file.
+
+	Returns
+	-------
+	tuple
+		(0.025 percentile, 0.5 percentile, 0.975 percentile)
 	"""
 	boot_start = time.time()
 

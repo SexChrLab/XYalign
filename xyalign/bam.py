@@ -18,12 +18,16 @@ class BamFile():
 	"""
 	A class for working with external bam files
 
-	Attributes:
-		filepath is full path to external bam file
-		samtools path is path to samtools (defaults to "samtools")
+	Attributes
+	----------
+
+	filepath : str
+		Full path to external bam file.
+	samtools : str
+		Full path to samtools. Default = 'samtools'
+
 	"""
 	def __init__(self, filepath, samtools="samtools"):
-		""" Initiate object with an associated filepath """
 		self.filepath = filepath
 		self.samtools = samtools
 		self.logger = logging.getLogger("xyalign.bam.BamFile")
@@ -35,7 +39,13 @@ class BamFile():
 	def is_indexed(self):
 		"""
 		Checks that bam index exists, is not empty, and is newer than bam.
-		If either cases is false, returns False.  Otherwise, returns True.
+
+		Returns
+		-------
+
+		bool
+			True if bam index exists and is newer than bam, False otherwise.
+
 		"""
 		self.logger.info("Checking indexing of {}".format(self.filepath))
 		if os.path.exists("{}.bai".format(self.filepath)):
@@ -64,7 +74,20 @@ class BamFile():
 
 	def index_bam(self):
 		"""
-		Indexes a bam using samtools
+		Indexes a bam using samtools ('samtools index file.bam').
+
+		Returns
+		-------
+
+		bool
+			True if successful.
+
+		Raises
+		------
+
+		RuntimeError
+			If return code from external call is not 0.
+
 		"""
 		self.logger.info("Indexing bam file: {}".format(self.filepath))
 		idx_start = time.time()
@@ -82,14 +105,23 @@ class BamFile():
 		"""
 		Extract chromosome length from BAM header.
 
-		args:
-			bamfile: pysam AlignmentFile object
-				- can be bam, cram, or sam, needs to be declared
-					in pysam.AlignmentFile call before passing to function
-			chrom: chromosome name (string)
+		Parameters
+		----------
 
-		returns:
-			Length (int)
+		chrom : str
+			The name of the chromosome or scaffold.
+
+		Returns
+		-------
+
+		length : int
+			The length (integer) of the chromsome/scaffold
+
+		Raises
+		------
+
+		RuntimeError
+			If chromosome name not present in bam header
 
 		"""
 		bamfile = pysam.AlignmentFile(self.filepath, "rb")
@@ -107,7 +139,12 @@ class BamFile():
 
 	def chromosome_lengths(self):
 		"""
-		Returns tuple of chromosome lengths ordered by sequence order in bam
+		Returns
+		-------
+
+		tuple
+			chromosome lengths ordered by sequence order in bam header
+
 		"""
 		bamfile = pysam.AlignmentFile(self.filepath, "rb")
 		lengths = bamfile.lengths
@@ -116,7 +153,12 @@ class BamFile():
 
 	def chromosome_names(self):
 		"""
-		Returns tuple of chromosome names ordered by sequence order in bam
+		Returns
+		-------
+
+		tuple
+			chromosome names ordered by sequence order in bam header
+
 		"""
 		bamfile = pysam.AlignmentFile(self.filepath, "rb")
 		names = bamfile.references
@@ -130,17 +172,28 @@ class BamFile():
 		Strips reads from a bam or cram file in provided regions and outputs
 		sorted fastqs containing reads, one set of fastq files per read group.
 
-		repairsh is the path to repair.sh (from BBmap)
-		single is either True or False; if true will output single-end fastq file,
-			if False, will output paired-end fastq files
-		output_directory is the directory for ALL output (including temporary files)
-		output_prefix is the name (without path) to use for prefix to output fastqs
-		regions is a list of regions from which reads will be stripped
+		Parameters
+		----------
 
-		Returns:
+		repairsh : str
+			Path to repair.sh (from BBmap)
+		single : bool
+			If true output single-end fastq, otherwise output paired-end fastqs
+		output_directory : str
+			The directory for ALL output (including temporary files)
+		output_prefix : str
+			The name (without path) to use for prefix to output fastqs
+		regions : list
+			regions from which reads will be stripped
+
+		Returns
+		-------
+
+		list
 			A two-item list containing the path to a text file pairing read group
-				names with associated output fastqs, and a text file containing a
-				list of @RG lines associated with each read group
+			names with associated output fastqs, and a text file containing a
+			list of @RG lines associated with each read group
+
 		"""
 		# Collect RGs
 		rg_start = time.time()
@@ -225,24 +278,30 @@ class BamFile():
 		return [out_rg_table, rg_header_lines]
 
 	def analyze_bam_fetch(self, chrom, window_size, target_file=None):
-		"""Analyze BAM (or CRAM) file for various metrics.
-		Currently, this function looks at the following metrics across genomic
-		windows:
-		- Read depth
-		- Mapping quality
-		The average of each metric will be calculated for each window of
-		size `window_size` and stored altogether in a pandas data frame.
+		"""
+		Analyze BAM (or CRAM) file for depth and mapping quality across genomic
+		windows.
 
-		chrom is the chromosome to analyze
-		window_size is the integer window size to use for sliding window analyses
-			- if set to None, will use intervals from target_file
-		target_file is a bed_file containing regions to analyze instead of
-			windows of a fixed size
-				- will only be engaged if window_size is None
+		Parameters
+		----------
 
-		Returns:
-			A dictionary of pandas data frames with the following key:
-				- windows: The averages for each metric for each window
+		chrom : str
+			The name of the chromosome to analyze
+		window_size
+			If int, the window size to use for sliding window analyses, if None
+			intervals from target_file
+		target_file : str
+			Path to bed_file containing regions to analyze instead of
+			windows of a fixed size. Will only be engaged if window_size is None
+
+		Returns
+		-------
+
+		dict
+			A dictionary in which the key is 'windows' and the value is
+			a pandas data frame with the columns: "chrom", "start", "stop",
+			"depth", "mapq"
+
 		"""
 		self.logger.info(
 			"Traversing {} in {} to analyze depth and mapping quality".format(
@@ -368,33 +427,53 @@ def switch_sex_chromosomes_sambamba(
 	samtools_path, sambamba_path, bam_orig, bam_new, sex_chroms,
 	output_directory, output_prefix, threads, pg_header_dict, cram=False):
 	"""
-
 	Removes sex chromosomes from original bam and merges in remmapped
 	sex chromosomes, while retaining the original bam header (and adding new
 	@PG line)
 
-	samtools_path is the path to samtools
-	sambamba_path is the path to sambamba
-	bam_orig is the original full bam file
-	bam_new is the bam containing the sex chromosomes
-	sex_chroms is a list of sex chromosomes (to be removed from bam_orig)
-	output_directory is the path to directory where all files (inc. temp) will
-			be output
-	output_prefix is the name (without path) to use for prefix for all files
-	threads is the number of threads/cpus to use
-	pg_header_dict is a dictionary with information to be included in the new
-		@PG line
+	Parameters
+	----------
+
+	samtools_path : str
+		The path to samtools
+	sambamba_path :
+		The path to sambamba
+	bam_orig : str
+		The path to the original full bam file
+	bam_new : str
+		The path to the bam file containing the remapped sex chromosomes
+	sex_chroms : list
+		Sex chromosomes (to be removed from bam_orig)
+	output_directory : str
+		The path to directory where all files (inc. temp) will be output
+	output_prefix : str
+		The name (without path) to use as prefix for all files
+	threads : int
+		The number of threads/cpus to use
+	pg_header_dict : dict
+		dictionary with information to be included in the new @PG line
 			- must contain:
 				Key = 'CL', value = list of command line values
 				Key = 'ID', value = string of program ID
 			- optional:
 				Key = 'VN', value = string of program version
-	cram (default is False) - if True, will treat input as cram files and
-		output cram files.  Right now slower, with more intermediate/temp files
+	cram : bool
+		If True, will treat input as cram files and output cram files.
+		Otherwise, will treat input as bam.  Defaule is False. True is currently
+		unsupported.
 
-	Returns:
-		New bam or cram file path with original header (plus new @PG line), but sex
-			chromosomes swapped out
+	Returns
+	-------
+
+	str
+		Bam or cram file path with new sex chromosomes, but all others intact.
+
+	Raises
+	------
+
+	RuntimeError
+		If cram is not False.
+
 	"""
 	switch_start = time.time()
 	bam_logger.info(
@@ -495,22 +574,34 @@ def switch_sex_chromosomes_sambamba(
 		# 		output_directory, output_prefix)])
 		# return "{}/{}.cram".format(output_directory, output_prefix)
 		bam_logger.error("This function does not currently handle cram files")
-		return None
+		raise RuntimeError(
+			"switch_sex_chromosomes_sambamba does not currently support cram files")
 
 
 def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
 	"""
-	Takes a list of bam files, e.g., [bam1,bam2,bam3,...], and merges them
-	using sambamba
+	Merges bam files using sambamba.
 
-	Returns:
+	Parameters
+	----------
+
+	sambamba_path : str
+		The path to sambamba
+	bam_list : list
+		Bam files to be merged. Merging order will match order of this list.
+	output_prefix : str
+
+	Returns
+	-------
+	str
 		path to merged bam
+
 	"""
 	merge_start = time.time()
 	bam_logger.info("Merging {}".format(" ".join(bam_list)))
 	subprocess.call(
-		[sambamba_path, "merge", "-t", str(threads), output_prefix, "{}".format(
-			" ".join(bam_list))])
+		[sambamba_path, "merge", "-t", str(threads), "{}.merged.bam".format(
+			output_prefix), "{}".format(" ".join(bam_list))])
 	subprocess.call([
 		sambamba_path, "index", "{}.merged.bam".format(output_prefix)])
 	bam_logger.info("Merging complete. Elapsed time: {} seconds".format(
