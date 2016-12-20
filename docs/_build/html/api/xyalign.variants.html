@@ -1,0 +1,460 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>xyalign.variants module &mdash; XYalign 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="XYalign 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="xyalign package" href="xyalign.html"/>
+        <link rel="next" title="xyalign.xyalign module" href="xyalign.xyalign.html"/>
+        <link rel="prev" title="xyalign.utils module" href="xyalign.utils.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> XYalign
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="modules.html">xyalign</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.html">xyalign package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.assemble.html">xyalign.assemble module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.bam.html">xyalign.bam module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.ploidy.html">xyalign.ploidy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.reftools.html">xyalign.reftools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.utils.html">xyalign.utils module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">xyalign.variants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.xyalign.html">xyalign.xyalign module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html#contributions">Contributions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">XYalign</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../api.html">API</a> &raquo;</li>
+      
+          <li><a href="modules.html">xyalign</a> &raquo;</li>
+      
+          <li><a href="xyalign.html">xyalign package</a> &raquo;</li>
+      
+    <li>xyalign.variants module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/xyalign.variants.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-xyalign.variants">
+<span id="xyalign-variants-module"></span><h1>xyalign.variants module<a class="headerlink" href="#module-xyalign.variants" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="xyalign.variants.hist_read_balance">
+<code class="descclassname">xyalign.variants.</code><code class="descname">hist_read_balance</code><span class="sig-paren">(</span><em>chrom</em>, <em>readBalance</em>, <em>sampleID</em>, <em>output_prefix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xyalign/variants.html#hist_read_balance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#xyalign.variants.hist_read_balance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a histogram of read balance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>chrom</strong> : str</p>
+<blockquote>
+<div><p>Name of the chromosome</p>
+</div></blockquote>
+<p><strong>readBalance</strong> : nump array</p>
+<blockquote>
+<div><p>Read balance values</p>
+</div></blockquote>
+<p><strong>sampleID</strong> : str</p>
+<blockquote>
+<div><p>Sample name or id to include in the plot title</p>
+</div></blockquote>
+<p><strong>output_prefix</strong> : str</p>
+<blockquote>
+<div><p>Desired prefix (including full path) of the output files</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>0</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="xyalign.variants.parse_platypus_VCF">
+<code class="descclassname">xyalign.variants.</code><code class="descname">parse_platypus_VCF</code><span class="sig-paren">(</span><em>filename</em>, <em>qual_cutoff</em>, <em>chrom</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xyalign/variants.html#parse_platypus_VCF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#xyalign.variants.parse_platypus_VCF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse vcf generated by Platypus to grab read balance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>Full path to the input vcf</p>
+</div></blockquote>
+<p><strong>qual_cutoff</strong> : str</p>
+<blockquote>
+<div><p>Minimum (PHRED) quality at which sites should be included</p>
+</div></blockquote>
+<p><strong>chrom</strong> : str</p>
+<blockquote>
+<div><p>Name of the chromosome to include</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">tuple</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>three corresponding arrays of the same length:</dt>
+<dd><p class="first last">(position across the chromosome, site quality, read balance)</p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="xyalign.variants.platypus_caller">
+<code class="descclassname">xyalign.variants.</code><code class="descname">platypus_caller</code><span class="sig-paren">(</span><em>platypus_path</em>, <em>log_path</em>, <em>bam</em>, <em>ref</em>, <em>chroms</em>, <em>cpus</em>, <em>output_file</em>, <em>regions_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xyalign/variants.html#platypus_caller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#xyalign.variants.platypus_caller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses platypus to make variant calls on provided bam file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>platypus_path</strong> : str</p>
+<blockquote>
+<div><p>Path to platypus</p>
+</div></blockquote>
+<p><strong>log_path</strong> : str</p>
+<blockquote>
+<div><p>Path to and name of desired log file for platypus</p>
+</div></blockquote>
+<p><strong>bam</strong> : str</p>
+<blockquote>
+<div><p>Path to input bam (or cram) file</p>
+</div></blockquote>
+<p><strong>ref</strong> : str</p>
+<blockquote>
+<div><p>Path to reference sequence</p>
+</div></blockquote>
+<p><strong>chroms</strong> : list</p>
+<blockquote>
+<div><p>Chromosomes to call variants on, e.g., [&#8220;chrX&#8221;, &#8220;chrY&#8221;, &#8220;chr19&#8221;]</p>
+</div></blockquote>
+<p><strong>cpus</strong> : int</p>
+<blockquote>
+<div><p>Number of threads/cores to use</p>
+</div></blockquote>
+<p><strong>output_file</strong> : path</p>
+<blockquote>
+<div><p>Path to and name of the output vcf</p>
+</div></blockquote>
+<p><strong>regions_file</strong> : {str, None}</p>
+<blockquote>
+<div><p>If not None, must be path to bed file containing regions to call variants
+in.  If None, calls in call regions of provided chromosomes. Default =
+None.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>Exit code of the platypus call</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="xyalign.variants.plot_read_balance">
+<code class="descclassname">xyalign.variants.</code><code class="descname">plot_read_balance</code><span class="sig-paren">(</span><em>chrom</em>, <em>positions</em>, <em>readBalance</em>, <em>sampleID</em>, <em>output_prefix</em>, <em>MarkerSize</em>, <em>MarkerAlpha</em>, <em>bamfile_obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xyalign/variants.html#plot_read_balance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#xyalign.variants.plot_read_balance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots read balance at each SNP along a chromosome</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>chrom</strong> : str</p>
+<blockquote>
+<div><p>Name of the chromosome</p>
+</div></blockquote>
+<p><strong>positions</strong> : numpy array</p>
+<blockquote>
+<div><p>Positions along the chromosome (same length as readBalance)</p>
+</div></blockquote>
+<p><strong>readBalance</strong> : numpy array</p>
+<blockquote>
+<div><p>Read balance corresponding with the positions in the positions array</p>
+</div></blockquote>
+<p><strong>sampleID</strong> : str</p>
+<blockquote>
+<div><p>Sample name or id to include in the plot title</p>
+</div></blockquote>
+<p><strong>output_prefix</strong> : str</p>
+<blockquote>
+<div><p>Desired prefix (including full path) of the output files</p>
+</div></blockquote>
+<p><strong>MarkerSize</strong> : float</p>
+<blockquote>
+<div><p>Size of markers (matplotlib sizes) to use in the figure</p>
+</div></blockquote>
+<p><strong>MarkerAlpha</strong> : float</p>
+<blockquote>
+<div><p>Transparency (matplotlib values) of markers for the figure</p>
+</div></blockquote>
+<p><strong>bamfile_obj</strong> : BamFile() object</p>
+<blockquote>
+<div><p>Used to get chromosome lengths only</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>0</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="xyalign.variants.plot_variants_per_chrom">
+<code class="descclassname">xyalign.variants.</code><code class="descname">plot_variants_per_chrom</code><span class="sig-paren">(</span><em>chrom_list</em>, <em>vcf_file</em>, <em>sampleID</em>, <em>output_prefix</em>, <em>qual_cutoff</em>, <em>MarkerSize</em>, <em>MarkerAlpha</em>, <em>bamfile_obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xyalign/variants.html#plot_variants_per_chrom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#xyalign.variants.plot_variants_per_chrom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a vcf file and plots read balance in separate plots
+for each chromosome in the input list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>chrom_list</strong> : list</p>
+<blockquote>
+<div><p>Chromosomes to include</p>
+</div></blockquote>
+<p><strong>vcf_file</strong> : str</p>
+<blockquote>
+<div><p>File (including path) of platypus vcf to analyze</p>
+</div></blockquote>
+<p><strong>sampleID</strong> : str</p>
+<blockquote>
+<div><p>Sample ID (for plot titles)</p>
+</div></blockquote>
+<p><strong>output_prefix</strong> : str</p>
+<blockquote>
+<div><p>Full path to and prefix of desired output plots</p>
+</div></blockquote>
+<p><strong>qual_cutoff</strong> : int</p>
+<blockquote>
+<div><p>Minimum (Phred) quality to consider a site in the vcf</p>
+</div></blockquote>
+<p><strong>MarkerSize</strong> : float</p>
+<blockquote>
+<div><p>Size of markers (matplotlib sizes) to use in the figure</p>
+</div></blockquote>
+<p><strong>MarkerAlpha</strong> : float</p>
+<blockquote>
+<div><p>Transparency (matplotlib values, 0 to 1) of markers</p>
+</div></blockquote>
+<p><strong>bamfile_obj</strong> : BamFile() object</p>
+<blockquote>
+<div><p>Used to get chromosome lengths only</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>0</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="xyalign.xyalign.html" class="btn btn-neutral float-right" title="xyalign.xyalign module" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="xyalign.utils.html" class="btn btn-neutral" title="xyalign.utils module" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Tim Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa Wilson Sayres.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,1193 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>xyalign.xyalign &mdash; XYalign 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="XYalign 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> XYalign
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html#contributions">Contributions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">XYalign</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>xyalign.xyalign</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for xyalign.xyalign</h1><div class="highlight"><pre>
+<span></span><span class="c1"># XYalign main program</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pysam</span>
+<span class="kn">import</span> <span class="nn">assemble</span>
+<span class="kn">import</span> <span class="nn">bam</span>
+<span class="kn">import</span> <span class="nn">ploidy</span>
+<span class="kn">import</span> <span class="nn">reftools</span>
+<span class="kn">import</span> <span class="nn">utils</span>
+<span class="kn">import</span> <span class="nn">variants</span>
+
+
+<div class="viewcode-block" id="parse_args"><a class="viewcode-back" href="../../api/xyalign.xyalign.html#xyalign.xyalign.parse_args">[docs]</a><span class="k">def</span> <span class="nf">parse_args</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;Parse command-line arguments&quot;&quot;&quot;</span>
+	<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;XYalign&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--ref&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;REQUIRED. Path to reference sequence (including file name).&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--output_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;REQUIRED. Output directory. XYalign will create a directory &quot;</span>
+		<span class="s2">&quot;structure within this directory&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--chromosomes&quot;</span><span class="p">,</span> <span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrX&quot;</span><span class="p">,</span> <span class="s2">&quot;chrY&quot;</span><span class="p">,</span> <span class="s2">&quot;chr19&quot;</span><span class="p">],</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Chromosomes to analyze (names must match reference exactly). &quot;</span>
+		<span class="s2">&quot;Defaults to chr19, chrX, chrY.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--x_chromosome&quot;</span><span class="p">,</span> <span class="s2">&quot;-x&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrX&quot;</span><span class="p">],</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Names of x-linked scaffolds in reference fasta (must match &quot;</span>
+		<span class="s2">&quot;reference exactly).  Defaults to chrX.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--y_chromosome&quot;</span><span class="p">,</span> <span class="s2">&quot;-y&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrY&quot;</span><span class="p">],</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Names of y-linked scaffolds in reference fasta (must match &quot;</span>
+		<span class="s2">&quot;reference exactly). Defaults to chrY. Give None if using an assembly &quot;</span>
+		<span class="s2">&quot;without a Y chromosome&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--sample_id&quot;</span><span class="p">,</span> <span class="s2">&quot;-id&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name/ID of sample - for use in plot titles and file naming. &quot;</span>
+		<span class="s2">&quot;Default is sample&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--cpus&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of cores/threads to use. Default is 1&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--single_end&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include flag if reads are single-end and NOT paired-end.&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Options to run specific parts of the pipeline</span>
+	<span class="n">pipeline_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+	<span class="n">pipeline_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--PREPARE_REFERENCE&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;This flag will limit XYalign to only preparing reference fastas &quot;</span>
+		<span class="s2">&quot;for individuals with and without Y chromosomes.  These fastas can &quot;</span>
+		<span class="s2">&quot;then be passed with each sample to save subsequent processing time.&quot;</span><span class="p">)</span>
+
+	<span class="n">pipeline_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--ANALYZE_BAM&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;This flag will limit XYalign to only analyzing the bam file for &quot;</span>
+		<span class="s2">&quot;(optionally) depth, mapq, and read balance and outputting plots.&quot;</span><span class="p">)</span>
+
+	<span class="n">pipeline_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--CHARACTERIZE_SEX_CHROMS&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;This flag will limit XYalign to the steps required to &quot;</span>
+		<span class="s2">&quot;characterize sex chromosome content (i.e., analyzing the bam &quot;</span>
+		<span class="s2">&quot;for depth, mapq, and read balance and running statistical tests &quot;</span>
+		<span class="s2">&quot;to help infer ploidy)&quot;</span><span class="p">)</span>
+
+	<span class="n">pipeline_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--REMAPPING&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;This flag will limit XYalign to only the steps required to &quot;</span>
+		<span class="s2">&quot;strip reads and remap to masked references. If masked references &quot;</span>
+		<span class="s2">&quot;are not provided, they will be created.&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Logging options</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--logfile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of logfile.  Will overwrite if exists.  Default is &quot;</span>
+		<span class="s2">&quot;sample_xyalign.log&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--reporting_level&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;INFO&#39;</span><span class="p">,</span>
+		<span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">],</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set level of messages printed to console. Default is &#39;INFO&#39;. &quot;</span>
+		<span class="s2">&quot;Choose from (in decreasing amount of reporting) DEBUG, INFO, ERROR &quot;</span>
+		<span class="s2">&quot;or CRITICAL&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Program paths</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--platypus_path&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;platypus&quot;</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to platypus.  Default is &#39;platypus&#39;&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--bwa_path&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;bwa&quot;</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to bwa. Default is &#39;bwa&#39;&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--samtools_path&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;samtools&quot;</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to samtools. Default is &#39;samtools&#39;&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--repairsh_path&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;repair.sh&quot;</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to bbmap&#39;s repair.sh script. Default is &#39;repair.sh&#39;&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--sambamba_path&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;sambamba&quot;</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to sambamba. Default is &#39;sambamba&#39;&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Options for turning on/off parts of the pipeline</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--no_remapping&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include this flag to prevent remapping sex chromosome reads.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--platypus_calling&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
+		<span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;before&quot;</span><span class="p">,</span> <span class="s2">&quot;after&quot;</span><span class="p">],</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Platypus calling withing the pipeline &quot;</span>
+		<span class="s2">&quot;(before processing, after processing, both, &quot;</span>
+		<span class="s2">&quot;or neither). Options: both, none, before, after.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--no_variant_plots&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include flag to prevent plotting read balance from VCF files.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--no_bam_analysis&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include flag to prevent depth/mapq analysis of bam file&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--skip_compatibility_check&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include flag to prevent check of compatibility between input bam &quot;</span>
+		<span class="s2">&quot;and reference fasta&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Variant Calling Flags</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--variant_quality_cutoff&quot;</span><span class="p">,</span> <span class="s2">&quot;-vqc&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Consider all SNPs with a quality greater than or &quot;</span>
+		<span class="s2">&quot;equal to this value. Default is 20.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--platypus_logfile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Prefix to use for Platypus log files.  Will default to the &quot;</span>
+		<span class="s2">&quot;sample_id argument provided&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Reference-related Flags</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--reference_mask&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bed file containing regions to replace with Ns in the sex &quot;</span>
+		<span class="s2">&quot;chromosome reference.  Examples might include the pseudoautosomal &quot;</span>
+		<span class="s2">&quot;regions on the Y to force all mapping/calling on those regions of the &quot;</span>
+		<span class="s2">&quot;X chromosome.  Default is none.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--xx_ref_out&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Desired name for masked output fasta for &quot;</span>
+		<span class="s2">&quot;samples WITHOUT a Y chromosome (e.g., XX, XXX, XO, etc.). &quot;</span>
+		<span class="s2">&quot;Defaults to &#39;xyalign_noY.masked.fa&#39;. Will be output &quot;</span>
+		<span class="s2">&quot;in the XYalign reference directory.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--xy_ref_out&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Desired name for masked output fasta for &quot;</span>
+		<span class="s2">&quot;samples WITH a Y chromosome (e.g., XY, XXY, etc.). &quot;</span>
+		<span class="s2">&quot;Defaults to &#39;xyalign_withY.masked.fa&#39;. Will be output &quot;</span>
+		<span class="s2">&quot;in the XYalign reference directory.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--xx_ref_in&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to preprocessed reference fasta to be used for remapping in &quot;</span>
+		<span class="s2">&quot;X0 or XX samples.  Default is None.  If none, will produce a &quot;</span>
+		<span class="s2">&quot;sample-specific reference for remapping.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--xy_ref_in&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to preprocessed reference fasta to be used for remapping in &quot;</span>
+		<span class="s2">&quot;samples containing Y chromosome.  Default is None.  If none, will &quot;</span>
+		<span class="s2">&quot;produce a sample-specific reference for remapping.&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Mapping/remapping arguments</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--bwa_flags&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Provide a string (in quotes, with spaces between arguments) &quot;</span>
+		<span class="s2">&quot;for additional flags desired for BWA mapping (other than -R and -t). &quot;</span>
+		<span class="s2">&quot;Example: &#39;-M -T 20 -v 4&#39;.  Note that those are spaces between &quot;</span>
+		<span class="s2">&quot;arguments.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--sex_chrom_bam_only&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;This flag skips merging the new sex chromosome bam file back &quot;</span>
+		<span class="s2">&quot;into the original bam file (i.e., sex chrom swapping). This will &quot;</span>
+		<span class="s2">&quot;output a bam file containing only the newly remapped sex chromosomes.&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Bam Analysis Flags</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--window_size&quot;</span><span class="p">,</span> <span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Window size (integer) for sliding window calculations. Default &quot;</span>
+		<span class="s2">&quot;is 50000.  Default is None. If set to None, will use targets &quot;</span>
+		<span class="s2">&quot;provided using --target_bed.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--target_bed&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bed file containing targets to use in sliding window analyses &quot;</span>
+		<span class="s2">&quot;instead of a fixed window width. Either this or --window_size needs &quot;</span>
+		<span class="s2">&quot;to be set.  Default is None, which will use window size provided &quot;</span>
+		<span class="s2">&quot;with --window_size.  If not None, and --window_size is None, analyses &quot;</span>
+		<span class="s2">&quot;will use targets in provided file.  Must be typical bed format, &quot;</span>
+		<span class="s2">&quot;0-based indexing, with the first three columns containing &quot;</span>
+		<span class="s2">&quot;the chromosome name, start coordinate, stop coordinate.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--mapq_cutoff&quot;</span><span class="p">,</span> <span class="s2">&quot;-mq&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Minimum mean mapq threshold for a window to be &quot;</span>
+		<span class="s2">&quot;considered high quality. Default is 20.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--depth_filter&quot;</span><span class="p">,</span> <span class="s2">&quot;-df&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filter for depth (f), where the threshold used is mean_depth +- &quot;</span>
+		<span class="s2">&quot;(f * square_root(mean_depth)).  See Li 2014 (Bioinformatics 30: &quot;</span>
+		<span class="s2">&quot;2843-2851) for more information.  Default is 4.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--high_quality_bed_out&quot;</span><span class="p">,</span> <span class="s2">&quot;-hq&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Prefix of output file for high quality regions. Defaults to &quot;</span>
+		<span class="s2">&quot;sample_id_highquality&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--low_quality_bed_out&quot;</span><span class="p">,</span> <span class="s2">&quot;-lq&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Prefix of output file for low quality regions. Defaults to &quot;</span>
+		<span class="s2">&quot;sample_id_lowquality&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--num_permutations&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of permutations to use for permutation analyses. &quot;</span>
+		<span class="s2">&quot;Default is 10000&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--num_bootstraps&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of bootstrap replicates to use when bootstrapping mean &quot;</span>
+		<span class="s2">&quot;depth ratios among chromosomes. Default is 10000&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Plotting flags</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--marker_size&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Marker size for genome-wide plots in matplotlib. Default is 10.&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--marker_transparency&quot;</span><span class="p">,</span> <span class="s2">&quot;-mt&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Transparency of markers in genome-wide plots.  &quot;</span>
+		<span class="s2">&quot;Alpha in matplotlib.  Default is 0.5&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Mutually exclusive group 1 - bam or cram file</span>
+	<span class="n">group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+	<span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--bam&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Input bam file.&quot;</span><span class="p">)</span>
+
+	<span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--cram&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Input cram file.&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Mutally exclusive group 2 - overriding ploidy estimation with declaration</span>
+	<span class="c1"># 		that Y is present or Y is absent.  --no_perm_test explicitly</span>
+	<span class="c1"># 		requires one of either --y_present or --y_absent, but the reverse</span>
+	<span class="c1"># 		is not true (i.e., if you don&#39;t run tests, you need to tell</span>
+	<span class="c1"># 		XY align what the ploidy is, however you can tell XY align what</span>
+	<span class="c1"># 		the ploidy is and still run the permutation analyses, the results</span>
+	<span class="c1"># 		of which will be ignored)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--no_perm_test&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include flag to turn off permutation tests. Requires either &quot;</span>
+		<span class="s2">&quot;--y_present or --y_absent to also be called&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--no_ks_test&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include flag to turn off KS Two Sample tests. Requires either &quot;</span>
+		<span class="s2">&quot;--y_present or --y_absent to also be called&quot;</span><span class="p">)</span>
+
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--no_bootstrap&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include flag to turn off bootstrap analyses. Requires either &quot;</span>
+		<span class="s2">&quot;--y_present or --y_absent to also be called&quot;</span><span class="p">)</span>
+
+	<span class="n">group2</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+	<span class="n">group2</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--y_present&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overrides sex chr estimation by XYalign and remaps with Y present.&quot;</span><span class="p">)</span>
+
+	<span class="n">group2</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+		<span class="s2">&quot;--y_absent&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overrides sex chr estimation by XY align and remaps with Y absent.&quot;</span><span class="p">)</span>
+
+	<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+	<span class="c1"># Validate permutation test arguments</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_perm_test</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">y_present</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">y_absent</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error. Either --y_present or --y_absent needs to be &quot;</span>
+									<span class="s2">&quot;included with --no_perm_test&quot;</span><span class="p">)</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">platypus_calling</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;before&quot;</span><span class="p">,</span> <span class="s2">&quot;after&quot;</span><span class="p">]:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error. Platypus calling must be both, none, before, or after. &quot;</span>
+								<span class="s2">&quot;Default is both.&quot;</span><span class="p">)</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="c1"># Validate chromosome arguments</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please provide chromosome names to analyze (--chromosomes)&quot;</span><span class="p">)</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_perm_test</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span>
+				<span class="s2">&quot;You only provided a single chromosome to analyze. At minimum &quot;</span>
+				<span class="s2">&quot;include the flag --no_perm_test, but think carefully about &quot;</span>
+				<span class="s2">&quot;how this will affect analyses.  We recommend including at &quot;</span>
+				<span class="s2">&quot;least one autosome, X, and Y when possible.&quot;</span><span class="p">)</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span>
+				<span class="s2">&quot;You only provided a single chromosome to analyze. You &quot;</span>
+				<span class="s2">&quot;included the flag --no_perm_test, so XYalign will continue, &quot;</span>
+				<span class="s2">&quot;but think carefully about &quot;</span>
+				<span class="s2">&quot;how this will affect analyses.  We recommend including at &quot;</span>
+				<span class="s2">&quot;least one autosome, X, and Y when possible.&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Validate bwa arguments</span>
+	<span class="n">bwa_args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">bwa_flags</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+	<span class="n">red_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-rm&quot;</span><span class="p">,</span> <span class="s2">&quot;rm&quot;</span><span class="p">,</span> <span class="s2">&quot;-rf&quot;</span><span class="p">,</span> <span class="s2">&quot;rf&quot;</span><span class="p">,</span> <span class="s2">&quot;-RM&quot;</span><span class="p">,</span> <span class="s2">&quot;RM&quot;</span><span class="p">,</span> <span class="s2">&quot;-RF&quot;</span><span class="p">,</span> <span class="s2">&quot;RF&quot;</span><span class="p">]</span>
+	<span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">bwa_args</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">red_list</span><span class="p">):</span>
+		<span class="nb">print</span><span class="p">(</span>
+			<span class="s2">&quot;Found either rm or rf in your bwa flags. Exiting to prevent &quot;</span>
+			<span class="s2">&quot;unintended shell consequences&quot;</span><span class="p">)</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">yellow_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-R&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">]</span>
+	<span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">bwa_args</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">yellow_list</span><span class="p">):</span>
+		<span class="nb">print</span><span class="p">(</span>
+			<span class="s2">&quot;Found either -R or -t in bwa flags.  These flags are already used &quot;</span>
+			<span class="s2">&quot;in XYalign.  Please remove.&quot;</span><span class="p">)</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="c1"># Validate sliding window options</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">window_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">window_size</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">window_size</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span>
+				<span class="s2">&quot;--window_size needs to be either None or a positive integer. &quot;</span>
+				<span class="s2">&quot;Exiting.&quot;</span><span class="p">)</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">target_bed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span>
+				<span class="s2">&quot;If --window_size is None, --target_bed needs to be used. Exiting.&quot;</span><span class="p">)</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target_bed</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span>
+				<span class="s2">&quot;Invalid file provided with --target_bed. Check path. Exiting.&quot;</span><span class="p">)</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="c1"># Create directory structure if not already in place</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;fastq&quot;</span><span class="p">)):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;fastq&quot;</span><span class="p">))</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;bam&quot;</span><span class="p">)):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;bam&quot;</span><span class="p">))</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;reference&quot;</span><span class="p">)):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;reference&quot;</span><span class="p">))</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;bed&quot;</span><span class="p">)):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;bed&quot;</span><span class="p">))</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;vcf&quot;</span><span class="p">)):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;vcf&quot;</span><span class="p">))</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;plots&quot;</span><span class="p">)):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;plots&quot;</span><span class="p">))</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;results&quot;</span><span class="p">)):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;results&quot;</span><span class="p">))</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;logfiles&quot;</span><span class="p">)):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;logfiles&quot;</span><span class="p">))</span>
+
+	<span class="c1"># Return arguments namespace</span>
+	<span class="k">return</span> <span class="n">args</span></div>
+
+
+<div class="viewcode-block" id="ref_prep"><a class="viewcode-back" href="../../api/xyalign.xyalign.html#xyalign.xyalign.ref_prep">[docs]</a><span class="k">def</span> <span class="nf">ref_prep</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Reference prep part of the pipeline</span>
+
+<span class="sd">	Returns a tuple with the two masked references (one with the y masked, &quot;</span>
+<span class="sd">	&quot;one with the y present&quot;)</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="c1"># Combine masks, if more than one present</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">reference_mask</span> <span class="o">!=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">reference_mask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="n">reference_mask</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">merge_bed_files</span><span class="p">(</span>
+				<span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/reference_mask.merged.bed&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">reference_path</span><span class="p">),</span> <span class="o">*</span><span class="n">args</span><span class="o">.</span><span class="n">reference_mask</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">reference_mask</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">reference_mask</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">reference_mask</span> <span class="o">=</span> <span class="kc">None</span>
+	<span class="c1"># Create masked noY reference</span>
+	<span class="n">y_mask</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">chromosome_bed</span><span class="p">(</span><span class="n">input_bam</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/Y.bed&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+		<span class="n">reference_path</span><span class="p">),</span> <span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">reference_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">noy_out</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">mask_reference</span><span class="p">(</span>
+			<span class="n">utils</span><span class="o">.</span><span class="n">merge_bed_files</span><span class="p">(</span>
+				<span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/reference_mask.maskY.merged.bed&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">reference_path</span><span class="p">),</span> <span class="n">reference_mask</span><span class="p">,</span> <span class="n">y_mask</span><span class="p">),</span> <span class="n">xx_out</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">noy_out</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">mask_reference</span><span class="p">(</span><span class="n">y_mask</span><span class="p">,</span> <span class="n">xx_out</span><span class="p">)</span>
+	<span class="n">noy_ref</span> <span class="o">=</span> <span class="n">reftools</span><span class="o">.</span><span class="n">RefFasta</span><span class="p">(</span><span class="n">noy_out</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">bwa_path</span><span class="p">)</span>
+	<span class="n">noy_ref</span><span class="o">.</span><span class="n">index_bwa</span><span class="p">()</span>
+	<span class="n">noy_ref</span><span class="o">.</span><span class="n">seq_dict</span><span class="p">()</span>
+	<span class="c1"># Create masked withY reference</span>
+	<span class="k">if</span> <span class="n">reference_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">withy_out</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">mask_reference</span><span class="p">(</span><span class="n">reference_mask</span><span class="p">,</span> <span class="n">xy_out</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;No reference mask provided, copying full reference to </span><span class="si">{}</span><span class="s2"> as &quot;</span>
+			<span class="s2">&quot;XY reference to prevent damage, modification, etc. to original &quot;</span>
+			<span class="s2">&quot;reference.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xy_out</span><span class="p">))</span>
+		<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;cp&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="n">xy_out</span><span class="p">])</span>
+		<span class="n">withy_out</span> <span class="o">=</span> <span class="n">xy_out</span>
+	<span class="n">withy_ref</span> <span class="o">=</span> <span class="n">reftools</span><span class="o">.</span><span class="n">RefFasta</span><span class="p">(</span><span class="n">withy_out</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">bwa_path</span><span class="p">)</span>
+	<span class="n">withy_ref</span><span class="o">.</span><span class="n">index_bwa</span><span class="p">()</span>
+	<span class="n">withy_ref</span><span class="o">.</span><span class="n">seq_dict</span><span class="p">()</span>
+	<span class="k">return</span> <span class="p">(</span><span class="n">noy_ref</span><span class="p">,</span> <span class="n">withy_ref</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="bam_analysis_noprocessing"><a class="viewcode-back" href="../../api/xyalign.xyalign.html#xyalign.xyalign.bam_analysis_noprocessing">[docs]</a><span class="k">def</span> <span class="nf">bam_analysis_noprocessing</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Runs bam analyis part of pipeline for unprocessed bam files</span>
+
+<span class="sd">	Returns a tuple containing two lists, one containing pandas dataframes with</span>
+<span class="sd">	passing windows, and one containting pandas dataframes with failing windows</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="c1"># Platypus</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">platypus_calling</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="s2">&quot;before&quot;</span><span class="p">]:</span>
+		<span class="n">a</span> <span class="o">=</span> <span class="n">variants</span><span class="o">.</span><span class="n">platypus_caller</span><span class="p">(</span>
+			<span class="n">args</span><span class="o">.</span><span class="n">platypus_path</span><span class="p">,</span> <span class="n">noprocessing_vcf_log</span><span class="p">,</span> <span class="n">input_bam</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span>
+			<span class="n">ref</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">cpus</span><span class="p">,</span> <span class="n">noprocessing_vcf</span><span class="p">,</span>
+			<span class="kc">None</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">a</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error in platypus calling on </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="n">input_bam</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_variant_plots</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="n">variants</span><span class="o">.</span><span class="n">plot_variants_per_chrom</span><span class="p">(</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span><span class="p">,</span> <span class="n">noprocessing_vcf</span><span class="p">,</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="n">readbalance_prefix_noprocessing</span><span class="p">,</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">variant_quality_cutoff</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">marker_size</span><span class="p">,</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">marker_transparency</span><span class="p">,</span> <span class="n">input_bam</span><span class="p">)</span>
+	<span class="c1"># Depth/MAPQ</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_bam_analysis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="n">pass_df</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">fail_df</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">window_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">window_size</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+				<span class="n">data</span> <span class="o">=</span> <span class="n">input_bam</span><span class="o">.</span><span class="n">analyze_bam_fetch</span><span class="p">(</span>
+					<span class="n">chromosome</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">window_size</span><span class="p">))</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">data</span> <span class="o">=</span> <span class="n">input_bam</span><span class="o">.</span><span class="n">analyze_bam_fetch</span><span class="p">(</span>
+					<span class="n">chromosome</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">target_bed</span><span class="p">)</span>
+			<span class="n">tup</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">make_region_lists</span><span class="p">(</span>
+				<span class="n">data</span><span class="p">[</span><span class="s2">&quot;windows&quot;</span><span class="p">],</span> <span class="n">args</span><span class="o">.</span><span class="n">mapq_cutoff</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">depth_filter</span><span class="p">)</span>
+			<span class="n">pass_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+			<span class="n">fail_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+			<span class="n">utils</span><span class="o">.</span><span class="n">plot_depth_mapq</span><span class="p">(</span>
+				<span class="n">data</span><span class="p">,</span> <span class="n">depth_mapq_prefix_noprocessing</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span>
+				<span class="n">input_bam</span><span class="o">.</span><span class="n">get_chrom_length</span><span class="p">(</span><span class="n">chromosome</span><span class="p">),</span> <span class="n">args</span><span class="o">.</span><span class="n">marker_size</span><span class="p">,</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">marker_transparency</span><span class="p">)</span>
+		<span class="n">utils</span><span class="o">.</span><span class="n">output_bed</span><span class="p">(</span><span class="n">output_bed_high</span><span class="p">,</span> <span class="o">*</span><span class="n">pass_df</span><span class="p">)</span>
+		<span class="n">utils</span><span class="o">.</span><span class="n">output_bed</span><span class="p">(</span><span class="n">output_bed_low</span><span class="p">,</span> <span class="o">*</span><span class="n">fail_df</span><span class="p">)</span>
+	<span class="k">return</span><span class="p">(</span><span class="n">pass_df</span><span class="p">,</span> <span class="n">fail_df</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ploidy_analysis"><a class="viewcode-back" href="../../api/xyalign.xyalign.html#xyalign.xyalign.ploidy_analysis">[docs]</a><span class="k">def</span> <span class="nf">ploidy_analysis</span><span class="p">(</span><span class="n">passing_df</span><span class="p">,</span> <span class="n">failing_df</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Runs the ploidy analysis part of the pipeline.  Takes passing_df and</span>
+<span class="sd">	failing_df (the output of bam_analysis_noprocessing()) as input.</span>
+
+<span class="sd">	Returns a dictionary with results for each test.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="c1"># Permutations</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_perm_test</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">sex_chromosomes</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span>
+			<span class="n">perm_res_x</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">perm_res_y</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">sex_chromosomes</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span>
+			<span class="n">perm_res_x</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">perm_res_y</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="n">autosomes</span> <span class="o">=</span> <span class="p">[</span>
+			<span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sex_chromosomes</span><span class="p">]</span>
+		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">autosomes</span><span class="p">:</span>
+			<span class="n">perm_res_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ploidy</span><span class="o">.</span><span class="n">permutation_test_chromosomes</span><span class="p">(</span>
+				<span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">passing_df</span><span class="p">),</span> <span class="n">c</span><span class="p">,</span>
+				<span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;chrom&quot;</span><span class="p">,</span>
+				<span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_permutations</span><span class="p">,</span>
+				<span class="n">results_path</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_permutation_results.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]))))</span>
+			<span class="k">if</span> <span class="n">perm_res_y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="n">perm_res_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ploidy</span><span class="o">.</span><span class="n">permutation_test_chromosomes</span><span class="p">(</span>
+					<span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">passing_df</span><span class="p">),</span> <span class="n">c</span><span class="p">,</span>
+					<span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;chrom&quot;</span><span class="p">,</span>
+					<span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_permutations</span><span class="p">,</span>
+					<span class="n">results_path</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_permutation_results.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+						<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]))))</span>
+		<span class="k">if</span> <span class="n">perm_res_y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">sex_perm_res</span> <span class="o">=</span> <span class="n">ploidy</span><span class="o">.</span><span class="n">permutation_test_chromosomes</span><span class="p">(</span>
+				<span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">passing_df</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+				<span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+				<span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_permutations</span><span class="p">,</span>
+				<span class="n">results_path</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_permutation_results.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+
+	<span class="c1"># K-S Two Sample</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_ks_test</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">sex_chromosomes</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span>
+			<span class="n">ks_res_x</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">ks_res_y</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">sex_chromosomes</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span>
+			<span class="n">ks_res_x</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">ks_res_y</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="n">autosomes</span> <span class="o">=</span> <span class="p">[</span>
+			<span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sex_chromosomes</span><span class="p">]</span>
+		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">autosomes</span><span class="p">:</span>
+			<span class="n">ks_res_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ploidy</span><span class="o">.</span><span class="n">ks_two_sample</span><span class="p">(</span>
+				<span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">passing_df</span><span class="p">),</span> <span class="n">c</span><span class="p">,</span>
+				<span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span>
+				<span class="n">results_path</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_ks_results.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]))))</span>
+			<span class="k">if</span> <span class="n">ks_res_y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="n">ks_res_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ploidy</span><span class="o">.</span><span class="n">ks_two_sample</span><span class="p">(</span>
+					<span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">passing_df</span><span class="p">),</span> <span class="n">c</span><span class="p">,</span>
+					<span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span>
+					<span class="n">results_path</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_ks_results.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+						<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]))))</span>
+		<span class="k">if</span> <span class="n">ks_res_y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">sex_ks_res</span> <span class="o">=</span> <span class="n">ploidy</span><span class="o">.</span><span class="n">ks_two_sample</span><span class="p">(</span>
+				<span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">passing_df</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+				<span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span>
+				<span class="n">results_path</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_ks_results.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+	<span class="c1"># Bootstrap</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_bootstrap</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">sex_chromosomes</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span>
+			<span class="n">boot_res_x</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">boot_res_y</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">sex_chromosomes</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span>
+			<span class="n">boot_res_x</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">boot_res_y</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="n">autosomes</span> <span class="o">=</span> <span class="p">[</span>
+			<span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sex_chromosomes</span><span class="p">]</span>
+		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">autosomes</span><span class="p">:</span>
+			<span class="n">boot_res_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ploidy</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span>
+				<span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">passing_df</span><span class="p">),</span> <span class="n">c</span><span class="p">,</span>
+				<span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;chrom&quot;</span><span class="p">,</span>
+				<span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_bootstraps</span><span class="p">,</span>
+				<span class="n">results_path</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_bootstrap_results.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]))))</span>
+			<span class="k">if</span> <span class="n">boot_res_y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="n">boot_res_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ploidy</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span>
+					<span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">passing_df</span><span class="p">),</span> <span class="n">c</span><span class="p">,</span>
+					<span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;chrom&quot;</span><span class="p">,</span>
+					<span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_bootstraps</span><span class="p">,</span>
+					<span class="n">results_path</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_bootstrap_results.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+						<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]))))</span>
+		<span class="k">if</span> <span class="n">boot_res_y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">sex_boot_res</span> <span class="o">=</span> <span class="n">ploidy</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span>
+				<span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">passing_df</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+				<span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+				<span class="s2">&quot;chrom&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">num_bootstraps</span><span class="p">,</span>
+				<span class="n">results_path</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_bootstrap_results.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+	<span class="k">return</span> <span class="p">{</span>
+		<span class="s2">&quot;perm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">perm_res_x</span><span class="p">,</span> <span class="n">perm_res_y</span><span class="p">,</span> <span class="n">sex_perm_res</span><span class="p">],</span>
+		<span class="s2">&quot;ks&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">ks_res_x</span><span class="p">,</span> <span class="n">ks_res_y</span><span class="p">,</span> <span class="n">sex_ks_res</span><span class="p">],</span>
+		<span class="s2">&quot;boot&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">boot_res_x</span><span class="p">,</span> <span class="n">boot_res_y</span><span class="p">,</span> <span class="n">sex_boot_res</span><span class="p">]}</span></div>
+
+
+<div class="viewcode-block" id="remapping"><a class="viewcode-back" href="../../api/xyalign.xyalign.html#xyalign.xyalign.remapping">[docs]</a><span class="k">def</span> <span class="nf">remapping</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Runs remapping steps of the pipeline</span>
+
+<span class="sd">	Returns bam containing remapped sex chroms</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">if</span> <span class="n">y_present</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="n">new_reference</span> <span class="o">=</span> <span class="n">masked_refs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">new_reference</span> <span class="o">=</span> <span class="n">masked_refs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">new_fastqs</span> <span class="o">=</span> <span class="n">input_bam</span><span class="o">.</span><span class="n">strip_reads</span><span class="p">(</span>
+		<span class="n">args</span><span class="o">.</span><span class="n">repairsh_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">single_end</span><span class="p">,</span> <span class="n">fastq_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span>
+		<span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">)</span>
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">new_fastqs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+		<span class="n">read_group_and_fastqs</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span>
+		<span class="n">read_group_and_fastqs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">read_group_and_fastqs</span><span class="p">]</span>
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">new_fastqs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+		<span class="n">read_group_headers</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span>
+	<span class="n">temp_bam_list</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">read_group_and_fastqs</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]:</span>
+			<span class="n">rg_id</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+			<span class="n">fastq_files</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">read_group_headers</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">j</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ID&#39;</span><span class="p">:</span>
+						<span class="k">if</span> <span class="n">k</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="o">==</span> <span class="n">rg_id</span><span class="p">:</span>
+							<span class="n">rg_tag</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+						<span class="k">break</span>
+			<span class="n">temp_bam</span> <span class="o">=</span> <span class="n">assemble</span><span class="o">.</span><span class="n">bwa_mem_mapping_sambamba</span><span class="p">(</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">bwa_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sambamba_path</span><span class="p">,</span>
+				<span class="n">new_reference</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">.sex_chroms.</span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">bam_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="n">rg_id</span><span class="p">),</span>
+				<span class="n">fastq_files</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">cpus</span><span class="p">,</span> <span class="n">rg_tag</span><span class="p">,</span>
+				<span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">bwa_flags</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+			<span class="n">temp_bam_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_bam</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp_bam_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+		<span class="n">new_bam</span> <span class="o">=</span> <span class="n">temp_bam_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">new_bam</span> <span class="o">=</span> <span class="n">bam</span><span class="o">.</span><span class="n">sambamba_merge</span><span class="p">(</span>
+			<span class="n">args</span><span class="o">.</span><span class="n">sambamba_path</span><span class="p">,</span> <span class="n">temp_bam_list</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">.sex_chroms&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="n">bam_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">),</span> <span class="n">args</span><span class="o">.</span><span class="n">cpus</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">new_bam</span></div>
+
+
+<div class="viewcode-block" id="swap_sex_chroms"><a class="viewcode-back" href="../../api/xyalign.xyalign.html#xyalign.xyalign.swap_sex_chroms">[docs]</a><span class="k">def</span> <span class="nf">swap_sex_chroms</span><span class="p">(</span><span class="n">new_bam_file</span><span class="p">):</span>
+	<span class="n">merged_bam</span> <span class="o">=</span> <span class="n">bam</span><span class="o">.</span><span class="n">switch_sex_chromosomes_sambamba</span><span class="p">(</span>
+		<span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sambamba_path</span><span class="p">,</span> <span class="n">input_bam</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span>
+		<span class="n">new_bam_file</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">x_chromosome</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">y_chromosome</span><span class="p">,</span>
+		<span class="n">bam_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">cpus</span><span class="p">,</span> <span class="n">xyalign_params_dict</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">merged_bam</span></div>
+
+
+<div class="viewcode-block" id="bam_analysis_postprocessing"><a class="viewcode-back" href="../../api/xyalign.xyalign.html#xyalign.xyalign.bam_analysis_postprocessing">[docs]</a><span class="k">def</span> <span class="nf">bam_analysis_postprocessing</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Runs bam analyis part of pipeline for postprocessed bam files</span>
+
+<span class="sd">	Returns 0</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="c1"># Depth/MAPQ</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_bam_analysis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="n">pass_df</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">fail_df</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">window_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">window_size</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+				<span class="n">data</span> <span class="o">=</span> <span class="n">final_bam</span><span class="o">.</span><span class="n">analyze_bam_fetch</span><span class="p">(</span>
+					<span class="n">chromosome</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">window_size</span><span class="p">))</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">data</span> <span class="o">=</span> <span class="n">final_bam</span><span class="o">.</span><span class="n">analyze_bam_fetch</span><span class="p">(</span>
+					<span class="n">chromosome</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">target_bed</span><span class="p">)</span>
+			<span class="n">tup</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">make_region_lists</span><span class="p">(</span>
+				<span class="n">data</span><span class="p">[</span><span class="s2">&quot;windows&quot;</span><span class="p">],</span> <span class="n">args</span><span class="o">.</span><span class="n">mapq_cutoff</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">depth_filter</span><span class="p">)</span>
+			<span class="n">pass_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+			<span class="n">fail_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+			<span class="n">utils</span><span class="o">.</span><span class="n">plot_depth_mapq</span><span class="p">(</span>
+				<span class="n">data</span><span class="p">,</span> <span class="n">depth_mapq_prefix_postprocessing</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span>
+				<span class="n">final_bam</span><span class="o">.</span><span class="n">get_chrom_length</span><span class="p">(</span><span class="n">chromosome</span><span class="p">),</span> <span class="n">args</span><span class="o">.</span><span class="n">marker_size</span><span class="p">,</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">marker_transparency</span><span class="p">)</span>
+		<span class="n">utils</span><span class="o">.</span><span class="n">output_bed</span><span class="p">(</span><span class="n">output_bed_high_postprocessing</span><span class="p">,</span> <span class="o">*</span><span class="n">pass_df</span><span class="p">)</span>
+		<span class="n">utils</span><span class="o">.</span><span class="n">output_bed</span><span class="p">(</span><span class="n">output_bed_low_postprocessing</span><span class="p">,</span> <span class="o">*</span><span class="n">fail_df</span><span class="p">)</span>
+
+	<span class="c1"># Platypus</span>
+	<span class="n">include_bed</span> <span class="o">=</span> <span class="n">output_bed_high_postprocessing</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">platypus_calling</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="s2">&quot;after&quot;</span><span class="p">]:</span>
+		<span class="n">a</span> <span class="o">=</span> <span class="n">variants</span><span class="o">.</span><span class="n">platypus_caller</span><span class="p">(</span>
+			<span class="n">args</span><span class="o">.</span><span class="n">platypus_path</span><span class="p">,</span> <span class="n">postprocessing_vcf_log</span><span class="p">,</span> <span class="n">input_bam</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span>
+			<span class="n">ref</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">cpus</span><span class="p">,</span> <span class="n">postprocessing_vcf</span><span class="p">,</span>
+			<span class="n">include_bed</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">a</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error in platypus calling on </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="n">final_bam</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_variant_plots</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="n">variants</span><span class="o">.</span><span class="n">plot_variants_per_chrom</span><span class="p">(</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">chromosomes</span><span class="p">,</span> <span class="n">postprocessing_vcf</span><span class="p">,</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span> <span class="n">readbalance_prefix_postprocessing</span><span class="p">,</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">variant_quality_cutoff</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">marker_size</span><span class="p">,</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">marker_transparency</span><span class="p">,</span> <span class="n">final_bam</span><span class="p">)</span>
+
+	<span class="k">return</span><span class="p">(</span><span class="n">pass_df</span><span class="p">,</span> <span class="n">fail_df</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+	<span class="c1"># Version - placeholder for now - need to incorporate it into __init__.py</span>
+	<span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+	<span class="n">citation</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">	XYalign: Inferring Sex Chromosome Ploidy in NGS Data</span>
+
+<span class="s2">	Timothy H Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins,</span>
+<span class="s2">	Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres</span>
+
+<span class="s2">	2016</span>
+
+<span class="s2">	Version: </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">	&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+
+	<span class="c1"># Start timer</span>
+	<span class="n">xyalign_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+	<span class="c1"># Grab arguments</span>
+	<span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+
+	<span class="c1"># Set up logfile</span>
+	<span class="n">logfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;logfiles&quot;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">logfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+			<span class="n">logfile_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">logfile</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">logfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+			<span class="n">logfile_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_xyalign.log&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">))</span>
+
+	<span class="c1"># Initiate logging</span>
+	<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;xyalign&quot;</span><span class="p">)</span>
+	<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+	<span class="c1"># Create File Handler</span>
+	<span class="n">fh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+	<span class="n">fh</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+	<span class="c1"># Create Console Handler</span>
+	<span class="n">ch</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">reporting_level</span> <span class="o">==</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span>
+		<span class="n">ch</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">reporting_level</span> <span class="o">==</span> <span class="s2">&quot;INFO&quot;</span><span class="p">:</span>
+		<span class="n">ch</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">reporting_level</span> <span class="o">==</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span>
+		<span class="n">ch</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">reporting_level</span> <span class="o">==</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">:</span>
+		<span class="n">ch</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">ch</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+	<span class="c1"># Set Formatter</span>
+	<span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
+		<span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(name)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
+	<span class="n">fh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+	<span class="n">ch</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+	<span class="c1"># Add handlers to logger</span>
+	<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+	<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+
+	<span class="c1"># Log citation</span>
+	<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">citation</span><span class="p">))</span>
+
+	<span class="c1"># Set up param dictionary</span>
+	<span class="n">xyalign_params_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ID&#39;</span><span class="p">:</span> <span class="s1">&#39;XYalign&#39;</span><span class="p">,</span> <span class="s1">&#39;VN&#39;</span><span class="p">:</span> <span class="n">version</span><span class="p">,</span> <span class="s1">&#39;CL&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+	<span class="n">p</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+	<span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+		<span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=</span><span class="si">{}</span><span class="s2">, &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">arg</span><span class="p">])</span>
+		<span class="n">xyalign_params_dict</span><span class="p">[</span><span class="s1">&#39;CL&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">arg</span><span class="p">]))</span>
+
+	<span class="c1"># Log parameters and pipeline start</span>
+	<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Parameters: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+	<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Beginning XYalign&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Setup output paths</span>
+	<span class="n">fastq_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;fastq&quot;</span><span class="p">)</span>
+	<span class="n">bam_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;bam&quot;</span><span class="p">)</span>
+	<span class="n">reference_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;reference&quot;</span><span class="p">)</span>
+	<span class="n">bed_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;bed&quot;</span><span class="p">)</span>
+	<span class="n">vcf_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;vcf&quot;</span><span class="p">)</span>
+	<span class="n">plots_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;plots&quot;</span><span class="p">)</span>
+	<span class="n">results_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;results&quot;</span><span class="p">)</span>
+
+	<span class="c1"># Create paths for output files</span>
+	<span class="c1"># reference-related</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">xx_ref_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">xx_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reference_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">xx_ref_out</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">xx_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reference_path</span><span class="p">,</span> <span class="s2">&quot;xyalign_noY.masked.fa&quot;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">xy_ref_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">xy_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reference_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">xy_ref_out</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">xy_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reference_path</span><span class="p">,</span> <span class="s2">&quot;xyalign_withY.masked.fa&quot;</span><span class="p">)</span>
+	<span class="c1"># variant/vcf related</span>
+	<span class="n">noprocessing_vcf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">vcf_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.noprocessing.vcf&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">))</span>
+	<span class="n">postprocessing_vcf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">vcf_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.postprocessing.vcf&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">))</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">platypus_logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">plat_log</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">platypus_logfile</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">plat_log</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">sample_id</span>
+	<span class="n">noprocessing_vcf_log</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">logfile_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_noprocessing_platypus.log&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">plat_log</span><span class="p">))</span>
+	<span class="n">postprocessing_vcf_log</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">logfile_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_postprocessing_platypus.log&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">plat_log</span><span class="p">))</span>
+	<span class="n">readbalance_prefix_noprocessing</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">plots_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_noprocessing&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">))</span>
+	<span class="n">readbalance_prefix_postprocessing</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">plots_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_postprocessing&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">))</span>
+	<span class="c1"># Depth/mapq related</span>
+	<span class="n">depth_mapq_prefix_noprocessing</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">plots_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_noprocessing&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">))</span>
+	<span class="n">depth_mapq_prefix_postprocessing</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">plots_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_postprocessing&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">))</span>
+	<span class="c1"># Bedfile related</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">high_quality_bed_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="c1"># high_prefix = args.high_quality_bed_out</span>
+		<span class="nb">print</span><span class="p">(</span>
+			<span class="s2">&quot;--high_quality_bed_out is currently unsupported.  Please remove &quot;</span>
+			<span class="s2">&quot;this flag&quot;</span><span class="p">)</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">high_prefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_highquality_preprocessing&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">)</span>
+	<span class="n">output_bed_high</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">bed_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.bed&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_prefix</span><span class="p">))</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">low_quality_bed_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="c1"># low_prefix = args.low_quality_bed_out</span>
+		<span class="nb">print</span><span class="p">(</span>
+			<span class="s2">&quot;--low_quality_bed_out is currently unsupported.  Please remove &quot;</span>
+			<span class="s2">&quot;this flag&quot;</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">low_prefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_lowquality_preprocessing&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">)</span>
+	<span class="n">output_bed_low</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">bed_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.bed&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">low_prefix</span><span class="p">))</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">high_quality_bed_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="c1"># high_prefix_postprocessing = args.high_quality_bed_out</span>
+		<span class="nb">print</span><span class="p">(</span>
+			<span class="s2">&quot;--high_quality_bed_out is currently unsupported.  Please remove &quot;</span>
+			<span class="s2">&quot;this flag&quot;</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">high_prefix_postprocessing</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_highquality_postprocessing&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">)</span>
+	<span class="n">output_bed_high_postprocessing</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">bed_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.bed&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_prefix</span><span class="p">))</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">low_quality_bed_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="c1"># low_prefix_postprocessing = args.low_quality_bed_out</span>
+		<span class="nb">print</span><span class="p">(</span>
+			<span class="s2">&quot;--low_quality_bed_out is currently unsupported.  Please remove &quot;</span>
+			<span class="s2">&quot;this flag&quot;</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">low_prefix_postprocessing</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_lowquality_postprocessing&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">args</span><span class="o">.</span><span class="n">sample_id</span><span class="p">)</span>
+	<span class="n">output_bed_low_postprocessing</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+		<span class="n">bed_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.bed&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">low_prefix</span><span class="p">))</span>
+
+	<span class="c1">######################################</span>
+	<span class="c1">############ Run XYalign #############</span>
+	<span class="c1">######################################</span>
+	<span class="n">ref</span> <span class="o">=</span> <span class="n">reftools</span><span class="o">.</span><span class="n">RefFasta</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ref</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">bwa_path</span><span class="p">)</span>
+	<span class="n">input_bam</span> <span class="o">=</span> <span class="n">bam</span><span class="o">.</span><span class="n">BamFile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">bam</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">)</span>
+
+	<span class="c1"># Check to ensure bam and fasta are compatible and imports work</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_compatibility_check</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+		<span class="n">compatible</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_bam_fasta_compatibility</span><span class="p">(</span><span class="n">input_bam</span><span class="p">,</span> <span class="n">ref</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">compatible</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+				<span class="s2">&quot;Exiting due to compatibility issues between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2">. Check: &quot;</span>
+				<span class="s2">&quot;1) that this fasta was used when generating this bam, 2) that &quot;</span>
+				<span class="s2">&quot;sequence lengths and names are identical between the two files. &quot;</span>
+				<span class="s2">&quot;You can check 2) by comparing the bam header (e.g., &quot;</span>
+				<span class="s2">&quot;samtools -H </span><span class="si">{}</span><span class="s2">) with a sequence dictionary (.dict) created for &quot;</span>
+				<span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.  If you think this is an error, you can use the flag &quot;</span>
+				<span class="s2">&quot;--skip_compatibility_check.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">input_bam</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="n">ref</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="n">input_bam</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span>
+					<span class="n">ref</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+			<span class="n">logging</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="c1"># Reference Prep Only</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">PREPARE_REFERENCE</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;PREPARE_REFERENCE set, so only preparing reference fastas.&quot;</span><span class="p">)</span>
+		<span class="n">ref_prep</span><span class="p">()</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;PREPARE_REFERENCE complete.&quot;</span><span class="p">)</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;XYalign complete. Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">xyalign_start</span><span class="p">))</span>
+		<span class="n">logging</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+	<span class="c1"># Stats Only</span>
+	<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">ANALYZE_BAM</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;ANALYZE_BAM set, so only running steps required &quot;</span>
+			<span class="s2">&quot;for bam analysis.&quot;</span><span class="p">)</span>
+		<span class="n">bam_analysis_noprocessing</span><span class="p">()</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ANALYZE_BAM complete.&quot;</span><span class="p">)</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;XYalign complete. Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">xyalign_start</span><span class="p">))</span>
+		<span class="n">logging</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+	<span class="c1"># Ploidy Estimation Only</span>
+	<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">CHARACTERIZE_SEX_CHROMS</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;CHARACTERIZE_SEX_CHROMS set, so only running steps required &quot;</span>
+			<span class="s2">&quot;for to characterize sex chromosome complement. Note that &quot;</span>
+			<span class="s2">&quot;this involve both playtpus calling and bam analysis too.&quot;</span><span class="p">)</span>
+		<span class="n">bam_dfs</span> <span class="o">=</span> <span class="n">bam_analysis_noprocessing</span><span class="p">()</span>
+		<span class="n">ploidy_results</span> <span class="o">=</span> <span class="n">ploidy_analysis</span><span class="p">(</span><span class="n">bam_dfs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bam_dfs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;CHARACTERIZE_SEX_CHROMS complete.&quot;</span><span class="p">)</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;XYalign complete. Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">xyalign_start</span><span class="p">))</span>
+		<span class="n">logging</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+	<span class="c1"># Remapping Only</span>
+	<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">REMAPPING</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;REMAPPING set, so only running steps required for remapping. &quot;</span>
+			<span class="s2">&quot;Requires --y_present or --y_absent to be set&quot;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">y_present</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="n">y_present</span> <span class="o">=</span> <span class="kc">True</span>
+		<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">y_absent</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="n">y_present</span> <span class="o">=</span> <span class="kc">False</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+				<span class="s2">&quot;--y_present or --y_absent required for --REMAPPING. &quot;</span>
+				<span class="s2">&quot;Exiting.&quot;</span><span class="p">)</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">xx_ref_in</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">xy_ref_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;Input masked reference not provided for both &quot;</span>
+				<span class="s2">&quot;XX and XY mapping, so creating both&quot;</span><span class="p">)</span>
+			<span class="n">masked_refs</span> <span class="o">=</span> <span class="n">ref_prep</span><span class="p">()</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">xx</span> <span class="o">=</span> <span class="n">reftools</span><span class="o">.</span><span class="n">RefFasta</span><span class="p">(</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">xx_ref_in</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">bwa_path</span><span class="p">)</span>
+			<span class="n">xy</span> <span class="o">=</span> <span class="n">reftools</span><span class="o">.</span><span class="n">RefFasta</span><span class="p">(</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">xy_ref_in</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">bwa_path</span><span class="p">)</span>
+			<span class="n">xx</span><span class="o">.</span><span class="n">conditional_index_bwa</span><span class="p">()</span>
+			<span class="n">xx</span><span class="o">.</span><span class="n">seq_dict</span><span class="p">()</span>
+			<span class="n">xy</span><span class="o">.</span><span class="n">conditional_index_bwa</span><span class="p">()</span>
+			<span class="n">xy</span><span class="o">.</span><span class="n">seq_dict</span><span class="p">()</span>
+			<span class="n">masked_refs</span> <span class="o">=</span> <span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">xy</span><span class="p">)</span>
+		<span class="n">sex_chrom_bam</span> <span class="o">=</span> <span class="n">bam</span><span class="o">.</span><span class="n">BamFile</span><span class="p">(</span><span class="n">remapping</span><span class="p">(),</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">sex_chrom_bam_only</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="n">final_bam</span> <span class="o">=</span> <span class="n">sex_chrom_bam</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">final_bam</span> <span class="o">=</span> <span class="n">bam</span><span class="o">.</span><span class="n">BamFile</span><span class="p">(</span>
+				<span class="n">swap_sex_chroms</span><span class="p">(</span><span class="n">sex_chrom_bam</span><span class="p">),</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">)</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;REMAPPING complete.&quot;</span><span class="p">)</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;XYalign complete. Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">xyalign_start</span><span class="p">))</span>
+		<span class="n">logging</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+	<span class="c1"># Full Pipeline</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;Running entire XYalign pipeline&quot;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">xx_ref_in</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">xy_ref_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;Input masked reference not provided for both &quot;</span>
+				<span class="s2">&quot;XX and XY mapping, so creating both&quot;</span><span class="p">)</span>
+			<span class="n">masked_refs</span> <span class="o">=</span> <span class="n">ref_prep</span><span class="p">()</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">xx</span> <span class="o">=</span> <span class="n">reftools</span><span class="o">.</span><span class="n">RefFasta</span><span class="p">(</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">xx_ref_in</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">bwa_path</span><span class="p">)</span>
+			<span class="n">xy</span> <span class="o">=</span> <span class="n">reftools</span><span class="o">.</span><span class="n">RefFasta</span><span class="p">(</span>
+				<span class="n">args</span><span class="o">.</span><span class="n">xy_ref_in</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">bwa_path</span><span class="p">)</span>
+			<span class="n">xx</span><span class="o">.</span><span class="n">conditional_index_bwa</span><span class="p">()</span>
+			<span class="n">xx</span><span class="o">.</span><span class="n">seq_dict</span><span class="p">()</span>
+			<span class="n">xy</span><span class="o">.</span><span class="n">conditional_index_bwa</span><span class="p">()</span>
+			<span class="n">xy</span><span class="o">.</span><span class="n">seq_dict</span><span class="p">()</span>
+			<span class="n">masked_refs</span> <span class="o">=</span> <span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">xy</span><span class="p">)</span>
+		<span class="n">bam_dfs</span> <span class="o">=</span> <span class="n">bam_analysis_noprocessing</span><span class="p">()</span>
+		<span class="n">ploidy_results</span> <span class="o">=</span> <span class="n">ploidy_analysis</span><span class="p">(</span><span class="n">bam_dfs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bam_dfs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">y_present</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="n">y_present</span> <span class="o">=</span> <span class="kc">True</span>
+		<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">y_absent</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="n">y_present</span> <span class="o">=</span> <span class="kc">False</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Need to implement ploidy decision. Exiting.&quot;</span><span class="p">)</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+		<span class="n">sex_chrom_bam</span> <span class="o">=</span> <span class="n">bam</span><span class="o">.</span><span class="n">BamFile</span><span class="p">(</span><span class="n">remapping</span><span class="p">(),</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">sex_chrom_bam_only</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="n">final_bam</span> <span class="o">=</span> <span class="n">sex_chrom_bam</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">final_bam</span> <span class="o">=</span> <span class="n">bam</span><span class="o">.</span><span class="n">BamFile</span><span class="p">(</span>
+				<span class="n">swap_sex_chroms</span><span class="p">(</span><span class="n">sex_chrom_bam</span><span class="p">),</span> <span class="n">args</span><span class="o">.</span><span class="n">samtools_path</span><span class="p">)</span>
+		<span class="n">bam_analysis_postprocessing</span><span class="p">()</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;XYalign complete. Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">xyalign_start</span><span class="p">))</span>
+		<span class="n">logging</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Tim Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa Wilson Sayres.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

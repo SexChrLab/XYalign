@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>xyalign.ploidy module &mdash; XYalign 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="XYalign 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="xyalign package" href="xyalign.html"/>
+        <link rel="next" title="xyalign.reftools module" href="xyalign.reftools.html"/>
+        <link rel="prev" title="xyalign.bam module" href="xyalign.bam.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> XYalign
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="modules.html">xyalign</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.html">xyalign package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.assemble.html">xyalign.assemble module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.bam.html">xyalign.bam module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">xyalign.ploidy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.reftools.html">xyalign.reftools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.utils.html">xyalign.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.variants.html">xyalign.variants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xyalign.xyalign.html">xyalign.xyalign module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html#contributions">Contributions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">XYalign</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../api.html">API</a> &raquo;</li>
+      
+          <li><a href="modules.html">xyalign</a> &raquo;</li>
+      
+          <li><a href="xyalign.html">xyalign package</a> &raquo;</li>
+      
+    <li>xyalign.ploidy module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/xyalign.ploidy.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-xyalign.ploidy">
+<span id="xyalign-ploidy-module"></span><h1>xyalign.ploidy module<a class="headerlink" href="#module-xyalign.ploidy" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="xyalign.ploidy.bootstrap">
+<code class="descclassname">xyalign.ploidy.</code><code class="descname">bootstrap</code><span class="sig-paren">(</span><em>data_frame</em>, <em>first_chrom</em>, <em>second_chrom</em>, <em>chrom_column</em>, <em>value_column</em>, <em>num_reps</em>, <em>output_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xyalign/ploidy.html#bootstrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#xyalign.ploidy.bootstrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bootstraps the 95 percent confidence interval of the mean ratio of
+measure for two chromosomes (chrom1 / chrom2).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data_frame</strong> : pandas dataframe</p>
+<p><strong>first_chrom</strong> : str</p>
+<blockquote>
+<div><p>The name of the first chromosome in comparison</p>
+</div></blockquote>
+<p><strong>second_chrom</strong> : str</p>
+<blockquote>
+<div><p>The name of the second chromosome in comparison</p>
+</div></blockquote>
+<p><strong>chrom_column</strong> : str</p>
+<blockquote>
+<div><p>The name of the column containing chromosome names</p>
+</div></blockquote>
+<p><strong>value_column</strong> : str</p>
+<blockquote>
+<div><p>The name of the column containing the value of interest</p>
+</div></blockquote>
+<p><strong>num_perms</strong> : int</p>
+<blockquote>
+<div><p>The number of permutations to use</p>
+</div></blockquote>
+<p><strong>output_file</strong> : {str, None}</p>
+<blockquote>
+<div><p>If not None, will print results to this file.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">tuple</p>
+<blockquote class="last">
+<div><p>(0.025 percentile, 0.5 percentile, 0.975 percentile)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="xyalign.ploidy.ks_two_sample">
+<code class="descclassname">xyalign.ploidy.</code><code class="descname">ks_two_sample</code><span class="sig-paren">(</span><em>data_frame</em>, <em>first_chrom</em>, <em>second_chrom</em>, <em>chrom_column</em>, <em>value_column</em>, <em>output_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xyalign/ploidy.html#ks_two_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#xyalign.ploidy.ks_two_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a Two-sample Kolmogorov-Smirnov test</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data_frame</strong> : pandas dataframe</p>
+<p><strong>first_chrom</strong> : str</p>
+<blockquote>
+<div><p>The name of the first chromosome in comparison</p>
+</div></blockquote>
+<p><strong>second_chrom</strong> : str</p>
+<blockquote>
+<div><p>The name of the second chromosome in comparison</p>
+</div></blockquote>
+<p><strong>chrom_column</strong> : str</p>
+<blockquote>
+<div><p>The name of the column containing chromosome names</p>
+</div></blockquote>
+<p><strong>value_column</strong> : str</p>
+<blockquote>
+<div><p>The name of the column containing the value of interest</p>
+</div></blockquote>
+<p><strong>num_perms</strong> : int</p>
+<blockquote>
+<div><p>The number of permutations to use</p>
+</div></blockquote>
+<p><strong>output_file</strong> : {str, None}</p>
+<blockquote>
+<div><p>If not None, will print results to this file.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">tuple</p>
+<blockquote class="last">
+<div><p>(ks_statistic, ks_pvalue)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="xyalign.ploidy.permutation_test_chromosomes">
+<code class="descclassname">xyalign.ploidy.</code><code class="descname">permutation_test_chromosomes</code><span class="sig-paren">(</span><em>data_frame</em>, <em>first_chrom</em>, <em>second_chrom</em>, <em>chrom_column</em>, <em>value_column</em>, <em>num_perms</em>, <em>output_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xyalign/ploidy.html#permutation_test_chromosomes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#xyalign.ploidy.permutation_test_chromosomes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a permutation test comparing mean values of two chromosomes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data_frame</strong> : pandas dataframe</p>
+<p><strong>first_chrom</strong> : str</p>
+<blockquote>
+<div><p>The name of the first chromosome in comparison</p>
+</div></blockquote>
+<p><strong>second_chrom</strong> : str</p>
+<blockquote>
+<div><p>The name of the second chromosome in comparison</p>
+</div></blockquote>
+<p><strong>chrom_column</strong> : str</p>
+<blockquote>
+<div><p>The name of the column containing chromosome names</p>
+</div></blockquote>
+<p><strong>value_column</strong> : str</p>
+<blockquote>
+<div><p>The name of the column containing the value of interest</p>
+</div></blockquote>
+<p><strong>num_perms</strong> : int</p>
+<blockquote>
+<div><p>The number of permutations to use</p>
+</div></blockquote>
+<p><strong>output_file</strong> : {str, None}</p>
+<blockquote>
+<div><p>If not None, will print results to this file</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">tuple</p>
+<blockquote class="last">
+<div><p>(mean of first chrom, mean of second chrom, p-value)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="xyalign.reftools.html" class="btn btn-neutral float-right" title="xyalign.reftools module" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="xyalign.bam.html" class="btn btn-neutral" title="xyalign.bam module" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Tim Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa Wilson Sayres.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

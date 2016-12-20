@@ -1,0 +1,553 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>xyalign.reftools &mdash; XYalign 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="XYalign 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> XYalign
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html">Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release.html#contributions">Contributions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">XYalign</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>xyalign.reftools</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for xyalign.reftools</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Part of XYalign</span>
+<span class="c1"># Functions, etc. related to reference fasta processing</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pybedtools</span>
+<span class="kn">import</span> <span class="nn">pysam</span>
+
+<span class="c1"># Create logger for reftools submodule</span>
+<span class="n">reftools_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;xyalign.reftools&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RefFasta"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta">[docs]</a><span class="k">class</span> <span class="nc">RefFasta</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	A class for working with external reference fasta files</span>
+
+<span class="sd">	Attributes</span>
+<span class="sd">	----------</span>
+
+<span class="sd">	filepath : str</span>
+<span class="sd">		Full path to external bam file.</span>
+<span class="sd">	samtools : str</span>
+<span class="sd">		Full path to samtools. Default = &#39;samtools&#39;</span>
+<span class="sd">	bwa : str</span>
+<span class="sd">		Full path to bwa. Default = &#39;bwa&#39;</span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">samtools</span><span class="o">=</span><span class="s2">&quot;samtools&quot;</span><span class="p">,</span> <span class="n">bwa</span><span class="o">=</span><span class="s2">&quot;bwa&quot;</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">samtools</span> <span class="o">=</span> <span class="n">samtools</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">bwa</span> <span class="o">=</span> <span class="n">bwa</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;xyalign.reftools.RefFasta&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating a RefFasta instance for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_faidxed</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">index_fai</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RefFasta.is_faidxed"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta.is_faidxed">[docs]</a>	<span class="k">def</span> <span class="nf">is_faidxed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Checks that fai index exists, is not empty and is newer than reference.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+
+<span class="sd">		bool</span>
+<span class="sd">			True if fai index exists and is newer than fasta, False otherwise.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checking fai indexing of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+		<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.fai&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)):</span>
+			<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.fai&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span><span class="o">.</span><span class="n">st_size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="n">idx_stamp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.fai&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fai index empty&quot;</span><span class="p">)</span>
+				<span class="k">return</span> <span class="kc">False</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No fai index detected&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="kc">False</span>
+
+		<span class="n">ref_stamp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">ref_stamp</span> <span class="o">&lt;</span> <span class="n">idx_stamp</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fai index present and newer than ref file&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fai index is older than ref file&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="RefFasta.index_fai"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta.index_fai">[docs]</a>	<span class="k">def</span> <span class="nf">index_fai</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Create fai index for reference using samtools (&#39;samtools faidx ref.fa&#39;)</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+
+<span class="sd">		bool</span>
+<span class="sd">			True if successful</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+
+<span class="sd">		RuntimeError</span>
+<span class="sd">			If return code from external call is not 0</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating fai index for: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+		<span class="n">idx_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+		<span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">samtools</span><span class="p">,</span> <span class="s2">&quot;faidx&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">])</span>
+		<span class="k">if</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;Fai indexing complete. Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">idx_start</span><span class="p">))</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unable to create fai index for </span><span class="si">{}</span><span class="s2">. Exiting&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unable to create faidx. Exiting&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RefFasta.index_bwa"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta.index_bwa">[docs]</a>	<span class="k">def</span> <span class="nf">index_bwa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Index reference using bwa</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+
+<span class="sd">		bool</span>
+<span class="sd">			True if successful</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+
+<span class="sd">		RuntimeError</span>
+<span class="sd">			If return code from external call is not 0</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating bwa indices for: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+		<span class="n">bwa_idx_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+		<span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">bwa</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">])</span>
+		<span class="k">if</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;BWA indexing complete. Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">bwa_idx_start</span><span class="p">))</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+				<span class="s2">&quot;Unable to create bwa indices for </span><span class="si">{}</span><span class="s2">. Exiting&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unable to create bwa indicies. Exiting&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RefFasta.check_bwa_index"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta.check_bwa_index">[docs]</a>	<span class="k">def</span> <span class="nf">check_bwa_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Checks to see if bwa indices are newer than fasta.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+
+<span class="sd">		bool</span>
+<span class="sd">			True if indices exist and are newer than fasta. False otherwise.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checking bwa indexing of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+		<span class="k">if</span> <span class="p">(</span>
+			<span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.amb&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span> <span class="ow">and</span>
+			<span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.ann&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span> <span class="ow">and</span>
+			<span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.bwt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span> <span class="ow">and</span>
+			<span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.pac&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span> <span class="ow">and</span>
+			<span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.sa&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))):</span>
+			<span class="k">if</span> <span class="p">(</span>
+				<span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.amb&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span><span class="o">.</span><span class="n">st_size</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span>
+				<span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.ann&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span><span class="o">.</span><span class="n">st_size</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span>
+				<span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.bwt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span><span class="o">.</span><span class="n">st_size</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span>
+				<span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.pac&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span><span class="o">.</span><span class="n">st_size</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span>
+				<span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.sa&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span><span class="o">.</span><span class="n">st_size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
+					<span class="n">bwa_idx_stamp</span> <span class="o">=</span> <span class="p">[</span>
+						<span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.amb&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)),</span>
+						<span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.ann&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)),</span>
+						<span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.bwt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)),</span>
+						<span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.pac&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)),</span>
+						<span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.sa&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))]</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;One or more BWA indices empty&quot;</span><span class="p">)</span>
+				<span class="k">return</span> <span class="kc">False</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Bwa index incomplete or absent&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="kc">False</span>
+
+		<span class="n">ref_stamp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">ref_stamp</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bwa_idx_stamp</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;BWA index present and newer than ref file&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;BWA index is older than ref file&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="RefFasta.conditional_index_bwa"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta.conditional_index_bwa">[docs]</a>	<span class="k">def</span> <span class="nf">conditional_index_bwa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bwa</span><span class="o">=</span><span class="s2">&quot;bwa&quot;</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Indexes if indices are the same age or older than the fasta.</span>
+<span class="sd">		Use RefFasta.index_bwa() to force indexing.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+
+<span class="sd">		bwa : str</span>
+<span class="sd">			Path to bwa program (default is &#39;bwa&#39;)</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_bwa_index</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">index_bwa</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="RefFasta.seq_dict"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta.seq_dict">[docs]</a>	<span class="k">def</span> <span class="nf">seq_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Create sequence dictionary .dict file using samtools</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+
+<span class="sd">		out_dict : str</span>
+<span class="sd">			The desired file name for the sequence dictionary -</span>
+<span class="sd">			defaults to adding &#39;.dict&#39; to the fasta name</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+
+<span class="sd">		bool</span>
+<span class="sd">			True if exit code of external call is 0.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+
+<span class="sd">		RuntimeError</span>
+<span class="sd">			If external call exit code is not 0.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating sequence dictionary for: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+		<span class="k">if</span> <span class="n">out_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">out_dict</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.dict&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+		<span class="n">dict_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+		<span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+			<span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">samtools</span><span class="p">,</span> <span class="s2">&quot;dict&quot;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">out_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">])</span>
+		<span class="k">if</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;Sequence dictionary complete. &quot;</span>
+				<span class="s2">&quot;Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">dict_start</span><span class="p">))</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+				<span class="s2">&quot;Unable to create sequence dictionary for </span><span class="si">{}</span><span class="s2">. &quot;</span>
+				<span class="s2">&quot;Exiting&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+				<span class="s2">&quot;Unable to create sequence dictionary. Exiting&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RefFasta.mask_reference"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta.mask_reference">[docs]</a>	<span class="k">def</span> <span class="nf">mask_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bed_mask</span><span class="p">,</span> <span class="n">output_fasta</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Creates a new masked references by hardmasking regions included</span>
+<span class="sd">		in the bed_mask</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+
+<span class="sd">		bed_mask : str</span>
+<span class="sd">			Bed file of regions to mask (as N) in the new reference</span>
+<span class="sd">		output_fasta : str</span>
+<span class="sd">			The full path to and filename of the output fasta</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+
+<span class="sd">		str</span>
+<span class="sd">			Path to new (indexed and masked) fasta</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">mask_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+		<span class="n">reftools_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Masking </span><span class="si">{}</span><span class="s2"> using regions in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="n">bed_mask</span><span class="p">))</span>
+		<span class="n">maskedpath</span> <span class="o">=</span> <span class="n">output_fasta</span>
+		<span class="n">b_fasta</span> <span class="o">=</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">BedTool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+		<span class="n">b_tool</span> <span class="o">=</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">BedTool</span><span class="p">(</span><span class="n">bed_mask</span><span class="p">)</span>
+		<span class="n">b</span> <span class="o">=</span> <span class="n">b_tool</span><span class="o">.</span><span class="n">mask_fasta</span><span class="p">(</span><span class="n">fi</span><span class="o">=</span><span class="n">b_fasta</span><span class="p">,</span> <span class="n">fo</span><span class="o">=</span><span class="n">maskedpath</span><span class="p">)</span>
+		<span class="n">reftools_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating fai index for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">maskedpath</span><span class="p">))</span>
+		<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+			<span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">samtools</span><span class="p">,</span> <span class="s2">&quot;faidx&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">maskedpath</span><span class="p">)])</span>
+		<span class="n">reftools_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+			<span class="s2">&quot;Masking complete. Masked fasta output to </span><span class="si">{}</span><span class="s2">. &quot;</span>
+			<span class="s2">&quot;Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="n">maskedpath</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">mask_start</span><span class="p">))</span>
+		<span class="k">return</span> <span class="n">maskedpath</span></div>
+
+<div class="viewcode-block" id="RefFasta.isolate_chroms"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta.isolate_chroms">[docs]</a>	<span class="k">def</span> <span class="nf">isolate_chroms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_ref_prefix</span><span class="p">,</span> <span class="n">chroms</span><span class="p">,</span> <span class="n">bed_mask</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Takes a reference fasta file and a list of chromosomes to include</span>
+<span class="sd">		and outputs a new, indexed (and optionally masked) reference fasta.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+
+<span class="sd">		new_ref_prefix : str</span>
+<span class="sd">			The desired path to and prefix of the output files</span>
+<span class="sd">		chroms : list</span>
+<span class="sd">			Chromosomes to include in the output fasta</span>
+<span class="sd">		bed_mask : str</span>
+<span class="sd">			Bed file of regions to mask (as N) in the new reference</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+
+<span class="sd">		str</span>
+<span class="sd">			Path to new, indexed (optionally masked) fasta</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">iso_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+		<span class="n">reftools_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Isolating chromosomes (</span><span class="si">{}</span><span class="s2">) from </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chroms</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+		<span class="n">outpath</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.fa&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_ref_prefix</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">chroms</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+			<span class="n">chroms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chroms</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">bed_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">maskedpath</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.masked.fa&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_ref_prefix</span><span class="p">)</span>
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outpath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+				<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+					<span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">samtools</span><span class="p">,</span> <span class="s2">&quot;faidx&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+						<span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chroms</span><span class="p">))],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+			<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+				<span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">samtools</span><span class="p">,</span> <span class="s2">&quot;faidx&quot;</span><span class="p">,</span> <span class="n">outpath</span><span class="p">])</span>
+			<span class="n">b_fasta</span> <span class="o">=</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">BedTool</span><span class="p">(</span><span class="n">outpath</span><span class="p">)</span>
+			<span class="n">b_tool</span> <span class="o">=</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">BedTool</span><span class="p">(</span><span class="n">bed_mask</span><span class="p">)</span>
+			<span class="n">b</span> <span class="o">=</span> <span class="n">b_tool</span><span class="o">.</span><span class="n">mask_fasta</span><span class="p">(</span><span class="n">fi</span><span class="o">=</span><span class="n">b_fasta</span><span class="p">,</span> <span class="n">fo</span><span class="o">=</span><span class="n">maskedpath</span><span class="p">)</span>
+			<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+				<span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">samtools</span><span class="p">,</span> <span class="s2">&quot;faidx&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">maskedpath</span><span class="p">)])</span>
+			<span class="n">reftools_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;Isolating (masked) chromosomes complete. &quot;</span>
+				<span class="s2">&quot;Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">iso_start</span><span class="p">))</span>
+			<span class="k">return</span> <span class="n">maskedpath</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outpath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+				<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+					<span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">samtools</span><span class="p">,</span> <span class="s2">&quot;faidx&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+						<span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chroms</span><span class="p">))],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+			<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">samtools</span><span class="p">,</span> <span class="s2">&quot;faidx&quot;</span><span class="p">,</span> <span class="n">outpath</span><span class="p">])</span>
+			<span class="n">reftools_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+				<span class="s2">&quot;Isolating (un-masked) chromosomes complete. &quot;</span>
+				<span class="s2">&quot;Elapsed time: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">iso_start</span><span class="p">))</span>
+			<span class="k">return</span> <span class="n">outpath</span></div>
+
+<div class="viewcode-block" id="RefFasta.chromosome_lengths"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta.chromosome_lengths">[docs]</a>	<span class="k">def</span> <span class="nf">chromosome_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+
+<span class="sd">		tuple</span>
+<span class="sd">			Chromosome lengths ordered by sequence order in fasta</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">fastafile</span> <span class="o">=</span> <span class="n">pysam</span><span class="o">.</span><span class="n">FastaFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+		<span class="n">lengths</span> <span class="o">=</span> <span class="n">fastafile</span><span class="o">.</span><span class="n">lengths</span>
+		<span class="n">fastafile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">lengths</span></div>
+
+<div class="viewcode-block" id="RefFasta.chromosome_names"><a class="viewcode-back" href="../../api/xyalign.reftools.html#xyalign.reftools.RefFasta.chromosome_names">[docs]</a>	<span class="k">def</span> <span class="nf">chromosome_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+
+<span class="sd">		tuple</span>
+<span class="sd">			Chromosome names ordered by sequence order in fasta</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">fastafile</span> <span class="o">=</span> <span class="n">pysam</span><span class="o">.</span><span class="n">FastaFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+		<span class="n">names</span> <span class="o">=</span> <span class="n">fastafile</span><span class="o">.</span><span class="n">references</span>
+		<span class="n">fastafile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">names</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Tim Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa Wilson Sayres.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
