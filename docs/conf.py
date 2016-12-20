@@ -188,3 +188,5 @@ texinfo_documents = [
 #
 # def setup(app):
 #     app.connect('builder-inited', run_apidoc)
+
+autodoc_member_order = 'bysource'
