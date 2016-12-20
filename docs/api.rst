@@ -4,59 +4,59 @@ API
 Reference/Fasta files
 ---------------------
 
-.. autoclass:: reftools.RefFasta
+.. autoclass:: xyalign.reftools.RefFasta
 	:members:
 
 Bam files
 ---------
 
-.. autoclass:: bam.BamFile
+.. autoclass:: xyalign.bam.BamFile
 	:members:
 
-.. autofunction:: bam.sambamba_merge
+.. autofunction:: xyalign.bam.sambamba_merge
 
-.. autofunction:: bam.switch_sex_chromosomes_sambamba
+.. autofunction:: xyalign.bam.switch_sex_chromosomes_sambamba
 
 Variant Calling/ VCF Processing
 -------------------------------
 
-.. autofunction:: variants.platypus_caller
+.. autofunction:: xyalign.variants.platypus_caller
 
-.. autofunction:: variants.parse_platypus_VCF
+.. autofunction:: xyalign.variants.parse_platypus_VCF
 
-.. autofunction:: variants.plot_variants_per_chrom
+.. autofunction:: xyalign.variants.plot_variants_per_chrom
 
-.. autofunction:: variants.hist_read_balance
+.. autofunction:: xyalign.variants.hist_read_balance
 
-.. autofunction:: variants.plot_read_balance
+.. autofunction:: xyalign.variants.plot_read_balance
 
 Ploidy Estimation
 -----------------
 
-.. autofunction:: ploidy.bootstrap
+.. autofunction:: xyalign.ploidy.bootstrap
 
-.. autofunction:: ploidy.ks_two_sample
+.. autofunction:: xyalign.ploidy.ks_two_sample
 
-.. autofunction:: ploidy.permutation_test_chromosomes
+.. autofunction:: xyalign.ploidy.permutation_test_chromosomes
 
 Mapping/assembly
 ----------------
 
-.. autofunction:: assemble.bwa_mem_mapping_sambamba
+.. autofunction:: xyalign.assemble.bwa_mem_mapping_sambamba
 
 Utilities
 ---------
 
-.. autofunction:: utils.check_bam_fasta_compatibility
+.. autofunction:: xyalign.utils.check_bam_fasta_compatibility
 
-.. autofunction:: utils.chromosome_wide_plot
+.. autofunction:: xyalign.utils.chromosome_wide_plot
 
-.. autofunction:: utils.chromosome_bed
+.. autofunction:: xyalign.utils.chromosome_bed
 
-.. autofunction:: utils.make_region_lists
+.. autofunction:: xyalign.utils.make_region_lists
 
-.. autofunction:: utils.merge_bed_files
+.. autofunction:: xyalign.utils.merge_bed_files
 
-.. autofunction:: utils.output_bed
+.. autofunction:: xyalign.utils.output_bed
 
-.. autofunction:: utils.plot_depth_mapq
+.. autofunction:: xyalign.utils.plot_depth_mapq

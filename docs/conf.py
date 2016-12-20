@@ -22,7 +22,7 @@
 import os
 import subprocess
 import sys
-sys.path.append(os.path.abspath('../xyalign'))
+sys.path.append(os.path.abspath('../'))
 
 
 # -- General configuration ------------------------------------------------
