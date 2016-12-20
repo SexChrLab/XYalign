@@ -14,7 +14,7 @@ Sex chromosome aneuploidies are currently estimated to be as common as 1/400 in 
    installation.rst
    usage.rst
    faqs.rst
-   api.rst
+   xyalign.rst
    release.rst
 
 

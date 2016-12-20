@@ -1,66 +1,56 @@
-xyalign package
-===============
+API
+===
 
-Subpackages
------------
-
-.. toctree::
-
-    xyalign.test
-
-Submodules
-----------
-
-xyalign.assemble module
------------------------
+xyalign.assemble
+----------------
 
 .. automodule:: xyalign.assemble
     :members:
     :undoc-members:
     :show-inheritance:
 
-xyalign.bam module
-------------------
+xyalign.bam
+-----------
 
 .. automodule:: xyalign.bam
     :members:
     :undoc-members:
     :show-inheritance:
 
-xyalign.ploidy module
----------------------
+xyalign.ploidy
+--------------
 
 .. automodule:: xyalign.ploidy
     :members:
     :undoc-members:
     :show-inheritance:
 
-xyalign.reftools module
------------------------
+xyalign.reftools
+----------------
 
 .. automodule:: xyalign.reftools
     :members:
     :undoc-members:
     :show-inheritance:
 
-xyalign.utils module
---------------------
+xyalign.utils
+-------------
 
 .. automodule:: xyalign.utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-xyalign.variants module
------------------------
+xyalign.variants
+----------------
 
 .. automodule:: xyalign.variants
     :members:
     :undoc-members:
     :show-inheritance:
 
-xyalign.xyalign module
-----------------------
+xyalign.xyalign
+---------------
 
 .. automodule:: xyalign.xyalign
     :members:
