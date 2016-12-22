@@ -42,18 +42,19 @@ Program
 - [ ] Add cram and sam support
 	- probably not necessary for initial release
 - [ ] Clean up parse_args() and update checks/validation
+- [ ] Allow PREPARE_REFERENCE and REMAPPING to run without window_size or target_bed
 - [x] Move subsections of pipeline to individual functions to clean up main()
 - [ ] Implement check for dependencies upon loading
 - [ ] Add thorough module testing (e.g. unittest, doctest, etc.)
-- [ ] Write documentation
+- [x] Write documentation
 - [ ] Implement some kind of checkpointing functionality
 	- probably not necessary for initial release
 
 Testing
 - [x] Simulate and assemble XX, XY, XXY, and XO genomes
 	- [ ] Test XYalign on these genomes
-- [ ] Download data for XX and XY:
-	- [ ] high coverage whole genome
+- [x] Download data for XX and XY:
+	- [x] high coverage whole genome
 		- [ ] Test XYalign
 	- [x] low coverage whole genome
 		- [ ] Test XYalign

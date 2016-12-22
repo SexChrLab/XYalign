@@ -19,7 +19,14 @@ import variants
 
 
 def parse_args():
-	"""Parse command-line arguments"""
+	"""
+	Parse command-line arguments
+
+	Returns
+	-------
+
+	Parser argument namespace
+	"""
 	parser = argparse.ArgumentParser(description="XYalign")
 
 	parser.add_argument(
@@ -393,10 +400,19 @@ def parse_args():
 
 def ref_prep():
 	"""
-	Reference prep part of the pipeline
+	Reference prep part of XYalign pipeline.
 
-	Returns a tuple with the two masked references (one with the y masked, "
-	"one with the y present")
+	* Creates two reference fasta files.  Both will include masks provied with
+	--reference_mask.  One will additionally have the entire Y chromosome
+	hard masked.
+
+	* Indexes (.fai, .dict, and bwa indices) both new references
+
+	Returns
+	-------
+
+	tuple
+		Paths to two masked references (y_masked, y_unmasked")
 	"""
 	# Combine masks, if more than one present
 	if args.reference_mask != [None]:
@@ -439,10 +455,23 @@ def ref_prep():
 
 def bam_analysis_noprocessing():
 	"""
-	Runs bam analyis part of pipeline for unprocessed bam files
+	Runs bam analyis part of XYalign pipeline on unprocessed bam file.
 
-	Returns a tuple containing two lists, one containing pandas dataframes with
-	passing windows, and one containting pandas dataframes with failing windows
+	* (Optionally) calls variants using Platypus
+
+	* (Optionally) parses and filters Platypus vcf, and plots read balance
+
+	* Calculates window based metrics from the bam file: depth and mapq
+
+	* Plots window-based metrics
+
+	* Outputs two bed files: high quality windows, and low quality windows.
+
+	Returns
+	-------
+	tuple
+		(list of pandas dataframes with passing windows,
+		list of pandas dataframes with failing windows)
 	"""
 	# Platypus
 	if args.platypus_calling in ["both", "before"]:
@@ -453,6 +482,7 @@ def bam_analysis_noprocessing():
 		if a != 0:
 			logger.error("Error in platypus calling on {}".format(
 				input_bam.filepath))
+			logging.shutdown()
 			sys.exit(1)
 		if args.no_variant_plots is not True:
 			variants.plot_variants_per_chrom(
@@ -486,10 +516,29 @@ def bam_analysis_noprocessing():
 
 def ploidy_analysis(passing_df, failing_df):
 	"""
-	Runs the ploidy analysis part of the pipeline.  Takes passing_df and
-	failing_df (the output of bam_analysis_noprocessing()) as input.
+	Runs the ploidy analysis part of XYalign.
 
-	Returns a dictionary with results for each test.
+	* Runs permutation test to systematically compare means between
+	every possible pair of chromosomes
+
+	* Runs K-S two sample test to systematically compare distributions between
+	every possible pair of chromosomes
+
+	* Bootstraps the mean depth ratio for every possible pair of chromosomes
+
+	Parameters
+	----------
+
+	passing_df : list
+		Passing pandas dataframes, one per chromosome
+	failing_df : list
+		Failing pandas dataframes, one per chromosome
+
+	Returns
+	-------
+
+	dictionary
+		Results for each test. Keys: perm, ks, boot.
 	"""
 	# Permutations
 	if args.no_perm_test is False:
@@ -596,9 +645,21 @@ def ploidy_analysis(passing_df, failing_df):
 
 def remapping():
 	"""
-	Runs remapping steps of the pipeline
+	Runs remapping steps of XYalign.
 
-	Returns bam containing remapped sex chroms
+	* Strips, sorts, and re-pair reads from the sex chromosomes (collecting read
+	group information)
+
+	* Maps (with sorting) reads (with read group information) to appropriate
+	reference based on presence (or not) of Y chromosome
+
+	* Merge bam files (if more than one read group)
+
+	Returns
+	-------
+
+	str
+		Path to bam containing remapped sex chromsomes
 	"""
 	if y_present is True:
 		new_reference = masked_refs[1]
@@ -640,6 +701,21 @@ def remapping():
 
 
 def swap_sex_chroms(new_bam_file):
+	"""
+	Switches sex chromosmes from new_bam_file with those in original bam file
+
+	Parameters
+	----------
+
+	new_bam_file : str
+		Path to bam file containing newly mapped sex chromosomes (to insert)
+
+	Returns
+	-------
+
+	str
+		Path to new bam file containing original autosomes and new sex chromosomes
+	"""
 	merged_bam = bam.switch_sex_chromosomes_sambamba(
 		args.samtools_path, args.sambamba_path, input_bam.filepath,
 		new_bam_file.filepath, args.x_chromosome + args.y_chromosome,
@@ -649,9 +725,24 @@ def swap_sex_chroms(new_bam_file):
 
 def bam_analysis_postprocessing():
 	"""
-	Runs bam analyis part of pipeline for postprocessed bam files
+	Runs bam analyis part of XYalign pipeline on processed bam file.
 
-	Returns 0
+	* (Optionally) calls variants using Platypus
+
+	* (Optionally) parses and filters Platypus vcf, and plots read balance
+
+	* Calculates window based metrics from the bam file: depth and mapq
+
+	* Plots window-based metrics
+
+	* Outputs two bed files: high quality windows, and low quality windows.
+
+	Returns
+	-------
+
+	tuple
+		(list of pandas dataframes with passing windows,
+		list of pandas dataframes with failing windows)
 	"""
 	# Depth/MAPQ
 	if args.no_bam_analysis is not True:
@@ -685,6 +776,7 @@ def bam_analysis_postprocessing():
 		if a != 0:
 			logger.error("Error in platypus calling on {}".format(
 				final_bam.filepath))
+			logging.shutdown()
 			sys.exit(1)
 		if args.no_variant_plots is not True:
 			variants.plot_variants_per_chrom(
@@ -817,6 +909,7 @@ if __name__ == "__main__":
 		print(
 			"--high_quality_bed_out is currently unsupported.  Please remove "
 			"this flag")
+		logging.shutdown()
 		sys.exit(1)
 	else:
 		high_prefix = "{}_highquality_preprocessing".format(args.sample_id)
@@ -925,6 +1018,7 @@ if __name__ == "__main__":
 			logger.error(
 				"--y_present or --y_absent required for --REMAPPING. "
 				"Exiting.")
+			logging.shutdown()
 			sys.exit(1)
 		if args.xx_ref_in is None or args.xy_ref_in is None:
 			logger.info(
@@ -980,6 +1074,7 @@ if __name__ == "__main__":
 			y_present = False
 		else:
 			logger.error("Need to implement ploidy decision. Exiting.")
+			logging.shutdown()
 			sys.exit(1)
 		sex_chrom_bam = bam.BamFile(remapping(), args.samtools_path)
 		if args.sex_chrom_bam_only is True:

@@ -1,7 +1,7 @@
 {
 	"samples":{
 		"HG00512_exome": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/exome/ERR034508_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/exome/ERR034508_2.fastq.gz"],
-		"HG00512_lowcov_run1": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/low_coverage_WGS/ERR016114_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/low_coverage_WGS/ERR016116_2.fastq.gz"],
+		"HG00512_lowcov_run1": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/low_coverage_WGS/ERR016114_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/low_coverage_WGS/ERR016114_2.fastq.gz"],
 		"HG00512_lowcov_run2": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/low_coverage_WGS/ERR016116_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/low_coverage_WGS/ERR016116_2.fastq.gz"],
 		"HG00512_wgs_run1": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR894725_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR894725_2.fastq.gz"],
 		"HG00512_wgs_run2": ["/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR894726_1.fastq.gz", "/mnt/storage/SAYRES/1000genomes/XY_align/fastq/HG00512/PCR_free_WGS/ERR894726_2.fastq.gz"],
