@@ -187,7 +187,7 @@ class RefFasta():
 			Path to bwa program (default is 'bwa')
 
 		"""
-		if self.check_bwa_index is False:
+		if self.check_bwa_index() is False:
 			self.index_bwa()
 
 	def check_seq_dict(self):
@@ -285,7 +285,7 @@ class RefFasta():
 		Use RefFasta.seq_dict() to force creation.
 
 		"""
-		if self.check_seq_dict is False:
+		if self.check_seq_dict() is False:
 			self.seq_dict()
 
 	def mask_reference(self, bed_mask, output_fasta=None):
