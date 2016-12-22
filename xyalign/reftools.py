@@ -205,7 +205,7 @@ class RefFasta():
 		self.logger.info(
 			"Checking for sequence dictionary of {}".format(self.filepath))
 
-		filename, file_extension = os.path.splittext(self.filepath)
+		filename, file_extension = os.path.splitext(self.filepath)
 
 		if os.path.exists("{}.dict".format(self.filepath)):
 			if os.stat("{}.dict".format(self.filepath)).st_size != 0:
