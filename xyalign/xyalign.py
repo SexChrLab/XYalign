@@ -313,6 +313,16 @@ def parse_args():
 
 	args = parser.parse_args()
 
+	# Validate Arguments
+
+	mods = [
+		args.PREPARE_REFERENCE, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS,
+		args.REMAPPING]
+	if not any(mods) is True:
+		full_pipeline = True
+	else:
+		full_pipeline = False
+
 	# Validate permutation test arguments
 	if args.no_perm_test is True:
 		if args.y_present is False and args.y_absent is False:
@@ -360,21 +370,25 @@ def parse_args():
 		sys.exit(1)
 
 	# Validate sliding window options
-	if args.window_size is not None and args.window_size != "None":
-		if args.window_size.isdigit() is False:
-			print(
-				"--window_size needs to be either None or a positive integer. "
-				"Exiting.")
-			sys.exit(1)
-	else:
-		if args.target_bed is None:
-			print(
-				"If --window_size is None, --target_bed needs to be used. Exiting.")
-			sys.exit(1)
-		elif os.path.exists(args.target_bed) is False:
-			print(
-				"Invalid file provided with --target_bed. Check path. Exiting.")
-			sys.exit(1)
+	if any(
+		[full_pipeline, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS]) is True:
+		if args.window_size is not None and args.window_size != "None":
+			if args.window_size.isdigit() is False:
+				print(
+					"--window_size needs to be either None or a positive integer. "
+					"Exiting.")
+				sys.exit(1)
+		else:
+			if args.target_bed is None:
+				print(
+					"If --window_size is None, --target_bed needs to be used. "
+					"Please set one of these two flags if running ANALYZE_BAM, "
+					"CHARACTERIZE_SEX_CHROMS, or the full pipeline. Exiting.")
+				sys.exit(1)
+			elif os.path.exists(args.target_bed) is False:
+				print(
+					"Invalid file provided with --target_bed. Check path. Exiting.")
+				sys.exit(1)
 
 	# Create directory structure if not already in place
 	if not os.path.exists(os.path.join(args.output_dir, "fastq")):
@@ -1031,9 +1045,9 @@ if __name__ == "__main__":
 			xy = reftools.RefFasta(
 				args.xy_ref_in, args.samtools_path, args.bwa_path)
 			xx.conditional_index_bwa()
-			xx.seq_dict()
+			xx.conditional_seq_dict()
 			xy.conditional_index_bwa()
-			xy.seq_dict()
+			xy.conditional_seq_dict()
 			masked_refs = (xx, xy)
 		sex_chrom_bam = bam.BamFile(remapping(), args.samtools_path)
 		if args.sex_chrom_bam_only is True:
@@ -1062,9 +1076,9 @@ if __name__ == "__main__":
 			xy = reftools.RefFasta(
 				args.xy_ref_in, args.samtools_path, args.bwa_path)
 			xx.conditional_index_bwa()
-			xx.seq_dict()
+			xx.conditional_seq_dict()
 			xy.conditional_index_bwa()
-			xy.seq_dict()
+			xy.conditional_seq_dict()
 			masked_refs = (xx, xy)
 		bam_dfs = bam_analysis_noprocessing()
 		ploidy_results = ploidy_analysis(bam_dfs[0], bam_dfs[1])

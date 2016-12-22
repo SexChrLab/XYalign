@@ -148,7 +148,7 @@ sex chromosome content (those are carried out in CHARACTERIZE_SEX_CHROMS).
 And if we want to run the full XYalign pipeline on a sample, we'd use a command line
 along the lines of::
 
-	python xyalign.py --PREPARE_REFERENCE --ref reference.fasta --bam input.bam \
+	python xyalign.py --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 --reference_mask mask.bed \
 	--window_size 10000
 
@@ -188,6 +188,9 @@ tools/pipeline.
 
 7. Analyze variants taking into account ploidy estimated in 3, and consider masking
 low quality regions using bed files output in 5.
+
+XYalign - Speed and Memory
+--------------------------
 
 Exome data
 ----------

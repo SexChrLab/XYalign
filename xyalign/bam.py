@@ -352,8 +352,9 @@ class BamFile():
 					end += window_size
 
 				# Print progress
-				self.logger.info("{} out of {} windows processed on {}".format(
-					window_id, num_windows, chrom))
+				if window_id % 1000 == 0:
+					self.logger.info("{} out of {} windows processed on {}".format(
+						window_id, num_windows, chrom))
 
 		elif target_file is not None:
 			self.logger.info(
@@ -395,13 +396,15 @@ class BamFile():
 				window_id += 1
 
 				# Print progress
-				self.logger.info("{} out of {} targets processed on {}".format(
-					window_id, num_windows, chrom))
+				if window_id % 1000 == 0:
+					self.logger.info("{} out of {} targets processed on {}".format(
+						window_id, num_windows, chrom))
 
 		else:
 			self.logger.error(
 				"Both window_size and target_file set to None. "
 				"Cannot proceed with bam traversal. Exiting.")
+			logging.shutdown()
 			sys.exit(1)
 
 		# Convert data into pandas data frames

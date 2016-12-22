@@ -248,29 +248,30 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 	-------
 
 	int
-		0
+		0 if sites to analyze, 1 otherwise.
 
 	"""
 	try:
 		read_balance = readBalance[0.05 < readBalance < 0.95]
-		if "x" in chrom.lower():
-			Color = "green"
-		elif "y" in chrom.lower():
-			Color = "blue"
-		else:
-			Color = "red"
-		fig = plt.figure(figsize=(8, 8))
-		axes = fig.add_subplot(111)
-		axes.set_title(sampleID)
-		axes.set_xlabel("Read Balance")
-		axes.set_ylabel("Frequency")
-		axes.hist(readBalance, bins=50, color=Color)
-		plt.savefig("{}_{}_ReadBalance_Hist.svg".format(output_prefix, chrom))
-		plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
-		plt.close(fig)
-		variants_logger.info("Genomic read balance histogram of {} complete.".format(
-			chrom))
 	except IndexError:
-		variants_logger.error(
+		variants_logger.info(
 			"No sites on {} to plot histogram. Skipping.".format(chrom))
+		return 1
+	if "x" in chrom.lower():
+		Color = "green"
+	elif "y" in chrom.lower():
+		Color = "blue"
+	else:
+		Color = "red"
+	fig = plt.figure(figsize=(8, 8))
+	axes = fig.add_subplot(111)
+	axes.set_title(sampleID)
+	axes.set_xlabel("Read Balance")
+	axes.set_ylabel("Frequency")
+	axes.hist(readBalance, bins=50, color=Color)
+	plt.savefig("{}_{}_ReadBalance_Hist.svg".format(output_prefix, chrom))
+	plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
+	plt.close(fig)
+	variants_logger.info("Genomic read balance histogram of {} complete.".format(
+		chrom))
 	return 0

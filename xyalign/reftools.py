@@ -94,6 +94,7 @@ class RefFasta():
 		else:
 			self.logger.error("Unable to create fai index for {}. Exiting".format(
 				self.filepath))
+			logging.shutdown()
 			raise RuntimeError("Unable to create faidx. Exiting")
 
 	def index_bwa(self):
@@ -126,6 +127,7 @@ class RefFasta():
 			self.logger.error(
 				"Unable to create bwa indices for {}. Exiting".format(
 					self.filepath))
+			logging.shutdown()
 			raise RuntimeError("Unable to create bwa indicies. Exiting")
 
 	def check_bwa_index(self):
@@ -188,6 +190,47 @@ class RefFasta():
 		if self.check_bwa_index is False:
 			self.index_bwa()
 
+	def check_seq_dict(self):
+		"""
+		Checks that sequence dictionary exists, is not empty and
+		is newer than reference.
+
+		Returns
+		-------
+
+		bool
+			True if seq dict exists and is newer than fasta, False otherwise.
+
+		"""
+		self.logger.info(
+			"Checking for sequence dictionary of {}".format(self.filepath))
+
+		filename, file_extension = os.path.splittext(self.filepath)
+
+		if os.path.exists("{}.dict".format(self.filepath)):
+			if os.stat("{}.dict".format(self.filepath)).st_size != 0:
+				idx_stamp = os.path.getmtime("{}.dict".format(self.filepath))
+			else:
+				self.logger.info("Seq dict empty")
+				return False
+		elif os.path.exists("{}.dict".format(filename)):
+			if os.stat("{}.dict".format(filename)).st_size != 0:
+				idx_stamp = os.path.getmtime("{}.dict".format(filename))
+			else:
+				self.logger.info("Seq dict empty")
+				return False
+		else:
+			self.logger.info("No seq dict detected")
+			return False
+
+		ref_stamp = os.path.getmtime(self.filepath)
+		if ref_stamp < idx_stamp:
+			self.logger.info("Sequence dictionary present and newer than ref file")
+			return True
+		else:
+			self.logger.info("Sequence dictionary is older than ref file")
+			return False
+
 	def seq_dict(self, out_dict=None):
 		"""
 		Create sequence dictionary .dict file using samtools
@@ -230,8 +273,20 @@ class RefFasta():
 				"Unable to create sequence dictionary for {}. "
 				"Exiting".format(
 					self.filepath))
+			logging.shutdown()
 			raise RuntimeError(
 				"Unable to create sequence dictionary. Exiting")
+
+	def conditional_seq_dict(self):
+		"""
+		Creates sequence dictionary if .dict the same age or older than the fasta,
+		or doesn't exist.
+
+		Use RefFasta.seq_dict() to force creation.
+
+		"""
+		if self.check_seq_dict is False:
+			self.seq_dict()
 
 	def mask_reference(self, bed_mask, output_fasta=None):
 		"""
