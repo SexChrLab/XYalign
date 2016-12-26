@@ -64,6 +64,14 @@ def parse_args():
 		help="Number of cores/threads to use. Default is 1")
 
 	parser.add_argument(
+		"--xmx", default="None",
+		help="Memory to be provided to java programs via -Xmx.  E.g., use the "
+		"flag '--xmx Xmx4g' to pass '-Xmx4g' as a flag when running java "
+		"programs (currently just repair.sh). Default is 'None' (i.e., nothing "
+		"provided on the command line), which will allow repair.sh to "
+		"automatically allocate memory.")
+
+	parser.add_argument(
 		"--single_end", action="store_true", default=False,
 		help="Include flag if reads are single-end and NOT paired-end.")
 
