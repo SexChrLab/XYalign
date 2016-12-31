@@ -603,10 +603,10 @@ def samtools_merge(samtools_path, bam_list, output_prefix, threads):
 	merge_start = time.time()
 	command_line = [
 		samtools_path, "merge", "-@", "{}".format(threads), "-f",
-		"{}.merged.bam".format(output_prefix),
-		"{}".format(" ".join(bam_list))]
+		"{}.merged.bam".format(output_prefix)] + bam_list
 	bam_logger.info(
-		"Merging {} with command {}".format(" ".join(bam_list), command_line))
+		"Merging {} with command {}".format(
+			" ".join(bam_list), " ".join(command_line)))
 	subprocess.call(command_line)
 	subprocess.call([
 		samtools_path, "index", "{}.merged.bam".format(output_prefix)])
