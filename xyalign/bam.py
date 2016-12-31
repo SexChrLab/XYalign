@@ -583,13 +583,13 @@ def switch_sex_chromosomes_sambamba(
 
 def samtools_merge(samtools_path, bam_list, output_prefix, threads):
 	"""
-	Merges bam files using sambamba.
+	Merges bam files using samtools.
 
 	Parameters
 	----------
 
-	sambamba_path : str
-		The path to sambamba
+	samtools_path : str
+		The path to samtools
 	bam_list : list
 		Bam files to be merged. Merging order will match order of this list.
 	output_prefix : str
