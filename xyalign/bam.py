@@ -581,7 +581,7 @@ def switch_sex_chromosomes_sambamba(
 			"switch_sex_chromosomes_sambamba does not currently support cram files")
 
 
-def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
+def samtools_merge(samtools_path, bam_list, output_prefix, threads):
 	"""
 	Merges bam files using sambamba.
 
@@ -601,12 +601,15 @@ def sambamba_merge(sambamba_path, bam_list, output_prefix, threads):
 
 	"""
 	merge_start = time.time()
-	bam_logger.info("Merging {}".format(" ".join(bam_list)))
-	subprocess.call(
-		[sambamba_path, "merge", "-t", str(threads), "{}.merged.bam".format(
-			output_prefix), "{}".format(" ".join(bam_list))])
+	command_line = [
+		samtools_path, "merge", "-@", "{}".format(threads), "-f",
+		"{}.merged.bam".format(output_prefix),
+		"{}".format(" ".join(bam_list))]
+	bam_logger.info(
+		"Merging {} with command {}".format(" ".join(bam_list), command_line))
+	subprocess.call(command_line)
 	subprocess.call([
-		sambamba_path, "index", "{}.merged.bam".format(output_prefix)])
+		samtools_path, "index", "{}.merged.bam".format(output_prefix)])
 	bam_logger.info("Merging complete. Elapsed time: {} seconds".format(
 		time.time() - merge_start))
 	return "{}.merged.bam".format(output_prefix)

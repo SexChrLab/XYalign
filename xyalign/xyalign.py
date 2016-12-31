@@ -716,8 +716,8 @@ def remapping():
 	if len(temp_bam_list) < 2:
 		new_bam = temp_bam_list[0]
 	else:
-		new_bam = bam.sambamba_merge(
-			args.sambamba_path, temp_bam_list, "{}/{}.sex_chroms".format(
+		new_bam = bam.samtools_merge(
+			args.samtools_path, temp_bam_list, "{}/{}.sex_chroms".format(
 				bam_path, args.sample_id), args.cpus)
 	return new_bam
 
