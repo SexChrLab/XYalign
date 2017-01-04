@@ -152,15 +152,15 @@ along the lines of::
 	--output_dir sample1_output --sample_id sample1 --cpus 4 --reference_mask mask.bed \
 	--window_size 10000
 
-We could optionally provided preprocessed reference genomes with ``--xx_ref_in``
-and ``--xx_ref_in``, as in 4.  We could also use ``--y_absent`` or ``--y_present``
+We could have optionally provided preprocessed reference genomes with ``--xx_ref_in``
+and ``--xx_ref_in``, as in 4.  We could have also used ``--y_absent`` or ``--y_present``
 to force mapping to a certain reference.
 
 .. note::
 
 	We are currently experimenting with methods for determining the presence or
 	absence of a Y chromosome, so either ``--y_absent`` or ``--y_present`` is
-	required for the time being until we've finalized the implementation of ploidy
+	**required** for the time being until we've finalized the implementation of ploidy
 	estimation.
 
 Recommendations for Incorporating XYalign into Pipelines
@@ -197,7 +197,7 @@ Exome data
 
 XYalign handles exome data, with a few minor considerations.  In particular, either setting
 ``--window_size`` to a smaller value, perhaps 5000 or less, or inputting
-targets to use in lieu of windows (``--target_bed targets.bed``) will be critical
+targets instead of a window size (``--target_bed targets.bed``) will be critical
 for getting more accurate window measures.  In addition, users should manually
 check the results of CHARACTERIZE_SEX_CHROMS for a number of samples to get a feel
 for expected values on the sex chromosomes, as these values are likely to vary among
@@ -206,8 +206,58 @@ experimental design (especially among different capture kits).
 Nonhuman genomes
 ----------------
 
+XYalign will theoretically work with any genome, and on any combination of chromosomes
+or scaffolds (see more on the latter below).  Simply provide the names of the
+chromosomes/scaffolds to analyze and the names of the sex chromosomes (e.g.,
+``--chromosomes chr1a chr1b chr2 lga lgb --x_chromosome lga --y_chromosome lgb``
+if our x_linked scaffold was lga and y_linked scaffold was lgb, and we wanted
+to compare these scaffolds to chromosomes: chr1a chr1b and chr2). However,
+please note that, as of right now, XYalign does not support multiple X or Y
+chromosomes/scaffolds (we are planning on supporting this soon though).
+
+Keep in mind, however, that read balance, mapq, and depth ratios might differ
+among organisms, so default XYalign settings will likely not be appropriate in
+most cases.  Instead, if multiple samples are available, we recommend running
+XYalign's CHARACTERIZE_SEX_CHROMS  on each sample (steps 2-3 in
+"Recommendations for Incorporating XYalign into pipelines" above)
+using the same output directory for all samples.  One can then quickly concatenate
+results (we recommend starting with bootstrap results) and plot them to look
+for clustering of samples.
+
 Analyzing arbitrary chromosomes
 -------------------------------
+
+Currently, XYalign requires a minimum of two chromosomes for BAM_ANALYSIS and
+CHARACTERIZE_SEX_CHROMS (an "autosome" and an "x chromosome").  A third ("y chromosome")
+chromosome is required for PREPARE_REFERENCE and REMAPPING (and therefore, the
+full pipeline as well).  These chromosomes, however, can be arbitrary. Below,
+we highlight two example cases: looking for evidence of Trisomy 21 in human samples,
+and running the full XYalign pipeline on a ZW sample (perhaps a bird, squamate reptile, or moth).
+
+If one wanted to look for evidence of Trisomy 21 in human data mapped to hg19 (which uses
+"chr" in chromosome names), s/he could use a command along the lines of::
+
+	python xyalign.py --CHARACTERIZE_SEX_CHROMS --ref reference.fasta --bam input.bam \
+	--output_dir sample1_output --sample_id sample1 --cpus 4 --window_size 10000 \
+	--chromosomes chr1 chr10 chr19 chr21 --x_chromosome chr21
+
+This would run the CHARACTERIZE_SEX_CHROMS module, systematically comparing
+``chr21`` to ``chr1``, ``chr10``, and ``chr19``.
+
+To run the full pipeline on a ZW sample (in ZZ/ZW systems, males are ZZ and females
+are ZW), one could simply run a command like (assuming the Z scaffold was named
+"scaffoldz" and the W scaffold was named "scaffoldw")::
+
+	python xyalign.py --ref reference.fasta --bam input.bam \
+	--output_dir sample1_output --sample_id sample1 --cpus 4 --reference_mask mask.bed \
+	--window_size 10000 --chromosomes scaffold1 scaffoldz scaffoldw --x_chromosome scaffoldz \
+	--y_chromosome scaffoldw
+
+In this example, it's important that the the "X" and "Y" chromosomes are assigned in this way
+because PREPARE_REFERENCE (the first step in the full pipeline) will create two
+reference genomes: one with the "Y" completely masked, and one with both "X" and "Y"
+unmasked.  This command will therefore create the appropriate references (a ZW and
+a Z only).  Other organisms or uses might not require this consideration.
 
 Using XYalign as a Python library
 ---------------------------------
