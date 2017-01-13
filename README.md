@@ -21,7 +21,15 @@ See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/lates
 ## To-Do Items Before Release
 
 Program
-- [ ] Incorporate likelihood model for ploidy estimation
+*Necessary*
+- [ ] Incorporate ploidy caller
+- [ ] Make bwa indexing conditional for withY if no reference_mask provided
+- [ ] Run bwa indexing in parallel
+- [ ] Implement subparser
+- [ ] Clean up parse_args() and update checks/validation
+- [ ] Implement check for dependencies upon loading
+- [ ] Add thorough module testing (e.g. unittest, doctest, etc.)
+*Less necessary*
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
 	- [ ] Implement bam analyses in cython
@@ -35,9 +43,6 @@ Program
 - [ ] Add histogram plotting for depth and mapq
 - [ ] Add cram and sam support
 	- probably not necessary for initial release
-- [ ] Clean up parse_args() and update checks/validation
-- [ ] Implement check for dependencies upon loading
-- [ ] Add thorough module testing (e.g. unittest, doctest, etc.)
 - [ ] Implement some kind of checkpointing functionality
 	- probably not necessary for initial release
 

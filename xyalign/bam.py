@@ -8,6 +8,7 @@ import os
 import pandas as pd
 import pysam
 import subprocess
+import sys
 import time
 
 # Create logger for bam submodule
