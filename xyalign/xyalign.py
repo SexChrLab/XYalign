@@ -237,6 +237,12 @@ def parse_args():
 		"the chromosome name, start coordinate, stop coordinate.")
 
 	parser.add_argument(
+		"--whole_genome_threshold", action="store_true", default=False,
+		help="This flag will calculate the depth filter threshold based on "
+		"all values from across the genome.  By default, thresholds are "
+		"calculated per chromosome.")
+
+	parser.add_argument(
 		"--mapq_cutoff", "-mq", type=int, default=20,
 		help="Minimum mean mapq threshold for a window to be "
 		"considered high quality. Default is 20.")
@@ -523,8 +529,12 @@ def bam_analysis_noprocessing():
 			else:
 				data = input_bam.analyze_bam_fetch(
 					chromosome, None, args.target_bed)
-			tup = utils.make_region_lists(
-				data["windows"], args.mapq_cutoff, args.depth_filter)
+			if args.whole_genome_threshold is True:
+				tup = utils.make_region_lists_genome_filters(
+					data["windows"], args.mapq_cutoff, args.depth_filter)
+			else:
+				tup = utils.make_region_lists_chromosome_filters(
+					data["windows"], args.mapq_cutoff, args.depth_filter)
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			utils.plot_depth_mapq(
@@ -777,8 +787,12 @@ def bam_analysis_postprocessing():
 			else:
 				data = final_bam.analyze_bam_fetch(
 					chromosome, None, args.target_bed)
-			tup = utils.make_region_lists(
-				data["windows"], args.mapq_cutoff, args.depth_filter)
+			if args.whole_genome_threshold is True:
+				tup = utils.make_region_lists_genome_filters(
+					data["windows"], args.mapq_cutoff, args.depth_filter)
+			else:
+				tup = utils.make_region_lists_chromosome_filters(
+					data["windows"], args.mapq_cutoff, args.depth_filter)
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			utils.plot_depth_mapq(
