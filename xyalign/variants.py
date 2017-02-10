@@ -104,8 +104,12 @@ def parse_platypus_VCF(filename, qual_cutoff, chrom):
 		qual = float(cols[5])
 		if qual < qual_cutoff:
 			continue
-		TR = cols[7].split(';')[17].split('=')[1]
-		TC = cols[7].split(';')[14].split('=')[1]
+		try:
+			TR = cols[7].split(';')[17].split('=')[1]
+			TC = cols[7].split(';')[14].split('=')[1]
+		except IndexError:
+			variants_logger.error("Error parsing line: {}".format(line))
+			continue
 		if ',' in TR or ',' in TC:
 			continue
 		if (float(TR) == 0) or (float(TC) == 0):
