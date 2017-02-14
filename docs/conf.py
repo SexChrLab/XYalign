@@ -19,10 +19,22 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+
 import os
 import subprocess
 import sys
 sys.path.append(os.path.abspath('../'))
+
+# Trying to get docs to compile on ReadTheDocs using info from:
+#http://blog.rtwilson.com/how-to-make-your-sphinx-documentation-compile-with-readthedocs-when-youre-using-numpy-and-scipy/
+
+import mock
+MOCK_MODULES = [
+	'numpy', 'logging', 'pandas', 'pysam', 'time', 'scipy.stats', 'pybedtools',
+	'matplotlib', 'matplotlib.pyplot']
+for mod_name in MOCK_MODULES:
+	sys.modules[mod_name] = mock.Mock()
+
 
 
 # -- General configuration ------------------------------------------------
