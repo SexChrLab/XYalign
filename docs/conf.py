@@ -55,6 +55,11 @@ try:
 except ImportError:
     print "no matplotlib"
 try:
+    import pandas
+    print "pandas: %s, %s" % (pandas.__version__, pandas.__file__)
+except ImportError:
+    print "no pandas"
+try:
     import pysam
     print "pysam: %s, %s" % (pysam.__version__, pysam.__file__)
 except ImportError:
