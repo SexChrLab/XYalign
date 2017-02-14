@@ -28,12 +28,32 @@ sys.path.append(os.path.abspath('../'))
 # Trying to get docs to compile on ReadTheDocs using info from:
 #http://blog.rtwilson.com/how-to-make-your-sphinx-documentation-compile-with-readthedocs-when-youre-using-numpy-and-scipy/
 
-import mock
-MOCK_MODULES = [
-	'numpy', 'logging', 'pandas', 'pysam', 'time', 'scipy.stats', 'pybedtools',
-	'matplotlib', 'matplotlib.pyplot']
-for mod_name in MOCK_MODULES:
-	sys.modules[mod_name] = mock.Mock()
+# import mock
+# MOCK_MODULES = [
+# 	'numpy', 'logging', 'pandas', 'pysam', 'time', 'scipy.stats', 'pybedtools',
+# 	'matplotlib', 'matplotlib.pyplot']
+# for mod_name in MOCK_MODULES:
+# 	sys.modules[mod_name] = mock.Mock()
+
+# The below is from: https://github.com/breedlun/clearplot/blob/master/doc/source/conf.py
+#Print imports to the screen so that it is easier to troubleshoot issues
+print "python exec:", sys.executable
+print "sys.path:", sys.path
+try:
+    import numpy
+    print "numpy: %s, %s" % (numpy.__version__, numpy.__file__)
+except ImportError:
+    print "no numpy"
+try:
+    import matplotlib
+    print "matplotlib: %s, %s" % (matplotlib.__version__, matplotlib.__file__)
+    #For some reason, I have to import matplotlib.pyplot here, or else I get errors that
+    #there is no module named 'sip' when ReadTheDocs tries to import matplotlib.pyplot
+    #inside of clearplot
+    import matplotlib.pyplot
+    print "matplotlib.pyplot imported"
+except ImportError:
+    print "no matplotlib"
 
 
 
