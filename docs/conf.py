@@ -35,7 +35,7 @@ sys.path.append(os.path.abspath('../'))
 # for mod_name in MOCK_MODULES:
 # 	sys.modules[mod_name] = mock.Mock()
 
-# The below is from: https://github.com/breedlun/clearplot/blob/master/doc/source/conf.py
+# The below is based on: https://github.com/breedlun/clearplot/blob/master/doc/source/conf.py
 #Print imports to the screen so that it is easier to troubleshoot issues
 print "python exec:", sys.executable
 print "sys.path:", sys.path
@@ -54,8 +54,16 @@ try:
     print "matplotlib.pyplot imported"
 except ImportError:
     print "no matplotlib"
-
-
+try:
+    import pysam
+    print "pysam: %s, %s" % (pysam.__version__, pysam.__file__)
+except ImportError:
+    print "no pysam"
+try:
+    import pybedtools
+    print "pybedtools: %s, %s" % (pybedtools.__version__, pybedtools.__file__)
+except ImportError:
+    print "no pybedtools"
 
 # -- General configuration ------------------------------------------------
 
