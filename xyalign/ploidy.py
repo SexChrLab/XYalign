@@ -108,8 +108,6 @@ def ks_two_sample(
 		The name of the column containing chromosome names
 	value_column : str
 		The name of the column containing the value of interest
-	num_perms : int
-		The number of permutations to use
 	output_file : {str, None}
 		If not None, will print results to this file.
 
@@ -177,8 +175,8 @@ def bootstrap(
 		The name of the column containing chromosome names
 	value_column : str
 		The name of the column containing the value of interest
-	num_perms : int
-		The number of permutations to use
+	num_reps : int
+		The number of bootstrap replicates to use
 	output_file : {str, None}
 		If not None, will print results to this file.
 
