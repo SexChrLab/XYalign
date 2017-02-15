@@ -161,13 +161,24 @@ def plot_variants_per_chrom(
 	plot_start = time.time()
 	variants_logger.info("Plotting read balance from {} for chroms: {}".format(
 		vcf_file, " ".join(chrom_list)))
+	no_sites = []
 	for i in chrom_list:
 		parse_results = parse_platypus_VCF(vcf_file, qual_cutoff, i)
-		plot_read_balance(
-			i, parse_results[0], parse_results[2],
-			sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile_obj)
-		hist_read_balance(
-			i, parse_results[2], sampleID, output_prefix)
+		if len(parse_results[0]) < 1:
+			no_sites.append(i)
+		else:
+			plot_read_balance(
+				i, parse_results[0], parse_results[2],
+				sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile_obj)
+			hist_read_balance(
+				i, parse_results[2], sampleID, output_prefix)
+	if len(no_sites) >= 1:
+		variants_logger.info(
+			"No variants passing filters on the following chromosomes: {}".format(
+				" ".join(no_sites)))
+	else:
+		variants_logger.info(
+			"All chromosomes had variant sites passing filters.")
 	variants_logger.info(
 		"Read balance plotting complete. Elapsed time: {} seconds".format(
 			time.time() - plot_start))
@@ -234,14 +245,14 @@ def plot_read_balance(
 
 def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 	"""
-	Plots a histogram of read balance
+	Plots a histogram of read balance values between 0.05 and 0.95
 
 	Parameters
 	----------
 
 	chrom : str
 		Name of the chromosome
-	readBalance : nump array
+	readBalance : numpy array
 		Read balance values
 	sampleID : str
 		Sample name or id to include in the plot title
@@ -252,7 +263,7 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 	-------
 
 	int
-		0 if sites to analyze, 1 otherwise.
+		0 if plotting successful, 1 otherwise.
 
 	"""
 	try:
