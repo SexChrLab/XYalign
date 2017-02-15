@@ -12,6 +12,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
+
 # Create logger for variants submodule
 variants_logger = logging.getLogger("xyalign.variants")
 
@@ -287,6 +288,7 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 	plt.savefig("{}_{}_ReadBalance_Hist.svg".format(output_prefix, chrom))
 	plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
 	plt.close(fig)
-	variants_logger.info("Genomic read balance histogram of {} complete.".format(
-		chrom))
+	variants_logger.info(
+		"Genomic read balance histogram of {} complete.".format(
+			chrom))
 	return 0

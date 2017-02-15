@@ -34,7 +34,7 @@ def parse_args():
 		help="REQUIRED. Path to reference sequence (including file name).")
 
 	parser.add_argument(
-		"--output_dir", "-o",
+		"--output_dir", "-o", required=True,
 		help="REQUIRED. Output directory. XYalign will create a directory "
 		"structure within this directory")
 
@@ -86,7 +86,7 @@ def parse_args():
 	pipeline_group.add_argument(
 		"--ANALYZE_BAM", action="store_true", default=False,
 		help="This flag will limit XYalign to only analyzing the bam file for "
-		"(optionally) depth, mapq, and read balance and outputting plots.")
+		"depth, mapq, and (optionally) read balance and outputting plots.")
 
 	pipeline_group.add_argument(
 		"--CHARACTERIZE_SEX_CHROMS", action="store_true", default=False,
@@ -137,10 +137,6 @@ def parse_args():
 
 	# Options for turning on/off parts of the pipeline
 	parser.add_argument(
-		"--no_remapping", action="store_true", default=False,
-		help="Include this flag to prevent remapping sex chromosome reads.")
-
-	parser.add_argument(
 		"--platypus_calling", default="both",
 		choices=["both", "none", "before", "after"],
 		help="Platypus calling withing the pipeline "
@@ -153,7 +149,8 @@ def parse_args():
 
 	parser.add_argument(
 		"--no_bam_analysis", action="store_true", default=False,
-		help="Include flag to prevent depth/mapq analysis of bam file")
+		help="Include flag to prevent depth/mapq analysis of bam file. "
+		"Used to isolate platypus_calling.")
 
 	parser.add_argument(
 		"--skip_compatibility_check", action="store_true", default=False,

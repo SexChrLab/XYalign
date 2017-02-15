@@ -1,11 +1,13 @@
 # Part of XYalign
 # Functions, etc. related to reference fasta processing
+from __future__ import division
 import logging
 import os
 import subprocess
 import time
 import pybedtools
 import pysam
+
 
 # Create logger for reftools submodule
 reftools_logger = logging.getLogger("xyalign.reftools")

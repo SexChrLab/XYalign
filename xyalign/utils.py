@@ -15,6 +15,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
+
 # Create logger for utils submodule
 utils_logger = logging.getLogger("xyalign.utils")
 
@@ -52,8 +53,8 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 	with open(output_file, "w") as f:
 		for i in chromosome_list:
 			try:
-				l = bamfile_obj.get_chrom_length(i)
-				f.write("{}\t{}\t{}\n".format(i, "0", l))
+				lengths = bamfile_obj.get_chrom_length(i)
+				f.write("{}\t{}\t{}\n".format(i, "0", lengths))
 			except:
 				utils_logger.error(
 					"Error finding chromosome length in bam file {} "
@@ -62,8 +63,9 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 					"Error finding chromosome length in bam file {}.  Check "
 					"chromosome names and bam header.".format(
 						bamfile_obj.filepath))
-	utils_logger.info("Bed file ({}) created. Elapsed time: {} seconds".format(
-		output_file, time.time() - c_bed_start))
+	utils_logger.info(
+		"Bed file ({}) created. Elapsed time: {} seconds".format(
+			output_file, time.time() - c_bed_start))
 	return output_file
 
 

@@ -11,6 +11,7 @@ import subprocess
 import sys
 import time
 
+
 # Create logger for bam submodule
 bam_logger = logging.getLogger("xyalign.bam")
 
@@ -128,9 +129,9 @@ class BamFile():
 		bamfile = pysam.AlignmentFile(self.filepath, "rb")
 		lengths = dict(zip(bamfile.references, bamfile.lengths))
 		try:
-			l = lengths[chrom]
+			lens = lengths[chrom]
 			bamfile.close()
-			return l
+			return lens
 		except:
 			self.logger.error(
 				"{} not present in bam header for {}. Exiting.".format(

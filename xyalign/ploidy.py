@@ -10,6 +10,7 @@ import numpy as np
 from scipy.stats import ks_2samp
 import time
 
+
 # Create logger for ploidy submodule
 ploidy_logger = logging.getLogger("xyalign.ploidy")
 
