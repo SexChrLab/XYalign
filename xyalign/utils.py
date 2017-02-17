@@ -4,6 +4,7 @@
 from __future__ import division
 from __future__ import print_function
 import logging
+import os
 import numpy as np
 import pandas as pd
 import pybedtools
@@ -18,6 +19,30 @@ from matplotlib import pyplot as plt
 
 # Create logger for utils submodule
 utils_logger = logging.getLogger("xyalign.utils")
+
+
+def validate_dir(parent_dir, dir_name):
+	"""
+	Checks if directory exists and if not, creates it.
+
+	Parameters
+	----------
+
+	parent_dir : Parent directory name
+	dir_name : Name of the new directory
+
+	Returns
+	-------
+
+	bool
+		whether the directory existed
+
+	"""
+	full_path = os.path.join(parent_dir, dir_name)
+	exists = os.path.exists(full_path)
+	if not exists:
+		os.makedirs(full_path)
+	return exists
 
 
 def chromosome_bed(bamfile_obj, output_file, chromosome_list):

@@ -401,24 +401,6 @@ def parse_args():
 					"Invalid file provided with --target_bed. Check path. Exiting.")
 				sys.exit(1)
 
-	# Create directory structure if not already in place
-	if not os.path.exists(os.path.join(args.output_dir, "fastq")):
-		os.makedirs(os.path.join(args.output_dir, "fastq"))
-	if not os.path.exists(os.path.join(args.output_dir, "bam")):
-		os.makedirs(os.path.join(args.output_dir, "bam"))
-	if not os.path.exists(os.path.join(args.output_dir, "reference")):
-		os.makedirs(os.path.join(args.output_dir, "reference"))
-	if not os.path.exists(os.path.join(args.output_dir, "bed")):
-		os.makedirs(os.path.join(args.output_dir, "bed"))
-	if not os.path.exists(os.path.join(args.output_dir, "vcf")):
-		os.makedirs(os.path.join(args.output_dir, "vcf"))
-	if not os.path.exists(os.path.join(args.output_dir, "plots")):
-		os.makedirs(os.path.join(args.output_dir, "plots"))
-	if not os.path.exists(os.path.join(args.output_dir, "results")):
-		os.makedirs(os.path.join(args.output_dir, "results"))
-	if not os.path.exists(os.path.join(args.output_dir, "logfiles")):
-		os.makedirs(os.path.join(args.output_dir, "logfiles"))
-
 	# Return arguments namespace
 	return args
 
@@ -839,6 +821,16 @@ if __name__ == "__main__":
 
 	# Grab arguments
 	args = parse_args()
+
+	# Create directory structure if not already in place
+	utils.validate_dir(args.output_dir, "fastq")
+	utils.validate_dir(args.output_dir, "bam")
+	utils.validate_dir(args.output_dir, "reference")
+	utils.validate_dir(args.output_dir, "bed")
+	utils.validate_dir(args.output_dir, "vcf")
+	utils.validate_dir(args.output_dir, "plots")
+	utils.validate_dir(args.output_dir, "results")
+	utils.validate_dir(args.output_dir, "logfile")
 
 	# Set up logfile
 	logfile_path = os.path.join(args.output_dir, "logfiles")
