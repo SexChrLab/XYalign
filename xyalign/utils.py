@@ -84,6 +84,7 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 				utils_logger.error(
 					"Error finding chromosome length in bam file {} "
 					"(for bed file)".format(bamfile_obj.filepath))
+				logging.shutdown()
 				raise RuntimeError(
 					"Error finding chromosome length in bam file {}.  Check "
 					"chromosome names and bam header.".format(

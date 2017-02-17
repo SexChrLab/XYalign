@@ -101,6 +101,7 @@ class BamFile():
 		else:
 			self.logger.error("Unable to index bamfile {}. Exiting".format(
 				self.filepath))
+			logging.shutdown()
 			raise RuntimeError("Unable to index bamfile. Exiting")
 
 	def get_chrom_length(self, chrom):
@@ -136,6 +137,7 @@ class BamFile():
 			self.logger.error(
 				"{} not present in bam header for {}. Exiting.".format(
 					chrom, self.filepath))
+			logging.shutdown()
 			raise RuntimeError(
 				"Chromosome name not present in bam header. Exiting")
 
@@ -407,7 +409,9 @@ class BamFile():
 				"Both window_size and target_file set to None. "
 				"Cannot proceed with bam traversal. Exiting.")
 			logging.shutdown()
-			sys.exit(1)
+			raise RuntimeError(
+				"Both window_size and target_file set to None. "
+				"Cannot proceed with bam traversal. Exiting.")
 
 		# Convert data into pandas data frames
 		windows_df = pd.DataFrame({
@@ -579,6 +583,7 @@ def switch_sex_chromosomes_sambamba(
 		# 		output_directory, output_prefix)])
 		# return "{}/{}.cram".format(output_directory, output_prefix)
 		bam_logger.error("This function does not currently handle cram files")
+		logging.shutdown()
 		raise RuntimeError(
 			"switch_sex_chromosomes_sambamba does not currently support cram files")
 
