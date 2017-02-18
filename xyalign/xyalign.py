@@ -334,21 +334,19 @@ def parse_args():
 	else:
 		full_pipeline = False
 
-	# Validate permutation test arguments
-	if args.no_perm_test is True:
+	# Validate ploidy test arguments
+	test_flags = [args.no_perm_test, args.no_bootstrap, args.no_ks_test]
+	if any(test_flags) is True:
 		if args.y_present is False and args.y_absent is False:
-			print("Error. Either --y_present or --y_absent needs to be "
-									"included with --no_perm_test")
-		sys.exit(1)
-	if args.platypus_calling not in ["both", "none", "before", "after"]:
-		print("Error. Platypus calling must be both, none, before, or after. "
-								"Default is both.")
-		sys.exit(1)
+			sys.exit(
+				"Error. Either --y_present or --y_absent needs to be "
+				"included with if excluding any ploidy tests - i.e., "
+				"if you're using --no_perm_test, --no_bootstrap, "
+				"or --no_ks_test")
 
 	# Validate chromosome arguments
 	if len(args.chromosomes) == 0:
-		print("Please provide chromosome names to analyze (--chromosomes)")
-		sys.exit(1)
+		sys.exit("Please provide chromosome names to analyze (--chromosomes)")
 	elif len(args.chromosomes) == 1:
 		if args.no_perm_test is False:
 			print(
@@ -369,37 +367,32 @@ def parse_args():
 	bwa_args = [str(x).strip() for x in args.bwa_flags.split()]
 	red_list = ["-rm", "rm", "-rf", "rf", "-RM", "RM", "-RF", "RF"]
 	if any(x in bwa_args for x in red_list):
-		print(
+		sys.exit(
 			"Found either rm or rf in your bwa flags. Exiting to prevent "
 			"unintended shell consequences")
-		sys.exit(1)
 	yellow_list = ["-R", "-t"]
 	if any(x in bwa_args for x in yellow_list):
-		print(
+		sys.exit(
 			"Found either -R or -t in bwa flags.  These flags are already used "
 			"in XYalign.  Please remove.")
-		sys.exit(1)
 
 	# Validate sliding window options
 	if any(
 		[full_pipeline, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS]) is True:
 		if args.window_size is not None and args.window_size != "None":
 			if args.window_size.isdigit() is False:
-				print(
+				sys.exit(
 					"--window_size needs to be either None or a positive integer. "
 					"Exiting.")
-				sys.exit(1)
 		else:
 			if args.target_bed is None:
-				print(
+				sys.exit(
 					"If --window_size is None, --target_bed needs to be used. "
 					"Please set one of these two flags if running ANALYZE_BAM, "
 					"CHARACTERIZE_SEX_CHROMS, or the full pipeline. Exiting.")
-				sys.exit(1)
 			elif os.path.exists(args.target_bed) is False:
-				print(
+				sys.exit(
 					"Invalid file provided with --target_bed. Check path. Exiting.")
-				sys.exit(1)
 
 	# Return arguments namespace
 	return args
