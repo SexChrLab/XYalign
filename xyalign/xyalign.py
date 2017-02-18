@@ -964,7 +964,7 @@ if __name__ == "__main__":
 		bed_path, "{}.bed".format(low_prefix))
 
 	######################################
-	############ Run XYalign #############
+	#            Run XYalign             #
 	######################################
 	ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
 	input_bam = bam.BamFile(args.bam, args.samtools_path)
