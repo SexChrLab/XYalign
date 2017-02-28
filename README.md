@@ -18,27 +18,23 @@ Changes are made to the master branch quite frequently, so there still might be 
 
 See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/latest/index.html)
 
-## To-Do Items Before Release
+## To-Do Items
 
-Program
-
-*Necessary*
-- [ ] Incorporate ploidy caller
+*Before release*
+- [x] Incorporate ploidy caller
 - [x] Default to calculating mean depth per chromosome
 	- [x] add flag to allow for whole-genome thresholds
 - [ ] Make bwa indexing conditional for withY if no reference_mask provided
-- [ ] Run bwa indexing in parallel
-- [ ] Implement subparser
 - [ ] Clean up parse_args() and update checks/validation
 - [ ] Implement check for dependencies upon loading
 - [ ] Add thorough module testing (e.g. unittest, doctest, etc.)
 
-*Less necessary*
+*Down the road*
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
 	- [ ] Implement bam analyses in cython
 - [ ] Add "batch" option (for CHARACTERIZE_SEX_CHROMS and/or ANALYZE_BAM)
-	- not necessary for initial release, as can be easily done with a bash command
+	- not necessary for now, as can be easily done with a bash command
 - [ ] Add support for additional mappers
 	- not clear if this is necessary or valuable
 - [ ] Handle duplicate reads
@@ -46,11 +42,12 @@ Program
 - [ ] Output high and low-quality bed files after second round of bam analyses
 - [ ] Add histogram plotting for depth and mapq
 - [ ] Add cram and sam support
-	- probably not necessary for initial release
 - [ ] Implement some kind of checkpointing functionality
-	- probably not necessary for initial release
+- [ ] Run bwa indexing in parallel
+	- this might be a bit more difficult that it seems due to memory requirements for large genomes
+- [ ] Implement subparser
 
-Testing
+*Testing*
 - [x] Simulate and assemble XX, XY, XXY, and XO genomes
 	- [ ] Test XYalign on these genomes
 - [x] Download data for XX and XY:

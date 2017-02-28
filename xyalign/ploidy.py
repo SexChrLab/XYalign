@@ -184,7 +184,7 @@ def bootstrap(
 	Returns
 	-------
 	tuple
-		(0.025 percentile, 0.5 percentile, 0.975 percentile)
+		(mean ratio, 0.025 percentile, 0.975 percentile)
 	"""
 	boot_start = time.time()
 

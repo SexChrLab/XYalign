@@ -157,6 +157,20 @@ def parse_args():
 		help="Include flag to prevent check of compatibility between input bam "
 		"and reference fasta")
 
+	parser.add_argument(
+		"--no_perm_test", action="store_true", default=False,
+		help="Include flag to turn off permutation tests.")
+
+	parser.add_argument(
+		"--no_ks_test", action="store_true", default=False,
+		help="Include flag to turn off KS Two Sample tests.")
+
+	parser.add_argument(
+		"--no_bootstrap", action="store_true", default=False,
+		help="Include flag to turn off bootstrap analyses. Requires either "
+		"--y_present, --y_absent, or --sex_chrom_calling_threshold "
+		"if running full pipeline.")
+
 	# Variant Calling Flags
 	parser.add_argument(
 		"--variant_quality_cutoff", "-vqc", type=int, default=20,
@@ -216,7 +230,30 @@ def parse_args():
 		"into the original bam file (i.e., sex chrom swapping). This will "
 		"output a bam file containing only the newly remapped sex chromosomes.")
 
-	# Bam Analysis Flags
+	parser.add_argument(
+		"--sex_chrom_calling_threshold", type=float, default=2.0,
+		help="This is the *maximum* filtered X/Y depth ratio for an individual "
+		"to be considered as having homogametic sex chromsomes (e.g., XX) for "
+		"the REMAPPING module of XYalign. "
+		"Note here that X and Y chromosomes are simply the chromosomes that "
+		"have been designated as X and Y via --x_chromosome and --y_chromosome. "
+		"Keep in mind that the ideal threshold will vary according to sex "
+		"determination mechanism, sequence homology between the sex chromosomes, "
+		"reference genome, sequencing methods, etc.  See documentation for more "
+		"detail. Default is 2.0, which we found to be reasonable for exome, "
+		"low-coverage whole-genome, and high-coverage whole-genome human data.")
+
+	group_y = parser.add_mutually_exclusive_group(required=False)
+
+	group_y.add_argument(
+		"--y_present", action="store_true", default=False,
+		help="Overrides sex chr estimation by XYalign and remaps with Y present.")
+
+	group_y.add_argument(
+		"--y_absent", action="store_true", default=False,
+		help="Overrides sex chr estimation by XY align and remaps with Y absent.")
+
+	# Bam Analysis and Characterize Sex Chrom Flags
 	parser.add_argument(
 		"--window_size", "-w", default=None,
 		help="Window size (integer) for sliding window calculations. Default "
@@ -280,47 +317,14 @@ def parse_args():
 		help="Transparency of markers in genome-wide plots.  "
 		"Alpha in matplotlib.  Default is 0.5")
 
-	# Mutually exclusive group 1 - bam or cram file
-	group = parser.add_mutually_exclusive_group(required=True)
+	# Mutually exclusive group - bam or cram file
+	group_bam = parser.add_mutually_exclusive_group(required=True)
 
-	group.add_argument(
+	group_bam.add_argument(
 		"--bam", help="Input bam file.")
 
-	group.add_argument(
+	group_bam.add_argument(
 		"--cram", help="Input cram file.")
-
-	# Mutally exclusive group 2 - overriding ploidy estimation with declaration
-	# 		that Y is present or Y is absent.  --no_perm_test explicitly
-	# 		requires one of either --y_present or --y_absent, but the reverse
-	# 		is not true (i.e., if you don't run tests, you need to tell
-	# 		XY align what the ploidy is, however you can tell XY align what
-	# 		the ploidy is and still run the permutation analyses, the results
-	# 		of which will be ignored)
-
-	parser.add_argument(
-		"--no_perm_test", action="store_true", default=False,
-		help="Include flag to turn off permutation tests. Requires either "
-		"--y_present or --y_absent to also be called")
-
-	parser.add_argument(
-		"--no_ks_test", action="store_true", default=False,
-		help="Include flag to turn off KS Two Sample tests. Requires either "
-		"--y_present or --y_absent to also be called")
-
-	parser.add_argument(
-		"--no_bootstrap", action="store_true", default=False,
-		help="Include flag to turn off bootstrap analyses. Requires either "
-		"--y_present or --y_absent to also be called")
-
-	group2 = parser.add_mutually_exclusive_group(required=False)
-
-	group2.add_argument(
-		"--y_present", action="store_true", default=False,
-		help="Overrides sex chr estimation by XYalign and remaps with Y present.")
-
-	group2.add_argument(
-		"--y_absent", action="store_true", default=False,
-		help="Overrides sex chr estimation by XY align and remaps with Y absent.")
 
 	args = parser.parse_args()
 
@@ -334,34 +338,37 @@ def parse_args():
 	else:
 		full_pipeline = False
 
+	# Cram files are currently unsupported
+	if args.cram is not None:
+		sys.exit(
+			"Error. XYalign does not currently support cram files. "
+			"Please provide a bam file via --bam instead.")
+
 	# Validate ploidy test arguments
 	test_flags = [args.no_perm_test, args.no_bootstrap, args.no_ks_test]
-	if any(test_flags) is True:
-		if args.y_present is False and args.y_absent is False:
-			sys.exit(
-				"Error. Either --y_present or --y_absent needs to be "
-				"included with if excluding any ploidy tests - i.e., "
-				"if you're using --no_perm_test, --no_bootstrap, "
-				"or --no_ks_test")
+	if full_pipeline is True:
+		if args.no_bootstrap is True:
+			if args.y_present is False and args.y_absent is False:
+				sys.exit(
+					"Error. Either --y_present or --y_absent needs to be "
+					"included with if running the full pipeline "
+					"with --no_bootstrap.")
+	if args.REMAPPING is True:
+		if any([args.y_present, args.y_absent]) is False:
+				sys.exit(
+					"Error. Either --y_present or --y_absent needs to be "
+					"included with if runnning --REMAPPING.")
 
 	# Validate chromosome arguments
-	if len(args.chromosomes) == 0:
-		sys.exit("Please provide chromosome names to analyze (--chromosomes)")
-	elif len(args.chromosomes) == 1:
-		if args.no_perm_test is False:
-			print(
-				"You only provided a single chromosome to analyze. At minimum "
-				"include the flag --no_perm_test, but think carefully about "
-				"how this will affect analyses.  We recommend including at "
-				"least one autosome, X, and Y when possible.")
-			sys.exit(1)
-		else:
-			print(
-				"You only provided a single chromosome to analyze. You "
-				"included the flag --no_perm_test, so XYalign will continue, "
-				"but think carefully about "
-				"how this will affect analyses.  We recommend including at "
-				"least one autosome, X, and Y when possible.")
+	if any(full_pipeline, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS) is True:
+		if len(args.chromosomes) == 0:
+			sys.exit("Please provide chromosome names to analyze (--chromosomes)")
+	if any(full_pipeline, args.CHARACTERIZE_SEX_CHROMS) is True:
+		if len(args.chromosomes) == 1:
+			sys.exit(
+				"You only provided a single chromosome to analyze with "
+				"--chromosomes.  CHARACTERIZE_SEX_CHROMS requires at least two "
+				"chromosomes, including one designated as an X chromosome.")
 
 	# Validate bwa arguments
 	bwa_args = [str(x).strip() for x in args.bwa_flags.split()]
@@ -461,9 +468,9 @@ def bam_analysis_noprocessing():
 
 	* (Optionally) parses and filters Platypus vcf, and plots read balance
 
-	* Calculates window based metrics from the bam file: depth and mapq
+	* (Optionally) Calculates window based metrics from the bam file: depth and mapq
 
-	* Plots window-based metrics
+	* (optionally) Plots window-based metrics
 
 	* Outputs two bed files: high quality windows, and low quality windows.
 
@@ -1027,10 +1034,12 @@ if __name__ == "__main__":
 	elif args.REMAPPING is True:
 		logger.info(
 			"REMAPPING set, so only running steps required for remapping. "
-			"Requires --y_present or --y_absent to be set")
+			"--y_present or --y_absent must be set")
 		if args.y_present is True:
 			y_present = True
+			logger.info("--y_present provided, so remapping for XY individual")
 		elif args.y_absent is True:
+			logger.info("--y_absent provided, so remapping for XX individual")
 			y_present = False
 		else:
 			logger.error(
@@ -1088,12 +1097,21 @@ if __name__ == "__main__":
 		ploidy_results = ploidy_analysis(bam_dfs[0], bam_dfs[1])
 		if args.y_present is True:
 			y_present = True
+			logger.info("--y_present provided, so remapping for XY individual")
 		elif args.y_absent is True:
 			y_present = False
+			logger.info("--y_absent provided, so remapping for XX individual")
 		else:
-			logger.error("Need to implement ploidy decision. Exiting.")
-			logging.shutdown()
-			sys.exit(1)
+			if ploidy_results["boot"][0] > args.sex_chrom_calling_threshold:
+				y_present = False
+				logger.info(
+					"X/Y depth ratio ({}) > {}. Y inferred to be absent.".format(
+						ploidy_results["boot"][0], args.sex_chrom_calling_threshold))
+			else:
+				y_present = True
+				logger.info(
+					"X/Y depth ratio ({}) <= {}. Y inferred to be present.".format(
+						ploidy_results["boot"][0], args.sex_chrom_calling_threshold))
 		sex_chrom_bam = bam.BamFile(remapping(), args.samtools_path)
 		if args.sex_chrom_bam_only is True:
 			final_bam = sex_chrom_bam
