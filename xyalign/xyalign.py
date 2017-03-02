@@ -832,7 +832,7 @@ if __name__ == "__main__":
 	utils.validate_dir(args.output_dir, "vcf")
 	utils.validate_dir(args.output_dir, "plots")
 	utils.validate_dir(args.output_dir, "results")
-	utils.validate_dir(args.output_dir, "logfile")
+	utils.validate_dir(args.output_dir, "logfiles")
 
 	# Set up logfile
 	logfile_path = os.path.join(args.output_dir, "logfiles")
