@@ -360,10 +360,12 @@ def parse_args():
 					"included with if runnning --REMAPPING.")
 
 	# Validate chromosome arguments
-	if any(full_pipeline, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS) is True:
+	if any(
+		[full_pipeline, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS]) is True:
 		if len(args.chromosomes) == 0:
 			sys.exit("Please provide chromosome names to analyze (--chromosomes)")
-	if any(full_pipeline, args.CHARACTERIZE_SEX_CHROMS) is True:
+	if any(
+		[full_pipeline, args.CHARACTERIZE_SEX_CHROMS]) is True:
 		if len(args.chromosomes) == 1:
 			sys.exit(
 				"You only provided a single chromosome to analyze with "
