@@ -4,8 +4,9 @@ XYalign: Inferring and Correcting for Sex Chromosome Ploidy in Next-Generation S
 :Date: |today|
 :Release: |release|
 :Download: `Github Repository <https://github.com/WilsonSayresLab/XYalign/>`_
+:Issues or Questions: Please submit any questions or problems as `issues via Github <https://github.com/WilsonSayresLab/XYalign/issues>`_ 
 
-Sex chromosome aneuploidies are currently estimated to be as common as 1/400 in humans. Atypical ploidy will affect variant calling and measures of genomic variation that are central to most clinical genomic studies. Further, the high degree of similarity between gametologous sequences on the X and Y chromosomes can lead to the misalignment of sequencing reads and substantially affect variant calling. Here we present XYalign, a new tool that (1) quickly infers sex chromosome ploidy in NGS data (DNA and RNA), (2) remaps reads based on the inferred sex chromosome complement of the individual, and (3) outputs quality, depth, and allele-balance metrics across chromosomes.
+The high degree of similarity between gametologous sequences on the sex chromosomes can lead to the misalignment of sequencing reads and substantially affect variant calling. Here we present XYalign, a new tool that (1) quickly infers sex chromosome ploidy in NGS data, (2) remaps reads based on the inferred sex chromosome complement of the individual, and (3) outputs quality, depth, and allele-balance metrics across chromosomes.
 
 .. toctree::
    :maxdepth: 2

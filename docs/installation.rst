@@ -13,6 +13,13 @@ cloning the Github repository::
 
 	git clone https://github.com/WilsonSayresLab/XYalign/
 
+Operating System
+----------------
+
+XYalign has been tested on a variety of Linux and Mac operating systems, but has
+not been tested on Windows.  This isn't to say it won't work, however
+we are unprepared to offer any Windows support at this time.
+
 Requirements
 ------------
 
@@ -37,8 +44,9 @@ XYalign has a number of required Python packages and external programs::
 		samtools
 
 .. note::
-	Bedtools is required for pybedtools and must be added to one's `PATH`.
-	Other external programs do not, however, and can be provided to XYalign
+	Bedtools is required for pybedtools and must be added to one's `PATH`. XYalign
+	will check that it is available by calling `bedtools`. Other external programs
+	do not, however, need to be on one's `PATH` and can be provided to XYalign
 	using the appropriate flag(s)::
 
 		--repairsh_path

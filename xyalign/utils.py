@@ -40,7 +40,8 @@ def validate_external_prog(prog_path, prog_name):
 
 	"""
 	try:
-		a = subprocess.Popen([prog_path], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+		a = subprocess.Popen(
+			[prog_path], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 		utils_logger.info(
 			"{} successfully called using path: {}".format(prog_name, prog_path))
 	except OSError as e:
@@ -49,6 +50,7 @@ def validate_external_prog(prog_path, prog_name):
 		logging.shutdown()
 		sys.exit(1)
 	return 0
+
 
 def validate_dir(parent_dir, dir_name):
 	"""
@@ -76,8 +78,9 @@ def validate_dir(parent_dir, dir_name):
 
 def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 	"""
-	Takes list of chromosomes and outputs a bed file with the length of each
-	chromosome on each line (e.g., chr1    0   247249719).
+	Takes list of chromosomes, uses a BamFile() object to find chromosome lenght,
+	and outputs a bed file with the length of each chromosome on each line
+	(e.g., chr1    0   247249719).
 
 	Parameters
 	----------
