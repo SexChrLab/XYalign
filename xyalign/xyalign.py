@@ -140,6 +140,10 @@ def parse_args():
 		"--sambamba_path", default="sambamba",
 		help="Path to sambamba. Default is 'sambamba'")
 
+	parser.add_argument(
+		"--bedtools_path", default="bedtools",
+		help="Path to bedtools. Default is 'bedtools'")
+
 	# Options for turning on/off parts of the pipeline
 	parser.add_argument(
 		"--platypus_calling", default="both",
