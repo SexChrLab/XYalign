@@ -117,7 +117,12 @@ def parse_args():
 	# Program paths
 	parser.add_argument(
 		"--platypus_path", default="platypus",
-		help="Path to platypus.  Default is 'platypus'")
+		help="Path to platypus.  Default is 'platypus'.  If platypus is not "
+		"directly callable (e.g., '/path/to/platypus' or "
+		"'/path/to/Playpus.py'), then provide path to python as well (e.g., "
+		"'/path/to/python /path/to/platypus').  In addition, be sure provided "
+		"python is version 2.  See the documentation for more information "
+		"about setting up an anaconda environment.")
 
 	parser.add_argument(
 		"--bwa_path", default="bwa",
@@ -806,7 +811,7 @@ def bam_analysis_postprocessing():
 
 if __name__ == "__main__":
 	# Version - placeholder for now - need to incorporate it into __init__.py
-	version = "0.1"
+	version = "0.0.1"
 	citation = """
 	XYalign: Inferring Sex Chromosome Ploidy in NGS Data
 
@@ -884,6 +889,16 @@ if __name__ == "__main__":
 	# Log parameters and pipeline start
 	logger.info("Parameters: {}".format(p))
 	logger.info("Beginning XYalign")
+
+	#Check for external programs
+	logger.info("Checking external programs")
+	utils.validate_external_prog(args.repairsh_path, "bbmap's repair.sh")
+	utils.validate_external_prog(args.bedtools_path, "bedtools")
+	utils.validate_external_prog(args.bwa_path, "bwa")
+	utils.validate_external_prog(args.platypus_path, "platypus")
+	utils.validate_external_prog(args.samtools_path, "samtools")
+	utils.validate_external_prog(args.sambamba_path, "sambamba")
+	logger.info("All external program paths successfully checked")
 
 	# Setup output paths
 	fastq_path = os.path.join(args.output_dir, "fastq")

@@ -21,6 +21,34 @@ from matplotlib import pyplot as plt
 utils_logger = logging.getLogger("xyalign.utils")
 
 
+def validate_external_prog(prog_path, prog_name):
+	"""
+	Checks to see if external program can be called using provided path
+
+	Parameters
+	----------
+
+	prog_path: path to call program
+	prog_name: name of program
+
+	Returns
+	-------
+
+	int
+		0
+
+	"""
+	try:
+		a = subprocess.Popen([], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+		utils_logger.info(
+			"{} successfully called using path: {}".format(prog_name, prog_path))
+	except OSError as e:
+		utils_logger.error(
+			"ERROR: {} not available from path: {}".format(prog_name, prog_path))
+		logging.shutdown()
+		sys.exit(1)
+	return 0
+
 def validate_dir(parent_dir, dir_name):
 	"""
 	Checks if directory exists and if not, creates it.
