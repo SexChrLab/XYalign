@@ -1,0 +1,4 @@
+*.out
+*.err
+.DS_Store
+.snakemake
