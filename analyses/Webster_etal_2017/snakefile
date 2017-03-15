@@ -1,0 +1,17 @@
+"""
+This snakefile reproduces analyses from:
+
+Webster et al., 2017. Inferring sex chromosome content and correcting for
+technical biases in next-generation sequencing data.
+
+It assumes the 1000 genomes fastqs from HG00512 and HG00513 are in the
+directory called "fastqs", the 1000 genomes bam files from 24 individuals
+are in the directory "processed_bams", and the fastqs from the gorillas
+are in the directory "fastqs". See the README for more information about
+these files.
+
+It requires three reference genomes.
+"""
+
+
+configfile: "Webster_etal_2017_xyalign.config.json"

@@ -1,0 +1,461 @@
+{
+	"HG00512_exome":{
+		"fq1": ["ERR034508_1.fastq.gz"],
+		"fq2": ["ERR034508_2.fastq.gz"],
+		"ID": ["HG00512_exome"],
+		"SM": ["HG00512_exome"],
+		"LB": ["HG00512_exome"],
+		"PU": ["FCB05VTABXX.6"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_lowcov_run1":{
+		"fq1": ["ERR016114_1.fastq.gz"],
+		"fq2": ["ERR016114_2.fastq.gz"],
+		"ID": ["HG00512_lowcov_run1"],
+		"SM": ["HG00512_lowcov"],
+		"LB": ["HG00512_lowcov"],
+		"PU": ["I331_9.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_lowcov_run2":{
+		"fq1": ["ERR016116_1.fastq.gz"],
+		"fq2": ["ERR016116_2.fastq.gz"],
+		"ID": ["HG00512_lowcov_run2"],
+		"SM": ["HG00512_lowcov"],
+		"LB": ["HG00512_lowcov"],
+		"PU": ["I354_3.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_wgs_run1":{
+		"fq1": ["ERR894725_1.fastq.gz"],
+		"fq2": ["ERR894725_2.fastq.gz"],
+		"ID": ["HG00512_wgs_run1"],
+		"SM": ["HG00512_wgs"],
+		"LB": ["HG00512_wgs"],
+		"PU": ["C6L9WANXX.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_wgs_run2":{
+		"fq1": ["ERR894726_1.fastq.gz"],
+		"fq2": ["ERR894726_2.fastq.gz"],
+		"ID": ["HG00512_wgs_run2"],
+		"SM": ["HG00512_wgs"],
+		"LB": ["HG00512_wgs"],
+		"PU": ["C6L9WANXX.2"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_wgs_run3":{
+		"fq1": ["ERR899712_1.fastq.gz"],
+		"fq2": ["ERR899712_2.fastq.gz"],
+		"ID": ["HG00512_wgs_run3"],
+		"SM": ["HG00512_wgs"],
+		"LB": ["HG00512_wgs"],
+		"PU": ["C6A74ANXX.4"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_wgs_run4":{
+		"fq1": ["ERR899713_1.fastq.gz"],
+		"fq2": ["ERR899713_2.fastq.gz"],
+		"ID": ["HG00512_wgs_run4"],
+		"SM": ["HG00512_wgs"],
+		"LB": ["HG00512_wgs"],
+		"PU": ["C6A74ANXX.8"],
+		"PL": ["Illumina"]
+	},
+	"HG00512_wgs_run5":{
+		"fq1": ["ERR903029_1.fastq.gz"],
+		"fq2": ["ERR903029_2.fastq.gz"],
+		"ID": ["HG00512_wgs_run5"],
+		"SM": ["HG00512_wgs"],
+		"LB": ["HG00512_wgs"],
+		"PU": ["C6L01ANXX.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_exome":{
+		"fq1": ["ERR034509_1.fastq.gz"],
+		"fq2": ["ERR034509_2.fastq.gz"],
+		"ID": ["HG00513_exome"],
+		"SM": ["HG00513_exome"],
+		"LB": ["HG00513_exome"],
+		"PU": ["FCB05VTABXX.7"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_lowcov_run1":{
+		"fq1": ["ERR016118_1.fastq.gz"],
+		"fq2": ["ERR016118_2.fastq.gz"],
+		"ID": ["HG00513_lowcov_run1"],
+		"SM": ["HG00513_lowcov"],
+		"LB": ["HG00513_lowcov"],
+		"PU": ["I653_1.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_lowcov_run2":{
+		"fq1": ["ERR016119_1.fastq.gz"],
+		"fq2": ["ERR016119_2.fastq.gz"],
+		"ID": ["HG00513_lowcov_run2"],
+		"SM": ["HG00513_lowcov"],
+		"LB": ["HG00513_lowcov"],
+		"PU": ["I650_1.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_lowcov_run3":{
+		"fq1": ["ERR016121_1.fastq.gz"],
+		"fq2": ["ERR016121_2.fastq.gz"],
+		"ID": ["HG00513_lowcov_run3"],
+		"SM": ["HG00513_lowcov"],
+		"LB": ["HG00513_lowcov"],
+		"PU": ["I358_3.1"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run1":{
+		"fq1": ["ERR894727_1.fastq.gz"],
+		"fq2": ["ERR894727_2.fastq.gz"],
+		"ID": ["HG00513_wgs_run1"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6L9WANXX.3"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run2":{
+		"fq1": ["ERR894728_1.fastq.gz"],
+		"fq2": ["ERR894728_2.fastq.gz"],
+		"ID": ["HG00513_wgs_run2"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6L9WANXX.4"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run3":{
+		"fq1": ["ERR899714_1.fastq.gz"],
+		"fq2": ["ERR899714_2.fastq.gz"],
+		"ID": ["HG00513_wgs_run3"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6A74ANXX.4"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run4":{
+		"fq1": ["ERR899715_1.fastq.gz"],
+		"fq2": ["ERR899715_2.fastq.gz"],
+		"ID": ["HG00513_wgs_run4"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6A74ANXX.7"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run5":{
+		"fq1": ["ERR899716_1.fastq.gz"],
+		"fq2": ["ERR899716_2.fastq.gz"],
+		"ID": ["HG00513_wgs_run5"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6A74ANXX.8"],
+		"PL": ["Illumina"]
+	},
+	"HG00513_wgs_run6":{
+		"fq1": ["ERR903027_1.fastq.gz"],
+		"fq2": ["ERR903027_2.fastq.gz"],
+		"ID": ["HG00513_wgs_run6"],
+		"SM": ["HG00513_wgs"],
+		"LB": ["HG00513_wgs"],
+		"PU": ["C6L01ANXX.2"],
+		"PL": ["Illumina"]
+	},
+	"SRR747941":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747941"],
+	"SM": ["Azizi"],
+	"LB": ["SRX243443"],
+	"PU": ["HWI-ST434_106222780.3"],
+	"PL": ["Illumina"]
+	},
+	"SRR747942":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747942"],
+	"SM": ["Azizi"],
+	"LB": ["SRX243443"],
+	"PU": ["HWI-ST434_106222780.4"],
+	"PL": ["Illumina"]
+	},
+	"SRR747939":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747939"],
+	"SM": ["Azizi"],
+	"LB": ["SRX243442"],
+	"PU": ["HWI-ST434_106222780.1"],
+	"PL": ["Illumina"]
+	},
+	"SRR747940":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747940"],
+	"SM": ["Azizi"],
+	"LB": ["SRX243442"],
+	"PU": ["HWI-ST434_106222780.2"],
+	"PL": ["Illumina"]
+	},
+	"SRR747969":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747969"],
+	"SM": ["Banjo"],
+	"LB": ["SRX243456"],
+	"PU": ["HWI-ST537_62.7"],
+	"PL": ["Illumina"]
+	},
+	"SRR747970":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747970"],
+	"SM": ["Banjo"],
+	"LB": ["SRX243456"],
+	"PU": ["HWI-ST700660_72.7"],
+	"PL": ["Illumina"]
+	},
+	"SRR747971":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747971"],
+	"SM": ["Banjo"],
+	"LB": ["SRX243456"],
+	"PU": ["HWI-ST0857_56.3"],
+	"PL": ["Illumina"]
+	},
+	"SRR747967":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747967"],
+	"SM": ["Banjo"],
+	"LB": ["SRX243455"],
+	"PU": ["HWI-ST537_62.8"],
+	"PL": ["Illumina"]
+	},
+	"SRR747968":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747968"],
+	"SM": ["Banjo"],
+	"LB": ["SRX243455"],
+	"PU": ["HWI-ST700660_72.8"],
+	"PL": ["Illumina"]
+	},
+	"SRR747987":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747987"],
+	"SM": ["Delphi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747988":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747988"],
+	"SM": ["Delphi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747989":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747989"],
+	"SM": ["Delphi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747984":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747984"],
+	"SM": ["Delphi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747985":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747985"],
+	"SM": ["Delphi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747986":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747986"],
+	"SM": ["Delphi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR748109":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR748109"],
+	"SM": ["Nyango"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR748110":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR748110"],
+	"SM": ["Nyango"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR748111":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR748111"],
+	"SM": ["Nyango"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR748112":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR748112"],
+	"SM": ["Nyango"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747658":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747658"],
+	"SM": ["Kaisi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747657":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747657"],
+	"SM": ["Kaisi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747654":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747654"],
+	"SM": ["Kaisi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747655":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747655"],
+	"SM": ["Kaisi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747656":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747656"],
+	"SM": ["Kaisi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747651":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747651"],
+	"SM": ["Kaisi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747652":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747652"],
+	"SM": ["Kaisi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR747653":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR747653"],
+	"SM": ["Kaisi"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR748189":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR748189"],
+	"SM": ["Victoria"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR748192":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR748192"],
+	"SM": ["Victoria"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR748191":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR748191"],
+	"SM": ["Victoria"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR748190":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR748190"],
+	"SM": ["Victoria"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR748188":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR748188"],
+	"SM": ["Victoria"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+	"SRR748187":{
+	"fq1": [],
+	"fq2": [],
+	"ID": ["SRR748187"],
+	"SM": ["Victoria"],
+	"LB": [],
+	"PU": [],
+	"PL": ["Illumina"]
+	},
+}
