@@ -15,3 +15,89 @@ It requires three reference genomes.
 
 
 configfile: "Webster_etal_2017_xyalign.config.json"
+
+hg19_ref_path =
+hg19_ref_prefix =
+
+thousand_genomes_ref_path =
+thousand_genomes_ref_prefix =
+
+gorgor4_ref_path =
+gorgor4_ref_prefix =
+
+final_list = [
+	"HG00512_exome", "HG00512_lowcov", "HG00512_wgs",
+	"HG00513_exome", "HG00513_lowcov", "HG00513_wgs",
+	"Azizi_hg19", "Banjo_hg19", "Delphi_hg19",
+	"Nyango_hg19", "Kaisi_hg19", "Victoria_hg19",
+	"Azizi_gorgor4", "Banjo_gorgor4", "Delphi_gorgor4",
+	"Nyango_gorgor4", "Kaisi_gorgor4", "Victoria_gorgor4"]
+
+rule all:
+	input:
+		expand("processed_bams/{sample}.mkdup.sorted.bam", sample=final_list),
+		expand("processed_bams/{sample}.mkdup.sorted.bam.bai", sample=final_list)
+
+rule prepare_reference_hg19:
+	input:
+		hg19_ref_path
+	output:
+		fai = hg19_ref_path + ".fai",
+		amb = hg19_ref_path + ".amb",
+		dict = hg19_ref_prefix + ".dict"
+	run:
+		# faidx
+		shell("samtools faidx {input}")
+		# .dict
+		shell("samtools dict -o {output.dict} {input}")
+		# bwa
+		shell("bwa index {input}")
+
+rule prepare_reference_thousand_genomes:
+	input:
+		thousand_genomes_ref_path
+	output:
+		fai = thousand_genomes_ref_path + ".fai",
+		dict = thousand_genomes_ref_prefix + ".dict"
+	run:
+		# faidx
+		shell("samtools faidx {input}")
+		# .dict
+		shell("samtools dict -o {output.dict} {input}")
+
+rule prepare_reference_gorgor4:
+	input:
+		gorgor4_ref_path
+	output:
+		fai = gorgor4_ref_path + ".fai",
+		amb = gorgor4_ref_path + ".amb",
+		dict = gorgor4_ref_prefix + ".dict"
+	run:
+		# faidx
+		shell("samtools faidx {input}")
+		# .dict
+		shell("samtools dict -o {output.dict} {input}")
+		# bwa
+		shell("bwa index {input}")
+
+rule map_and_process_reads:
+	input:
+		fq = lambda wildcards: config["samples"][wildcards.sample],
+		fai = ref_path + ".fai",
+		amb = ref_path + ".amb",
+		ref = ref_path
+	output:
+		"processed_bams/{sample}.mkdup.sorted.bam"
+	params:
+		id = lambda wildcards: config[wildcards.sample]["ID"],
+		sm = lambda wildcards: config[wildcards.sample]["SM"],
+		lb = lambda wildcards: config[wildcards.sample]["LB"],
+		pu = lambda wildcards: config[wildcards.sample]["PU"],
+		pl = lambda wildcards: config[wildcards.sample]["PL"]
+	threads: 4
+	shell:
+		" bwa mem -t {threads} -R "
+		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
+		"{input.ref} {input.fq} "
+		"| samblaster | samtools fixmate -O bam - - | samtools sort "
+		"-O bam -o {output}"

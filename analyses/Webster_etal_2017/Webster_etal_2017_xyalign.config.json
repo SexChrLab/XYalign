@@ -162,8 +162,8 @@
 		"PL": ["Illumina"]
 	},
 	"SRR747941":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747941_1.fastq.gz"],
+	"fq2": ["SRR747941_2.fastq.gz"],
 	"ID": ["SRR747941"],
 	"SM": ["Azizi"],
 	"LB": ["SRX243443"],
@@ -171,8 +171,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747942":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747942_1.fastq.gz"],
+	"fq2": ["SRR747942_2.fastq.gz"],
 	"ID": ["SRR747942"],
 	"SM": ["Azizi"],
 	"LB": ["SRX243443"],
@@ -180,8 +180,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747939":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747939_1.fastq.gz"],
+	"fq2": ["SRR747939_2.fastq.gz"],
 	"ID": ["SRR747939"],
 	"SM": ["Azizi"],
 	"LB": ["SRX243442"],
@@ -189,8 +189,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747940":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747940_1.fastq.gz"],
+	"fq2": ["SRR747940_2.fastq.gz"],
 	"ID": ["SRR747940"],
 	"SM": ["Azizi"],
 	"LB": ["SRX243442"],
@@ -198,8 +198,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747969":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747969_1.fastq.gz"],
+	"fq2": ["SRR747969_2.fastq.gz"],
 	"ID": ["SRR747969"],
 	"SM": ["Banjo"],
 	"LB": ["SRX243456"],
@@ -207,8 +207,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747970":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747970_1.fastq.gz"],
+	"fq2": ["SRR747970_2.fastq.gz"],
 	"ID": ["SRR747970"],
 	"SM": ["Banjo"],
 	"LB": ["SRX243456"],
@@ -216,8 +216,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747971":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747971_1.fastq.gz"],
+	"fq2": ["SRR747971_2.fastq.gz"],
 	"ID": ["SRR747971"],
 	"SM": ["Banjo"],
 	"LB": ["SRX243456"],
@@ -225,8 +225,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747967":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747967_1.fastq.gz"],
+	"fq2": ["SRR747967_2.fastq.gz"],
 	"ID": ["SRR747967"],
 	"SM": ["Banjo"],
 	"LB": ["SRX243455"],
@@ -234,8 +234,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747968":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747968_1.fastq.gz"],
+	"fq2": ["SRR747968_2.fastq.gz"],
 	"ID": ["SRR747968"],
 	"SM": ["Banjo"],
 	"LB": ["SRX243455"],
@@ -243,8 +243,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747987":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747987_1.fastq.gz"],
+	"fq2": ["SRR747987_2.fastq.gz"],
 	"ID": ["SRR747987"],
 	"SM": ["Delphi"],
 	"LB": ["SRX243462"],
@@ -252,8 +252,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747988":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747988_1.fastq.gz"],
+	"fq2": ["SRR747988_2.fastq.gz"],
 	"ID": ["SRR747988"],
 	"SM": ["Delphi"],
 	"LB": ["SRX243462"],
@@ -261,8 +261,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747989":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747989_1.fastq.gz"],
+	"fq2": ["SRR747989_2.fastq.gz"],
 	"ID": ["SRR747989"],
 	"SM": ["Delphi"],
 	"LB": ["SRX243462"],
@@ -270,8 +270,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747984":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747984_1.fastq.gz"],
+	"fq2": ["SRR747984_2.fastq.gz"],
 	"ID": ["SRR747984"],
 	"SM": ["Delphi"],
 	"LB": ["SRX243461"],
@@ -279,8 +279,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747985":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747985_1.fastq.gz"],
+	"fq2": ["SRR747985_2.fastq.gz"],
 	"ID": ["SRR747985"],
 	"SM": ["Delphi"],
 	"LB": ["SRX243461"],
@@ -288,8 +288,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747986":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747986_1.fastq.gz"],
+	"fq2": ["SRR747986_2.fastq.gz"],
 	"ID": ["SRR747986"],
 	"SM": ["Delphi"],
 	"LB": ["SRX243461"],
@@ -297,8 +297,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR748109":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR748109_1.fastq.gz"],
+	"fq2": ["SRR748109_2.fastq.gz"],
 	"ID": ["SRR748109"],
 	"SM": ["Nyango"],
 	"LB": ["SRX243507"],
@@ -306,8 +306,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR748110":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR748110_1.fastq.gz"],
+	"fq2": ["SRR748110_2.fastq.gz"],
 	"ID": ["SRR748110"],
 	"SM": ["Nyango"],
 	"LB": ["SRX243507"],
@@ -315,8 +315,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR748111":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR748111_1.fastq.gz"],
+	"fq2": ["SRR748111_2.fastq.gz"],
 	"ID": ["SRR748111"],
 	"SM": ["Nyango"],
 	"LB": ["SRX243507"],
@@ -324,8 +324,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR748112":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR748112_1.fastq.gz"],
+	"fq2": ["SRR748112_2.fastq.gz"],
 	"ID": ["SRR748112"],
 	"SM": ["Nyango"],
 	"LB": ["SRX243507"],
@@ -333,8 +333,7 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747658":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747658_1.fastq.gz"],
 	"ID": ["SRR747658"],
 	"SM": ["Kaisi"],
 	"LB": ["SRX242688"],
@@ -342,8 +341,7 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747657":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747657_1.fastq.gz"],
 	"ID": ["SRR747657"],
 	"SM": ["Kaisi"],
 	"LB": ["SRX242687"],
@@ -351,8 +349,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747654":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747654_1.fastq.gz"],
+	"fq2": ["SRR747654_2.fastq.gz"],
 	"ID": ["SRR747654"],
 	"SM": ["Kaisi"],
 	"LB": ["SRX242686"],
@@ -360,8 +358,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747655":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747655_1.fastq.gz"],
+	"fq2": ["SRR747655_2.fastq.gz"],
 	"ID": ["SRR747655"],
 	"SM": ["Kaisi"],
 	"LB": ["SRX242686"],
@@ -369,8 +367,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747656":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747656_1.fastq.gz"],
+	"fq2": ["SRR747656_2.fastq.gz"],
 	"ID": ["SRR747656"],
 	"SM": ["Kaisi"],
 	"LB": ["SRX242686"],
@@ -378,8 +376,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747651":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747651_1.fastq.gz"],
+	"fq2": ["SRR747651_2.fastq.gz"],
 	"ID": ["SRR747651"],
 	"SM": ["Kaisi"],
 	"LB": ["SRX242685"],
@@ -387,8 +385,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747652":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747652_1.fastq.gz"],
+	"fq2": ["SRR747652_2.fastq.gz"],
 	"ID": ["SRR747652"],
 	"SM": ["Kaisi"],
 	"LB": ["SRX242685"],
@@ -396,8 +394,8 @@
 	"PL": ["Illumina"]
 	},
 	"SRR747653":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR747653_1.fastq.gz"],
+	"fq2": ["SRR747653_2.fastq.gz"],
 	"ID": ["SRR747653"],
 	"SM": ["Kaisi"],
 	"LB": ["SRX242685"],
@@ -405,57 +403,57 @@
 	"PL": ["Illumina"]
 	},
 	"SRR748189":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR748189_1.fastq.gz"],
+	"fq2": ["SRR748189_2.fastq.gz"],
 	"ID": ["SRR748189"],
 	"SM": ["Victoria"],
-	"LB": [],
-	"PU": [],
+	"LB": ["SRX243530"],
+	"PU": ["HWI-ST539_70.3"],
 	"PL": ["Illumina"]
 	},
 	"SRR748192":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR748192_1.fastq.gz"],
+	"fq2": ["SRR748192_2.fastq.gz"],
 	"ID": ["SRR748192"],
 	"SM": ["Victoria"],
-	"LB": [],
-	"PU": [],
+	"LB": ["SRX243533"],
+	"PU": ["HWI-ST539_70.6"],
 	"PL": ["Illumina"]
 	},
 	"SRR748191":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR748191_1.fastq.gz"],
+	"fq2": ["SRR748191_2.fastq.gz"],
 	"ID": ["SRR748191"],
 	"SM": ["Victoria"],
-	"LB": [],
-	"PU": [],
+	"LB": ["SRX243532"],
+	"PU": ["HWI-ST539_70.5"],
 	"PL": ["Illumina"]
 	},
 	"SRR748190":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR748190_1.fastq.gz"],
+	"fq2": ["SRR748190_2.fastq.gz"],
 	"ID": ["SRR748190"],
 	"SM": ["Victoria"],
-	"LB": [],
-	"PU": [],
+	"LB": ["SRX243531"],
+	"PU": ["HWI-ST539_70.4"],
 	"PL": ["Illumina"]
 	},
 	"SRR748188":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR748188_1.fastq.gz"],
+	"fq2": ["SRR748188_2.fastq.gz"],
 	"ID": ["SRR748188"],
 	"SM": ["Victoria"],
-	"LB": [],
-	"PU": [],
+	"LB": ["SRX243529"],
+	"PU": ["HWI-ST539_70.2"],
 	"PL": ["Illumina"]
 	},
 	"SRR748187":{
-	"fq1": [],
-	"fq2": [],
+	"fq1": ["SRR748187_1.fastq.gz"],
+	"fq2": ["SRR748187_2.fastq.gz"],
 	"ID": ["SRR748187"],
 	"SM": ["Victoria"],
-	"LB": [],
-	"PU": [],
+	"LB": ["SRX243528"],
+	"PU": ["HWI-ST539_70.1"],
 	"PL": ["Illumina"]
-	},
+	}
 }
