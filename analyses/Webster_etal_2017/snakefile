@@ -4,39 +4,90 @@ This snakefile reproduces analyses from:
 Webster et al., 2017. Inferring sex chromosome content and correcting for
 technical biases in next-generation sequencing data.
 
-It assumes the 1000 genomes fastqs from HG00512 and HG00513 are in the
-directory called "fastqs", the 1000 genomes bam files from 24 individuals
-are in the directory "processed_bams", and the fastqs from the gorillas
-are in the directory "fastqs". See the README for more information about
-these files.
+Runs analyses on 3 datasets:
+*Dataset1 contains fastq files from exome, low-coverage whole-genome, and
+high-coverage whole-genome sequencing for one male (HG00512) and one female (HG00513)
+from the 1000 genomes project
 
-It requires three reference genomes.
+*Dataset2 contains bam files from high-coverage whole-genome sequencing for
+24 individuals from the 1000 genomes project
+
+*Dataset3 contains fastq files from whole-genome sequencing for 6 gorillas from
+2 different species.
+
+3 Reference Genomes are required for analyses:
+*hg19 for mapping datasets 1 and 3
+
+*human_g1k_v37_decoy.fasta from the Broad Institute's resource bundle is required
+for dataset2 because this was the genome used to generate the bam files
+
+*gorGor4 for mapping dataset3
+
+See the README for more information about downloading these files.
+
+Before running the snakefile, complete the top of this script with
+paths to various reference genomes and directories
+containing bam and fastq files.
+
 """
-
-
+# Update configfile if not in same directory
 configfile: "Webster_etal_2017_xyalign.config.json"
 
+# Path to xyalign.py
+xyalign_path =
+
+# Path to hg19 reference (including filename). hg19_ref_prefix is everything in
+# the path *except the suffix of the file name*.
+# For example, if hg19_ref_path is "reference/hg19.fasta", then hg19_ref_prefix
+# should be "reference/hg19" (i.e., excluding the final ".fasta")
 hg19_ref_path =
 hg19_ref_prefix =
 
+# Path to 1000 genomes reference (including filename) used in to generate the
+# 24 1000 genomes bam files.  See information at the top of this script for how
+# to find and download this file.
+# thousand_genomes_ref_prefix is everything in
+# the path *except the suffix of the file name*.
+# For example, if thousand_genomes_ref_path is "reference/human_g1k_v37_decoy.fasta", then
+# thousand_genomes_ref_prefix should be "reference/human_g1k_v37_decoy" (i.e., excluding the final ".fasta")
 thousand_genomes_ref_path =
 thousand_genomes_ref_prefix =
 
+# Path to gorgor4 reference (including filename). gorgor4_ref_prefix is everything in
+# the path *except the suffix of the file name*.
+# For example, if gorgor4_ref_path is "reference/gorgor4.fasta", then gorgor4_ref_prefix
+# should be "reference/gorgor4" (i.e., excluding the final ".fasta")
 gorgor4_ref_path =
 gorgor4_ref_prefix =
 
-final_list = [
+# Path to fastq files.  This is assuming that all fastqs are in the same directory
+fastq_directory =
+
+# Path to 1000 genomes bam files (the 24 individuals)
+thousand_genomes_bam_directory =
+
+# Path to hg19 reference mask (located in the XYalign/Files/PARs directory)
+hg19_reference_mask_path = "../../Files/PARs/hg19_PAR_Ymask_startEnd.bed"
+
+human_list = [
 	"HG00512_exome", "HG00512_lowcov", "HG00512_wgs",
-	"HG00513_exome", "HG00513_lowcov", "HG00513_wgs",
-	"Azizi_hg19", "Banjo_hg19", "Delphi_hg19",
-	"Nyango_hg19", "Kaisi_hg19", "Victoria_hg19",
-	"Azizi_gorgor4", "Banjo_gorgor4", "Delphi_gorgor4",
-	"Nyango_gorgor4", "Kaisi_gorgor4", "Victoria_gorgor4"]
+	"HG00513_exome", "HG00513_lowcov", "HG00513_wgs"]
+
+gorilla_list = [
+	"Azizi", "Banjo", "Delphi",
+	"Nyango", "Kaisi", "Victoria"]
 
 rule all:
 	input:
-		expand("processed_bams/{sample}.mkdup.sorted.bam", sample=final_list),
-		expand("processed_bams/{sample}.mkdup.sorted.bam.bai", sample=final_list)
+		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam", sample=human_list),
+		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam.bai", sample=human_list),
+		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam", sample=gorilla_list),
+		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam.bai", sample=gorilla_list),
+		expand("processed_bams/{sample}.gorgor4.mkdup.sorted.bam", sample=gorilla_list),
+		expand("processed_bams/{sample}.gorgor4.mkdup.sorted.bam.bai", sample=gorilla_list),
+		expand("xyalign_analyses/logfiles/{sample}_hg19_xyalign.log", sample=human_list),
+		expand("xyalign_analyses/logfiles/{sample}_hg19_xyalign.log", sample=gorilla_list),
+		expand("xyalign_analyses/logfiles/{sample}_gorgor4_xyalign.log", sample=gorilla_list)
 
 rule prepare_reference_hg19:
 	input:
@@ -80,14 +131,37 @@ rule prepare_reference_gorgor4:
 		# bwa
 		shell("bwa index {input}")
 
-rule map_and_process_reads:
+rule map_and_process_reads_hg19_paired:
 	input:
-		fq = lambda wildcards: config["samples"][wildcards.sample],
-		fai = ref_path + ".fai",
-		amb = ref_path + ".amb",
-		ref = ref_path
+		fq1 = lambda wildcards: fastq_directory + config["paired_fastqs"][wildcards.sample][0],
+		fq2 = lambda wildcards: fastq_directory + config["paired_fastqs"][wildcards.sample][1],
+		fai = hg19_ref_path + ".fai",
+		amb = hg19_ref_path + ".amb",
+		ref = hg19_ref_path
 	output:
-		"processed_bams/{sample}.mkdup.sorted.bam"
+		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
+	params:
+		id = lambda wildcards: config[wildcards.sample]["ID"],
+		sm = lambda wildcards: config[wildcards.sample]["SM"],
+		lb = lambda wildcards: config[wildcards.sample]["LB"],
+		pu = lambda wildcards: config[wildcards.sample]["PU"],
+		pl = lambda wildcards: config[wildcards.sample]["PL"]
+	threads: 4
+	shell:
+		" bwa mem -t {threads} -R "
+		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
+		"{input.ref} {input.fq1} {input.fq2} "
+		"| samblaster | samtools fixmate -O bam - - | samtools sort "
+		"-O bam -o {output}"
+
+rule map_and_process_reads_hg19_single:
+	input:
+		fq = lambda wildcards: fastq_directory + config["single_end_fastqs"][wildcards.sample],
+		fai = hg19_ref_path + ".fai",
+		amb = hg19_ref_path + ".amb",
+		ref = hg19_ref_path
+	output:
+		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
 	params:
 		id = lambda wildcards: config[wildcards.sample]["ID"],
 		sm = lambda wildcards: config[wildcards.sample]["SM"],
@@ -99,5 +173,420 @@ rule map_and_process_reads:
 		" bwa mem -t {threads} -R "
 		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
 		"{input.ref} {input.fq} "
+		"| samblaster | samtools sort "
+		"-O bam -o {output}"
+
+rule map_and_process_reads_gorgor4_paired:
+	input:
+		fq1 = lambda wildcards: fastq_directory + config["gorilla_only_paired_end_fastqs"][wildcards.sample][0],
+		fq2 = lambda wildcards: fastq_directory + config["gorilla_only_paired_end_fastqs"][wildcards.sample][1],
+		fai = gorgor4_ref_path + ".fai",
+		amb = gorgor4_ref_path + ".amb",
+		ref = gorgor4_ref_path
+	output:
+		"processed_bams/{sample}.gorgor4.mkdup.sorted.bam"
+	params:
+		id = lambda wildcards: config[wildcards.sample]["ID"],
+		sm = lambda wildcards: config[wildcards.sample]["SM"],
+		lb = lambda wildcards: config[wildcards.sample]["LB"],
+		pu = lambda wildcards: config[wildcards.sample]["PU"],
+		pl = lambda wildcards: config[wildcards.sample]["PL"]
+	threads: 4
+	shell:
+		" bwa mem -t {threads} -R "
+		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
+		"{input.ref} {input.fq1} {input.fq2} "
 		"| samblaster | samtools fixmate -O bam - - | samtools sort "
 		"-O bam -o {output}"
+
+rule map_and_process_reads_gorgor4_single:
+	input:
+		fq = lambda wildcards: fastq_directory + config["single_end_fastqs"][wildcards.sample],
+		fai = gorgor4_ref_path + ".fai",
+		amb = gorgor4_ref_path + ".amb",
+		ref = gorgor4_ref_path
+	output:
+		"processed_bams/{sample}.gorgor4.mkdup.sorted.bam"
+	params:
+		id = lambda wildcards: config[wildcards.sample]["ID"],
+		sm = lambda wildcards: config[wildcards.sample]["SM"],
+		lb = lambda wildcards: config[wildcards.sample]["LB"],
+		pu = lambda wildcards: config[wildcards.sample]["PU"],
+		pl = lambda wildcards: config[wildcards.sample]["PL"]
+	threads: 4
+	shell:
+		" bwa mem -t {threads} -R "
+		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
+		"{input.ref} {input.fq} "
+		"| samblaster | samtools sort "
+		"-O bam -o {output}"
+
+rule index_bam_hg19:
+	input:
+		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
+	output:
+		"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai"
+	shell:
+		"samtools index {input}"
+
+rule index_bam_gorgor4:
+	input:
+		"processed_bams/{sample}.gorgor4.mkdup.sorted.bam"
+	output:
+		"processed_bams/{sample}.gorgor4.mkdup.sorted.bam.bai"
+	shell:
+		"samtools index {input}"
+
+rule merge_lcov_HG00512:
+	input:
+		run1 = "processed_bams/HG00512_lowcov_run1.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00512_lowcov_run1.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00512_lowcov_run2.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00512_lowcov_run2.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00512_lowcov.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/HG00512_lowcov.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2}")
+		shell("samtools index {output.bam}")
+
+rule merge_lcov_HG00513:
+	input:
+		run1 = "processed_bams/HG00513_lowcov_run1.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00513_lowcov_run1.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00513_lowcov_run2.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00513_lowcov_run2.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/HG00513_lowcov_run3.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/HG00513_lowcov_run3.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00513_lowcov.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/HG00513_lowcov.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3}")
+		shell("samtools index {output.bam}")
+
+rule merge_wgs_HG00512:
+	input:
+		run1 = "processed_bams/HG00512_wgs_run1.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00512_wgs_run1.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00512_wgs_run2.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00512_wgs_run2.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/HG00512_wgs_run3.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/HG00512_wgs_run3.hg19.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/HG00512_wgs_run4.hg19.mkdup.sorted.bam",
+		run4_idx = "processed_bams/HG00512_wgs_run4.hg19.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/HG00512_wgs_run5.hg19.mkdup.sorted.bam",
+		run5_idx = "processed_bams/HG00512_wgs_run5.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00512_wgs.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/HG00512_wgs.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
+		shell("samtools index {output.bam}")
+
+rule merge_wgs_HG00513:
+	input:
+		run1 = "processed_bams/HG00513_wgs_run1.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00513_wgs_run1.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00513_wgs_run2.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00513_wgs_run2.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/HG00513_wgs_run3.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/HG00513_wgs_run3.hg19.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/HG00513_wgs_run4.hg19.mkdup.sorted.bam",
+		run4_idx = "processed_bams/HG00513_wgs_run4.hg19.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/HG00513_wgs_run5.hg19.mkdup.sorted.bam",
+		run5_idx = "processed_bams/HG00513_wgs_run5.hg19.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/HG00513_wgs_run6.hg19.mkdup.sorted.bam",
+		run6_idx = "processed_bams/HG00513_wgs_run6.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00513_wgs.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/HG00513_wgs.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("samtools index {output.bam}")
+
+rule merge_Azizi_hg19:
+	input:
+		run1 = "processed_bams/SRR747941.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747941.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747942.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747942.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747939.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747939.hg19.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747940.hg19.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747940.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Azizi.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Azizi.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
+		shell("samtools index {output.bam}")
+
+rule merge_Banjo_hg19:
+	input:
+		run1 = "processed_bams/SRR747969.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747969.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747970.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747970.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747971.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747971.hg19.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747967.hg19.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747967.hg19.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR747968.hg19.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR747968.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Banjo.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Banjo.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
+		shell("samtools index {output.bam}")
+
+rule merge_Delphi_hg19:
+	input:
+		run1 = "processed_bams/SRR747987.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747987.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747988.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747988.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747989.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747989.hg19.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747984.hg19.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747984.hg19.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR747985.hg19.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR747985.hg19.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/SRR747986.hg19.mkdup.sorted.bam",
+		run6_idx = "processed_bams/SRR747986.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Delphi.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Delphi.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("samtools index {output.bam}")
+
+rule merge_Nyango_hg19:
+	input:
+		run1 = "processed_bams/SRR748109.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR748109.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR748110.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR748110.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR748111.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR748111.hg19.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR748112.hg19.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR748112.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Nyango.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Nyango.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
+		shell("samtools index {output.bam}")
+
+rule merge_Kaisi_hg19:
+	input:
+		run1 = "processed_bams/SRR747658.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747658.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747657.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747657.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747654.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747654.hg19.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747655.hg19.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747655.hg19.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR747656.hg19.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR747656.hg19.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/SRR747651.hg19.mkdup.sorted.bam",
+		run6_idx = "processed_bams/SRR747651.hg19.mkdup.sorted.bam.bai",
+		run7 = "processed_bams/SRR747652.hg19.mkdup.sorted.bam",
+		run7_idx = "processed_bams/SRR747652.hg19.mkdup.sorted.bam.bai",
+		run8 = "processed_bams/SRR747653.hg19.mkdup.sorted.bam",
+		run8_idx = "processed_bams/SRR747653.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Kaisi.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Kaisi.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6} {input.run7} {input.run8}")
+		shell("samtools index {output.bam}")
+
+rule merge_Victoria_hg19:
+	input:
+		run1 = "processed_bams/SRR748189.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR748189.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR748192.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR748192.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR748191.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR748191.hg19.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR748190.hg19.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR748190.hg19.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR748188.hg19.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR748188.hg19.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/SRR748187.hg19.mkdup.sorted.bam",
+		run6_idx = "processed_bams/SRR748187.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Victoria.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Victoria.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("samtools index {output.bam}")
+
+rule merge_Azizi_gorgor4:
+	input:
+		run1 = "processed_bams/SRR747941.gorgor4.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747941.gorgor4.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747942.gorgor4.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747942.gorgor4.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747939.gorgor4.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747939.gorgor4.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747940.gorgor4.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747940.gorgor4.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Azizi.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Azizi.gorgor4.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
+		shell("samtools index {output.bam}")
+
+rule merge_Banjo_gorgor4:
+	input:
+		run1 = "processed_bams/SRR747969.gorgor4.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747969.gorgor4.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747970.gorgor4.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747970.gorgor4.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747971.gorgor4.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747971.gorgor4.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747967.gorgor4.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747967.gorgor4.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR747968.gorgor4.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR747968.gorgor4.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Banjo.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Banjo.gorgor4.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
+		shell("samtools index {output.bam}")
+
+rule merge_Delphi_gorgor4:
+	input:
+		run1 = "processed_bams/SRR747987.gorgor4.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747987.gorgor4.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747988.gorgor4.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747988.gorgor4.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747989.gorgor4.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747989.gorgor4.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747984.gorgor4.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747984.gorgor4.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR747985.gorgor4.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR747985.gorgor4.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/SRR747986.gorgor4.mkdup.sorted.bam",
+		run6_idx = "processed_bams/SRR747986.gorgor4.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Delphi.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Delphi.gorgor4.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("samtools index {output.bam}")
+
+rule merge_Nyango_gorgor4:
+	input:
+		run1 = "processed_bams/SRR748109.gorgor4.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR748109.gorgor4.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR748110.gorgor4.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR748110.gorgor4.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR748111.gorgor4.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR748111.gorgor4.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR748112.gorgor4.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR748112.gorgor4.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Nyango.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Nyango.gorgor4.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
+		shell("samtools index {output.bam}")
+
+rule merge_Kaisi_hg19:
+	input:
+		run1 = "processed_bams/SRR747658.gorgor4.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747658.gorgor4.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747657.gorgor4.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747657.gorgor4.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747654.gorgor4.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747654.gorgor4.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747655.gorgor4.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747655.gorgor4.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR747656.gorgor4.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR747656.gorgor4.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/SRR747651.gorgor4.mkdup.sorted.bam",
+		run6_idx = "processed_bams/SRR747651.gorgor4.mkdup.sorted.bam.bai",
+		run7 = "processed_bams/SRR747652.gorgor4.mkdup.sorted.bam",
+		run7_idx = "processed_bams/SRR747652.gorgor4.mkdup.sorted.bam.bai",
+		run8 = "processed_bams/SRR747653.gorgor4.mkdup.sorted.bam",
+		run8_idx = "processed_bams/SRR747653.gorgor4.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Kaisi.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Kaisi.gorgor4.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6} {input.run7} {input.run8}")
+		shell("samtools index {output.bam}")
+
+rule merge_Victoria_gorgor4:
+	input:
+		run1 = "processed_bams/SRR748189.gorgor4.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR748189.gorgor4.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR748192.gorgor4.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR748192.gorgor4.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR748191.gorgor4.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR748191.gorgor4.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR748190.gorgor4.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR748190.gorgor4.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR748188.gorgor4.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR748188.gorgor4.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/SRR748187.gorgor4.mkdup.sorted.bam",
+		run6_idx = "processed_bams/SRR748187.gorgor4.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/Victoria.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Victoria.gorgor4.mkdup.sorted.bam.bai"
+	threads: 4
+	run:
+		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("samtools index {output.bam}")
+
+rule xyalign_hg19_analysis:
+	input:
+		bam = "processed_bams/{sample}.hg19.mkdup.sorted.bam",
+		idx = "processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
+		ref = hg19_ref_path
+	output:
+		"xyalign_analyses/logfiles/{sample}_hg19_xyalign.log"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "{sample}",
+		hg19_ref_mask = hg19_reference_mask_path
+	threads: 4
+	shell:
+		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY"
+
+rule xyalign_gorgor4_analysis:
+	input:
+		bam = "processed_bams/{sample}.gorgor4.mkdup.sorted.bam",
+		idx = "processed_bams/{sample}.gorgor4.mkdup.sorted.bam.bai",
+		ref = gorgor4_ref_path
+	output:
+		"xyalign_analyses/logfiles/{sample}_gorgor4_xyalign.log"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "{sample}",
+		gorgor4_ref_mask = gorgor4_reference_mask_path
+	threads: 4
+	shell:
+		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.gorgor4_ref_mask} --window_size 5000 --chromosomes chr19 chrX --x_chromosome chrX"

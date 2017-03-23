@@ -127,6 +127,20 @@ Victoria - Female - Gorilla beringei graueri
 for i in SRR748192 SRR748191 SRR748190 SRR748189 SRR748188 SRR748187; do fastq-dump --gzip --readids --split-files $i; done
 ```
 
+## Reference Genomes
+These analyses require three different reference genomes:
+
+1) hg19 - We downloaded the UCSC version of hg19 available from the Broad Institute's
+Resource bundle: https://software.broadinstitute.org/gatk/download/bundle
+
+2) The 24 1000 genomes bam files require a specific build of the Grch37 reference
+called "human_g1k_v37_decoy.fasta", also available from the Broad's resource
+Bundle: https://software.broadinstitute.org/gatk/download/bundle
+
+3) The gorGor4 reference genome, available here: http://hgdownload.soe.ucsc.edu/goldenPath/gorGor4/bigZips/gorGor4.fa.gz
+
+
+
 ## Directory Structure
 
 
