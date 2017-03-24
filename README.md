@@ -12,7 +12,7 @@ The high degree of similarity between gametologous sequences on the sex chromoso
 [November 18, 2016 poster presentation for the Evolutionary Genomics of Sex 2016 Meeting](https://figshare.com/articles/XYalign_Inferring_and_Correcting_for_Sex_Chromosome_Ploidy_in_Next-Generation_Sequencing_Data/4292924/1)
 
 ## Please note the XYalign is still in pre-release stages
-Changes are made to the master branch quite frequently, so there still might be a number of known or unknown bugs at any given time.  If you'd like to try things before release (which will be mid-to-late December), please feel free to contact us (either via an Issue or by email to Tim Webster - address at the bottom of this page) to inquire about the current status of the program.
+Changes are made to the master branch quite frequently, so there still might be a number of known or unknown bugs at any given time.  If you'd like to try things before release (which will be mid-April), please feel free to contact us (either via an Issue or by email to Tim Webster - address at the bottom of this page) to inquire about the current status of the program.
 
 ## Using XYalign
 
@@ -27,9 +27,9 @@ See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/lates
 - [ ] Make bwa indexing conditional for withY if no reference_mask provided
 - [ ] Clean up parse_args() and update checks/validation
 - [x] Implement check for dependencies upon loading
-- [ ] Add thorough module testing
 
 *Down the road*
+- [ ] Add thorough module testing
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
 	- [ ] Implement bam analyses in cython
@@ -47,27 +47,14 @@ See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/lates
 	- this might be a bit more difficult that it seems due to memory requirements for large genomes
 - [ ] Implement subparser
 
-*Testing*
-- [x] Simulate and assemble XX, XY, XXY, and XO genomes
-	- [ ] Test XYalign on these genomes
-- [x] Download data for XX and XY:
-	- [x] high coverage whole genome
-		- [x] Test XYalign
-	- [x] low coverage whole genome
-		- [x] Test XYalign
-	- [x] exome
-		- [x] Test XYalign
-- [ ] In an example case, plot runtimes with increasing numbers of threads (e.g., 1, 2, 4, 8, 16)
-
-
 ## Group Members
 Name | email | github ID
 --- | --- |  ---
 Tim Webster | timothy.h.webster@asu.edu | @thw17
-Tanya Phung | tnphung@ucla.edu | @tnphung
 Madeline Couse| mhcouse@gmail.com | @Madelinehazel
 Bruno Grande | bgrande@sfu.ca | @brunogrande
 Eric Karlins | karlinser@mail.nih.gov | @ekarlins
+Tanya Phung | tnphung@ucla.edu | @tnphung
 Phillip Richmond | phillip.a.richmond@gmail.com | @Phillip-a-Richmond
 Whitney Whitford | whitney.whitford@auckland.ac.nz | @whitneywhitford
 Melissa A. Wilson Sayres | melissa.wilsonsayres@asu.edu | @mwilsonsayres

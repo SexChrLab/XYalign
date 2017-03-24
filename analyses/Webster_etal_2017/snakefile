@@ -36,6 +36,10 @@ configfile: "Webster_etal_2017_xyalign.config.json"
 # Path to xyalign.py
 xyalign_path =
 
+# Name of anaconda XYalign environment (for running xyalign analysis rules)
+# See: http://xyalign.readthedocs.io/en/latest/installation.html for more information
+xyalign_anaconda_env =
+
 # Path to hg19 reference (including filename). hg19_ref_prefix is everything in
 # the path *except the suffix of the file name*.
 # For example, if hg19_ref_path is "reference/hg19.fasta", then hg19_ref_prefix
@@ -579,7 +583,8 @@ rule xyalign_hg19_analysis:
 	params:
 		xyalign = xyalign_path,
 		sample_id = "{sample}",
-		hg19_ref_mask = hg19_reference_mask_path
+		hg19_ref_mask = hg19_reference_mask_path,
+		conda_env = xyalign_anaconda_env
 	threads: 4
 	shell:
 		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY"
@@ -594,7 +599,8 @@ rule xyalign_gorgor4_analysis:
 	params:
 		xyalign = xyalign_path,
 		sample_id = "{sample}",
-		gorgor4_ref_mask = gorgor4_reference_mask_path
+		gorgor4_ref_mask = gorgor4_reference_mask_path,
+		conda_env = xyalign_anaconda_env
 	threads: 4
 	shell:
 		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.gorgor4_ref_mask} --window_size 5000 --chromosomes chr19 chrX --x_chromosome chrX"
@@ -608,7 +614,8 @@ rule xyalign_1000genomes_analysis:
 		"xyalign_analyses/logfiles/{sample}_xyalign.log"
 	params:
 		xyalign = xyalign_path,
-		sample_id = "{sample}_1000genomes"
+		sample_id = "{sample}_1000genomes",
+		conda_env = xyalign_anaconda_env
 	threads: 4
 	shell:
 		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --window_size 5000 --chromosomes 19 X Y --x_chromosome X --y_chromosome Y --CHARACTERIZE_SEX_CHROMS"

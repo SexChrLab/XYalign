@@ -2,6 +2,8 @@
 This directory contains scripts and information for reproducing the analyses that
 accompany the initial publication of XYalign (Webster et al., 2017).
 
+Analyses are written in Snakemake (Koster and Rahmann, 2012), which you can find out more about [here](https://snakemake.readthedocs.io/en/stable/index.html)
+
 ## Data
 For these analyses, we used three different publicly-available datasets:
 
@@ -139,18 +141,35 @@ Bundle: https://software.broadinstitute.org/gatk/download/bundle
 
 3) The gorGor4 reference genome, available here: http://hgdownload.soe.ucsc.edu/goldenPath/gorGor4/bigZips/gorGor4.fa.gz
 
-
-
 ## Directory Structure
+This directory - "Webster_etal_2017" - should contain the main snakefile ("snakefile"), the configuration file for the snakefile ("Webster_etal_2017_xyalign.config.json"),
+a .gitignore, and three subdirectories ("fastqs", "processed_bams", "reference").
 
+Of the three subdirectories, "fastqs" and "reference" are provided as options for
+depositing the raw fastqs and reference genomes (see above) for easy organization
+and access.  However, the files don't have to be in these directories.  Either way,
+at the top of the snakefile, you need to set a handful of variables including
+the fastq directory that you're using and the paths to your various reference genomes.
 
 ## Running snakemake
+Snakemake requires Python 3 and can easily be installed via pip or conda.  See
+the [Snakemake documentation for more information about installing](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
 
+XYalign, however, requires Python 2 (a requirement for Platypus), so we recommend
+installing an XYalign-specific conda environment.  The snakefile is designed
+to activate this environment for rules involving XYalign.  The [installation section
+of the XYalign documentation has information about how to set up this environment](http://xyalign.readthedocs.io/en/latest/installation.html).
+
+Snakemake allows users to distribute jobs across a cluster.  We ran our analyses on
+a cluster using Slurm with the following command from this directory:
+
+```
+snakemake --snakefile snakefile -j 8 --cluster "sbatch -n 4 --nodes 1 -t 96:00:00 --mail-type=END,FAIL --mail-user=timothy.h.webster@asu.edu " --cores 4
+```
 
 ## Citations
+Koster and Rahmann. 2012. Snakemake - a scalable bioinformatics workflow engine.
+Bioinformatics 28: 2520-2522.
 
-####XYalign
 Webster TH et al. In prep. XYalign: inferring sex chromosome content and correcting
 for technical biases in next-generation sequencing data.
-
-####Data sources

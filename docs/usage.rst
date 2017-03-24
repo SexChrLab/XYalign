@@ -191,6 +191,13 @@ low quality regions using bed files output in 5.
 
 XYalign - Speed and Memory
 --------------------------
+The minimum memory requirements for XYalign are determined by external programs,
+rather than any internal code.  Right now, the major limiting step is bwa indexing
+which requires 5-6 GB of memory to index a human-sized genome.
+
+You'll see substantial increases in the speed of the pipeline by increasing the
+number of threads/cores.  You must provide information about the number of threads available
+to XYalign with the ``--cpus`` flag.
 
 Exome data
 ----------
