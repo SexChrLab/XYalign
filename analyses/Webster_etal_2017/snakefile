@@ -237,6 +237,14 @@ rule index_bam_gorgor4:
 	shell:
 		"samtools index {input}"
 
+rule index_bam_1000genomes:
+	input:
+		thousand_genomes_bam_directory + "{sample}.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam"
+	output:
+		thousand_genomes_bam_directory + "{sample}.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam.bai"
+	shell:
+		"samtools index {input}"
+
 rule merge_lcov_HG00512:
 	input:
 		run1 = "processed_bams/HG00512_lowcov_run1.hg19.mkdup.sorted.bam",
@@ -590,3 +598,17 @@ rule xyalign_gorgor4_analysis:
 	threads: 4
 	shell:
 		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.gorgor4_ref_mask} --window_size 5000 --chromosomes chr19 chrX --x_chromosome chrX"
+
+rule xyalign_1000genomes_analysis:
+	input:
+		bam = thousand_genomes_bam_directory + "{sample}.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam",
+		idx = thousand_genomes_bam_directory + "{sample}.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam.bai",
+		ref = thousand_genomes_ref_path
+	output:
+		"xyalign_analyses/logfiles/{sample}_xyalign.log"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "{sample}_1000genomes"
+	threads: 4
+	shell:
+		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --window_size 5000 --chromosomes 19 X Y --x_chromosome X --y_chromosome Y --CHARACTERIZE_SEX_CHROMS"
