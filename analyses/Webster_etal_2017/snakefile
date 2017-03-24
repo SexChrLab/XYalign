@@ -64,8 +64,10 @@ thousand_genomes_ref_prefix =
 gorgor4_ref_path =
 gorgor4_ref_prefix =
 
-# Path to fastq files.  This is assuming that all fastqs are in the same directory
-fastq_directory =
+# Path to fastq files (include ending "/").  This is assuming that all fastqs from a
+# given species are in the same directory.
+human_fastq_directory =
+gorilla_fastq_directory =
 
 # Path to 1000 genomes bam files (the 24 individuals)
 thousand_genomes_bam_directory =
@@ -81,6 +83,12 @@ gorilla_list = [
 	"Azizi", "Banjo", "Delphi",
 	"Nyango", "Kaisi", "Victoria"]
 
+thousand_list = [
+	"HG00096", "HG01879", "HG03052", "HG01051", "NA19625", "HG01583", "HG03742",
+	"NA20502", "NA18525", "HG02922", "NA19648", "HG00419", "HG01112", "NA19017",
+	"HG00268", "HG02568", "HG01500", "NA18939", "HG03642", "HG03006", "HG00759",
+	"NA20845", "HG01595", "HG01565"]
+
 rule all:
 	input:
 		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam", sample=human_list),
@@ -91,7 +99,9 @@ rule all:
 		expand("processed_bams/{sample}.gorgor4.mkdup.sorted.bam.bai", sample=gorilla_list),
 		expand("xyalign_analyses/logfiles/{sample}_hg19_xyalign.log", sample=human_list),
 		expand("xyalign_analyses/logfiles/{sample}_hg19_xyalign.log", sample=gorilla_list),
-		expand("xyalign_analyses/logfiles/{sample}_gorgor4_xyalign.log", sample=gorilla_list)
+		expand("xyalign_analyses/logfiles/{sample}_gorgor4_xyalign.log", sample=gorilla_list),
+		expand("xyalign_analyses/logfiles/{sample}_xyalign.log", sample=thousand_list),
+		expand(thousand_genomes_bam_directory + "{sample}.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam.bai", sample=thousand_list)
 
 rule prepare_reference_hg19:
 	input:
@@ -135,10 +145,33 @@ rule prepare_reference_gorgor4:
 		# bwa
 		shell("bwa index {input}")
 
-rule map_and_process_reads_hg19_paired:
+rule map_and_process_reads_hg19_paired_human:
 	input:
-		fq1 = lambda wildcards: fastq_directory + config["paired_fastqs"][wildcards.sample][0],
-		fq2 = lambda wildcards: fastq_directory + config["paired_fastqs"][wildcards.sample][1],
+		fq1 = lambda wildcards: human_fastq_directory + config["human_paired_fastqs"][wildcards.sample][0],
+		fq2 = lambda wildcards: human_fastq_directory + config["human_paired_fastqs"][wildcards.sample][1],
+		fai = hg19_ref_path + ".fai",
+		amb = hg19_ref_path + ".amb",
+		ref = hg19_ref_path
+	output:
+		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
+	params:
+		id = lambda wildcards: config[wildcards.sample]["ID"],
+		sm = lambda wildcards: config[wildcards.sample]["SM"],
+		lb = lambda wildcards: config[wildcards.sample]["LB"],
+		pu = lambda wildcards: config[wildcards.sample]["PU"],
+		pl = lambda wildcards: config[wildcards.sample]["PL"]
+	threads: 4
+	shell:
+		" bwa mem -t {threads} -R "
+		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
+		"{input.ref} {input.fq1} {input.fq2} "
+		"| samblaster | samtools fixmate -O bam - - | samtools sort "
+		"-O bam -o {output}"
+
+rule map_and_process_reads_hg19_paired_gorilla:
+	input:
+		fq1 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][0],
+		fq2 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][1],
 		fai = hg19_ref_path + ".fai",
 		amb = hg19_ref_path + ".amb",
 		ref = hg19_ref_path
@@ -160,7 +193,7 @@ rule map_and_process_reads_hg19_paired:
 
 rule map_and_process_reads_hg19_single:
 	input:
-		fq = lambda wildcards: fastq_directory + config["single_end_fastqs"][wildcards.sample],
+		fq = lambda wildcards: gorilla_fastq_directory + config["single_end_fastqs"][wildcards.sample],
 		fai = hg19_ref_path + ".fai",
 		amb = hg19_ref_path + ".amb",
 		ref = hg19_ref_path
@@ -182,8 +215,8 @@ rule map_and_process_reads_hg19_single:
 
 rule map_and_process_reads_gorgor4_paired:
 	input:
-		fq1 = lambda wildcards: fastq_directory + config["gorilla_only_paired_end_fastqs"][wildcards.sample][0],
-		fq2 = lambda wildcards: fastq_directory + config["gorilla_only_paired_end_fastqs"][wildcards.sample][1],
+		fq1 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_end_fastqs"][wildcards.sample][0],
+		fq2 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_end_fastqs"][wildcards.sample][1],
 		fai = gorgor4_ref_path + ".fai",
 		amb = gorgor4_ref_path + ".amb",
 		ref = gorgor4_ref_path
@@ -205,7 +238,7 @@ rule map_and_process_reads_gorgor4_paired:
 
 rule map_and_process_reads_gorgor4_single:
 	input:
-		fq = lambda wildcards: fastq_directory + config["single_end_fastqs"][wildcards.sample],
+		fq = lambda wildcards: gorilla_fastq_directory + config["single_end_fastqs"][wildcards.sample],
 		fai = gorgor4_ref_path + ".fai",
 		amb = gorgor4_ref_path + ".amb",
 		ref = gorgor4_ref_path
