@@ -201,12 +201,12 @@ rule map_and_process_reads_hg19_paired_gorilla:
 
 rule map_and_process_reads_hg19_single:
 	input:
-		fq = lambda wildcards: gorilla_fastq_directory + config["single_end_fastqs"][wildcards.sample],
+		fq = lambda wildcards: gorilla_fastq_directory + config["single_end_fastqs"][wildcards.sample][0],
 		fai = hg19_ref_path + ".fai",
 		amb = hg19_ref_path + ".amb",
 		ref = hg19_ref_path
 	output:
-		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
+		"processed_bams/{sample}.hg19.single.mkdup.sorted.bam"
 	params:
 		id = lambda wildcards: config[wildcards.sample]["ID"],
 		sm = lambda wildcards: config[wildcards.sample]["SM"],
@@ -223,8 +223,8 @@ rule map_and_process_reads_hg19_single:
 
 rule map_and_process_reads_gorgor4_paired:
 	input:
-		fq1 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_end_fastqs"][wildcards.sample][0],
-		fq2 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_end_fastqs"][wildcards.sample][1],
+		fq1 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][0],
+		fq2 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][1],
 		fai = gorgor4_ref_path + ".fai",
 		amb = gorgor4_ref_path + ".amb",
 		ref = gorgor4_ref_path
@@ -246,12 +246,12 @@ rule map_and_process_reads_gorgor4_paired:
 
 rule map_and_process_reads_gorgor4_single:
 	input:
-		fq = lambda wildcards: gorilla_fastq_directory + config["single_end_fastqs"][wildcards.sample],
+		fq = lambda wildcards: gorilla_fastq_directory + config["single_end_fastqs"][wildcards.sample][0],
 		fai = gorgor4_ref_path + ".fai",
 		amb = gorgor4_ref_path + ".amb",
 		ref = gorgor4_ref_path
 	output:
-		"processed_bams/{sample}.gorgor4.mkdup.sorted.bam"
+		"processed_bams/{sample}.gorgor4.single.mkdup.sorted.bam"
 	params:
 		id = lambda wildcards: config[wildcards.sample]["ID"],
 		sm = lambda wildcards: config[wildcards.sample]["SM"],
@@ -266,7 +266,7 @@ rule map_and_process_reads_gorgor4_single:
 		"| samblaster | samtools sort "
 		"-O bam -o {output}"
 
-rule index_bam_hg19:
+rule index_bam_hg19_paired:
 	input:
 		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
 	output:
@@ -274,11 +274,27 @@ rule index_bam_hg19:
 	shell:
 		"samtools index {input}"
 
-rule index_bam_gorgor4:
+rule index_bam_gorgor4_paired:
 	input:
 		"processed_bams/{sample}.gorgor4.mkdup.sorted.bam"
 	output:
 		"processed_bams/{sample}.gorgor4.mkdup.sorted.bam.bai"
+	shell:
+		"samtools index {input}"
+
+rule index_bam_hg19_single:
+	input:
+		"processed_bams/{sample}.hg19.single.mkdup.sorted.bam"
+	output:
+		"processed_bams/{sample}.hg19.single.mkdup.sorted.bam.bai"
+	shell:
+		"samtools index {input}"
+
+rule index_bam_gorgor4_single:
+	input:
+		"processed_bams/{sample}.gorgor4.single.mkdup.sorted.bam"
+	output:
+		"processed_bams/{sample}.gorgor4.single.mkdup.sorted.bam.bai"
 	shell:
 		"samtools index {input}"
 
@@ -442,10 +458,10 @@ rule merge_Nyango_hg19:
 
 rule merge_Kaisi_hg19:
 	input:
-		run1 = "processed_bams/SRR747658.hg19.mkdup.sorted.bam",
-		run1_idx = "processed_bams/SRR747658.hg19.mkdup.sorted.bam.bai",
-		run2 = "processed_bams/SRR747657.hg19.mkdup.sorted.bam",
-		run2_idx = "processed_bams/SRR747657.hg19.mkdup.sorted.bam.bai",
+		run1 = "processed_bams/SRR747658.hg19.single.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747658.hg19.single.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747657.hg19.single.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747657.hg19.single.mkdup.sorted.bam.bai",
 		run3 = "processed_bams/SRR747654.hg19.mkdup.sorted.bam",
 		run3_idx = "processed_bams/SRR747654.hg19.mkdup.sorted.bam.bai",
 		run4 = "processed_bams/SRR747655.hg19.mkdup.sorted.bam",
@@ -568,10 +584,10 @@ rule merge_Nyango_gorgor4:
 
 rule merge_Kaisi_gorgor4:
 	input:
-		run1 = "processed_bams/SRR747658.gorgor4.mkdup.sorted.bam",
-		run1_idx = "processed_bams/SRR747658.gorgor4.mkdup.sorted.bam.bai",
-		run2 = "processed_bams/SRR747657.gorgor4.mkdup.sorted.bam",
-		run2_idx = "processed_bams/SRR747657.gorgor4.mkdup.sorted.bam.bai",
+		run1 = "processed_bams/SRR747658.gorgor4.single.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747658.gorgor4.single.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747657.gorgor4.single.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747657.gorgor4.single.mkdup.sorted.bam.bai",
 		run3 = "processed_bams/SRR747654.gorgor4.mkdup.sorted.bam",
 		run3_idx = "processed_bams/SRR747654.gorgor4.mkdup.sorted.bam.bai",
 		run4 = "processed_bams/SRR747655.gorgor4.mkdup.sorted.bam",

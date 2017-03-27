@@ -19,7 +19,7 @@
 		"HG00513_wgs_run5": ["ERR899716_1.fastq.gz", "ERR899716_2.fastq.gz"],
 		"HG00513_wgs_run6": ["ERR903027_1.fastq.gz", "ERR903027_2.fastq.gz"]
 	},
-	"gorilla_only_paired_end_fastqs":{
+	"gorilla_only_paired_fastqs":{
 		"SRR747941": ["SRR747941_1.fastq.gz", "SRR747941_2.fastq.gz"],
 		"SRR747942": ["SRR747942_1.fastq.gz", "SRR747942_2.fastq.gz"],
 		"SRR747939": ["SRR747939_1.fastq.gz", "SRR747939_2.fastq.gz"],
