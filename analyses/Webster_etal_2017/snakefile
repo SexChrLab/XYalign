@@ -84,10 +84,18 @@ gorilla_list = [
 	"Nyango", "Kaisi", "Victoria"]
 
 thousand_list = [
-	"HG00096", "HG01879", "HG03052", "HG01051", "NA19625", "HG01583", "HG03742",
-	"NA20502", "NA18525", "HG02922", "NA19648", "HG00419", "HG01112", "NA19017",
-	"HG00268", "HG02568", "HG01500", "NA18939", "HG03642", "HG03006", "HG00759",
-	"NA20845", "HG01595", "HG01565"]
+	"HG00096.wgs.ILLUMINA.bwa.GBR", "HG01879.wgs.ILLUMINA.bwa.ACB",
+	"HG03052.wgs.ILLUMINA.bwa.MSL", "HG01051.wgs.ILLUMINA.bwa.PUR",
+	"NA19625.wgs.ILLUMINA.bwa.ASW", "HG01583.wgs.ILLUMINA.bwa.PJL",
+	"HG03742.wgs.ILLUMINA.bwa.ITU", "NA20502.wgs.ILLUMINA.bwa.TSI",
+	"NA18525.wgs.ILLUMINA.bwa.CHB", "HG02922.wgs.ILLUMINA.bwa.ESN",
+	"NA19648.wgs.ILLUMINA.bwa.MXL", "HG00419.wgs.ILLUMINA.bwa.CHS",
+	"HG01112.wgs.ILLUMINA.bwa.CLM", "NA19017.wgs.ILLUMINA.bwa.LWK",
+	"HG00268.wgs.ILLUMINA.bwa.FIN", "HG02568.wgs.ILLUMINA.bwa.GWD",
+	"HG01500.wgs.ILLUMINA.bwa.IBS", "NA18939.wgs.ILLUMINA.bwa.JPT",
+	"HG03642.wgs.ILLUMINA.bwa.STU", "HG03006.wgs.ILLUMINA.bwa.BEB",
+	"HG00759.wgs.ILLUMINA.bwa.CDX", "NA20845.wgs.ILLUMINA.bwa.GIH",
+	"HG01595.wgs.ILLUMINA.bwa.KHV", "HG01565.wgs.ILLUMINA.bwa.PEL"]
 
 rule all:
 	input:
@@ -101,7 +109,7 @@ rule all:
 		expand("xyalign_analyses/logfiles/{sample}_hg19_xyalign.log", sample=gorilla_list),
 		expand("xyalign_analyses/logfiles/{sample}_gorgor4_xyalign.log", sample=gorilla_list),
 		expand("xyalign_analyses/logfiles/{sample}_xyalign.log", sample=thousand_list),
-		expand(thousand_genomes_bam_directory + "{sample}.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam.bai", sample=thousand_list)
+		expand(thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai", sample=thousand_list)
 
 rule prepare_reference_hg19:
 	input:
@@ -276,9 +284,9 @@ rule index_bam_gorgor4:
 
 rule index_bam_1000genomes:
 	input:
-		thousand_genomes_bam_directory + "{sample}.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam"
+		thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam"
 	output:
-		thousand_genomes_bam_directory + "{sample}.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam.bai"
+		thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai"
 	shell:
 		"samtools index {input}"
 
@@ -558,7 +566,7 @@ rule merge_Nyango_gorgor4:
 		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
 		shell("samtools index {output.bam}")
 
-rule merge_Kaisi_hg19:
+rule merge_Kaisi_gorgor4:
 	input:
 		run1 = "processed_bams/SRR747658.gorgor4.mkdup.sorted.bam",
 		run1_idx = "processed_bams/SRR747658.gorgor4.mkdup.sorted.bam.bai",
@@ -632,16 +640,15 @@ rule xyalign_gorgor4_analysis:
 	params:
 		xyalign = xyalign_path,
 		sample_id = "{sample}",
-		gorgor4_ref_mask = gorgor4_reference_mask_path,
 		conda_env = xyalign_anaconda_env
 	threads: 4
 	shell:
-		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.gorgor4_ref_mask} --window_size 5000 --chromosomes chr19 chrX --x_chromosome chrX"
+		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --window_size 5000 --chromosomes chr19 chrX --x_chromosome chrX"
 
 rule xyalign_1000genomes_analysis:
 	input:
-		bam = thousand_genomes_bam_directory + "{sample}.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam",
-		idx = thousand_genomes_bam_directory + "{sample}.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam.bai",
+		bam = thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam",
+		idx = thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
 		ref = thousand_genomes_ref_path
 	output:
 		"xyalign_analyses/logfiles/{sample}_xyalign.log"
