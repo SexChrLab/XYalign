@@ -160,11 +160,23 @@ installing an XYalign-specific conda environment.  The snakefile is designed
 to activate this environment for rules involving XYalign.  The [installation section
 of the XYalign documentation has information about how to set up this environment](http://xyalign.readthedocs.io/en/latest/installation.html).
 
-Snakemake allows users to distribute jobs across a cluster.  We ran our analyses on
-a cluster using Slurm with the following command from this directory:
+To reproduce our analyses exactly, we have included yml files with the contents
+(including versions) of the Anaconda environments we used. You can create these environments
+with the commands (from this directory):
 
 ```
-snakemake --snakefile snakefile -j 8 --cluster "sbatch -n 4 --nodes 1 -t 96:00:00 --mail-type=END,FAIL --mail-user=timothy.h.webster@asu.edu " --cores 4
+conda env create -f snakemake_environment.yml
+conda env create -f xyalign_environment.yml
+```
+Note that these environments will only work as-is in Linux environments and
+might require a bit of tweaking to install on a Mac
+
+Then, to run analyses, simply call Snakemake and provide it the path to the snakefile.
+However, Snakemake allows users to distribute jobs across a cluster, so we added parameters
+to enable this functionality.  We ran our analyses on a cluster using Slurm with the following command from this directory:
+
+```
+snakemake --snakefile snakefile -j 8 --cluster "sbatch -n 4 --nodes 1 -t 96:00:00 --mail-type=END,FAIL --mail-user=timothy.h.webster@asu.edu "
 ```
 
 ## Citations

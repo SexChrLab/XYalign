@@ -4,6 +4,15 @@ This snakefile reproduces analyses from:
 Webster et al., 2017. Inferring sex chromosome content and correcting for
 technical biases in next-generation sequencing data.
 
+Requires:
+	Python 3
+	snakemake (python package)
+	bwa
+	samtools
+	samblaster
+	BBmap (rename.sh is part of this suite of tools)
+	separate Anaconda directory with XYalign and its dependencies installed
+
 Runs analyses on 3 datasets:
 *Dataset1 contains fastq files from exome, low-coverage whole-genome, and
 high-coverage whole-genome sequencing for one male (HG00512) and one female (HG00513)
@@ -75,6 +84,12 @@ thousand_genomes_bam_directory =
 # Path to hg19 reference mask (located in the XYalign/Files/PARs directory)
 hg19_reference_mask_path = "../../Files/PARs/hg19_PAR_Ymask_startEnd.bed"
 
+# Paths to tools used in the pipeline
+rename_sh_path = "rename.sh"
+bwa_path = "bwa"
+samtools_path = "samtools"
+samblaster = "samblaster"
+
 human_list = [
 	"HG00512_exome", "HG00512_lowcov", "HG00512_wgs",
 	"HG00513_exome", "HG00513_lowcov", "HG00513_wgs"]
@@ -118,13 +133,16 @@ rule prepare_reference_hg19:
 		fai = hg19_ref_path + ".fai",
 		amb = hg19_ref_path + ".amb",
 		dict = hg19_ref_prefix + ".dict"
+	params:
+		samtools = samtools_path,
+		bwa = bwa_path
 	run:
 		# faidx
-		shell("samtools faidx {input}")
+		shell("{params.samtools} faidx {input}")
 		# .dict
-		shell("samtools dict -o {output.dict} {input}")
+		shell("{params.samtools} dict -o {output.dict} {input}")
 		# bwa
-		shell("bwa index {input}")
+		shell("{params.bwa} index {input}")
 
 rule prepare_reference_thousand_genomes:
 	input:
@@ -132,11 +150,13 @@ rule prepare_reference_thousand_genomes:
 	output:
 		fai = thousand_genomes_ref_path + ".fai",
 		dict = thousand_genomes_ref_prefix + ".dict"
+	params:
+		samtools = samtools_path
 	run:
 		# faidx
-		shell("samtools faidx {input}")
+		shell("{params.samtools} faidx {input}")
 		# .dict
-		shell("samtools dict -o {output.dict} {input}")
+		shell("{params.samtools} dict -o {output.dict} {input}")
 
 rule prepare_reference_gorgor4:
 	input:
@@ -145,13 +165,32 @@ rule prepare_reference_gorgor4:
 		fai = gorgor4_ref_path + ".fai",
 		amb = gorgor4_ref_path + ".amb",
 		dict = gorgor4_ref_prefix + ".dict"
+	params:
+		samtools = samtools_path,
+		bwa = bwa_path
 	run:
 		# faidx
-		shell("samtools faidx {input}")
+		shell("{params.samtools} faidx {input}")
 		# .dict
-		shell("samtools dict -o {output.dict} {input}")
+		shell("{params.samtools} dict -o {output.dict} {input}")
 		# bwa
-		shell("bwa index {input}")
+		shell("{params.bwa} index {input}")
+
+rule fix_read_IDs_for_paired_gorillas_from_SRA:
+	# The fastq-dump created issues with read ID names for paired files so that
+	# they give bwa issues.  This rule will go through and rename them so that
+	# they're compatible with bwa
+	input:
+		fq1 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][0],
+		fq2 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][1]
+	output:
+		out1 = "fastqs/{sample}_fixed_1.fastq.gz",
+		out2 = "fastqs/{sample}_fixed_1.fastq.gz"
+	params:
+		rename_sh = rename_sh_path,
+		read_name = "{sample}"
+	shell:
+		"{params.rename_sh} in={input.fq1} in2={input.fq2} out={output.out1} out2={output.out2} prefix={params.read_name}"
 
 rule map_and_process_reads_hg19_paired_human:
 	input:
@@ -167,19 +206,22 @@ rule map_and_process_reads_hg19_paired_human:
 		sm = lambda wildcards: config[wildcards.sample]["SM"],
 		lb = lambda wildcards: config[wildcards.sample]["LB"],
 		pu = lambda wildcards: config[wildcards.sample]["PU"],
-		pl = lambda wildcards: config[wildcards.sample]["PL"]
+		pl = lambda wildcards: config[wildcards.sample]["PL"],
+		bwa = bwa_path,
+		samblaster = samblaster_path,
+		samtools = samtools_path
 	threads: 4
 	shell:
-		" bwa mem -t {threads} -R "
+		" {parms.bwa} mem -t {threads} -R "
 		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
 		"{input.ref} {input.fq1} {input.fq2} "
-		"| samblaster | samtools fixmate -O bam - - | samtools sort "
+		"| {params.samblaster} | {params.samtools} fixmate -O bam - - | {params.samtools} sort "
 		"-O bam -o {output}"
 
 rule map_and_process_reads_hg19_paired_gorilla:
 	input:
-		fq1 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][0],
-		fq2 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][1],
+		fq1 = "fastqs/{sample}_fixed_1.fastq.gz",
+		fq2 = "fastqs/{sample}_fixed_1.fastq.gz",
 		fai = hg19_ref_path + ".fai",
 		amb = hg19_ref_path + ".amb",
 		ref = hg19_ref_path
@@ -190,13 +232,16 @@ rule map_and_process_reads_hg19_paired_gorilla:
 		sm = lambda wildcards: config[wildcards.sample]["SM"],
 		lb = lambda wildcards: config[wildcards.sample]["LB"],
 		pu = lambda wildcards: config[wildcards.sample]["PU"],
-		pl = lambda wildcards: config[wildcards.sample]["PL"]
+		pl = lambda wildcards: config[wildcards.sample]["PL"],
+		bwa = bwa_path,
+		samblaster = samblaster_path,
+		samtools = samtools_path
 	threads: 4
 	shell:
-		" bwa mem -t {threads} -R "
+		" {params.bwa} mem -t {threads} -R "
 		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
 		"{input.ref} {input.fq1} {input.fq2} "
-		"| samblaster | samtools fixmate -O bam - - | samtools sort "
+		"| {params.samblaster} | {params.samtools} fixmate -O bam - - | {params.samtools} sort "
 		"-O bam -o {output}"
 
 rule map_and_process_reads_hg19_single:
@@ -212,19 +257,22 @@ rule map_and_process_reads_hg19_single:
 		sm = lambda wildcards: config[wildcards.sample]["SM"],
 		lb = lambda wildcards: config[wildcards.sample]["LB"],
 		pu = lambda wildcards: config[wildcards.sample]["PU"],
-		pl = lambda wildcards: config[wildcards.sample]["PL"]
+		pl = lambda wildcards: config[wildcards.sample]["PL"],
+		bwa = bwa_path,
+		samblaster = samblaster_path,
+		samtools = samtools_path
 	threads: 4
 	shell:
-		" bwa mem -t {threads} -R "
+		" {params.bwa} mem -t {threads} -R "
 		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
 		"{input.ref} {input.fq} "
-		"| samblaster | samtools sort "
+		"| {params.samblaster} | {params.samtools} sort "
 		"-O bam -o {output}"
 
 rule map_and_process_reads_gorgor4_paired:
 	input:
-		fq1 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][0],
-		fq2 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][1],
+		fq1 = "fastqs/{sample}_fixed_1.fastq.gz",
+		fq2 = "fastqs/{sample}_fixed_1.fastq.gz"
 		fai = gorgor4_ref_path + ".fai",
 		amb = gorgor4_ref_path + ".amb",
 		ref = gorgor4_ref_path
@@ -235,13 +283,16 @@ rule map_and_process_reads_gorgor4_paired:
 		sm = lambda wildcards: config[wildcards.sample]["SM"],
 		lb = lambda wildcards: config[wildcards.sample]["LB"],
 		pu = lambda wildcards: config[wildcards.sample]["PU"],
-		pl = lambda wildcards: config[wildcards.sample]["PL"]
+		pl = lambda wildcards: config[wildcards.sample]["PL"],
+		bwa = bwa_path,
+		samblaster = samblaster_path,
+		samtools = samtools_path
 	threads: 4
 	shell:
-		" bwa mem -t {threads} -R "
+		" {params.bwa} mem -t {threads} -R "
 		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
 		"{input.ref} {input.fq1} {input.fq2} "
-		"| samblaster | samtools fixmate -O bam - - | samtools sort "
+		"| {params.samblaster} | {params.samtools} fixmate -O bam - - | {params.samtools} sort "
 		"-O bam -o {output}"
 
 rule map_and_process_reads_gorgor4_single:
@@ -257,13 +308,16 @@ rule map_and_process_reads_gorgor4_single:
 		sm = lambda wildcards: config[wildcards.sample]["SM"],
 		lb = lambda wildcards: config[wildcards.sample]["LB"],
 		pu = lambda wildcards: config[wildcards.sample]["PU"],
-		pl = lambda wildcards: config[wildcards.sample]["PL"]
+		pl = lambda wildcards: config[wildcards.sample]["PL"],
+		bwa = bwa_path,
+		samblaster = samblaster_path,
+		samtools = samtools_path
 	threads: 4
 	shell:
-		" bwa mem -t {threads} -R "
+		" {params.bwa} mem -t {threads} -R "
 		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
 		"{input.ref} {input.fq} "
-		"| samblaster | samtools sort "
+		"| {params.samblaster} | {params.samtools} sort "
 		"-O bam -o {output}"
 
 rule index_bam_hg19_paired:
@@ -271,40 +325,50 @@ rule index_bam_hg19_paired:
 		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
 	output:
 		"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	shell:
-		"samtools index {input}"
+		"{params.samtools} index {input}"
 
 rule index_bam_gorgor4_paired:
 	input:
 		"processed_bams/{sample}.gorgor4.mkdup.sorted.bam"
 	output:
 		"processed_bams/{sample}.gorgor4.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	shell:
-		"samtools index {input}"
+		"{params.samtools} index {input}"
 
 rule index_bam_hg19_single:
 	input:
 		"processed_bams/{sample}.hg19.single.mkdup.sorted.bam"
 	output:
 		"processed_bams/{sample}.hg19.single.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	shell:
-		"samtools index {input}"
+		"{params.samtools} index {input}"
 
 rule index_bam_gorgor4_single:
 	input:
 		"processed_bams/{sample}.gorgor4.single.mkdup.sorted.bam"
 	output:
 		"processed_bams/{sample}.gorgor4.single.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	shell:
-		"samtools index {input}"
+		"{params.samtools} index {input}"
 
 rule index_bam_1000genomes:
 	input:
 		thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam"
 	output:
 		thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai"
+	params:
+		samtools = samtools_path
 	shell:
-		"samtools index {input}"
+		"{params.samtools} index {input}"
 
 rule merge_lcov_HG00512:
 	input:
@@ -316,9 +380,11 @@ rule merge_lcov_HG00512:
 		bam = "processed_bams/HG00512_lowcov.hg19.mkdup.sorted.bam",
 		bai = "processed_bams/HG00512_lowcov.hg19.mkdup.sorted.bam.bai"
 	threads: 4
+	params:
+		samtools = samtools_path
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_lcov_HG00513:
 	input:
@@ -331,10 +397,12 @@ rule merge_lcov_HG00513:
 	output:
 		bam = "processed_bams/HG00513_lowcov.hg19.mkdup.sorted.bam",
 		bai = "processed_bams/HG00513_lowcov.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_wgs_HG00512:
 	input:
@@ -351,10 +419,12 @@ rule merge_wgs_HG00512:
 	output:
 		bam = "processed_bams/HG00512_wgs.hg19.mkdup.sorted.bam",
 		bai = "processed_bams/HG00512_wgs.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_wgs_HG00513:
 	input:
@@ -373,10 +443,12 @@ rule merge_wgs_HG00513:
 	output:
 		bam = "processed_bams/HG00513_wgs.hg19.mkdup.sorted.bam",
 		bai = "processed_bams/HG00513_wgs.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Azizi_hg19:
 	input:
@@ -391,10 +463,12 @@ rule merge_Azizi_hg19:
 	output:
 		bam = "processed_bams/Azizi.hg19.mkdup.sorted.bam",
 		bai = "processed_bams/Azizi.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Banjo_hg19:
 	input:
@@ -411,10 +485,12 @@ rule merge_Banjo_hg19:
 	output:
 		bam = "processed_bams/Banjo.hg19.mkdup.sorted.bam",
 		bai = "processed_bams/Banjo.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Delphi_hg19:
 	input:
@@ -433,10 +509,12 @@ rule merge_Delphi_hg19:
 	output:
 		bam = "processed_bams/Delphi.hg19.mkdup.sorted.bam",
 		bai = "processed_bams/Delphi.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Nyango_hg19:
 	input:
@@ -451,10 +529,12 @@ rule merge_Nyango_hg19:
 	output:
 		bam = "processed_bams/Nyango.hg19.mkdup.sorted.bam",
 		bai = "processed_bams/Nyango.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Kaisi_hg19:
 	input:
@@ -477,10 +557,12 @@ rule merge_Kaisi_hg19:
 	output:
 		bam = "processed_bams/Kaisi.hg19.mkdup.sorted.bam",
 		bai = "processed_bams/Kaisi.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6} {input.run7} {input.run8}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6} {input.run7} {input.run8}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Victoria_hg19:
 	input:
@@ -499,10 +581,12 @@ rule merge_Victoria_hg19:
 	output:
 		bam = "processed_bams/Victoria.hg19.mkdup.sorted.bam",
 		bai = "processed_bams/Victoria.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Azizi_gorgor4:
 	input:
@@ -517,10 +601,12 @@ rule merge_Azizi_gorgor4:
 	output:
 		bam = "processed_bams/Azizi.gorgor4.mkdup.sorted.bam",
 		bai = "processed_bams/Azizi.gorgor4.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Banjo_gorgor4:
 	input:
@@ -537,10 +623,12 @@ rule merge_Banjo_gorgor4:
 	output:
 		bam = "processed_bams/Banjo.gorgor4.mkdup.sorted.bam",
 		bai = "processed_bams/Banjo.gorgor4.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Delphi_gorgor4:
 	input:
@@ -559,10 +647,12 @@ rule merge_Delphi_gorgor4:
 	output:
 		bam = "processed_bams/Delphi.gorgor4.mkdup.sorted.bam",
 		bai = "processed_bams/Delphi.gorgor4.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Nyango_gorgor4:
 	input:
@@ -577,10 +667,12 @@ rule merge_Nyango_gorgor4:
 	output:
 		bam = "processed_bams/Nyango.gorgor4.mkdup.sorted.bam",
 		bai = "processed_bams/Nyango.gorgor4.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Kaisi_gorgor4:
 	input:
@@ -603,10 +695,12 @@ rule merge_Kaisi_gorgor4:
 	output:
 		bam = "processed_bams/Kaisi.gorgor4.mkdup.sorted.bam",
 		bai = "processed_bams/Kaisi.gorgor4.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6} {input.run7} {input.run8}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6} {input.run7} {input.run8}")
+		shell("{params.samtools} index {output.bam}")
 
 rule merge_Victoria_gorgor4:
 	input:
@@ -625,10 +719,12 @@ rule merge_Victoria_gorgor4:
 	output:
 		bam = "processed_bams/Victoria.gorgor4.mkdup.sorted.bam",
 		bai = "processed_bams/Victoria.gorgor4.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
 	threads: 4
 	run:
-		shell("samtools merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
-		shell("samtools index {output.bam}")
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("{params.samtools} index {output.bam}")
 
 rule xyalign_hg19_analysis_human:
 	input:
