@@ -88,7 +88,7 @@ hg19_reference_mask_path = "../../Files/PARs/hg19_PAR_Ymask_startEnd.bed"
 rename_sh_path = "rename.sh"
 bwa_path = "bwa"
 samtools_path = "samtools"
-samblaster = "samblaster"
+samblaster_path = "samblaster"
 
 human_list = [
 	"HG00512_exome", "HG00512_lowcov", "HG00512_wgs",
@@ -116,10 +116,10 @@ rule all:
 	input:
 		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam", sample=human_list),
 		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam.bai", sample=human_list),
-		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam", sample=gorilla_list),
-		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam.bai", sample=gorilla_list),
-		expand("processed_bams/{sample}.gorgor4.mkdup.sorted.bam", sample=gorilla_list),
-		expand("processed_bams/{sample}.gorgor4.mkdup.sorted.bam.bai", sample=gorilla_list),
+		expand("processed_bams/{sample}.merged.hg19.mkdup.sorted.bam", sample=gorilla_list),
+		expand("processed_bams/{sample}.merged.hg19.mkdup.sorted.bam.bai", sample=gorilla_list),
+		expand("processed_bams/{sample}.merged.gorgor4.mkdup.sorted.bam", sample=gorilla_list),
+		expand("processed_bams/{sample}.merged.gorgor4.mkdup.sorted.bam.bai", sample=gorilla_list),
 		expand("xyalign_analyses/logfiles/{sample}_hg19_xyalign.log", sample=human_list),
 		expand("xyalign_analyses/logfiles/{sample}_hg19_gorilla_xyalign.log", sample=gorilla_list),
 		expand("xyalign_analyses/logfiles/{sample}_gorgor4_xyalign.log", sample=gorilla_list),
@@ -185,7 +185,7 @@ rule fix_read_IDs_for_paired_gorillas_from_SRA:
 		fq2 = lambda wildcards: gorilla_fastq_directory + config["gorilla_only_paired_fastqs"][wildcards.sample][1]
 	output:
 		out1 = "fastqs/{sample}_fixed_1.fastq.gz",
-		out2 = "fastqs/{sample}_fixed_1.fastq.gz"
+		out2 = "fastqs/{sample}_fixed_2.fastq.gz"
 	params:
 		rename_sh = rename_sh_path,
 		read_name = "{sample}"
@@ -226,7 +226,7 @@ rule map_and_process_reads_hg19_paired_gorilla:
 		amb = hg19_ref_path + ".amb",
 		ref = hg19_ref_path
 	output:
-		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
+		"processed_bams/{sample}.hg19.gorilla.mkdup.sorted.bam"
 	params:
 		id = lambda wildcards: config[wildcards.sample]["ID"],
 		sm = lambda wildcards: config[wildcards.sample]["SM"],
@@ -272,7 +272,7 @@ rule map_and_process_reads_hg19_single:
 rule map_and_process_reads_gorgor4_paired:
 	input:
 		fq1 = "fastqs/{sample}_fixed_1.fastq.gz",
-		fq2 = "fastqs/{sample}_fixed_1.fastq.gz"
+		fq2 = "fastqs/{sample}_fixed_1.fastq.gz",
 		fai = gorgor4_ref_path + ".fai",
 		amb = gorgor4_ref_path + ".amb",
 		ref = gorgor4_ref_path
@@ -325,6 +325,16 @@ rule index_bam_hg19_paired:
 		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
 	output:
 		"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
+	shell:
+		"{params.samtools} index {input}"
+
+rule index_bam_hg19_paired_gorilla:
+	input:
+		"processed_bams/{sample}.hg19.gorilla.mkdup.sorted.bam"
+	output:
+		"processed_bams/{sample}.hg19.gorilla.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	shell:
@@ -452,17 +462,17 @@ rule merge_wgs_HG00513:
 
 rule merge_Azizi_hg19:
 	input:
-		run1 = "processed_bams/SRR747941.hg19.mkdup.sorted.bam",
-		run1_idx = "processed_bams/SRR747941.hg19.mkdup.sorted.bam.bai",
-		run2 = "processed_bams/SRR747942.hg19.mkdup.sorted.bam",
-		run2_idx = "processed_bams/SRR747942.hg19.mkdup.sorted.bam.bai",
-		run3 = "processed_bams/SRR747939.hg19.mkdup.sorted.bam",
-		run3_idx = "processed_bams/SRR747939.hg19.mkdup.sorted.bam.bai",
-		run4 = "processed_bams/SRR747940.hg19.mkdup.sorted.bam",
-		run4_idx = "processed_bams/SRR747940.hg19.mkdup.sorted.bam.bai"
+		run1 = "processed_bams/SRR747941.hg19.gorilla.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747941.hg19.gorilla.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747942.hg19.gorilla.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747942.hg19.gorilla.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747939.hg19.gorilla.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747939.hg19.gorilla.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747940.hg19.gorilla.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747940.hg19.groilla.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Azizi.hg19.mkdup.sorted.bam",
-		bai = "processed_bams/Azizi.hg19.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Azizi.merged.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Azizi.merged.hg19.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -472,19 +482,19 @@ rule merge_Azizi_hg19:
 
 rule merge_Banjo_hg19:
 	input:
-		run1 = "processed_bams/SRR747969.hg19.mkdup.sorted.bam",
-		run1_idx = "processed_bams/SRR747969.hg19.mkdup.sorted.bam.bai",
-		run2 = "processed_bams/SRR747970.hg19.mkdup.sorted.bam",
-		run2_idx = "processed_bams/SRR747970.hg19.mkdup.sorted.bam.bai",
-		run3 = "processed_bams/SRR747971.hg19.mkdup.sorted.bam",
-		run3_idx = "processed_bams/SRR747971.hg19.mkdup.sorted.bam.bai",
-		run4 = "processed_bams/SRR747967.hg19.mkdup.sorted.bam",
-		run4_idx = "processed_bams/SRR747967.hg19.mkdup.sorted.bam.bai",
-		run5 = "processed_bams/SRR747968.hg19.mkdup.sorted.bam",
-		run5_idx = "processed_bams/SRR747968.hg19.mkdup.sorted.bam.bai"
+		run1 = "processed_bams/SRR747969.hg19.gorilla.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747969.hg19.gorilla.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747970.hg19.gorilla.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747970.hg19.gorilla.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747971.hg19.gorilla.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747971.hg19.gorilla.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747967.hg19.gorilla.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747967.hg19.gorilla.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR747968.hg19.gorilla.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR747968.hg19.gorilla.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Banjo.hg19.mkdup.sorted.bam",
-		bai = "processed_bams/Banjo.hg19.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Banjo.merged.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Banjo.merged.hg19.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -494,21 +504,21 @@ rule merge_Banjo_hg19:
 
 rule merge_Delphi_hg19:
 	input:
-		run1 = "processed_bams/SRR747987.hg19.mkdup.sorted.bam",
-		run1_idx = "processed_bams/SRR747987.hg19.mkdup.sorted.bam.bai",
-		run2 = "processed_bams/SRR747988.hg19.mkdup.sorted.bam",
-		run2_idx = "processed_bams/SRR747988.hg19.mkdup.sorted.bam.bai",
-		run3 = "processed_bams/SRR747989.hg19.mkdup.sorted.bam",
-		run3_idx = "processed_bams/SRR747989.hg19.mkdup.sorted.bam.bai",
-		run4 = "processed_bams/SRR747984.hg19.mkdup.sorted.bam",
-		run4_idx = "processed_bams/SRR747984.hg19.mkdup.sorted.bam.bai",
-		run5 = "processed_bams/SRR747985.hg19.mkdup.sorted.bam",
-		run5_idx = "processed_bams/SRR747985.hg19.mkdup.sorted.bam.bai",
-		run6 = "processed_bams/SRR747986.hg19.mkdup.sorted.bam",
-		run6_idx = "processed_bams/SRR747986.hg19.mkdup.sorted.bam.bai"
+		run1 = "processed_bams/SRR747987.hg19.gorilla.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR747987.hg19.gorilla.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR747988.hg19.gorilla.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR747988.hg19.gorilla.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR747989.hg19.gorilla.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747989.hg19.gorilla.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747984.hg19.gorilla.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747984.hg19.gorilla.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR747985.hg19.gorilla.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR747985.hg19.gorilla.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/SRR747986.hg19.gorilla.mkdup.sorted.bam",
+		run6_idx = "processed_bams/SRR747986.hg19.gorilla.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Delphi.hg19.mkdup.sorted.bam",
-		bai = "processed_bams/Delphi.hg19.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Delphi.merged.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Delphi.merged.hg19.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -518,17 +528,17 @@ rule merge_Delphi_hg19:
 
 rule merge_Nyango_hg19:
 	input:
-		run1 = "processed_bams/SRR748109.hg19.mkdup.sorted.bam",
-		run1_idx = "processed_bams/SRR748109.hg19.mkdup.sorted.bam.bai",
-		run2 = "processed_bams/SRR748110.hg19.mkdup.sorted.bam",
-		run2_idx = "processed_bams/SRR748110.hg19.mkdup.sorted.bam.bai",
-		run3 = "processed_bams/SRR748111.hg19.mkdup.sorted.bam",
-		run3_idx = "processed_bams/SRR748111.hg19.mkdup.sorted.bam.bai",
-		run4 = "processed_bams/SRR748112.hg19.mkdup.sorted.bam",
-		run4_idx = "processed_bams/SRR748112.hg19.mkdup.sorted.bam.bai"
+		run1 = "processed_bams/SRR748109.hg19.gorilla.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR748109.hg19.gorilla.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR748110.hg19.gorilla.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR748110.hg19.gorilla.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR748111.hg19.gorilla.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR748111.hg19.gorilla.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR748112.hg19.gorilla.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR748112.hg19.gorilla.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Nyango.hg19.mkdup.sorted.bam",
-		bai = "processed_bams/Nyango.hg19.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Nyango.merged.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Nyango.merged.hg19.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -542,21 +552,21 @@ rule merge_Kaisi_hg19:
 		run1_idx = "processed_bams/SRR747658.hg19.single.mkdup.sorted.bam.bai",
 		run2 = "processed_bams/SRR747657.hg19.single.mkdup.sorted.bam",
 		run2_idx = "processed_bams/SRR747657.hg19.single.mkdup.sorted.bam.bai",
-		run3 = "processed_bams/SRR747654.hg19.mkdup.sorted.bam",
-		run3_idx = "processed_bams/SRR747654.hg19.mkdup.sorted.bam.bai",
-		run4 = "processed_bams/SRR747655.hg19.mkdup.sorted.bam",
-		run4_idx = "processed_bams/SRR747655.hg19.mkdup.sorted.bam.bai",
-		run5 = "processed_bams/SRR747656.hg19.mkdup.sorted.bam",
-		run5_idx = "processed_bams/SRR747656.hg19.mkdup.sorted.bam.bai",
-		run6 = "processed_bams/SRR747651.hg19.mkdup.sorted.bam",
-		run6_idx = "processed_bams/SRR747651.hg19.mkdup.sorted.bam.bai",
-		run7 = "processed_bams/SRR747652.hg19.mkdup.sorted.bam",
-		run7_idx = "processed_bams/SRR747652.hg19.mkdup.sorted.bam.bai",
-		run8 = "processed_bams/SRR747653.hg19.mkdup.sorted.bam",
-		run8_idx = "processed_bams/SRR747653.hg19.mkdup.sorted.bam.bai"
+		run3 = "processed_bams/SRR747654.hg19.gorilla.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR747654.hg19.gorilla.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR747655.hg19.gorilla.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR747655.hg19.gorilla.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR747656.hg19.gorilla.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR747656.hg19.gorilla.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/SRR747651.hg19.gorilla.mkdup.sorted.bam",
+		run6_idx = "processed_bams/SRR747651.hg19.gorilla.mkdup.sorted.bam.bai",
+		run7 = "processed_bams/SRR747652.hg19.gorilla.mkdup.sorted.bam",
+		run7_idx = "processed_bams/SRR747652.hg19.gorilla.mkdup.sorted.bam.bai",
+		run8 = "processed_bams/SRR747653.hg19.gorilla.mkdup.sorted.bam",
+		run8_idx = "processed_bams/SRR747653.hg19.gorilla.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Kaisi.hg19.mkdup.sorted.bam",
-		bai = "processed_bams/Kaisi.hg19.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Kaisi.merged.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Kaisi.merged.hg19.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -566,21 +576,21 @@ rule merge_Kaisi_hg19:
 
 rule merge_Victoria_hg19:
 	input:
-		run1 = "processed_bams/SRR748189.hg19.mkdup.sorted.bam",
-		run1_idx = "processed_bams/SRR748189.hg19.mkdup.sorted.bam.bai",
-		run2 = "processed_bams/SRR748192.hg19.mkdup.sorted.bam",
-		run2_idx = "processed_bams/SRR748192.hg19.mkdup.sorted.bam.bai",
-		run3 = "processed_bams/SRR748191.hg19.mkdup.sorted.bam",
-		run3_idx = "processed_bams/SRR748191.hg19.mkdup.sorted.bam.bai",
-		run4 = "processed_bams/SRR748190.hg19.mkdup.sorted.bam",
-		run4_idx = "processed_bams/SRR748190.hg19.mkdup.sorted.bam.bai",
-		run5 = "processed_bams/SRR748188.hg19.mkdup.sorted.bam",
-		run5_idx = "processed_bams/SRR748188.hg19.mkdup.sorted.bam.bai",
-		run6 = "processed_bams/SRR748187.hg19.mkdup.sorted.bam",
-		run6_idx = "processed_bams/SRR748187.hg19.mkdup.sorted.bam.bai"
+		run1 = "processed_bams/SRR748189.hg19.gorilla.mkdup.sorted.bam",
+		run1_idx = "processed_bams/SRR748189.hg19.gorilla.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/SRR748192.hg19.gorilla.mkdup.sorted.bam",
+		run2_idx = "processed_bams/SRR748192.hg19.gorilla.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/SRR748191.hg19.gorilla.mkdup.sorted.bam",
+		run3_idx = "processed_bams/SRR748191.hg19.gorilla.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/SRR748190.hg19.gorilla.mkdup.sorted.bam",
+		run4_idx = "processed_bams/SRR748190.hg19.gorilla.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/SRR748188.hg19.gorilla.mkdup.sorted.bam",
+		run5_idx = "processed_bams/SRR748188.hg19.gorilla.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/SRR748187.hg19.gorilla.mkdup.sorted.bam",
+		run6_idx = "processed_bams/SRR748187.hg19.gorilla.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Victoria.hg19.mkdup.sorted.bam",
-		bai = "processed_bams/Victoria.hg19.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Victoria.merged.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/Victoria.merged.hg19.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -599,8 +609,8 @@ rule merge_Azizi_gorgor4:
 		run4 = "processed_bams/SRR747940.gorgor4.mkdup.sorted.bam",
 		run4_idx = "processed_bams/SRR747940.gorgor4.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Azizi.gorgor4.mkdup.sorted.bam",
-		bai = "processed_bams/Azizi.gorgor4.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Azizi.merged.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Azizi.merged.gorgor4.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -621,8 +631,8 @@ rule merge_Banjo_gorgor4:
 		run5 = "processed_bams/SRR747968.gorgor4.mkdup.sorted.bam",
 		run5_idx = "processed_bams/SRR747968.gorgor4.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Banjo.gorgor4.mkdup.sorted.bam",
-		bai = "processed_bams/Banjo.gorgor4.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Banjo.merged.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Banjo.merged.gorgor4.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -645,8 +655,8 @@ rule merge_Delphi_gorgor4:
 		run6 = "processed_bams/SRR747986.gorgor4.mkdup.sorted.bam",
 		run6_idx = "processed_bams/SRR747986.gorgor4.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Delphi.gorgor4.mkdup.sorted.bam",
-		bai = "processed_bams/Delphi.gorgor4.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Delphi.merged.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Delphi.merged.gorgor4.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -665,8 +675,8 @@ rule merge_Nyango_gorgor4:
 		run4 = "processed_bams/SRR748112.gorgor4.mkdup.sorted.bam",
 		run4_idx = "processed_bams/SRR748112.gorgor4.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Nyango.gorgor4.mkdup.sorted.bam",
-		bai = "processed_bams/Nyango.gorgor4.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Nyango.merged.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Nyango.merged.gorgor4.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -693,8 +703,8 @@ rule merge_Kaisi_gorgor4:
 		run8 = "processed_bams/SRR747653.gorgor4.mkdup.sorted.bam",
 		run8_idx = "processed_bams/SRR747653.gorgor4.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Kaisi.gorgor4.mkdup.sorted.bam",
-		bai = "processed_bams/Kaisi.gorgor4.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Kaisi.merged.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Kaisi.merged.gorgor4.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -717,8 +727,8 @@ rule merge_Victoria_gorgor4:
 		run6 = "processed_bams/SRR748187.gorgor4.mkdup.sorted.bam",
 		run6_idx = "processed_bams/SRR748187.gorgor4.mkdup.sorted.bam.bai"
 	output:
-		bam = "processed_bams/Victoria.gorgor4.mkdup.sorted.bam",
-		bai = "processed_bams/Victoria.gorgor4.mkdup.sorted.bam.bai"
+		bam = "processed_bams/Victoria.merged.gorgor4.mkdup.sorted.bam",
+		bai = "processed_bams/Victoria.merged.gorgor4.mkdup.sorted.bam.bai"
 	params:
 		samtools = samtools_path
 	threads: 4
@@ -728,8 +738,8 @@ rule merge_Victoria_gorgor4:
 
 rule xyalign_hg19_analysis_human:
 	input:
-		bam = "processed_bams/{sample}.hg19.mkdup.sorted.bam",
-		idx = "processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
+		bam = "processed_bams/{sample}.merged.hg19.mkdup.sorted.bam",
+		idx = "processed_bams/{sample}.merged.hg19.mkdup.sorted.bam.bai",
 		ref = hg19_ref_path
 	output:
 		"xyalign_analyses/logfiles/{sample}_hg19_xyalign.log"
@@ -744,8 +754,8 @@ rule xyalign_hg19_analysis_human:
 
 rule xyalign_hg19_analysis_gorilla:
 	input:
-		bam = "processed_bams/{sample}.hg19.mkdup.sorted.bam",
-		idx = "processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
+		bam = "processed_bams/{sample}.merged.hg19.mkdup.sorted.bam",
+		idx = "processed_bams/{sample}.merged.hg19.mkdup.sorted.bam.bai",
 		ref = hg19_ref_path
 	output:
 		"xyalign_analyses/logfiles/{sample}_hg19_gorilla_xyalign.log"
@@ -760,8 +770,8 @@ rule xyalign_hg19_analysis_gorilla:
 
 rule xyalign_gorgor4_analysis:
 	input:
-		bam = "processed_bams/{sample}.gorgor4.mkdup.sorted.bam",
-		idx = "processed_bams/{sample}.gorgor4.mkdup.sorted.bam.bai",
+		bam = "processed_bams/{sample}.merged.gorgor4.mkdup.sorted.bam",
+		idx = "processed_bams/{sample}.merged.gorgor4.mkdup.sorted.bam.bai",
 		ref = gorgor4_ref_path
 	output:
 		"xyalign_analyses/logfiles/{sample}_gorgor4_xyalign.log"
