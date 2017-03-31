@@ -32,11 +32,12 @@ for dataset2 because this was the genome used to generate the bam files
 
 *gorGor4 for mapping dataset3
 
-See the README for more information about downloading these files.
-
 Before running the snakefile, complete the top of this script with
 paths to various reference genomes and directories
 containing bam and fastq files.
+
+See the README for more information about downloading files, setting up conda environments,
+and using snakemake to run the snakefile.
 
 """
 # Update configfile if not in same directory

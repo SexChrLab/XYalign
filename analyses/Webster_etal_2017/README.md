@@ -143,7 +143,7 @@ Bundle: https://software.broadinstitute.org/gatk/download/bundle
 
 ## Directory Structure
 This directory - "Webster_etal_2017" - should contain the main snakefile ("snakefile"), the configuration file for the snakefile ("Webster_etal_2017_xyalign.config.json"),
-a .gitignore, and three subdirectories ("fastqs", "processed_bams", "reference").
+a .gitignore, two conda environment files (ending in .yml), and three subdirectories ("fastqs", "processed_bams", "reference").
 
 Of the three subdirectories, "fastqs" and "reference" are provided as options for
 depositing the raw fastqs and reference genomes (see above) for easy organization
@@ -176,7 +176,7 @@ However, Snakemake allows users to distribute jobs across a cluster, so we added
 to enable this functionality.  We ran our analyses on a cluster using Slurm with the following command from this directory:
 
 ```
-snakemake --snakefile snakefile -j 8 --cluster "sbatch -n 4 --nodes 1 -t 96:00:00 --mail-type=END,FAIL --mail-user=timothy.h.webster@asu.edu "
+snakemake --snakefile snakefile -j 8 --cluster "sbatch -n 4 --nodes 1 -t 96:00:00 "
 ```
 
 ## Citations
