@@ -21,15 +21,11 @@ See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/lates
 ## To-Do Items
 
 *Before release*
-- [x] Incorporate ploidy caller
-- [x] Default to calculating mean depth per chromosome
-	- [x] add flag to allow for whole-genome thresholds
-- [ ] Make bwa indexing conditional for withY if no reference_mask provided
-- [ ] Clean up parse_args() and update checks/validation
-- [x] Implement check for dependencies upon loading
+- [ ] Clean up repository of unused files
 
 *Down the road*
 - [ ] Add thorough module testing
+- [ ] Make bwa indexing conditional for withY if no reference_mask provided
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
 	- [ ] Implement bam analyses in cython
