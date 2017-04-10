@@ -1,15 +1,10 @@
 Installation
 ============
 
-As of |today|, XYalign is currently under active development as we
-prepare for our first major release.  Therefore, prerelease versions should be
-considered unstable for the time being.
-
 Obtaining XYalign
 -----------------
 
-In the meantime, if you're interested in using XYalign, you can obtain it by
-cloning the Github repository::
+Currently, you can obtain XYalign by cloning the Github repository::
 
 	git clone https://github.com/WilsonSayresLab/XYalign/
 
@@ -33,7 +28,6 @@ XYalign has a number of required Python packages and external programs::
 		pandas
 		pybedtools
 		pysam
-		seaborn
 
 	External Programs:
 		bbmap
@@ -81,7 +75,7 @@ Miniconda is a lightweight version of Anaconda).
 	conda config --add channels bioconda
 
 	conda create -n xyalign_env python=2.7 pysam pybedtools \
-	numpy pandas matplotlib seaborn platypus-variant bwa bbmap \
+	numpy pandas matplotlib platypus-variant bwa bbmap \
 	samtools bedtools sambamba
 
 And load the new environment (containing all required programs and packages) with::
@@ -98,7 +92,7 @@ users will have to use the commands::
 	conda config --add channels bioconda
 
 	conda create -n xyalign_env python=2.7 pysam pybedtools \
-	numpy pandas matplotlib seaborn bwa bbmap samtools bedtools sambamba
+	numpy pandas matplotlib bwa bbmap samtools bedtools sambamba
 
 and then `install platypus on their own <http://www.well.ox.ac.uk/platypus>`_ and
 provide it to XYalign with the flag::

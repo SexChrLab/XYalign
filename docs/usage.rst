@@ -12,10 +12,6 @@ used to generate it.  It also requires a *list of chromosomes* to analyze (at le
 the *name of the X chromosome*, and the *name of the Y chromosome*. The chromosome names must *exactly* match
 those in the bam header and reference fasta - 'chr19' is not equivalent to '19', for example.
 
-As we are still finalizing methods for estimating sex chromosome complement (e.g., XX, XY, XXY, X0), for the
-time being, **you also need to provide** ``--y_present`` or ``--y_absent`` to indicate whether XYalign should
-treat the sample as possessing a Y chromosome or not.
-
 You also need a variety of python packages and external programs installed.  See
 :doc:`installation` for more information.
 
@@ -156,13 +152,6 @@ We could have optionally provided preprocessed reference genomes with ``--xx_ref
 and ``--xx_ref_in``, as in 4.  We could have also used ``--y_absent`` or ``--y_present``
 to force mapping to a certain reference.
 
-.. note::
-
-	We are currently experimenting with methods for determining the presence or
-	absence of a Y chromosome, so either ``--y_absent`` or ``--y_present`` is
-	**required** for the time being until we've finalized the implementation of ploidy
-	estimation.
-
 Recommendations for Incorporating XYalign into Pipelines
 --------------------------------------------------------
 
@@ -195,9 +184,12 @@ The minimum memory requirements for XYalign are determined by external programs,
 rather than any internal code.  Right now, the major limiting step is bwa indexing
 which requires 5-6 GB of memory to index a human-sized genome.
 
-You'll see substantial increases in the speed of the pipeline by increasing the
+The slowest parts of the pipeline all involve steps relying on external programs, such as
+genome preparation, variant calling, read mapping, swapping sex chromosome alignments, etc.
+In almost all cases, you'll see substantial increases in the speed of the pipeline by increasing the
 number of threads/cores.  You must provide information about the number of threads available
-to XYalign with the ``--cpus`` flag.
+to XYalign with the ``--cpus`` flag (XYalign will assume only a single thread is
+available unless this flag is set).
 
 Exome data
 ----------
@@ -229,15 +221,13 @@ XYalign's CHARACTERIZE_SEX_CHROMS  on each sample (steps 2-3 in
 "Recommendations for Incorporating XYalign into pipelines" above)
 using the same output directory for all samples.  One can then quickly concatenate
 results (we recommend starting with bootstrap results) and plot them to look
-for clustering of samples.
+for clustering of samples (see the XYalign publication for examples of this).
 
 Analyzing arbitrary chromosomes
 -------------------------------
 
-Currently, XYalign requires a minimum of two chromosomes for BAM_ANALYSIS and
-CHARACTERIZE_SEX_CHROMS (an "autosome" and an "x chromosome").  A third ("y chromosome")
-chromosome is required for PREPARE_REFERENCE and REMAPPING (and therefore, the
-full pipeline as well).  These chromosomes, however, can be arbitrary. Below,
+Currently, XYalign requires a minimum of three chromosomes (an "autosome", an "x chromosome",
+and a "y_chromosome"). These chromosomes, however, can be arbitrary. Below,
 we highlight two example cases: looking for evidence of Trisomy 21 in human samples,
 and running the full XYalign pipeline on a ZW sample (perhaps a bird, squamate reptile, or moth).
 
