@@ -11,6 +11,12 @@ The high degree of similarity between gametologous sequences on the sex chromoso
 
 [November 18, 2016 poster presentation for the Evolutionary Genomics of Sex 2016 Meeting](https://figshare.com/articles/XYalign_Inferring_and_Correcting_for_Sex_Chromosome_Ploidy_in_Next-Generation_Sequencing_Data/4292924/1)
 
+## If you cloned XYalign before April 5, 2017 please clone a fresh version
+On April 5th, we removed a host of large files using BFG Repo Cleaner, which changed
+the commit history of the repo.  Because of this, ```git pull``` will no longer work on clones
+prior to this cleaning.  Therefore, if you cloned before this date (or can't remember when you
+cloned), it's probably a good idea to clone a fresh version.
+
 ## Please note the XYalign is still in pre-release stages
 Changes are made to the master branch quite frequently, so there still might be a number of known or unknown bugs at any given time.  If you'd like to try things before release (which will be mid-April), please feel free to contact us (either via an Issue or by email to Tim Webster - address at the bottom of this page) to inquire about the current status of the program.
 
@@ -19,9 +25,6 @@ Changes are made to the master branch quite frequently, so there still might be 
 See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/latest/index.html)
 
 ## To-Do Items
-
-*Before release*
-- [ ] Clean up repository of unused files
 
 *Down the road*
 - [ ] Add thorough module testing

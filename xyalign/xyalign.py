@@ -815,14 +815,14 @@ def bam_analysis_postprocessing():
 
 if __name__ == "__main__":
 	# Version - placeholder for now - need to incorporate it into __init__.py
-	version = "0.0.1"
+	version = "0.1"
 	citation = """
 	XYalign: Inferring Sex Chromosome Ploidy in NGS Data
 
 	Timothy H Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins,
 	Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres
 
-	2016
+	2017
 
 	Version: {}
 	""".format(version)
