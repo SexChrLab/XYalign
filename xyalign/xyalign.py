@@ -380,7 +380,7 @@ def parse_args():
 			sys.exit("Please provide chromosome names to analyze (--chromosomes)")
 	if any(
 		[full_pipeline, args.CHARACTERIZE_SEX_CHROMS]) is True:
-		if len(args.chromosomes) < 1:
+		if len(args.chromosomes) < 2:
 			sys.exit(
 				"You only provided a single chromosome to analyze with "
 				"--chromosomes.  CHARACTERIZE_SEX_CHROMS requires at least two "
