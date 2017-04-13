@@ -78,7 +78,7 @@ def validate_dir(parent_dir, dir_name):
 
 def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 	"""
-	Takes list of chromosomes, uses a BamFile() object to find chromosome lenght,
+	Takes list of chromosomes, uses a BamFile() object to find chromosome length,
 	and outputs a bed file with the length of each chromosome on each line
 	(e.g., chr1    0   247249719).
 

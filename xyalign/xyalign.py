@@ -39,17 +39,18 @@ def parse_args():
 		"structure within this directory")
 
 	parser.add_argument(
-		"--chromosomes", "-c", nargs="+", default=["chrX", "chrY", "chr19"],
+		"--chromosomes", "-c", nargs="+",
 		help="Chromosomes to analyze (names must match reference exactly). "
-		"Defaults to chr19, chrX, chrY.")
+		"For humans, we recommend at least chr19, chrX, chrY.  Generally, we "
+		"suggest including the sex chromosomes and at least one autosome.")
 
 	parser.add_argument(
-		"--x_chromosome", "-x", nargs="+", default=["chrX"],
+		"--x_chromosome", "-x", nargs="*", default=[None],
 		help="Names of x-linked scaffolds in reference fasta (must match "
-		"reference exactly).  Defaults to chrX.")
+		"reference exactly).  ")
 
 	parser.add_argument(
-		"--y_chromosome", "-y", nargs="+", default=["chrY"],
+		"--y_chromosome", "-y", nargs="*", default=[None],
 		help="Names of y-linked scaffolds in reference fasta (must match "
 		"reference exactly). Defaults to chrY. Give None if using an assembly "
 		"without a Y chromosome")
@@ -333,7 +334,7 @@ def parse_args():
 		"--bam", help="Input bam file.")
 
 	group_bam.add_argument(
-		"--cram", help="Input cram file.")
+		"--cram", help="Input cram file. Not currently supported.")
 
 	args = parser.parse_args()
 
@@ -361,25 +362,47 @@ def parse_args():
 				sys.exit(
 					"Error. Either --y_present or --y_absent needs to be "
 					"included with if running the full pipeline "
-					"with --no_bootstrap.")
+					"with --no_bootstrap. XYalign uses the results of the "
+					"bootstrap for sex chromosome complement inference.")
 	if args.REMAPPING is True:
 		if any([args.y_present, args.y_absent]) is False:
 				sys.exit(
 					"Error. Either --y_present or --y_absent needs to be "
-					"included with if runnning --REMAPPING.")
+					"included with if runnning --REMAPPING.  If you are "
+					"interested in both sex chromosome complement inference "
+					"and remapping based on the results of said inference, "
+					"consider running the full pipeline.")
 
 	# Validate chromosome arguments
 	if any(
 		[full_pipeline, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS]) is True:
-		if len(args.chromosomes) == 0:
+		if args.chromosomes == [None]:
 			sys.exit("Please provide chromosome names to analyze (--chromosomes)")
 	if any(
 		[full_pipeline, args.CHARACTERIZE_SEX_CHROMS]) is True:
-		if len(args.chromosomes) == 1:
+		if len(args.chromosomes) < 1:
 			sys.exit(
 				"You only provided a single chromosome to analyze with "
 				"--chromosomes.  CHARACTERIZE_SEX_CHROMS requires at least two "
 				"chromosomes, including one designated as an X chromosome.")
+	if any(
+		[full_pipeline, args.CHARACTERIZE_SEX_CHROMS, args.REMAPPING]) is True:
+		if args.x_chromosome == [None]:
+			sys.exit(
+				"Please provide an 'X chromosome' to analyze (--x_chromosome). "
+				"Note that this does not have to actually be an x-linked sequence, "
+				"but this designation is required for the tests in "
+				"CHARACTERIZE_SEX_CHROMS, which involve pairwise comparisons "
+				"between the 'X chromosome', the 'Y chromosome', and all other "
+				"'autosomes' (see documentation for more details).")
+	if any(
+		[full_pipeline, args.PREPARE_REFERENCE, args.REMAPPING]) is True:
+		if args.y_chromosome == [None]:
+			sys.exit(
+				"Please provide an 'Y chromosome' for the full pipeline, "
+				"--PREPARE_REFERENCE, or --REMAPPING.  It is required for the "
+				"creation and use of an alternate reference (e.g., "
+				"masking the Y chromosome for the XX reference)")
 
 	# Validate bwa arguments
 	bwa_args = [str(x).strip() for x in args.bwa_flags.split()]
@@ -479,7 +502,8 @@ def bam_analysis_noprocessing():
 
 	* (Optionally) parses and filters Platypus vcf, and plots read balance
 
-	* (Optionally) Calculates window based metrics from the bam file: depth and mapq
+	* (Optionally) Calculates window based metrics from the bam file:
+		depth and mapq
 
 	* (optionally) Plots window-based metrics
 
@@ -564,7 +588,7 @@ def ploidy_analysis(passing_df, failing_df):
 	"""
 	# Permutations
 	if args.no_perm_test is False:
-		if args.y_chromosome is not None:
+		if args.y_chromosome is not [None]:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			perm_res_x = []
 			perm_res_y = []
@@ -598,7 +622,7 @@ def ploidy_analysis(passing_df, failing_df):
 
 	# K-S Two Sample
 	if args.no_ks_test is False:
-		if args.y_chromosome is not None:
+		if args.y_chromosome is not [None]:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			ks_res_x = []
 			ks_res_y = []
@@ -628,7 +652,7 @@ def ploidy_analysis(passing_df, failing_df):
 					args.sample_id, str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 	# Bootstrap
 	if args.no_bootstrap is False:
-		if args.y_chromosome is not None:
+		if args.y_chromosome is not [None]:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			boot_res_x = []
 			boot_res_y = []
