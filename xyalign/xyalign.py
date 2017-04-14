@@ -588,7 +588,7 @@ def ploidy_analysis(passing_df, failing_df):
 	"""
 	# Permutations
 	if args.no_perm_test is False:
-		if args.y_chromosome is not [None]:
+		if args.y_chromosome != [None]:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			perm_res_x = []
 			perm_res_y = []
@@ -622,7 +622,7 @@ def ploidy_analysis(passing_df, failing_df):
 
 	# K-S Two Sample
 	if args.no_ks_test is False:
-		if args.y_chromosome is not [None]:
+		if args.y_chromosome != [None]:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			ks_res_x = []
 			ks_res_y = []
@@ -652,7 +652,7 @@ def ploidy_analysis(passing_df, failing_df):
 					args.sample_id, str(args.x_chromosome[0]), str(args.y_chromosome[0])))
 	# Bootstrap
 	if args.no_bootstrap is False:
-		if args.y_chromosome is not [None]:
+		if args.y_chromosome != [None]:
 			sex_chromosomes = args.x_chromosome + args.y_chromosome
 			boot_res_x = []
 			boot_res_y = []
