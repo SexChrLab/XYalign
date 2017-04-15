@@ -619,6 +619,8 @@ def ploidy_analysis(passing_df, failing_df):
 				"chrom", "depth", args.num_permutations,
 				results_path + "/{}.{}_{}_permutation_results.txt".format(
 					args.sample_id, str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+		else:
+			sex_perm_res = None
 
 	# K-S Two Sample
 	if args.no_ks_test is False:
@@ -650,6 +652,9 @@ def ploidy_analysis(passing_df, failing_df):
 				str(args.y_chromosome[0]), "chrom", "depth",
 				results_path + "/{}.{}_{}_ks_results.txt".format(
 					args.sample_id, str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+		else:
+			sex_ks_res = None
+
 	# Bootstrap
 	if args.no_bootstrap is False:
 		if args.y_chromosome != [None]:
@@ -683,6 +688,8 @@ def ploidy_analysis(passing_df, failing_df):
 				"chrom", "depth", args.num_bootstraps,
 				results_path + "/{}.{}_{}_bootstrap_results.txt".format(
 					args.sample_id, str(args.x_chromosome[0]), str(args.y_chromosome[0])))
+		else:
+			sex_boot_res = None
 	return {
 		"perm": [perm_res_x, perm_res_y, sex_perm_res],
 		"ks": [ks_res_x, ks_res_y, sex_ks_res],
@@ -1147,16 +1154,16 @@ if __name__ == "__main__":
 			y_present = False
 			logger.info("--y_absent provided, so remapping for XX individual")
 		else:
-			if ploidy_results["boot"][0] > args.sex_chrom_calling_threshold:
+			if ploidy_results["boot"][2] > args.sex_chrom_calling_threshold:
 				y_present = False
 				logger.info(
 					"X/Y depth ratio ({}) > {}. Y inferred to be absent.".format(
-						ploidy_results["boot"][0], args.sex_chrom_calling_threshold))
+						ploidy_results["boot"][2], args.sex_chrom_calling_threshold))
 			else:
 				y_present = True
 				logger.info(
 					"X/Y depth ratio ({}) <= {}. Y inferred to be present.".format(
-						ploidy_results["boot"][0], args.sex_chrom_calling_threshold))
+						ploidy_results["boot"][2], args.sex_chrom_calling_threshold))
 		sex_chrom_bam = bam.BamFile(remapping(), args.samtools_path)
 		if args.sex_chrom_bam_only is True:
 			final_bam = sex_chrom_bam
