@@ -17,6 +17,11 @@ import reftools
 import utils
 import variants
 
+# Grab XYalign version from _version.py in the xyalign directory
+dir = os.path.dirname(__file__)
+version_py = os.path.join(dir, "_version.py")
+exec(open(version_py).read())
+
 
 def parse_args():
 	"""
@@ -75,6 +80,11 @@ def parse_args():
 	parser.add_argument(
 		"--single_end", action="store_true", default=False,
 		help="Include flag if reads are single-end and NOT paired-end.")
+
+	parser.add_argument(
+		"--version", "-V", action="version",
+		version="XYalign {}".format(__version__),
+		help="Print version and exit.")
 
 	# Options to run specific parts of the pipeline
 	pipeline_group = parser.add_mutually_exclusive_group(required=False)
@@ -846,7 +856,6 @@ def bam_analysis_postprocessing():
 
 if __name__ == "__main__":
 	# Version - placeholder for now - need to incorporate it into __init__.py
-	version = "0.1"
 	citation = """
 	XYalign: Inferring Sex Chromosome Ploidy in NGS Data
 
@@ -856,7 +865,7 @@ if __name__ == "__main__":
 	2017
 
 	Version: {}
-	""".format(version)
+	""".format(__version__)
 
 	# Start timer
 	xyalign_start = time.time()
@@ -915,7 +924,7 @@ if __name__ == "__main__":
 	logger.info("{}".format(citation))
 
 	# Set up param dictionary
-	xyalign_params_dict = {'ID': 'XYalign', 'VN': version, 'CL': []}
+	xyalign_params_dict = {'ID': 'XYalign', 'VN': __version__, 'CL': []}
 	p = ""
 	for arg in args.__dict__:
 		p = p + "{}={}, ".format(arg, args.__dict__[arg])
@@ -925,7 +934,7 @@ if __name__ == "__main__":
 	logger.info("Parameters: {}".format(p))
 	logger.info("Beginning XYalign")
 
-	#Check for external programs
+	# Check for external programs
 	logger.info("Checking external programs")
 	utils.validate_external_prog(args.repairsh_path, "bbmap's repair.sh")
 	utils.validate_external_prog(args.bedtools_path, "bedtools")
