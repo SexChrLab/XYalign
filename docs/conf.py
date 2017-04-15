@@ -112,7 +112,7 @@ author = u'Tim Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins,
 #
 
 # Get version from _version.py in xyalign directory
-exec(open(version_py).read())
+exec(open("../xyalign/_version.py").read())
 
 # The short X.Y version.
 version = u'{}'.format(__version__)
