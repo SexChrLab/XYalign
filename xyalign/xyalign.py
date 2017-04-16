@@ -253,7 +253,7 @@ def parse_args():
 	parser.add_argument(
 		"--sex_chrom_calling_threshold", type=float, default=2.0,
 		help="This is the *maximum* filtered X/Y depth ratio for an individual "
-		"to be considered as having homogametic sex chromsomes (e.g., XX) for "
+		"to be considered as having heterogametic sex chromsomes (e.g., XY) for "
 		"the REMAPPING module of XYalign. "
 		"Note here that X and Y chromosomes are simply the chromosomes that "
 		"have been designated as X and Y via --x_chromosome and --y_chromosome. "
