@@ -49,7 +49,7 @@ def parse_args():
 		"For humans, we recommend at least chr19, chrX, chrY.  Generally, we "
 		"suggest including the sex chromosomes and at least one autosome. "
 		"To analyze all chromosomes use '--chromosomes ALL' or "
-		"'--chromosomes all'".)
+		"'--chromosomes all'.")
 
 	parser.add_argument(
 		"--x_chromosome", "-x", nargs="*", default=[None],
