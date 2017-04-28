@@ -47,7 +47,9 @@ def parse_args():
 		"--chromosomes", "-c", nargs="*", default=[None],
 		help="Chromosomes to analyze (names must match reference exactly). "
 		"For humans, we recommend at least chr19, chrX, chrY.  Generally, we "
-		"suggest including the sex chromosomes and at least one autosome.")
+		"suggest including the sex chromosomes and at least one autosome. "
+		"To analyze all chromosomes use '--chromosomes ALL' or "
+		"'--chromosomes all'".)
 
 	parser.add_argument(
 		"--x_chromosome", "-x", nargs="*", default=[None],
@@ -535,7 +537,7 @@ def bam_analysis_noprocessing():
 	if args.platypus_calling in ["both", "before"]:
 		a = variants.platypus_caller(
 			args.platypus_path, noprocessing_vcf_log, input_bam.filepath,
-			ref.filepath, args.chromosomes, args.cpus, noprocessing_vcf,
+			ref.filepath, input_chromosomes, args.cpus, noprocessing_vcf,
 			None)
 		if a != 0:
 			logger.error("Error in platypus calling on {}".format(
@@ -544,7 +546,7 @@ def bam_analysis_noprocessing():
 			sys.exit(1)
 		if args.no_variant_plots is not True:
 			variants.plot_variants_per_chrom(
-				args.chromosomes, noprocessing_vcf,
+				input_chromosomes, noprocessing_vcf,
 				args.sample_id, readbalance_prefix_noprocessing,
 				args.variant_quality_cutoff, args.marker_size,
 				args.marker_transparency, input_bam)
@@ -552,7 +554,7 @@ def bam_analysis_noprocessing():
 	if args.no_bam_analysis is not True:
 		pass_df = []
 		fail_df = []
-		for chromosome in args.chromosomes:
+		for chromosome in input_chromosomes:
 			if args.window_size is not None and args.window_size != "None":
 				data = input_bam.analyze_bam_fetch(
 					chromosome, int(args.window_size))
@@ -613,7 +615,7 @@ def ploidy_analysis(passing_df, failing_df):
 			perm_res_x = []
 			perm_res_y = None
 		autosomes = [
-			x for x in args.chromosomes if x not in sex_chromosomes]
+			x for x in input_chromosomes if x not in sex_chromosomes]
 		for c in autosomes:
 			perm_res_x.append(ploidy.permutation_test_chromosomes(
 				pd.concat(passing_df), c,
@@ -649,7 +651,7 @@ def ploidy_analysis(passing_df, failing_df):
 			ks_res_x = []
 			ks_res_y = None
 		autosomes = [
-			x for x in args.chromosomes if x not in sex_chromosomes]
+			x for x in input_chromosomes if x not in sex_chromosomes]
 		for c in autosomes:
 			ks_res_x.append(ploidy.ks_two_sample(
 				pd.concat(passing_df), c,
@@ -682,7 +684,7 @@ def ploidy_analysis(passing_df, failing_df):
 			boot_res_x = []
 			boot_res_y = None
 		autosomes = [
-			x for x in args.chromosomes if x not in sex_chromosomes]
+			x for x in input_chromosomes if x not in sex_chromosomes]
 		for c in autosomes:
 			boot_res_x.append(ploidy.bootstrap(
 				pd.concat(passing_df), c,
@@ -817,7 +819,7 @@ def bam_analysis_postprocessing():
 	if args.no_bam_analysis is not True:
 		pass_df = []
 		fail_df = []
-		for chromosome in args.chromosomes:
+		for chromosome in input_chromosomes:
 			if args.window_size is not None and args.window_size != "None":
 				data = final_bam.analyze_bam_fetch(
 					chromosome, int(args.window_size))
@@ -844,7 +846,7 @@ def bam_analysis_postprocessing():
 	if args.platypus_calling in ["both", "after"]:
 		a = variants.platypus_caller(
 			args.platypus_path, postprocessing_vcf_log, input_bam.filepath,
-			ref.filepath, args.chromosomes, args.cpus, postprocessing_vcf,
+			ref.filepath, input_chromosomes, args.cpus, postprocessing_vcf,
 			include_bed)
 		if a != 0:
 			logger.error("Error in platypus calling on {}".format(
@@ -853,7 +855,7 @@ def bam_analysis_postprocessing():
 			sys.exit(1)
 		if args.no_variant_plots is not True:
 			variants.plot_variants_per_chrom(
-				args.chromosomes, postprocessing_vcf,
+				input_chromosomes, postprocessing_vcf,
 				args.sample_id, readbalance_prefix_postprocessing,
 				args.variant_quality_cutoff, args.marker_size,
 				args.marker_transparency, final_bam)
@@ -1042,8 +1044,13 @@ if __name__ == "__main__":
 	######################################
 	input_bam = bam.BamFile(args.bam, args.samtools_path)
 
+	if args.chromosomes == ["ALL"] or args.chromosomes == ["all"]:
+		input_chromosomes = list(input_bam.chromosome_names())
+	else:
+		input_chromosomes = args.chromosomes
+
 	if any([args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS, args.STRIP_READS]) is True:
-		missing_chroms = utils.check_chrom_in_bam(input_bam, args.chromosomes)
+		missing_chroms = utils.check_chrom_in_bam(input_bam, input_chromosomes)
 		if len(missing_chroms) != 0:
 			logger.error(
 				"One or more chromosomes provided via --chromosomes not "
@@ -1059,7 +1066,7 @@ if __name__ == "__main__":
 				input_bam.filepath))
 		stripped_fastqs = input_bam.strip_reads(
 			args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-			args.chromosomes)
+			input_chromosomes)
 		logger.info("STRIP_READS complete. Output in {}".format(fastq_path))
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -1171,12 +1178,12 @@ if __name__ == "__main__":
 	else:
 		logger.info(
 			"Running entire XYalign pipeline")
-		missing_chroms = utils.check_chrom_in_bam(input_bam, args.chromosomes)
+		missing_chroms = utils.check_chrom_in_bam(input_bam, input_chromosomes)
 		if len(missing_chroms) != 0:
 			logger.error(
 				"One or more chromosomes provided via --chromosomes not "
 				"present in bam file. Exiting.")
-			logging.shutdown(1)
+			logging.shutdown()
 			sys.exit(1)
 		if args.xx_ref_in is None or args.xy_ref_in is None:
 			logger.info(
