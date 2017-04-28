@@ -1041,6 +1041,16 @@ if __name__ == "__main__":
 	#            Run XYalign             #
 	######################################
 	input_bam = bam.BamFile(args.bam, args.samtools_path)
+	if any(
+		[full_pipeline, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS,
+			args.STRIP_READS]) is True:
+			missing_chroms = utils.check_chrom_in_bam(input_bam, args.chromosomes)
+			if len(missing_chroms) != 0:
+				logger.error(
+					"One or more chromosomes provided via --chromosomes not "
+					"present in bam file. Exiting.")
+				logging.shutdown(1)
+				sys.exit(1)
 
 	# Strip reads only
 	# This module is isolated first because it does not require a reference fasta

@@ -127,6 +127,42 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 	return output_file
 
 
+def check_chrom_in_bam(bam_object, chromosome_list):
+	"""
+	Checks to see if all chromosomes in chromosome_list are in bam file
+
+	Parameters
+	----------
+
+	bam_object : BamFile() object
+	chromosome_list : list
+			Chromosomes/scaffolds to check
+
+	Returns
+	-------
+
+	list
+		List of chromosomes not in bam file
+	"""
+	utils_logger.info(
+		"Checking to ensure all chromosomes are found in {}".format(bam_object.filepath))
+	bam_chroms = bam_object.chromosome_names
+
+	missing_list = []
+	for c in chromosome_list:
+		if c not in bam_chroms:
+			missing_list.append(c)
+
+	if len(missing_list) > 0:
+		utils_logger.info(
+			"The following chromosomes were not found in {}: {}".format(
+				bam_object.filepath, ",".join(missing_list)))
+	else:
+		utils_logger.info(
+			"All chromosomes present in {}".format(bam_object.filepath))
+	return missing_list
+
+
 def check_bam_fasta_compatibility(bam_object, fasta_object):
 	"""
 	Checks to see if bam and fasta sequence names and lengths are
