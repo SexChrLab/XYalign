@@ -44,7 +44,7 @@ def parse_args():
 		"structure within this directory")
 
 	parser.add_argument(
-		"--chromosomes", "-c", nargs="+",
+		"--chromosomes", "-c", nargs="*", default=[None],
 		help="Chromosomes to analyze (names must match reference exactly). "
 		"For humans, we recommend at least chr19, chrX, chrY.  Generally, we "
 		"suggest including the sex chromosomes and at least one autosome.")
@@ -357,7 +357,7 @@ def parse_args():
 
 	mods = [
 		args.PREPARE_REFERENCE, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS,
-		args.REMAPPING]
+		args.REMAPPING, args.STRIP_READS]
 	if not any(mods) is True:
 		full_pipeline = True
 	else:
@@ -390,7 +390,8 @@ def parse_args():
 
 	# Validate chromosome arguments
 	if any(
-		[full_pipeline, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS]) is True:
+		[full_pipeline, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS,
+			args.STRIP_READS]) is True:
 		if args.chromosomes == [None]:
 			sys.exit("Please provide chromosome names to analyze (--chromosomes)")
 	if any(
