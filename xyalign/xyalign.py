@@ -112,6 +112,11 @@ def parse_args():
 		"strip reads and remap to masked references. If masked references "
 		"are not provided, they will be created.")
 
+	pipeline_group.add_argument(
+		"--STRIP_READS", action="store_true", default=False,
+		help="This flag will limit XYalign to only the steps required to "
+		"strip reads from a provided bam file.")
+
 	# Logging options
 	parser.add_argument(
 		"--logfile", default=None,
@@ -1034,8 +1039,25 @@ if __name__ == "__main__":
 	######################################
 	#            Run XYalign             #
 	######################################
-	ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
 	input_bam = bam.BamFile(args.bam, args.samtools_path)
+
+	# Strip reads only
+	# This module is isolated first because it does not require a reference fasta
+	if args.STRIP_READS is True:
+		logger.info(
+			"STRIP_READS set, so only stripping reads from {}.".format(
+				input_bam.filepath))
+		stripped_fastqs = input_bam.strip_reads(
+			args.repairsh_path, args.single_end, fastq_path, args.sample_id,
+			args.chromosomes)
+		logger.info("STRIP_READS complete. Output in {}".format(fastq_path))
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
+		logging.shutdown()
+		sys.exit(0)
+
+	# Other modules
+	ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
 
 	# Check to ensure bam and fasta are compatible and imports work
 	if args.skip_compatibility_check is False:

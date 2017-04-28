@@ -24,6 +24,7 @@ Xyalign is composed of the following modules that can be thought of as steps in 
 	ANALYZE_BAM
 	CHARACTERIZE_SEX_CHROMS
 	REMAPPING
+	STRIP_READS
 
 Each of these modules can be invoked as a command line flag with no arguments
 (e.g., ``--PREPARE_REFERENCE``), and XYalign will execute *only that module*.  If no flags
@@ -77,7 +78,8 @@ working on a cluster with 4 cores available to XYalign.
 ::
 
 	python xyalign.py --PREPARE_REFERENCE --ref reference.fasta --bam input.bam \
-	--output_dir sample1_output --sample_id sample1 --cpus 4 --reference_mask mask.bed
+	--output_dir sample1_output --sample_id sample1 --cpus 4 --reference_mask mask.bed \
+	--chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY
 
 Here, ``mask.bed`` is a bed file containing regions to mask in *both* output reference
 genomes (e.g., coordinates for the pseudoautosomal regions on the Y chromosome).  More
@@ -92,7 +94,8 @@ defaults can be changed with the ``--xx_ref_out`` and ``--xy_ref_out`` flags.
 ::
 
 	python xyalign.py --ANALYZE_BAM --ref reference.fasta --bam input.bam \
-	--output_dir sample1_output --sample_id sample1 --cpus 4 --window_size 10000
+	--output_dir sample1_output --sample_id sample1 --cpus 4 --window_size 10000 \
+	--chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY
 
 Here, 10000 is the fixed window size to use in (nonoverlapping) sliding window
 analyses of the bam file.  If you're working with targeted sequencing data (e.g. exome),
@@ -115,7 +118,8 @@ high and low quality windows in ``sample1_output/plots``.
 ::
 
 	python xyalign.py --CHARACTERIZE_SEX_CHROMS --ref reference.fasta --bam input.bam \
-	--output_dir sample1_output --sample_id sample1 --cpus 4 --window_size 10000
+	--output_dir sample1_output --sample_id sample1 --cpus 4 --window_size 10000 \
+	--chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY
 
 Settings here are identical to 3 because the first step of CHARACTERIZE_SEX_CHROMS
 involves running ANALYZE_BAM.
@@ -128,6 +132,7 @@ results of a series of statistical tests in ``sample1_output/results``.
 
 	python xyalign.py --REMAPPING --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 \
+	--chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY \
 	--xx_ref_in sample1_output/reference/xyalign_noY.masked.fa \
 	--xy_ref_in sample1_output/reference/xyalign_withY.masked.fa \
 	--y_absent
@@ -139,6 +144,23 @@ knowledge).  If a Y is present, we would have used ``--y_present`` instead.  REM
 requires one of those two flags, as it does not involve any steps to estimate
 sex chromosome content (those are carried out in CHARACTERIZE_SEX_CHROMS).
 
+5. STRIP_READS
+::
+	python xyalign.py --STRIP_READS --ref reference.fasta --bam input.bam \
+	--output_dir sample1_output --sample_id sample1 --cpus 4 \
+	--chromosomes chr1 chr2 chr3 chr4 chr5
+
+This will strip the reads, by read group, from chromosomes 1-5 and output
+a pair of fastqs per read group, as well as the read groups themselves, and a
+text file connecting fastqs with their respective read groups in the directory
+`` sample1_output/fastq ``.  If we were working with single-end reads, we would
+have had to include the flag `` --single_end ``.  Here, the reference file isn't
+used at all (it's a general requirement of XYalign), so a dummy file can be used
+in its place.  Currently, all chromosomes from which reads should be stripped need
+to be included, so if you want all reads in the genome, you need to enumerate
+all chromosomes in the genome.  We understand that this is inconvenient and
+are working on a way to make this easier soon.
+
 5. Full pipeline
 
 And if we want to run the full XYalign pipeline on a sample, we'd use a command line
@@ -146,7 +168,7 @@ along the lines of::
 
 	python xyalign.py --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 --reference_mask mask.bed \
-	--window_size 10000
+	--window_size 10000 \ --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY
 
 We could have optionally provided preprocessed reference genomes with ``--xx_ref_in``
 and ``--xx_ref_in``, as in 4.  We could have also used ``--y_absent`` or ``--y_present``
