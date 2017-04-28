@@ -146,7 +146,7 @@ def check_chrom_in_bam(bam_object, chromosome_list):
 	"""
 	utils_logger.info(
 		"Checking to ensure all chromosomes are found in {}".format(bam_object.filepath))
-	bam_chroms = bam_object.chromosome_names
+	bam_chroms = bam_object.chromosome_names()
 
 	missing_list = []
 	for c in chromosome_list:
