@@ -1048,7 +1048,7 @@ if __name__ == "__main__":
 			logger.error(
 				"One or more chromosomes provided via --chromosomes not "
 				"present in bam file. Exiting.")
-			logging.shutdown(1)
+			logging.shutdown()
 			sys.exit(1)
 
 	# Strip reads only
