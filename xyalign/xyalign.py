@@ -1064,9 +1064,14 @@ if __name__ == "__main__":
 		logger.info(
 			"STRIP_READS set, so only stripping reads from {}.".format(
 				input_bam.filepath))
-		stripped_fastqs = input_bam.strip_reads(
-			args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-			input_chromosomes)
+		if args.chromosomes == ["ALL"] or args.chromosomes == ["all"]:
+			stripped_fastqs = input_bam.strip_reads(
+				args.repairsh_path, args.single_end, fastq_path, args.sample_id,
+				[])
+		else:
+			stripped_fastqs = input_bam.strip_reads(
+				args.repairsh_path, args.single_end, fastq_path, args.sample_id,
+				input_chromosomes)
 		logger.info("STRIP_READS complete. Output in {}".format(fastq_path))
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
