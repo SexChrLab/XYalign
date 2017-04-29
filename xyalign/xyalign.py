@@ -315,16 +315,6 @@ def parse_args():
 		"2843-2851) for more information.  Default is 4.")
 
 	parser.add_argument(
-		"--high_quality_bed_out", "-hq", default=None,
-		help="Prefix of output file for high quality regions. Defaults to "
-		"sample_id_highquality")
-
-	parser.add_argument(
-		"--low_quality_bed_out", "-lq", default=None,
-		help="Prefix of output file for low quality regions. Defaults to "
-		"sample_id_lowquality")
-
-	parser.add_argument(
 		"--num_permutations", type=int, default=10000,
 		help="Number of permutations to use for permutation analyses. "
 		"Default is 10000")
@@ -552,6 +542,7 @@ def bam_analysis_noprocessing():
 				args.marker_transparency, input_bam)
 	# Depth/MAPQ
 	if args.no_bam_analysis is not True:
+		all_df = []
 		pass_df = []
 		fail_df = []
 		for chromosome in input_chromosomes:
@@ -567,12 +558,16 @@ def bam_analysis_noprocessing():
 			else:
 				tup = utils.make_region_lists_chromosome_filters(
 					data["windows"], args.mapq_cutoff, args.depth_filter)
+			all_df.append(data)
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			utils.plot_depth_mapq(
 				data, depth_mapq_prefix_noprocessing, args.sample_id,
 				input_bam.get_chrom_length(chromosome), args.marker_size,
 				args.marker_transparency)
+		all_concat = pd.concat(all_df)
+		all_concat.to_csv(
+			data_frame_preprocessing, sep="\t", quoting=csv.QUOTE_NONE)
 		utils.output_bed(output_bed_high, *pass_df)
 		utils.output_bed(output_bed_low, *fail_df)
 	return(pass_df, fail_df)
@@ -817,6 +812,7 @@ def bam_analysis_postprocessing():
 	"""
 	# Depth/MAPQ
 	if args.no_bam_analysis is not True:
+		all_df = []
 		pass_df = []
 		fail_df = []
 		for chromosome in input_chromosomes:
@@ -832,12 +828,16 @@ def bam_analysis_postprocessing():
 			else:
 				tup = utils.make_region_lists_chromosome_filters(
 					data["windows"], args.mapq_cutoff, args.depth_filter)
+			all_df.append(data)
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			utils.plot_depth_mapq(
 				data, depth_mapq_prefix_postprocessing, args.sample_id,
 				final_bam.get_chrom_length(chromosome), args.marker_size,
 				args.marker_transparency)
+		all_concat = pd.concat(all_df)
+		all_concat.to_csv(
+			data_frame_postprocessing, sep="\t", quoting=csv.QUOTE_NONE)
 		utils.output_bed(output_bed_high_postprocessing, *pass_df)
 		utils.output_bed(output_bed_low_postprocessing, *fail_df)
 
@@ -998,6 +998,10 @@ if __name__ == "__main__":
 	depth_mapq_prefix_postprocessing = os.path.join(
 		plots_path, "{}_postprocessing".format(args.sample_id))
 	# Bedfile related
+	data_frame_preprocessing = os.path.join(
+		bed_path, "{}_full_dataframe_preprocessing.csv".format(args.sample_id))
+	data_frame_postprocessing = os.path.join(
+		bed_path, "{}_full_dataframe_postprocessing.csv".format(args.sample_id))
 	high_prefix = "{}_highquality_preprocessing".format(args.sample_id)
 	output_bed_high = os.path.join(
 		bed_path, "{}.bed".format(high_prefix))

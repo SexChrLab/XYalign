@@ -1,0 +1,21 @@
+# CHANGELOG
+
+# List in reverse chronological order
+# Only listing changes since previous version/release
+
+Development Version (currently branch called noY_support)
+	* Output full dataframes from bam analyses in addition to high/low bed files
+	* Removed flags --high_quality_bed_out and --low_quality_bed_out (unused)
+	* Fixed bug in which postprocessing bed files were overwriting preprocessing ones (with the same name)
+	* Added STRIP_READS module to allow for read stripping outside of REMAPPING
+	* Added option for --chromosomes ALL, to easily analyze all chromosomes
+	* Added check to ensure provided chromosomes are in bam file
+	* Fixed bug in threshold for calling individual as XY
+	* Generalized COMPARE_SEX_CHROMS so X-Y pairwise comparisons not necessary
+	* Added support for reference genomes with only a single sex chromosome sequenced (e.g., in XY systems, but only X in the reference)
+
+Version 0.1.1
+	* Updated documentation
+
+Version 0.1
+	* Initial release
