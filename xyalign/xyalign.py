@@ -998,46 +998,20 @@ if __name__ == "__main__":
 	depth_mapq_prefix_postprocessing = os.path.join(
 		plots_path, "{}_postprocessing".format(args.sample_id))
 	# Bedfile related
-	if args.high_quality_bed_out is not None:
-		# high_prefix = args.high_quality_bed_out
-		print(
-			"--high_quality_bed_out is currently unsupported.  Please remove "
-			"this flag")
-		logging.shutdown()
-		sys.exit(1)
-	else:
-		high_prefix = "{}_highquality_preprocessing".format(args.sample_id)
+	high_prefix = "{}_highquality_preprocessing".format(args.sample_id)
 	output_bed_high = os.path.join(
 		bed_path, "{}.bed".format(high_prefix))
-	if args.low_quality_bed_out is not None:
-		# low_prefix = args.low_quality_bed_out
-		print(
-			"--low_quality_bed_out is currently unsupported.  Please remove "
-			"this flag")
-	else:
-		low_prefix = "{}_lowquality_preprocessing".format(args.sample_id)
+	low_prefix = "{}_lowquality_preprocessing".format(args.sample_id)
 	output_bed_low = os.path.join(
 		bed_path, "{}.bed".format(low_prefix))
-	if args.high_quality_bed_out is not None:
-		# high_prefix_postprocessing = args.high_quality_bed_out
-		print(
-			"--high_quality_bed_out is currently unsupported.  Please remove "
-			"this flag")
-	else:
-		high_prefix_postprocessing = "{}_highquality_postprocessing".format(
-			args.sample_id)
+	high_prefix_postprocessing = "{}_highquality_postprocessing".format(
+		args.sample_id)
 	output_bed_high_postprocessing = os.path.join(
-		bed_path, "{}.bed".format(high_prefix))
-	if args.low_quality_bed_out is not None:
-		# low_prefix_postprocessing = args.low_quality_bed_out
-		print(
-			"--low_quality_bed_out is currently unsupported.  Please remove "
-			"this flag")
-	else:
-		low_prefix_postprocessing = "{}_lowquality_postprocessing".format(
-			args.sample_id)
+		bed_path, "{}.bed".format(high_prefix_postprocessing))
+	low_prefix_postprocessing = "{}_lowquality_postprocessing".format(
+		args.sample_id)
 	output_bed_low_postprocessing = os.path.join(
-		bed_path, "{}.bed".format(low_prefix))
+		bed_path, "{}.bed".format(low_prefix_postprocessing))
 
 	######################################
 	#            Run XYalign             #
