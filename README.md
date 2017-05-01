@@ -38,13 +38,14 @@ See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/lates
 	- not clear if this is necessary or valuable
 - [ ] Handle duplicate reads
 	- not clear if this is necessary or valuable
-- [ ] Output high and low-quality bed files after second round of bam analyses
-- [ ] Add histogram plotting for depth and mapq
+- [X] Output high and low-quality bed files after second round of bam analyses
+- [X] Add histogram plotting for depth and mapq
 - [ ] Add cram and sam support
 - [ ] Implement some kind of checkpointing functionality
 - [ ] Run bwa indexing in parallel
 	- this might be a bit more difficult that it seems due to memory requirements for large genomes
 - [ ] Implement subparser
+- [ ] Implement Xmx tuning option
 
 ## Group Members
 Name | email | github ID

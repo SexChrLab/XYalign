@@ -446,10 +446,69 @@ def chromosome_wide_plot(
 	return 0
 
 
+def hist_array(chrom, value_array, measure_name, sampleID, output_prefix):
+	"""
+	Plots a histogram of an array of values of interest. Intended for mapq and
+	depth, but generalizeable.  Separate function from variants.hist_read_balance
+	because that function eliminates fixed variants, while this function will
+	plot all values.
+
+	Parameters
+	----------
+
+	chrom : str
+		Name of the chromosome
+	value_array : numpy array
+		Read balance values
+	measure_name : str
+		The name of the measure of interest (y axis title)
+	sampleID : str
+		Sample name or id to include in the plot title
+	output_prefix : str
+		Desired prefix (including full path) of the output files
+
+	Returns
+	-------
+
+	int
+		0 if plotting successful, 1 otherwise.
+
+	"""
+	if len(value_array) < 1:
+		utils_logger.info(
+			"No {} values on {} to plot histogram. Skipping.".format(
+				measure_name, chrom))
+		return 1
+	else:
+		if "x" in chrom.lower():
+			Color = "green"
+		elif "y" in chrom.lower():
+			Color = "blue"
+		else:
+			Color = "red"
+		fig = plt.figure(figsize=(8, 8))
+		axes = fig.add_subplot(111)
+		axes.set_title("{} - {}".format(sampleID, chrom))
+		axes.set_xlabel("{}".format(measure_name))
+		axes.set_ylabel("Frequency")
+		axes.hist(value_array, bins=50, color=Color)
+		plt.savefig("{}_{}_{}_Hist.svg".format(output_prefix, chrom, measure_name))
+		plt.savefig("{}_{}_{}_Hist.png".format(output_prefix, chrom, measure_name))
+		plt.close(fig)
+		variants_logger.info(
+			"{} histogram of {} complete.".format(measure_name, chrom))
+		return 0
+
+
 def plot_depth_mapq(
 	data_dict, output_prefix, sampleID, chrom_length, MarkerSize, MarkerAlpha):
 	"""
 	Creates histograms and genome-wide plots of various metrics.
+
+	Note that the odd import format (a dictionary, in which "windows" is the
+	key whose value is the pandas dataframe of interest) is a carryover from
+	previous versions of this function that required a variety of pandas
+	dataframes.
 
 	Parameters
 	----------
@@ -473,54 +532,26 @@ def plot_depth_mapq(
 
 	window_df = None if "windows" not in data_dict else data_dict[
 		"windows"]
-	depth_hist = None if "depth_freq" not in data_dict else data_dict[
-		"depth_freq"]
-	readbal_hist = None if "readbal_freq" not in data_dict else data_dict[
-		"readbal_freq"]
-	mapq_hist = None if "mapq_freq" not in data_dict else data_dict[
-		"mapq_freq"]
 
 	chromosome = window_df["chrom"][1]
 
 	# Create genome-wide plots based on window means
 	if window_df is not None:
 		# depth plot
-		# depth_genome_plot_path = os.path.join(
-		# 	output_dir, "depth_windows." + chromosome + ".png")
-		# depth_genome_plot = sns.lmplot(
-		# 	'start', 'depth', data=window_df, fit_reg=False,
-		# 	scatter_kws={'alpha': 0.3})
-		# depth_genome_plot.savefig(depth_genome_plot_path)
 		chromosome_wide_plot(
 			chromosome, window_df["start"].values, window_df["depth"].values,
 			"Depth", sampleID, output_prefix,
 			MarkerSize, MarkerAlpha,
 			chrom_length, 100)
+		hist_array(
+			chromosome, window_df["depth"], "Depth", sampleID, output_prefix)
 
 		# mapping quality plot
-		# mapq_genome_plot_path = os.path.join(
-		# 	output_dir, "mapq_windows." + chrom + ".png")
-		# mapq_genome_plot = sns.lmplot(
-		# 	'start', 'mapq', data=window_df, fit_reg=False)
-		# mapq_genome_plot.savefig(mapq_genome_plot_path)
 		chromosome_wide_plot(
 			chromosome, window_df["start"].values, window_df["mapq"].values,
 			"Mapq", sampleID, output_prefix,
 			MarkerSize, MarkerAlpha, chrom_length, 80)
+		hist_array(
+			chromosome, window_df["mapq"], "Mapq", sampleID, output_prefix)
 
-	# Create histograms
-	# TODO: update filenames dynamically like window_df above
-	# TODO: update Count column name
-	if depth_hist is not None:
-		depth_bar_plot = sns.countplot(
-			x='depth', y='Count', data=depth_hist)
-		depth_bar_plot.savefig("depth_hist.png")
-	if readbal_hist is not None:
-		balance_bar_plot = sns.countplot(
-			x='ReadBalance', y='Count', data=readbal_hist)
-		balance_bar_plot.savefig("readbalance_hist.png")
-	if mapq_hist is not None:
-		mapq_bar_plot = sns.countplot(
-			x='Mapq', y='Count', data=mapq_hist)
-		mapq_bar_plot.savefig("mapq_hist.png")
 	return 0
