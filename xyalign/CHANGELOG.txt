@@ -4,6 +4,7 @@
 # Only listing changes since previous version/release
 
 Development Version (currently branch called noY_support)
+	* Output histograms of depth and mapq for each chromosome
 	* Output full dataframes from bam analyses in addition to high/low bed files
 	* Removed flags --high_quality_bed_out and --low_quality_bed_out (unused)
 	* Fixed bug in which postprocessing bed files were overwriting preprocessing ones (with the same name)

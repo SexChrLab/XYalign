@@ -46,6 +46,7 @@ See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/lates
 	- this might be a bit more difficult that it seems due to memory requirements for large genomes
 - [ ] Implement subparser
 - [ ] Implement Xmx tuning option
+- [ ] More tuning of plotting parameters (font, color, size, etc.)
 
 ## Group Members
 Name | email | github ID
