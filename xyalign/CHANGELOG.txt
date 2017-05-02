@@ -4,6 +4,7 @@
 # Only listing changes since previous version/release
 
 Development Version (currently branch called noY_support)
+	* Add -xmx flag for repair.sh (was having issues estimating/allocating memory when sorting reads from whole genome)
 	* Output histograms of depth and mapq for each chromosome
 	* Output full dataframes from bam analyses in addition to high/low bed files
 	* Removed flags --high_quality_bed_out and --low_quality_bed_out (unused)

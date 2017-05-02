@@ -171,7 +171,7 @@ class BamFile():
 
 	def strip_reads(
 		self, repairsh, single, output_directory,
-		output_prefix, regions):
+		output_prefix, regions, repair_xmx):
 		"""
 		Strips reads from a bam or cram file in provided regions and outputs
 		sorted fastqs containing reads, one set of fastq files per read group.
@@ -189,6 +189,10 @@ class BamFile():
 			The name (without path) to use for prefix to output fastqs
 		regions : list
 			regions from which reads will be stripped
+		repair_xmx : str
+			If "None", repair.sh will allocate its own memory. Otherwise value
+			will be provided in the form of -Xmx4g, where 4g is the value provided
+			as repair_xmx
 
 		Returns
 		-------
@@ -241,12 +245,20 @@ class BamFile():
 								"Stripping paired reads with command: {}".format(
 									command_line))
 							subprocess.call(command_line, shell=True)
-							command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
-								repairsh,
-								output_directory + "/{}.temp_1.fastq".format(output_prefix),
-								output_directory + "/{}.temp_2.fastq".format(output_prefix),
-								output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
-								output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
+							if repair_xmx == "None":
+								command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
+									repairsh,
+									output_directory + "/{}.temp_1.fastq".format(output_prefix),
+									output_directory + "/{}.temp_2.fastq".format(output_prefix),
+									output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
+									output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
+							else:
+								command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} overwrite=true".format(
+									repairsh, repair_xmx,
+									output_directory + "/{}.temp_1.fastq".format(output_prefix),
+									output_directory + "/{}.temp_2.fastq".format(output_prefix),
+									output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
+									output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
 							self.logger.info(
 								"Sorting reads with command: {}".format(
 									command_line))
@@ -264,10 +276,16 @@ class BamFile():
 								"Stripping single-end reads with command: {}".format(
 									command_line))
 							subprocess.call(command_line, shell=True)
-							command_line = "{} in={} out={} overwrite=true".format(
-								repairsh,
-								output_directory + "/{}.temp.fastq".format(output_prefix),
-								output_directory + "/" + output_prefix + "_" + rg + ".fastq")
+							if repair_xmx == "None":
+								command_line = "{} in={} out={} overwrite=true".format(
+									repairsh,
+									output_directory + "/{}.temp.fastq".format(output_prefix),
+									output_directory + "/" + output_prefix + "_" + rg + ".fastq")
+							else:
+								command_line = "{} -Xmx{} in={} out={} overwrite=true".format(
+									repairsh, repair_xmx,
+									output_directory + "/{}.temp.fastq".format(output_prefix),
+									output_directory + "/" + output_prefix + "_" + rg + ".fastq")
 							self.logger.info(
 								"Sorting reads with command: {}".format(
 									command_line))

@@ -74,7 +74,7 @@ def parse_args():
 	parser.add_argument(
 		"--xmx", default="None",
 		help="Memory to be provided to java programs via -Xmx.  E.g., use the "
-		"flag '--xmx Xmx4g' to pass '-Xmx4g' as a flag when running java "
+		"flag '--xmx 4g' to pass '-Xmx4g' as a flag when running java "
 		"programs (currently just repair.sh). Default is 'None' (i.e., nothing "
 		"provided on the command line), which will allow repair.sh to "
 		"automatically allocate memory.")
@@ -733,7 +733,7 @@ def remapping():
 		new_reference = masked_refs[0]
 	new_fastqs = input_bam.strip_reads(
 		args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-		args.x_chromosome + args.y_chromosome)
+		args.x_chromosome + args.y_chromosome, args.xmx)
 	with open(new_fastqs[0]) as f:
 		read_group_and_fastqs = [line.strip() for line in f]
 		read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
@@ -1045,11 +1045,11 @@ if __name__ == "__main__":
 		if args.chromosomes == ["ALL"] or args.chromosomes == ["all"]:
 			stripped_fastqs = input_bam.strip_reads(
 				args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-				[])
+				[], args.xmx)
 		else:
 			stripped_fastqs = input_bam.strip_reads(
 				args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-				input_chromosomes)
+				input_chromosomes, args.xmx)
 		logger.info("STRIP_READS complete. Output in {}".format(fastq_path))
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
