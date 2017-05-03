@@ -491,7 +491,7 @@ def hist_array(chrom, value_array, measure_name, sampleID, output_prefix):
 		axes.set_title("{} - {}".format(sampleID, chrom))
 		axes.set_xlabel("{}".format(measure_name))
 		axes.set_ylabel("Frequency")
-		axes.hist(value_array, bins=50, color=Color)
+		axes.hist(value_array.dropna(), bins=50, color=Color)
 		plt.savefig("{}_{}_{}_Hist.svg".format(output_prefix, chrom, measure_name))
 		plt.savefig("{}_{}_{}_Hist.png".format(output_prefix, chrom, measure_name))
 		plt.close(fig)
