@@ -495,7 +495,7 @@ def hist_array(chrom, value_array, measure_name, sampleID, output_prefix):
 		plt.savefig("{}_{}_{}_Hist.svg".format(output_prefix, chrom, measure_name))
 		plt.savefig("{}_{}_{}_Hist.png".format(output_prefix, chrom, measure_name))
 		plt.close(fig)
-		variants_logger.info(
+		utils_logger.info(
 			"{} histogram of {} complete.".format(measure_name, chrom))
 		return 0
 
