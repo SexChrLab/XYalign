@@ -3,6 +3,7 @@
 from __future__ import division
 from __future__ import print_function
 import argparse
+import csv
 import logging
 import os
 import subprocess
@@ -558,7 +559,7 @@ def bam_analysis_noprocessing():
 			else:
 				tup = utils.make_region_lists_chromosome_filters(
 					data["windows"], args.mapq_cutoff, args.depth_filter)
-			all_df.append(data)
+			all_df.append(data["windows"])
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			utils.plot_depth_mapq(
@@ -567,7 +568,7 @@ def bam_analysis_noprocessing():
 				args.marker_transparency)
 		all_concat = pd.concat(all_df)
 		all_concat.to_csv(
-			data_frame_preprocessing, sep="\t", quoting=csv.QUOTE_NONE)
+			data_frame_preprocessing, index=False, sep="\t", quoting=csv.QUOTE_NONE)
 		utils.output_bed(output_bed_high, *pass_df)
 		utils.output_bed(output_bed_low, *fail_df)
 	return(pass_df, fail_df)
@@ -828,7 +829,7 @@ def bam_analysis_postprocessing():
 			else:
 				tup = utils.make_region_lists_chromosome_filters(
 					data["windows"], args.mapq_cutoff, args.depth_filter)
-			all_df.append(data)
+			all_df.append(data["windows"])
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			utils.plot_depth_mapq(
@@ -837,7 +838,7 @@ def bam_analysis_postprocessing():
 				args.marker_transparency)
 		all_concat = pd.concat(all_df)
 		all_concat.to_csv(
-			data_frame_postprocessing, sep="\t", quoting=csv.QUOTE_NONE)
+			data_frame_postprocessing, index=False, sep="\t", quoting=csv.QUOTE_NONE)
 		utils.output_bed(output_bed_high_postprocessing, *pass_df)
 		utils.output_bed(output_bed_low_postprocessing, *fail_df)
 
