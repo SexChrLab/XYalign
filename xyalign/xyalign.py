@@ -81,6 +81,12 @@ def parse_args():
 		"automatically allocate memory.")
 
 	parser.add_argument(
+		"--fastq_compression", default=3, type=int, choices=range(0, 10),
+		help="Compression level for fastqs output from repair.sh. Between "
+		"(inclusive) 0 and 9.  Default is 3.  1 through 9 indicate "
+		"compression levels. If 0, fastqs will be uncompressed.")
+
+	parser.add_argument(
 		"--single_end", action="store_true", default=False,
 		help="Include flag if reads are single-end and NOT paired-end.")
 
@@ -734,7 +740,7 @@ def remapping():
 		new_reference = masked_refs[0]
 	new_fastqs = input_bam.strip_reads(
 		args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-		args.x_chromosome + args.y_chromosome, args.xmx)
+		args.x_chromosome + args.y_chromosome, args.xmx, args.fastq_compression)
 	with open(new_fastqs[0]) as f:
 		read_group_and_fastqs = [line.strip() for line in f]
 		read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
@@ -1046,11 +1052,11 @@ if __name__ == "__main__":
 		if args.chromosomes == ["ALL"] or args.chromosomes == ["all"]:
 			stripped_fastqs = input_bam.strip_reads(
 				args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-				[], args.xmx)
+				[], args.xmx, args.fastq_compression)
 		else:
 			stripped_fastqs = input_bam.strip_reads(
 				args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-				input_chromosomes, args.xmx)
+				input_chromosomes, args.xmx, args.fastq_compression)
 		logger.info("STRIP_READS complete. Output in {}".format(fastq_path))
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))

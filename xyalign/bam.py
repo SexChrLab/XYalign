@@ -171,7 +171,7 @@ class BamFile():
 
 	def strip_reads(
 		self, repairsh, single, output_directory,
-		output_prefix, regions, repair_xmx):
+		output_prefix, regions, repair_xmx, compression):
 		"""
 		Strips reads from a bam or cram file in provided regions and outputs
 		sorted fastqs containing reads, one set of fastq files per read group.
@@ -193,6 +193,9 @@ class BamFile():
 			If "None", repair.sh will allocate its own memory. Otherwise value
 			will be provided in the form of -Xmx4g, where 4g is the value provided
 			as repair_xmx
+		compression : int
+			Desired compression level (0-9) for output fastqs. If 0, fastqs
+			will be uncompressed.
 
 		Returns
 		-------
@@ -246,27 +249,51 @@ class BamFile():
 									command_line))
 							subprocess.call(command_line, shell=True)
 							if repair_xmx == "None":
-								command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
-									repairsh,
-									output_directory + "/{}.temp_1.fastq".format(output_prefix),
-									output_directory + "/{}.temp_2.fastq".format(output_prefix),
-									output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
-									output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
+								if compression == 0:
+									command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
+										repairsh,
+										output_directory + "/{}.temp_1.fastq".format(output_prefix),
+										output_directory + "/{}.temp_2.fastq".format(output_prefix),
+										output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
+										output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
+								else:
+									command_line = "{} in1={} in2={} out1={} out2={} ziplevel={} overwrite=true".format(
+										repairsh,
+										output_directory + "/{}.temp_1.fastq".format(output_prefix),
+										output_directory + "/{}.temp_2.fastq".format(output_prefix),
+										output_directory + "/" + output_prefix + "_" + rg + "_1.fastq.gz",
+										output_directory + "/" + output_prefix + "_" + rg + "_2.fastq.gz",
+										compression)
 							else:
-								command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} overwrite=true".format(
-									repairsh, repair_xmx,
-									output_directory + "/{}.temp_1.fastq".format(output_prefix),
-									output_directory + "/{}.temp_2.fastq".format(output_prefix),
-									output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
-									output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
+								if compression == 0:
+									command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} overwrite=true".format(
+										repairsh, repair_xmx,
+										output_directory + "/{}.temp_1.fastq".format(output_prefix),
+										output_directory + "/{}.temp_2.fastq".format(output_prefix),
+										output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
+										output_directory + "/" + output_prefix + "_" + rg + "_2.fastq")
+								else:
+									command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} ziplevel={} overwrite=true".format(
+										repairsh, repair_xmx,
+										output_directory + "/{}.temp_1.fastq".format(output_prefix),
+										output_directory + "/{}.temp_2.fastq".format(output_prefix),
+										output_directory + "/" + output_prefix + "_" + rg + "_1.fastq.gz",
+										output_directory + "/" + output_prefix + "_" + rg + "_2.fastq.gz",
+										compression)
 							self.logger.info(
 								"Sorting reads with command: {}".format(
 									command_line))
 							subprocess.call(command_line, shell=True)
-							ortab.write("{}\t{}\t{}\n".format(
-								rg,
-								output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
-								output_directory + "/" + output_prefix + "_" + rg + "_2.fastq"))
+							if compression == 0:
+								ortab.write("{}\t{}\t{}\n".format(
+									rg,
+									output_directory + "/" + output_prefix + "_" + rg + "_1.fastq",
+									output_directory + "/" + output_prefix + "_" + rg + "_2.fastq"))
+							else:
+								ortab.write("{}\t{}\t{}\n".format(
+									rg,
+									output_directory + "/" + output_prefix + "_" + rg + "_1.fastq.gz",
+									output_directory + "/" + output_prefix + "_" + rg + "_2.fastq.gz"))
 						else:
 							command_line = "{} view -R {} -b {} {} | {} bam2fq -t -n - > "\
 								"{}/{}.temp.fastq".format(
@@ -277,23 +304,42 @@ class BamFile():
 									command_line))
 							subprocess.call(command_line, shell=True)
 							if repair_xmx == "None":
-								command_line = "{} in={} out={} overwrite=true".format(
-									repairsh,
-									output_directory + "/{}.temp.fastq".format(output_prefix),
-									output_directory + "/" + output_prefix + "_" + rg + ".fastq")
+								if compression == 0:
+									command_line = "{} in={} out={} overwrite=true".format(
+										repairsh,
+										output_directory + "/{}.temp.fastq".format(output_prefix),
+										output_directory + "/" + output_prefix + "_" + rg + ".fastq")
+								else:
+									command_line = "{} in={} out={} ziplevel={} overwrite=true".format(
+										repairsh,
+										output_directory + "/{}.temp.fastq".format(output_prefix),
+										output_directory + "/" + output_prefix + "_" + rg + ".fastq.gz",
+										compression)
 							else:
-								command_line = "{} -Xmx{} in={} out={} overwrite=true".format(
-									repairsh, repair_xmx,
-									output_directory + "/{}.temp.fastq".format(output_prefix),
-									output_directory + "/" + output_prefix + "_" + rg + ".fastq")
+								if compression == 0:
+									command_line = "{} -Xmx{} in={} out={} overwrite=true".format(
+										repairsh, repair_xmx,
+										output_directory + "/{}.temp.fastq".format(output_prefix),
+										output_directory + "/" + output_prefix + "_" + rg + ".fastq")
+								else:
+									command_line = "{} -Xmx{} in={} out={} ziplevel={} overwrite=true".format(
+										repairsh, repair_xmx,
+										output_directory + "/{}.temp.fastq".format(output_prefix),
+										output_directory + "/" + output_prefix + "_" + rg + ".fastq.gz",
+										compression)
 							self.logger.info(
 								"Sorting reads with command: {}".format(
 									command_line))
 							subprocess.call(command_line, shell=True)
 							# write line
-							ortab.write("{}\t{}\n".format(
-								rg,
-								output_directory + "/" + output_prefix + "_" + rg + ".fastq"))
+							if compression == 0:
+								ortab.write("{}\t{}\n".format(
+									rg,
+									output_directory + "/" + output_prefix + "_" + rg + ".fastq"))
+							else:
+								ortab.write("{}\t{}\n".format(
+									rg,
+									output_directory + "/" + output_prefix + "_" + rg + ".fastq.gz"))
 		self.logger.info(
 			"Stripping and sorting reads complete. Elapsed time: {} seconds".format(
 				time.time() - rg_start))
