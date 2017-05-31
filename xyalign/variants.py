@@ -18,6 +18,121 @@ from matplotlib import pyplot as plt
 variants_logger = logging.getLogger("xyalign.variants")
 
 
+class VCFFile():
+	"""
+	A class for working with external vcf files.
+
+	Attributes
+	----------
+
+	filepath : str
+		Full path to external vcf file
+	bgzip : str
+		Full path to bgzip. Default = 'bgzip'
+	tabix : str
+		Full path to tabix. Default = "tabix"
+
+	"""
+	def __init__(self, filepath, bgzip="bgzip", tabix="tabix"):
+		self.filepath = filepath
+		self.bgzip = bgzip
+		self.tabix = tabix
+		self.logger = logging.getLogger("xyalign.variants.VCFFile")
+		self.logger.info("Creating a VCFFile instance for {}".format(
+			self.filepath))
+		if self.is_bgzipped() is False:
+			self.compress_vcf()
+			self.index_vcf()
+
+	def is_bgzipped(self):
+		"""
+		Checks to see if vcf file is gzipped, simply by looking for a .gz  or
+		.bgz ending.
+		If .gz or .bgz ending exists, assumes file is compressed using bgzip.
+
+		Returns
+		-------
+
+		bool
+			True if ends in .gz, False otherwise
+
+		"""
+		self.logger.info("Checking for .gz or .bgz ending in {}".format(
+			self.filepath))
+		if self.filepath[-3:] == ".gz":
+			self.logger.info("Ends in .gz")
+			return True
+		elif self.filepath[-4:] == ".bgz":
+			self.logger.info("Ends in .bgz")
+			return True
+		else:
+			self.logger.info("Does not end in .gz or .bgz")
+			return False
+
+	def compress_vcf(self):
+		"""
+		Compresses vcf file using bgzip.
+
+		Returns
+		-------
+
+		bool
+			True if successful
+
+		Raises
+		-------
+
+		RuntimeError
+			If return code from external call is not 0
+
+		"""
+		self.logger.info("Compressing vcf file {}".format(self.filepath))
+		bgzip_start = time.time()
+		rc = subprocess.call([self.bgzip, self.filepath])
+		if rc == 0:
+			self.logger.info("Compression complete. Elapsed time: {} seconds".format(
+				time.time() - bgzip_start))
+			self.filepath = self.filepath + ".gz"
+			return True
+		else:
+			self.logger.error("Unable to compress vcf file: {}. Exiting.".format(
+				self.filepath))
+			logging.shutdown()
+			raise RuntimeError("Unable to compress vcf file. Exiting.")
+
+	def index_vcf(self):
+		"""
+		Indexes vcf file using tabix.  If file does not end in .gz, will
+		compress with bgzip (by calling self.compress_vcf).
+
+		Note: Files MUST be compressed using bgzip.
+
+		Returns
+		-------
+
+		bool
+			True if successful.
+
+		Raises
+		------
+
+		RuntimeError
+			If return code from external call is not 0.
+		"""
+		self.logger.info("Indexing vcf file: {}".format(self.filepath))
+		index_start = time.time()
+		rc = subprocess.call([self.tabix, "-p vcf"])
+		if rc == 0:
+			self.logger.info("Indexing complete. Elapsed time: {} seconds.".format(
+				time.time() - index_start))
+			return True
+		else:
+			self.logger.info("Unable to index vcf file: {}. Exiting".format(
+				self.filepath))
+			logging.shutdown()
+			raise RuntimeError("unable to index vcf file. Exiting.")
+
+
 def platypus_caller(
 	platypus_path, log_path, bam, ref, chroms, cpus, output_file,
 	regions_file=None):
