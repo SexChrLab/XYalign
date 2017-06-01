@@ -132,6 +132,37 @@ class VCFFile():
 			logging.shutdown()
 			raise RuntimeError("unable to index vcf file. Exiting.")
 
+	def read_balance_per_window(self, chrom, window_size, target_file=None):
+		"""
+		Calculates mean read balance per genomic window (defined by size or an
+		external target bed file).  Currently only supports Platypus vcfs bgzipped
+		and tabix indexed.
+
+		Parameters
+		----------
+
+		chrom : str
+			Name of the chromosome to analyze
+		window_size
+			If int, the window size to use for sliding window analyses, if None
+			intervals from target_file
+		target_file : str
+			Path to bed_file containing regions to analyze instead of
+			windows of a fixed size. Will only be engaged if window_size is None
+
+		Returns
+		-------
+
+		pandas dataframe
+			With columns: "chrom", "start", "stop", "balance", and "count"
+		"""
+		# vcf_start = time.time()
+		# variants_logger.info(
+		# 	"Traversing {} in {} to analyze depth and mapping quality".format(
+		# 		chrom, self.filepath))
+		# vcf = cyvcf2.VCF(vcf)
+		pass
+
 
 def platypus_caller(
 	platypus_path, log_path, bam, ref, chroms, cpus, output_file,
@@ -242,39 +273,6 @@ def parse_platypus_VCF(filename, qual_cutoff, chrom):
 	variants_logger.info("Parsing complete. Elapsed time: {} seconds".format(
 		time.time() - parse_start))
 	return (positions, quality, readBalance)
-
-
-def read_balance_per_window(vcf_file, chrom, window_size, target_file=None):
-	"""
-	Calculates mean read balance per genomic window (defined by size or an
-	external target bed file)
-
-	Parameters
-	----------
-
-	vcf_file : str
-		File (including path) of platypus vcf to analyze
-	chrom : str
-		Name of the chromosome to analyze
-	window_size
-		If int, the window size to use for sliding window analyses, if None
-		intervals from target_file
-	target_file : str
-		Path to bed_file containing regions to analyze instead of
-		windows of a fixed size. Will only be engaged if window_size is None
-
-	Returns
-	-------
-
-	pandas dataframe
-		With columns: "chrom", "start", "stop", "balance", and "count"
-	"""
-	# vcf_start = time.time()
-	# variants_logger.info(
-	# 	"Traversing {} in {} to analyze depth and mapping quality".format(
-	# 		chrom, vcf_file))
-	# vcf = cyvcf2.VCF(vcf)
-	pass
 
 
 def plot_variants_per_chrom(
