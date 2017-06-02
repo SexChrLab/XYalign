@@ -48,7 +48,8 @@ def validate_external_prog(prog_path, prog_name):
 		utils_logger.error(
 			"ERROR: {} not available from path: {}".format(prog_name, prog_path))
 		logging.shutdown()
-		sys.exit(1)
+		raise OSError("ERROR: {} not available from path: {}".format(
+			prog_name, prog_path))
 	return 0
 
 
@@ -101,7 +102,7 @@ def chromosome_bed(bamfile_obj, output_file, chromosome_list):
 	------
 
 	RuntimeError
-		If chromocomse name is not in bam header.
+		If chromosome name is not in bam header.
 
 	"""
 	c_bed_start = time.time()

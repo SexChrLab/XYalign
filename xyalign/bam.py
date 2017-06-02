@@ -29,14 +29,15 @@ class BamFile():
 		Full path to samtools. Default = 'samtools'
 
 	"""
-	def __init__(self, filepath, samtools="samtools"):
+	def __init__(self, filepath, samtools="samtools", no_initial_index=False):
 		self.filepath = filepath
 		self.samtools = samtools
 		self.logger = logging.getLogger("xyalign.bam.BamFile")
 		self.logger.info("Creating a BamFile instance for {}".format(
 			self.filepath))
-		if self.is_indexed() is False:
-			self.index_bam()
+		if no_initial_index is False:
+			if self.is_indexed() is False:
+				self.index_bam()
 
 	def is_indexed(self):
 		"""
