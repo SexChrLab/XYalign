@@ -481,7 +481,7 @@ def ref_prep():
 	else:
 		reference_mask = None
 	# Create masked noY reference
-	y_mask = utils.chromosome_bed(input_bam, "{}/Y.bed".format(
+	y_mask = input_bam.chromosome_bed("{}/Y.bed".format(
 		reference_path), args.y_chromosome)
 	if reference_mask is not None:
 		noy_out = ref.mask_reference(
@@ -1035,7 +1035,7 @@ if __name__ == "__main__":
 		input_chromosomes = args.chromosomes
 
 	if any([args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS, args.STRIP_READS]) is True:
-		missing_chroms = utils.check_chrom_in_bam(input_bam, input_chromosomes)
+		missing_chroms = input_bam.check_chrom_in_bam(input_chromosomes)
 		if len(missing_chroms) != 0:
 			logger.error(
 				"One or more chromosomes provided via --chromosomes not "
@@ -1168,7 +1168,7 @@ if __name__ == "__main__":
 	else:
 		logger.info(
 			"Running entire XYalign pipeline")
-		missing_chroms = utils.check_chrom_in_bam(input_bam, input_chromosomes)
+		missing_chroms = input_bam.check_chrom_in_bam(input_chromosomes)
 		if len(missing_chroms) != 0:
 			logger.error(
 				"One or more chromosomes provided via --chromosomes not "

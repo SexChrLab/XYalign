@@ -170,6 +170,89 @@ class BamFile():
 		bamfile.close()
 		return names
 
+	def chromosome_bed(self, output_file, chromosome_list):
+		"""
+		Takes list of chromosomes and outputs a bed file with the
+		length of each chromosome on each line
+		(e.g., chr1    0   247249719).
+
+		Parameters
+		----------
+
+		output_file : str
+			Name of (including full path to) desired output file
+		chromosome_list : list
+			Chromosome/scaffolds to include
+
+		Returns
+		-------
+
+		str
+			output_file
+
+		Raises
+		------
+
+		RuntimeError
+			If chromosome name is not in bam header.
+
+		"""
+		c_bed_start = time.time()
+		self.logger.info("Creating bed file with chromosome lengths for {}".format(
+			" ".join(chromosome_list)))
+		with open(output_file, "w") as f:
+			for i in chromosome_list:
+				try:
+					lengths = self.get_chrom_length(i)
+					f.write("{}\t{}\t{}\n".format(i, "0", lengths))
+				except:
+					self.logger.error(
+						"Error finding chromosome length in bam file {} "
+						"(for bed file)".format(self.filepath))
+					logging.shutdown()
+					raise RuntimeError(
+						"Error finding chromosome length in bam file {}.  Check "
+						"chromosome names and bam header.".format(
+							self.filepath))
+		self.logger.info(
+			"Bed file ({}) created. Elapsed time: {} seconds".format(
+				output_file, time.time() - c_bed_start))
+		return output_file
+
+	def check_chrom_in_bam(self, chromosome_list):
+		"""
+		Checks to see if all chromosomes in chromosome_list are in bam file
+
+		Parameters
+		----------
+
+		chromosome_list : list
+				Chromosomes/scaffolds to check
+
+		Returns
+		-------
+
+		list
+			List of chromosomes not in bam file
+		"""
+		self.logger.info(
+			"Checking to ensure all chromosomes are found in {}".format(self.filepath))
+		bam_chroms = self.chromosome_names()
+
+		missing_list = []
+		for c in chromosome_list:
+			if c not in bam_chroms:
+				missing_list.append(c)
+
+		if len(missing_list) > 0:
+			self.logger.info(
+				"The following chromosomes were not found in {}: {}".format(
+					self.filepath, ",".join(missing_list)))
+		else:
+			self.logger.info(
+				"All chromosomes present in {}".format(self.filepath))
+		return missing_list
+
 	def strip_reads(
 		self, repairsh, single, output_directory,
 		output_prefix, regions, repair_xmx, compression):
