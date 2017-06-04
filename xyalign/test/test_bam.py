@@ -12,7 +12,7 @@ try:
 		["samtools"], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 	samtools_present = True
 except OSError:
-	samtools_precesnt = False
+	samtools_present = False
 
 
 def read_bed(file):
@@ -37,11 +37,14 @@ def test_BamFile():
 		os.path.join(dir, "header.bam"), "samtools", no_initial_index=True)
 	test_header2 = bam.BamFile(
 		os.path.join(dir, "header2.bam"), "samtools", no_initial_index=True)
-
+	test_header3 = bam.BamFile(
+		os.path.join(dir, "tinyheader2.bam"), "samtools", no_initial_index=True)
 	assert test_header.filepath == os.path.join(dir, "header.bam")
 	assert test_header2.filepath == os.path.join(dir, "header2.bam")
+	assert test_header3.filepath == os.path.join(dir, "tinyheader2.bam")
 	assert test_header.is_indexed() is True
 	assert test_header2.is_indexed() is False
+	assert test_header3.is_indexed() is True
 
 
 @pytest.mark.skipif(

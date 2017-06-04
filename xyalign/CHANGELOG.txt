@@ -4,6 +4,7 @@
 # Only listing changes since previous version/release
 
 Development Version (currently branch called noY_support)
+	* Fixed bug causing the misreading of bam indices ending in .bai, rather than .bam.bai
 	* chromosome_bed() and check_chrom_in_bam() now methods of bam.BamFile()
 	* Compress output fastq files (optional)
 	* Add -xmx flag for repair.sh (was having issues estimating/allocating memory when sorting reads from whole genome)

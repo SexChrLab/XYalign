@@ -57,9 +57,9 @@ class BamFile():
 			else:
 				self.logger.info("Bam index empty")
 				return False
-		elif os.path.exists("{}.bai".format(self.filepath[:-3])):
-			if os.stat("{}.bai".format(self.filepath[:-3])).st_size != 0:
-				idx_stamp = os.path.getmtime("{}.bai".format(self.filepath[:-3]))
+		elif os.path.exists("{}.bai".format(self.filepath[:-4])):
+			if os.stat("{}.bai".format(self.filepath[:-4])).st_size != 0:
+				idx_stamp = os.path.getmtime("{}.bai".format(self.filepath[:-4]))
 			else:
 				self.logger.info("Bam index empty")
 				return False
