@@ -28,15 +28,17 @@ class RefFasta():
 		Full path to bwa. Default = 'bwa'
 
 	"""
-	def __init__(self, filepath, samtools="samtools", bwa="bwa"):
+	def __init__(
+		self, filepath, samtools="samtools", bwa="bwa", no_initial_index=False):
 		self.filepath = filepath
 		self.samtools = samtools
 		self.bwa = bwa
 		self.logger = logging.getLogger("xyalign.reftools.RefFasta")
 		self.logger.info("Creating a RefFasta instance for {}".format(
 			self.filepath))
-		if self.is_faidxed() is False:
-			self.index_fai()
+		if no_initial_index is False:
+			if self.is_faidxed() is False:
+				self.index_fai()
 
 	def is_faidxed(self):
 		"""
@@ -290,7 +292,7 @@ class RefFasta():
 		if self.check_seq_dict() is False:
 			self.seq_dict()
 
-	def mask_reference(self, bed_mask, output_fasta=None):
+	def mask_reference(self, bed_mask, output_fasta):
 		"""
 		Creates a new masked references by hardmasking regions included
 		in the bed_mask
@@ -326,7 +328,7 @@ class RefFasta():
 				maskedpath, time.time() - mask_start))
 		return maskedpath
 
-	def isolate_chroms(self, new_ref_prefix, chroms, bed_mask):
+	def isolate_chroms(self, new_ref_prefix, chroms, bed_mask=None):
 		"""
 		Takes a reference fasta file and a list of chromosomes to include
 		and outputs a new, indexed (and optionally masked) reference fasta.
@@ -394,7 +396,9 @@ class RefFasta():
 		fastafile = pysam.FastaFile(self.filepath)
 		lengths = fastafile.lengths
 		fastafile.close()
-		return lengths
+		# pysam's .lengths does not return a tuple (despite what is in the docs),
+		# so, convert to tuple before returning.
+		return tuple(lengths)
 
 	def chromosome_names(self):
 		"""
@@ -408,4 +412,6 @@ class RefFasta():
 		fastafile = pysam.FastaFile(self.filepath)
 		names = fastafile.references
 		fastafile.close()
-		return names
+		# pysam's .lengths does not return a tuple (despite what is in the docs),
+		# so, convert to tuple before returning.
+		return tuple(names)

@@ -74,13 +74,17 @@ def test_get_chrom_length(input, expected):
 def test_chromosome_lengths():
 	tiny_header = bam.BamFile(
 		os.path.join(dir, "tinyheader.bam"), "samtools", no_initial_index=False)
-	assert tiny_header.chromosome_lengths() == (16571, 249250621)
+	lengths = tiny_header.chromosome_lengths()
+	assert type(lengths) == tuple
+	assert lengths == (16571, 249250621)
 
 
 def test_chromosome_names():
 	tiny_header = bam.BamFile(
 		os.path.join(dir, "tinyheader.bam"), "samtools", no_initial_index=False)
-	assert tiny_header.chromosome_names() == ('chrM', 'chr1')
+	names = tiny_header.chromosome_names()
+	assert type(names) == tuple
+	assert names == ('chrM', 'chr1')
 
 
 def test_chromosome_bed():
