@@ -78,7 +78,10 @@ def parse_args():
 		"flag '--xmx 4g' to pass '-Xmx4g' as a flag when running java "
 		"programs (currently just repair.sh). Default is 'None' (i.e., nothing "
 		"provided on the command line), which will allow repair.sh to "
-		"automatically allocate memory.")
+		"automatically allocate memory. Note that if you're using --STRIP_READS "
+		"on deep coverage whole genome data, you might need quite a bit of memory, "
+		"e.g. '--xmx 16g', '--xmx 32g', or more depending on how many reads "
+		"are present per read group.")
 
 	parser.add_argument(
 		"--fastq_compression", default=3, type=int, choices=range(0, 10),
@@ -94,6 +97,12 @@ def parse_args():
 		"--version", "-V", action="version",
 		version="XYalign {}".format(__version__),
 		help="Print version and exit.")
+
+	parser.add_argument(
+		"--cleanup", type=bool, default=True,
+		help="Default is True. Flag determines whether temporary files are "
+		"deleted or not.  '--cleanup False' will preserve all temporary "
+		"files.")
 
 	# Options to run specific parts of the pipeline
 	pipeline_group = parser.add_mutually_exclusive_group(required=False)
@@ -160,6 +169,10 @@ def parse_args():
 	parser.add_argument(
 		"--repairsh_path", default="repair.sh",
 		help="Path to bbmap's repair.sh script. Default is 'repair.sh'")
+
+	parser.add_argument(
+		"--shufflesh_path", default="repair.sh",
+		help="Path to bbmap's shuffle.sh script. Default is 'shuffle.sh'")
 
 	parser.add_argument(
 		"--sambamba_path", default="sambamba",
@@ -251,6 +264,16 @@ def parse_args():
 		"produce a sample-specific reference for remapping.")
 
 	# Mapping/remapping arguments
+	parser.add_argument(
+		"--read_group_id", default="xyalign", type=str,
+		"If read groups are present in a bam file, they are used by default in "
+		"remapping steps.  However, if read groups are not present in a file, "
+		"there are two options for proceeding. If '--read_group_id None' is "
+		"provided (case sensitive), then no read groups will be used in "
+		"subsequent mapping steps. Otherwise, any other string provided to "
+		"this flag will be used as a read group ID.  "
+		"Default is '--read_group_id xyalign'")
+
 	parser.add_argument(
 		"--bwa_flags", type=str, default="",
 		help="Provide a string (in quotes, with spaces between arguments) "
@@ -739,37 +762,47 @@ def remapping():
 	else:
 		new_reference = masked_refs[0]
 	new_fastqs = input_bam.strip_reads(
-		args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-		args.x_chromosome + args.y_chromosome, args.xmx, args.fastq_compression)
+		args.repairsh_path, args.shufflesh_path, args.single_end, fastq_path,
+		args.sample_id, args.x_chromosome + args.y_chromosome, args.xmx,
+		args.fastq_compression, args.cleanup, args.read_group_id)
 	with open(new_fastqs[0]) as f:
 		read_group_and_fastqs = [line.strip() for line in f]
 		read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
-	with open(new_fastqs[1]) as f:
-		read_group_headers = [line.split() for line in f]
-	temp_bam_list = []
-	for i in read_group_and_fastqs:
-		if i != [""]:
-			rg_id = i[0]
-			fastq_files = i[1:]
-			for j in read_group_headers:
-				for k in j:
-					if k[0:2] == 'ID':
-						if k[3:] == rg_id:
-							rg_tag = "\t".join(j)
-						break
-			temp_bam = assemble.bwa_mem_mapping_sambamba(
-				args.bwa_path, args.samtools_path, args.sambamba_path,
-				new_reference.filepath, "{}/{}.sex_chroms.{}.".format(
-					bam_path, args.sample_id, rg_id),
-				fastq_files, args.cpus, rg_tag,
-				[str(x).strip() for x in args.bwa_flags.split()])
-			temp_bam_list.append(temp_bam)
-	if len(temp_bam_list) < 2:
-		new_bam = temp_bam_list[0]
+	if new_fastqs[1] is not None:
+		with open(new_fastqs[1]) as f:
+			read_group_headers = [line.split() for line in f]
+		temp_bam_list = []
+		for i in read_group_and_fastqs:
+			if i != [""]:
+				rg_id = i[0]
+				fastq_files = i[1:]
+				for j in read_group_headers:
+					for k in j:
+						if k[0:2] == 'ID':
+							if k[3:] == rg_id:
+								rg_tag = "\t".join(j)
+							break
+				temp_bam = assemble.bwa_mem_mapping_sambamba(
+					args.bwa_path, args.samtools_path, args.sambamba_path,
+					new_reference.filepath, "{}/{}.sex_chroms.{}.".format(
+						bam_path, args.sample_id, rg_id),
+					fastq_files, args.cpus, rg_tag,
+					[str(x).strip() for x in args.bwa_flags.split()])
+				temp_bam_list.append(temp_bam)
+		if len(temp_bam_list) < 2:
+			new_bam = temp_bam_list[0]
+		else:
+			new_bam = bam.samtools_merge(
+				args.samtools_path, temp_bam_list, "{}/{}.sex_chroms".format(
+					bam_path, args.sample_id), args.cpus)
 	else:
-		new_bam = bam.samtools_merge(
-			args.samtools_path, temp_bam_list, "{}/{}.sex_chroms".format(
-				bam_path, args.sample_id), args.cpus)
+		fastq_files = read_group_and_fastqs[0][1:]
+		new_bam = assemble.bwa_mem_mapping_sambamba(
+			args.bwa_path, args.samtools_path, args.sambamba_path,
+			new_reference.filepath, "{}/{}.sex_chroms.{}.".format(
+				bam_path, args.sample_id, rg_id),
+			fastq_files, args.cpus, "None",
+			[str(x).strip() for x in args.bwa_flags.split()])
 	return new_bam
 
 
@@ -1027,6 +1060,18 @@ if __name__ == "__main__":
 	######################################
 	#            Run XYalign             #
 	######################################
+	# Reference Prep Only
+	if args.PREPARE_REFERENCE is True:
+		logger.info(
+			"PREPARE_REFERENCE set, so only preparing reference fastas.")
+		ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
+		ref_prep()
+		logger.info("PREPARE_REFERENCE complete.")
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
+		logging.shutdown()
+		sys.exit(0)
+
 	input_bam = bam.BamFile(args.bam, args.samtools_path)
 
 	if args.chromosomes == ["ALL"] or args.chromosomes == ["all"]:
@@ -1034,7 +1079,8 @@ if __name__ == "__main__":
 	else:
 		input_chromosomes = args.chromosomes
 
-	if any([args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS, args.STRIP_READS]) is True:
+	if any(
+		[args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS, args.STRIP_READS]) is True:
 		missing_chroms = input_bam.check_chrom_in_bam(input_chromosomes)
 		if len(missing_chroms) != 0:
 			logger.error(
@@ -1051,12 +1097,15 @@ if __name__ == "__main__":
 				input_bam.filepath))
 		if args.chromosomes == ["ALL"] or args.chromosomes == ["all"]:
 			stripped_fastqs = input_bam.strip_reads(
-				args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-				[], args.xmx, args.fastq_compression)
+				args.repairsh_path, args.shufflesh_path, args.single_end,
+				fastq_path, args.sample_id,
+				[], args.xmx, args.fastq_compression, args.cleanup, args.read_group_id)
 		else:
 			stripped_fastqs = input_bam.strip_reads(
-				args.repairsh_path, args.single_end, fastq_path, args.sample_id,
-				input_chromosomes, args.xmx, args.fastq_compression)
+				args.repairsh_path, args.shufflesh_path, args.single_end,
+				fastq_path, args.sample_id,
+				input_chromosomes, args.xmx, args.fastq_compression, args.cleanup,
+				args.read_group_id)
 		logger.info("STRIP_READS complete. Output in {}".format(fastq_path))
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -1082,17 +1131,6 @@ if __name__ == "__main__":
 					ref.filepath))
 			logging.shutdown()
 			sys.exit(1)
-
-	# Reference Prep Only
-	if args.PREPARE_REFERENCE is True:
-		logger.info(
-			"PREPARE_REFERENCE set, so only preparing reference fastas.")
-		ref_prep()
-		logger.info("PREPARE_REFERENCE complete.")
-		logger.info("XYalign complete. Elapsed time: {} seconds".format(
-			time.time() - xyalign_start))
-		logging.shutdown()
-		sys.exit(0)
 
 	# Stats Only
 	elif args.ANALYZE_BAM is True:

@@ -4,6 +4,11 @@
 # Only listing changes since previous version/release
 
 Development Version (currently branch called noY_support)
+	* Fixed error in bam.strip_reads() that would return blank fastqs when sorting single end reads
+	* assemble.bwa_mem_mapping_sambamba() now handles mapping without read group line
+	* bam.strip_reads() now handles case where no read group is present in file
+	* Added cleanup option for strip reads (allowing on to delete large temporary, unsorted fastqs)
+	* Removed requirement for valid bam file for PREPARE_REFERENCE module
 	* Fixed bug causing the misreading of bam indices ending in .bai, rather than .bam.bai
 	* chromosome_bed() and check_chrom_in_bam() now methods of bam.BamFile()
 	* Compress output fastq files (optional)
