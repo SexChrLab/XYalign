@@ -266,7 +266,7 @@ def parse_args():
 	# Mapping/remapping arguments
 	parser.add_argument(
 		"--read_group_id", default="xyalign", type=str,
-		"If read groups are present in a bam file, they are used by default in "
+		help="If read groups are present in a bam file, they are used by default in "
 		"remapping steps.  However, if read groups are not present in a file, "
 		"there are two options for proceeding. If '--read_group_id None' is "
 		"provided (case sensitive), then no read groups will be used in "
