@@ -504,7 +504,7 @@ def ref_prep():
 	else:
 		reference_mask = None
 	# Create masked noY reference
-	y_mask = input_bam.chromosome_bed("{}/Y.bed".format(
+	y_mask = ref.chromosome_bed("{}/Y.bed".format(
 		reference_path), args.y_chromosome)
 	if reference_mask is not None:
 		noy_out = ref.mask_reference(
