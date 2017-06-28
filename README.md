@@ -2,6 +2,9 @@
   <img src="https://github.com/WilsonSayresLab/XYalign/blob/master/Files/XYlogo.png" width="500"/>
 </p>
 
+## This is a development version
+Note that this is the development version of XYalign.  If you'd like to download a stable release, you can find them [here](https://github.com/WilsonSayresLab/XYalign/releases)
+
 # XYalign: Inferring Sex Chromosome Ploidy in NGS Data
 Timothy H. Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres
 
