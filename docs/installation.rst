@@ -4,14 +4,17 @@ Installation
 Obtaining XYalign
 -----------------
 
-Currently, you can obtain XYalign by cloning the Github repository::
+You can download the most recent (or any previous) release of XYalign [HERE](https://github.com/WilsonSayresLab/XYalign/releases)
+
+Alternatively, you can obtain the current development version of XYalign by
+cloning the Github repository::
 
 	git clone https://github.com/WilsonSayresLab/XYalign/
 
 Operating System
 ----------------
 
-XYalign has been tested on a variety of Linux and Mac operating systems, but has
+XYalign has been tested on Linux and Mac operating systems, but has
 not been tested on Windows.  This isn't to say it won't work, however
 we are unprepared to offer any Windows support at this time.
 
@@ -23,14 +26,16 @@ XYalign has a number of required Python packages and external programs::
 	Python: 2.7
 
 	Python packages:
+		cyvcf2
 		matplotlib
 		numpy
 		pandas
 		pybedtools
 		pysam
+		scipy
 
 	External Programs:
-		bbmap
+		bbmap (XYalign uses repair.sh and shuffle.sh from this suite of tools)
 		bedtools
 		bwa
 		platypus
@@ -44,6 +49,7 @@ XYalign has a number of required Python packages and external programs::
 	using the appropriate flag(s)::
 
 		--repairsh_path
+		--shufflesh_path
 		--bwa_path
 		--platypus_path
 		--samtools_path
@@ -76,7 +82,7 @@ Miniconda is a lightweight version of Anaconda).
 
 	conda create -n xyalign_env python=2.7 pysam pybedtools \
 	numpy pandas matplotlib platypus-variant bwa bbmap \
-	samtools bedtools sambamba
+	samtools bedtools sambamba cyvcf2 scipy
 
 And load the new environment (containing all required programs and packages) with::
 

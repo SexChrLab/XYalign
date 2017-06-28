@@ -18,7 +18,7 @@ prior to this cleaning.  Therefore, if you cloned before this date (or can't rem
 cloned), it's probably a good idea to clone a fresh version.
 
 ## Please note the XYalign is still in pre-release stages
-Changes are made to the master branch quite frequently, so there still might be a number of known or unknown bugs at any given time.  If you'd like to try things before release (which will be mid-April), please feel free to contact us (either via an Issue or by email to Tim Webster - address at the bottom of this page) to inquire about the current status of the program.
+Changes are made to the master branch quite frequently, so there still might be a number of known or unknown bugs at any given time.  If you'd like to try things before release, please feel free to contact us (either via an Issue or by email to Tim Webster - address at the bottom of this page) to inquire about the current status of the program.
 
 ## Using XYalign
 
@@ -38,14 +38,10 @@ See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/lates
 	- not clear if this is necessary or valuable
 - [ ] Handle duplicate reads
 	- not clear if this is necessary or valuable
-- [X] Output high and low-quality bed files after second round of bam analyses
-- [X] Add histogram plotting for depth and mapq
 - [ ] Add cram and sam support
-- [ ] Implement some kind of checkpointing functionality
 - [ ] Run bwa indexing in parallel
 	- this might be a bit more difficult that it seems due to memory requirements for large genomes
 - [ ] Implement subparser
-- [X] Implement Xmx tuning option
 - [ ] More tuning of plotting parameters (font, color, size, etc.)
 
 ## Group Members

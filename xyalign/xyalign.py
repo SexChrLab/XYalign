@@ -36,6 +36,17 @@ def parse_args():
 	parser = argparse.ArgumentParser(description="XYalign")
 
 	parser.add_argument(
+		"--bam", default=None, help="Full path to input bam file.")
+
+	parser.add_argument(
+		"--cram", default=None, help="Full path to input cram file. "
+		"Not currently supported.")
+
+	parser.add_argument(
+		"--sam", default=None, help="Full path to input sam file. "
+		"Not currently supported.")
+
+	parser.add_argument(
 		"--ref", required=True,
 		help="REQUIRED. Path to reference sequence (including file name).")
 
@@ -364,15 +375,6 @@ def parse_args():
 		help="Transparency of markers in genome-wide plots.  "
 		"Alpha in matplotlib.  Default is 0.5")
 
-	# Mutually exclusive group - bam or cram file
-	group_bam = parser.add_mutually_exclusive_group(required=True)
-
-	group_bam.add_argument(
-		"--bam", help="Input bam file.")
-
-	group_bam.add_argument(
-		"--cram", help="Input cram file. Not currently supported.")
-
 	args = parser.parse_args()
 
 	# Validate Arguments
@@ -385,10 +387,30 @@ def parse_args():
 	else:
 		full_pipeline = False
 
-	# Cram files are currently unsupported
+	# Ensure only one of bam, sam, or cram is set
+
+	bam_flags = [args.bam, args.cram, args.sam]
+	bam_flags = [x for x in bam_flags if x is not None]
+	if len(bam_flags) > 1:
+		sys.exit(
+			"Error. --bam, --cram, and --sam are mutally exclusive, please "
+			"provide no more than one. Submitted values are: --bam {} "
+			"--cram {} --sam {}".format(args.bam, args.cram, args.sam))
+	elif len(bam_flags) == 0:
+		if args.PREPARE_REFERENCE is not True:
+			sys.exit(
+				"Error. All modules other than PREPARE_REFERENCE require an input "
+				"bam file.")
+
+	# Cram and SAM files are currently unsupported
 	if args.cram is not None:
 		sys.exit(
 			"Error. XYalign does not currently support cram files. "
+			"Please provide a bam file via --bam instead.")
+
+	if args.sam is not None:
+		sys.exit(
+			"Error. XYalign does not currently support sam files. "
 			"Please provide a bam file via --bam instead.")
 
 	# Validate ploidy test arguments
