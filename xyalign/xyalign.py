@@ -1155,7 +1155,7 @@ if __name__ == "__main__":
 			sys.exit(1)
 
 	# Stats Only
-	elif args.ANALYZE_BAM is True:
+	if args.ANALYZE_BAM is True:
 		logger.info(
 			"ANALYZE_BAM set, so only running steps required "
 			"for bam analysis.")
