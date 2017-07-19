@@ -33,16 +33,19 @@ class VCFFile():
 		Full path to tabix. Default = "tabix"
 
 	"""
-	def __init__(self, filepath, bgzip="bgzip", tabix="tabix"):
+	def __init__(
+		self, filepath, bgzip="bgzip", tabix="tabix",
+		no_initial_compress=False):
 		self.filepath = filepath
 		self.bgzip = bgzip
 		self.tabix = tabix
 		self.logger = logging.getLogger("xyalign.variants.VCFFile")
 		self.logger.info("Creating a VCFFile instance for {}".format(
 			self.filepath))
-		if self.is_bgzipped() is False:
-			self.compress_vcf()
-			self.index_vcf()
+		if no_initial_compress is False:
+			if self.is_bgzipped() is False:
+				self.compress_vcf()
+				self.index_vcf()
 
 	def is_bgzipped(self):
 		"""
@@ -121,7 +124,7 @@ class VCFFile():
 		"""
 		self.logger.info("Indexing vcf file: {}".format(self.filepath))
 		index_start = time.time()
-		rc = subprocess.call([self.tabix, "-p vcf"])
+		rc = subprocess.call([self.tabix, "-p", "vcf", self.filepath])
 		if rc == 0:
 			self.logger.info("Indexing complete. Elapsed time: {} seconds.".format(
 				time.time() - index_start))
