@@ -166,7 +166,8 @@ def merge_bed_files(output_file, *bed_files):
 	return output_file
 
 
-def make_region_lists_genome_filters(depthAndMapqDf, mapqCutoff, depth_thresh):
+def make_region_lists_genome_filters(
+	depthAndMapqDf, mapqCutoff, min_depth, max_depth):
 	"""
 	Filters a pandas dataframe for mapq and depth based on using all values
 	from across the entire genome
@@ -178,10 +179,10 @@ def make_region_lists_genome_filters(depthAndMapqDf, mapqCutoff, depth_thresh):
 		Must have 'depth' and 'mapq' columns
 	mapqCutoff : int
 		The minimum mapq for a window to be considered high quality
-	depth_thresh : float
-		Factor to use in filtering regions based on depth. Li (2014) recommends:
-		mean_depth +- (depth_thresh * (depth_mean ** 0.5)), where depth_thresh
-		is 3 or 4.
+	min_depth : float
+		Fraction of mean to set as minimum depth
+	max_depth : float
+		Multiple of mean to set as maximum depth
 
 	Returns
 	-------
@@ -193,8 +194,8 @@ def make_region_lists_genome_filters(depthAndMapqDf, mapqCutoff, depth_thresh):
 	depth_mean = depthAndMapqDf["depth"].mean()
 	depth_sd = depthAndMapqDf["depth"].std()
 
-	depthMin = depth_mean - (depth_thresh * (depth_mean ** 0.5))
-	depthMax = depth_mean + (depth_thresh * (depth_mean ** 0.5))
+	depthMin = depth_mean * min_depth
+	depthMax = depth_mean * max_depth
 
 	utils_logger.info(
 		"Filtering dataframe for mapq (MAPQ >= mapqCutoff) "
@@ -213,7 +214,7 @@ def make_region_lists_genome_filters(depthAndMapqDf, mapqCutoff, depth_thresh):
 
 
 def make_region_lists_chromosome_filters(
-	depthAndMapqDf, mapqCutoff, depth_thresh):
+	depthAndMapqDf, mapqCutoff, min_depth, max_depth):
 	"""
 	Filters a pandas dataframe for mapq and depth based on thresholds calculated
 	per chromosome
@@ -225,10 +226,10 @@ def make_region_lists_chromosome_filters(
 		Must have 'depth' and 'mapq' columns
 	mapqCutoff : int
 		The minimum mapq for a window to be considered high quality
-	depth_thresh : float
-		Factor to use in filtering regions based on depth. Li (2014) recommends:
-		mean_depth +- (depth_thresh * (depth_mean ** 0.5)), where depth_thresh
-		is 3 or 4.
+	min_depth : float
+		Fraction of mean to set as minimum depth
+	max_depth : float
+		Multiple of mean to set as maximum depth
 
 	Returns
 	-------
@@ -249,23 +250,24 @@ def make_region_lists_chromosome_filters(
 	bad_list = []
 
 	for i in ordered_chrom_list:
-		depth_mean = depthAndMapqDf["depth"].mean()
-		depth_sd = depthAndMapqDf["depth"].std()
+		df = depthAndMapqDf.loc[depthAndMapqDf["chrom"] == i]
+		depth_mean = df["depth"].mean()
+		depth_sd = df["depth"].std()
 
-		depthMin = depth_mean - (depth_thresh * (depth_mean ** 0.5))
-		depthMax = depth_mean + (depth_thresh * (depth_mean ** 0.5))
+		depthMin = depth_mean * min_depth
+		depthMax = depth_mean * max_depth
 
 		utils_logger.info(
 			"Filtering chromosome {} for mapq (MAPQ >= mapqCutoff) "
 			"and depth (between depthMin and depthMax)".format(i))
 
 		good = (
-			(depthAndMapqDf.chrom == i) &
-			(depthAndMapqDf.mapq >= mapqCutoff) &
-			(depthAndMapqDf.depth > depthMin) &
-			(depthAndMapqDf.depth < depthMax))
-		good_list.append(depthAndMapqDf[good])
-		bad_list.append(depthAndMapqDf[~good])
+			(df.chrom == i) &
+			(df.mapq >= mapqCutoff) &
+			(df.depth > depthMin) &
+			(df.depth < depthMax))
+		good_list.append(df[good])
+		bad_list.append(df[~good])
 	dfGood = pd.concat(good_list)
 	dfBad = pd.concat(bad_list)
 

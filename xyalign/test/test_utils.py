@@ -1,5 +1,7 @@
 import os
+import pybedtools
 import pytest
+import pandas as pd
 from xyalign import bam
 from xyalign import reftools
 from xyalign import utils
@@ -21,6 +23,8 @@ def teardown_module(function):
 		os.remove(os.path.join(dir, "merged.bed"))
 	if os.path.exists(os.path.join(dir, "temp_test")):
 		os.rmdir(os.path.join(dir, "temp_test"))
+	if os.path.exists(os.path.join(dir, "out_test.bed")):
+		os.remove(os.path.join(dir, "out_test.bed"))
 
 
 def test_validate_external_prog():
@@ -57,3 +61,35 @@ def test_merge_bed_files():
 	assert path == os.path.join(dir, "merged.bed")
 	assert os.path.exists(os.path.join(dir, "merged.bed"))
 	assert read_bed(os.path.join(dir, "merged.bed")) == [["seq1", "0", "25"]]
+
+
+def test_make_region_lists_genome_filters():
+	df = pd.read_csv(os.path.join(dir, "dataframe.csv"), sep="\t")
+	genome_filters = utils.make_region_lists_genome_filters(
+		df, 0, 10, 20)
+	df2 = df.loc[df["depth"] >= 38.6496]
+	df3 = df2.loc[df2["depth"] <= 77.2992]
+	assert df3["depth"].mean() == genome_filters[0]["depth"].mean()
+
+
+def test_make_region_lists_chromosome_filters():
+	df = pd.read_csv(os.path.join(dir, "dataframe.csv"), sep="\t")
+	chrom_filters = utils.make_region_lists_chromosome_filters(
+		df, 0, 10, 100000)
+	chr19 = df.loc[df["chrom"] == "chr19"]
+	chrX = df.loc[df["chrom"] == "chrX"]
+	chrY = df.loc[df["chrom"] == "chrY"]
+	chr19_2 = chr19.loc[df["depth"] >= 98.178]
+	chrX_2 = chrX.loc[df["depth"] >= 28.32]
+	chrY_2 = chrY.loc[df["depth"] >= 0.194]
+	df2 = pd.concat([chr19_2, chrX_2, chrY_2])
+	assert df2["depth"].mean() == chrom_filters[0]["depth"].mean()
+
+
+def test_output_bed():
+	df = pd.read_csv(os.path.join(dir, "dataframe.csv"), sep="\t")
+	return_val = utils.output_bed(os.path.join(dir, "out_test.bed"), *[df])
+	assert return_val == 0
+	old_bed = read_bed(os.path.join(dir, "out.bed"))
+	new_bed = read_bed(os.path.join(dir, "out_test.bed"))
+	assert new_bed == old_bed

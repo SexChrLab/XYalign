@@ -683,6 +683,56 @@ class BamFile():
 			time.time() - analyze_start))
 		return results
 
+	def platypus_caller(
+		self, platypus_path, log_path, ref, chroms, cpus, output_file,
+		regions_file=None):
+		"""
+		Uses platypus to make variant calls on provided bam file
+
+		Parameters
+		----------
+
+		platypus_path : str
+			Path to platypus
+		log_path : str
+			Path to and name of desired log file for platypus
+		ref : str
+			Path to reference sequence
+		chroms : list
+			Chromosomes to call variants on, e.g., ["chrX", "chrY", "chr19"]
+		cpus : int
+			Number of threads/cores to use
+		output_file : path
+			Path to and name of the output vcf
+		regions_file : {str, None}
+			If not None, must be path to bed file containing regions to call variants
+			in.  If None, calls in call regions of provided chromosomes. Default =
+			None.
+
+		Returns
+		-------
+
+		int
+			Exit code of the platypus call
+
+		"""
+		platy_start = time.time()
+		if regions_file is None:
+			regions = ','.join(map(str, chroms))
+		else:
+			regions = regions_file
+		command_line = [
+			platypus_path, "callVariants", "--bamFiles", self.filepath, "-o",
+			output_file, "--refFile", ref, "--nCPU", str(cpus), "--regions", regions,
+			"--assemble", "1", "--logFileName", log_path]
+		self.logger.info("Calling variants with command line: {}".format(
+			" ".join(command_line)))
+		return_code = subprocess.call(command_line)
+		self.logger.info(
+			"Variant calling complete. Elapsed time: {} seconds".format(
+				time.time() - platy_start))
+		return return_code
+
 ###############################################################################
 # Functions associated with bam files
 

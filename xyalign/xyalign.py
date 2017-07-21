@@ -231,9 +231,19 @@ def parse_args():
 
 	# Variant Calling Flags
 	parser.add_argument(
-		"--variant_quality_cutoff", "-vqc", type=int, default=20,
-		help="Consider all SNPs with a quality greater than or "
-		"equal to this value. Default is 20.")
+		"--variant_site_quality", "-vsq", type=int, default=30,
+		help="Consider all SNPs with a site quality (QUAL) greater than or "
+		"equal to this value. Default is 30.")
+
+	parser.add_argument(
+		"--variant_genotype_quality", "-vgq", type=int, default=30,
+		help="Consider all SNPs with a sample genotype quality greater than or "
+		"equal to this value. Default is 30.")
+
+	parser.add_argument(
+		"--variant_depth", "-vd", type=int, default=4,
+		help="Consider all SNPs with a sample depth greater than or "
+		"equal to this value. Default is 4.")
 
 	parser.add_argument(
 		"--platypus_logfile", default=None,
@@ -350,10 +360,19 @@ def parse_args():
 		"considered high quality. Default is 20.")
 
 	parser.add_argument(
-		"--depth_filter", "-df", type=float, default=4.0,
-		help="Filter for depth (f), where the threshold used is mean_depth +- "
-		"(f * square_root(mean_depth)).  See Li 2014 (Bioinformatics 30: "
-		"2843-2851) for more information.  Default is 4.")
+		"--min_depth_filter", type=float, default=0.0,
+		help="Minimum depth threshold for a window to be considered high "
+		"quality. Calculated as mean depth * min_depth_filter. So, a "
+		"min_depth_filter of 0.2 would require at least a minimum depth "
+		"of 2 if the mean depth was 10. Default is 0.0 to consider all windows.")
+
+	parser.add_argument(
+		"--max_depth_filter", type=float, default=10000.0,
+		help="Maximum depth threshold for a window to be considered high "
+		"quality. Calculated as mean depth * max_depth_filter. So, a "
+		"max_depth_filter of 4 would require depths to be less than or "
+		"equal to 40 if the mean depth was 10. "
+		"Default is 10000.0 to consider all windows.")
 
 	parser.add_argument(
 		"--num_permutations", type=int, default=10000,
@@ -577,8 +596,8 @@ def bam_analysis_noprocessing():
 	"""
 	# Platypus
 	if args.platypus_calling in ["both", "before"]:
-		a = variants.platypus_caller(
-			args.platypus_path, noprocessing_vcf_log, input_bam.filepath,
+		a = input_bam.platypus_caller(
+			args.platypus_path, noprocessing_vcf_log,
 			ref.filepath, input_chromosomes, args.cpus, noprocessing_vcf,
 			None)
 		if a != 0:
@@ -586,12 +605,15 @@ def bam_analysis_noprocessing():
 				input_bam.filepath))
 			logging.shutdown()
 			sys.exit(1)
+		noprocess_vcf_object = variants.VCFFile(noprocessing_vcf)
 		if args.no_variant_plots is not True:
-			variants.plot_variants_per_chrom(
-				input_chromosomes, noprocessing_vcf,
-				args.sample_id, readbalance_prefix_noprocessing,
-				args.variant_quality_cutoff, args.marker_size,
-				args.marker_transparency, input_bam)
+			noprocess_vcf_object.plot_variants_per_chrom(
+				input_chromosomes, args.sample_id, readbalance_prefix_noprocessing,
+				args.variant_site_quality,
+				args.variant_genotype_quality,
+				args.variant_depth,
+				args.marker_size,
+				args.marker_transparency, input_bam, "platypus")
 	# Depth/MAPQ
 	if args.no_bam_analysis is not True:
 		all_df = []
@@ -606,10 +628,12 @@ def bam_analysis_noprocessing():
 					chromosome, None, args.target_bed)
 			if args.whole_genome_threshold is True:
 				tup = utils.make_region_lists_genome_filters(
-					data["windows"], args.mapq_cutoff, args.depth_filter)
+					data["windows"], args.mapq_cutoff,
+					args.min_depth_filter, args.max_depth_filter)
 			else:
 				tup = utils.make_region_lists_chromosome_filters(
-					data["windows"], args.mapq_cutoff, args.depth_filter)
+					data["windows"], args.mapq_cutoff,
+					args.min_depth_filter, args.max_depth_filter)
 			all_df.append(data["windows"])
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
@@ -906,8 +930,8 @@ def bam_analysis_postprocessing():
 	# Platypus
 	include_bed = output_bed_high_postprocessing
 	if args.platypus_calling in ["both", "after"]:
-		a = variants.platypus_caller(
-			args.platypus_path, postprocessing_vcf_log, input_bam.filepath,
+		a = input_bam.platypus_caller(
+			args.platypus_path, postprocessing_vcf_log,
 			ref.filepath, input_chromosomes, args.cpus, postprocessing_vcf,
 			include_bed)
 		if a != 0:
@@ -915,12 +939,15 @@ def bam_analysis_postprocessing():
 				final_bam.filepath))
 			logging.shutdown()
 			sys.exit(1)
+		postprocess_vcf_object = variants.VCFFile(postprocessing_vcf)
 		if args.no_variant_plots is not True:
-			variants.plot_variants_per_chrom(
-				input_chromosomes, postprocessing_vcf,
-				args.sample_id, readbalance_prefix_postprocessing,
-				args.variant_quality_cutoff, args.marker_size,
-				args.marker_transparency, final_bam)
+			postprocess_vcf_object.plot_variants_per_chrom(
+				input_chromosomes, args.sample_id, readbalance_prefix_postprocessing,
+				args.variant_site_quality,
+				args.variant_genotype_quality,
+				args.variant_depth,
+				args.marker_size,
+				args.marker_transparency, final_bam, "platypus")
 
 	return(pass_df, fail_df)
 

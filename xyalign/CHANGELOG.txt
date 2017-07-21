@@ -4,6 +4,11 @@
 # Only listing changes since previous version/release
 
 Development Version (currently branch called noY_support)
+	* fixed bug in utils.make_region_lists_chromosome_filters()
+	* depth filters for window filtering now simple multipliers of mean depth
+	* plot_variants_per_chrom now a method of variants.VCFFile()
+	* platypus_caller now a method of bam.BamFile()
+	* Added filters for genotype quality and sample depth for variants
 	* Fixed error in bam.strip_reads() that would return blank fastqs when sorting single end reads
 	* assemble.bwa_mem_mapping_sambamba() now handles mapping without read group line
 	* bam.strip_reads() now handles case where no read group is present in file
