@@ -313,16 +313,18 @@ def chromosome_wide_plot(
 	Parameters
 	----------
 
+	chrom : str
+		Name of the chromosome
 	positions : numpy array
 		Genomic coordinates
 	y_value : numpy	array
 		The values of the measure of interest
 	measure_name : str
 		The name of the measure of interest (y axis title)
-	chromosome : str
-		The name of the chromosome being plotted
 	sampleID : str
 		The name of the sample
+	output_prefix : str
+		Full path to and prefix of desired output plot
 	MarkerSize : float
 		Size in points^2
 	MarkerAlpha : float

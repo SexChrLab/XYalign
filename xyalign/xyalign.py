@@ -229,7 +229,7 @@ def parse_args():
 		"--y_present, --y_absent, or --sex_chrom_calling_threshold "
 		"if running full pipeline.")
 
-	# Variant Calling Flags
+	# Variant Flags
 	parser.add_argument(
 		"--variant_site_quality", "-vsq", type=int, default=30,
 		help="Consider all SNPs with a site quality (QUAL) greater than or "
@@ -249,6 +249,18 @@ def parse_args():
 		"--platypus_logfile", default=None,
 		help="Prefix to use for Platypus log files.  Will default to the "
 		"sample_id argument provided")
+
+	parser.add_argument(
+		"--homogenize_read_balance", type=bool, default=True,
+		help="If True, read balance values will be transformed by subtracting "
+		"each value from 1. For example, 0.25 and 0.75 would be treated "
+		"equivalently. Default is True.")
+
+	parse.add_argument(
+		"--min_variant_count", type=int, default=2,
+		help="Minimum number of variants in a window for the read balance of "
+		"that window to be plotted. Note that this does not affect plotting "
+		"of variant counts. Default is 2.")
 
 	# Reference-related Flags
 	parser.add_argument(
@@ -607,13 +619,26 @@ def bam_analysis_noprocessing():
 			sys.exit(1)
 		noprocess_vcf_object = variants.VCFFile(noprocessing_vcf)
 		if args.no_variant_plots is not True:
-			noprocess_vcf_object.plot_variants_per_chrom(
-				input_chromosomes, args.sample_id, readbalance_prefix_noprocessing,
-				args.variant_site_quality,
-				args.variant_genotype_quality,
-				args.variant_depth,
-				args.marker_size,
-				args.marker_transparency, input_bam, "platypus")
+			if args.window_size is not None and args.window_size != "None":
+				noprocess_vcf_object.plot_variants_per_chrom(
+					input_chromosomes, args.sample_id, readbalance_prefix_noprocessing,
+					args.variant_site_quality,
+					args.variant_genotype_quality,
+					args.variant_depth,
+					args.marker_size,
+					args.marker_transparency, input_bam, "platypus",
+					args.homogenize_read_balance, data_frame_readbalance_preprocessing,
+					args.min_variant_count, int(args.window_size))
+			else:
+				noprocess_vcf_object.plot_variants_per_chrom(
+					input_chromosomes, args.sample_id, readbalance_prefix_noprocessing,
+					args.variant_site_quality,
+					args.variant_genotype_quality,
+					args.variant_depth,
+					args.marker_size,
+					args.marker_transparency, input_bam, "platypus",
+					args.homogenize_read_balance, data_frame_readbalance_preprocessing,
+					args.min_variant_count, None, args.target_bed)
 	# Depth/MAPQ
 	if args.no_bam_analysis is not True:
 		all_df = []
@@ -941,13 +966,26 @@ def bam_analysis_postprocessing():
 			sys.exit(1)
 		postprocess_vcf_object = variants.VCFFile(postprocessing_vcf)
 		if args.no_variant_plots is not True:
-			postprocess_vcf_object.plot_variants_per_chrom(
-				input_chromosomes, args.sample_id, readbalance_prefix_postprocessing,
-				args.variant_site_quality,
-				args.variant_genotype_quality,
-				args.variant_depth,
-				args.marker_size,
-				args.marker_transparency, final_bam, "platypus")
+			if args.window_size is not None and args.window_size != "None":
+				postprocess_vcf_object.plot_variants_per_chrom(
+					input_chromosomes, args.sample_id, readbalance_prefix_postprocessing,
+					args.variant_site_quality,
+					args.variant_genotype_quality,
+					args.variant_depth,
+					args.marker_size,
+					args.marker_transparency, final_bam, "platypus",
+					args.homogenize_read_balance, data_frame_readbalance_postprocessing,
+					args.min_variant_count, int(args.window_size))
+			else:
+				postprocess_vcf_object.plot_variants_per_chrom(
+					input_chromosomes, args.sample_id, readbalance_prefix_postprocessing,
+					args.variant_site_quality,
+					args.variant_genotype_quality,
+					args.variant_depth,
+					args.marker_size,
+					args.marker_transparency, final_bam, "platypus",
+					args.homogenize_read_balance, data_frame_readbalance_postprocessing,
+					args.min_variant_count, None, args.target_bed)
 
 	return(pass_df, fail_df)
 
@@ -1088,9 +1126,13 @@ if __name__ == "__main__":
 		plots_path, "{}_postprocessing".format(args.sample_id))
 	# Bedfile related
 	data_frame_preprocessing = os.path.join(
-		bed_path, "{}_full_dataframe_preprocessing.csv".format(args.sample_id))
+		bed_path, "{}_full_dataframe_depth_mapq_preprocessing.csv".format(args.sample_id))
 	data_frame_postprocessing = os.path.join(
-		bed_path, "{}_full_dataframe_postprocessing.csv".format(args.sample_id))
+		bed_path, "{}_full_dataframe_depth_mapq_postprocessing.csv".format(args.sample_id))
+	data_frame_readbalance_preprocessing = os.path.join(
+		bed_path, "{}_full_dataframe_readbalance_preprocessing.csv".format(args.sample_id))
+	data_frame_readbalance_postprocessing = os.path.join(
+		bed_path, "{}_full_dataframe_readbalance_postprocessing.csv".format(args.sample_id))
 	high_prefix = "{}_highquality_preprocessing".format(args.sample_id)
 	output_bed_high = os.path.join(
 		bed_path, "{}.bed".format(high_prefix))

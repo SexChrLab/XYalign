@@ -2,14 +2,17 @@
 # Functions for calling and processing variants
 
 from __future__ import division
+import csv
 import gzip
 import logging
 import subprocess
 import time
 import pysam
 import bam
+import utils
 import cyvcf2
 import numpy as np
+import pandas as pd
 # Matplotlib needs to be called in this way to set the display variable
 import matplotlib
 matplotlib.use('Agg')
@@ -241,7 +244,8 @@ class VCFFile():
 
 	def plot_variants_per_chrom(
 		self, chrom_list, sampleID, output_prefix, site_qual, genotype_qual,
-		depth, MarkerSize, MarkerAlpha, bamfile_obj, variant_caller):
+		depth, MarkerSize, MarkerAlpha, bamfile_obj, variant_caller, homogenize,
+		dataframe_out, min_count, window_size, target_file=None):
 		"""
 		Parses a vcf file and plots read balance in separate plots
 		for each chromosome in the input list
@@ -269,6 +273,20 @@ class VCFFile():
 			Used to get chromosome lengths only
 		variant_caller : str
 			Variant caller used to generate vcf - currently only "platypus" supported
+		homogenize: bool
+			If True, all read balance values less than 0.5 will be transformed
+			by subtracting the value from 1. For example, the values 0.25 and
+			0.75 would be treated as equivalent.
+		dataframe_out : str
+			Full path of file to write pandas dataframe to. Will overwire if exists
+		min_count : int
+			Minimum number of variants to include a window for plotting.
+		window_size
+			If int, the window size to use for sliding window analyses, if None
+			intervals from target_file
+		target_file : str
+			Path to bed_file containing regions to analyze instead of
+			windows of a fixed size. Will only be engaged if window_size is None
 
 		Returns
 		-------
@@ -282,6 +300,7 @@ class VCFFile():
 		if variant_caller.lower() != "platypus":
 			self.logger.error(
 				"Error. Only 'platypus' currently supported as variant_caller.")
+			logging.shutdown()
 			raise RuntimeError(
 				"Error. Only 'platypus' currently supported as variant_caller "
 				"for plot_variants_per_chrom.")
@@ -292,11 +311,24 @@ class VCFFile():
 			if len(parse_results[0]) < 1:
 				no_sites.append(i)
 			else:
+				chrom_len = bamfile_obj.get_chrom_length(i)
 				plot_read_balance(
 					i, parse_results[0], parse_results[2],
-					sampleID, output_prefix, MarkerSize, MarkerAlpha, bamfile_obj)
+					sampleID, output_prefix, MarkerSize, MarkerAlpha, chrom_len)
 				hist_read_balance(
 					i, parse_results[2], sampleID, output_prefix)
+				rb_df = read_balance_per_window(
+					i, parse_results[0], parse_results[2], sampleID, homogenize,
+					chrom_len, dataframe_out, window_size, target_file)
+				utils.chromosome_wide_plot(
+					i, rb_df["start"].values, rb_df["count"], "Window_Variant_Count",
+					sampleID, output_prefix, MarkerSize, MarkerAlpha,
+					chrom_len, rb_df["count"].max())
+				rb_df = rb_df[rb_df["count"] >= min_count]
+				utils.chromosome_wide_plot(
+					i, rb_df["start"].values, rb_df["balance"], "Window_Read_Balance",
+					sampleID, output_prefix, MarkerSize, MarkerAlpha,
+					chrom_len, 1.0)
 		if len(no_sites) >= 1:
 			self.logger.info(
 				"No variants passing filters on the following chromosomes: {}".format(
@@ -310,22 +342,41 @@ class VCFFile():
 		return 0
 
 
-def read_balance_per_window(self, chrom, window_size, target_file=None):
+def read_balance_per_window(
+	chrom, positions, readBalance, sampleID, homogenize, chr_len, out_file,
+	window_size, target_file=None):
 	"""
 	Calculates mean read balance per genomic window (defined by size or an
-	external target bed file).  Currently only supports Platypus vcfs bgzipped
-	and tabix indexed.
+	external target bed file) for a given chromosome. Takes as input an array
+	of positions and an array of read balances - the order of which must
+	correspond exactly. In addition, the positions are expected to ALL BE ON
+	THE SAME CHROMOSOME and be in numerically sorted order (i.e., the output
+	of parse_platypus_VCF())
 
 	Parameters
 	----------
 
 	chrom : str
-		Name of the chromosome to analyze
+		Name of the chromosome
+	positions : numpy array
+		Positions along the chromosome (same length as readBalance)
+	readBalance : numpy array
+		Read balance corresponding with the positions in the positions array
+	sampleID : str
+		Sample name or id to include in the plot title
+	homogenize: bool
+		If True, all read balance values less than 0.5 will be transformed
+		by subtracting the value from 1. For example, the values 0.25 and
+		0.75 would be treated as equivalent.
+	chr_len : int
+		Length of chromosome. Ignored if target_file is provided.
+	out_file : str
+		Full path of file to write pandas dataframe to. Will overwire if exists
 	window_size
 		If int, the window size to use for sliding window analyses, if None
 		intervals from target_file
 	target_file : str
-		Path to bed_file containing regions to analyze instead of
+		Path to bed file containing regions to analyze instead of
 		windows of a fixed size. Will only be engaged if window_size is None
 
 	Returns
@@ -334,17 +385,206 @@ def read_balance_per_window(self, chrom, window_size, target_file=None):
 	pandas dataframe
 		With columns: "chrom", "start", "stop", "balance", and "count"
 	"""
-	# vcf_start = time.time()
-	# variants_logger.info(
-	# 	"Traversing {} in {} to analyze depth and mapping quality".format(
-	# 		chrom, self.filepath))
-	# vcf = cyvcf2.VCF(vcf)
-	pass
+	readbalance_start = time.time()
+	variants_logger.info(
+		"Traversing {} to calculate mean read balance".format(
+			chrom))
+	positions = np.asarray(positions)
+	readBalance = np.asarray(readBalance)
+
+	if window_size is not None:
+		variants_logger.info(
+			"Using windows size: {}".format(window_size))
+
+		num_windows = chr_len // window_size + 1
+		if chr_len % num_windows == 0:
+			last_window_len = window_size
+		else:
+			last_window_len = chr_len % num_windows
+
+		chr_list = []
+		start_list = []
+		stop_list = []
+		balance_list = []
+		count_list = []
+
+		window_id = 0
+		start = 0
+		end = window_size
+		window_count = 0
+		window_balances = []
+
+		for idx, i in enumerate(positions):
+			if i < start:
+				variants_logger.info(
+					"Position {} is less than window start {}. Check that "
+					"positions are sorted numerically. Exiting.")
+				raise RuntimeError(
+					"Position {} is less than window start {}. Check that "
+					"positions are sorted numerically. Exiting.")
+			elif i < end:
+				window_count += 1
+				if homogenize is False:
+					window_balances.append(readBalance[idx])
+				else:
+					if readBalance[idx] > 0.5:
+						window_balances.append(readBalance[idx])
+					else:
+						window_balances.append(1.0 - readBalance[idx])
+			else:
+				# i is >= end, so window needs to be reset
+				while i >= end:
+					chr_list.append(chrom)
+					start_list.append(start)
+					stop_list.append(end)
+					if len(window_balances) == 0:
+						balance_list.append(0)
+					else:
+						balance_list.append(np.mean(window_balances))
+					count_list.append(window_count)
+
+					window_id += 1
+					if window_id > num_windows:
+						variants_logger.info(
+							"Exhausted windows, but positions still remaining. "
+							"Ensure correct chromosome provided and that positions "
+							"are numerically sorted.")
+						raise RuntimeError(
+							"Exhausted windows, but positions still remaining. "
+							"Ensure correct chromosome provided and that positions "
+							"are numerically sorted.")
+					if window_id == num_windows - 1:
+						start += window_size
+						end += last_window_len
+					else:
+						start += window_size
+						end += window_size
+					window_balances = []
+					window_count = 0
+
+				window_count += 1
+				if homogenize is False:
+					window_balances.append(readBalance[idx])
+				else:
+					if readBalance[idx] > 0.5:
+						window_balances.append(readBalance[idx])
+					else:
+						window_balances.append(1.0 - readBalance[idx])
+
+		# process last window
+		chr_list.append(chrom)
+		start_list.append(start)
+		stop_list.append(end)
+		if len(window_balances) == 0:
+			balance_list.append(0)
+		else:
+			balance_list.append(np.mean(window_balances))
+		count_list.append(window_count)
+
+	elif target_file is not None:
+		variants_logger.info(
+			"Using targets from: {}".format(target_file))
+		with open(target_file) as f:
+			targets = [x.strip() for x in f]
+			targets = [x.split() for x in targets]
+			targets = [x for x in targets if x[0] == chrom]
+			while [""] in targets:
+				targets.remove([""])
+
+		num_windows = len(targets)
+
+		chr_list = [chrom] * num_windows
+		start_list = []
+		stop_list = []
+		balance_list = []
+		count_list = []
+
+		window_id = 0
+		window_count = 0
+		window_balances = []
+
+		start = int(targets[0][1])
+		end = int(targets[0][2])
+
+		num_pos = len(positions)
+		pos_idx = 0
+
+		while window_id < num_windows:
+			if pos_idx < num_pos:
+				if positions[pos_idx] < start:
+					pos_idx += 1
+				elif positions[pos_idx] < end:
+					window_count += 1
+					if homogenize is False:
+						window_balances.append(readBalance[pos_idx])
+					else:
+						if readBalance[pos_idx] > 0.5:
+							window_balances.append(readBalance[pos_idx])
+						else:
+							window_balances.append(1.0 - readBalance[pos_idx])
+					pos_idx += 1
+				else:
+					start_list.append(start)
+					stop_list.append(end)
+					if len(window_balances) == 0:
+						balance_list.append(0)
+					else:
+						balance_list.append(np.mean(window_balances))
+					count_list.append(window_count)
+
+					window_id += 1
+					try:
+						start = int(targets[window_id][1])
+						end = int(targets[window_id][2])
+					except IndexError:
+						break
+					window_count = 0
+					window_balances = []
+			else:
+					start_list.append(start)
+					stop_list.append(end)
+					if len(window_balances) == 0:
+						balance_list.append(0)
+					else:
+						balance_list.append(np.mean(window_balances))
+					count_list.append(window_count)
+
+					window_id += 1
+					try:
+						start = int(targets[window_id][1])
+						end = int(targets[window_id][2])
+					except IndexError:
+						break
+					window_count = 0
+					window_balances = []
+	else:
+		variants_logger.error(
+			"Both window_size and target_file set to None. "
+			"Cannot proceed with read balance traversal. Exiting.")
+		logging.shutdown()
+		raise RuntimeError(
+			"Both window_size and target_file set to None. "
+			"Cannot proceed with read balance traversal. Exiting.")
+
+	# Convert data into pandas data frames
+	windows_df = pd.DataFrame({
+		"chrom": np.asarray(chr_list),
+		"start": np.asarray(start_list),
+		"stop": np.asarray(stop_list),
+		"balance": np.asarray(balance_list),
+		"count": np.asarray(count_list)
+	})[["chrom", "start", "stop", "balance", "count"]]
+
+	windows_df.to_csv(
+		out_file, index=False, sep="\t", quoting=csv.QUOTE_NONE)
+	variants_logger.info("Analysis complete. Elapsed time: {} seconds".format(
+		time.time() - readbalance_start))
+	return windows_df
 
 
 def plot_read_balance(
 	chrom, positions, readBalance, sampleID, output_prefix, MarkerSize,
-	MarkerAlpha, bamfile_obj):
+	MarkerAlpha, homogenize, chrom_len):
 	"""
 	Plots read balance at each SNP along a chromosome
 
@@ -365,8 +605,12 @@ def plot_read_balance(
 		Size of markers (matplotlib sizes) to use in the figure
 	MarkerAlpha : float
 		Transparency (matplotlib values) of markers for the figure
-	bamfile_obj : BamFile() object
-		Used to get chromosome lengths only
+	homogenize: bool
+		If True, all read balance values less than 0.5 will be transformed
+		by subtracting the value from 1. For example, the values 0.25 and
+		0.75 would be treated as equivalent.
+	chrom_len : int
+		Length of chromosome
 
 	Returns
 	-------
@@ -374,7 +618,8 @@ def plot_read_balance(
 		0
 
 	"""
-	chrom_len = bamfile_obj.get_chrom_length(chrom)
+	if homogenize is True:
+		readBalance = np.asarray([1.0 - x if x < 0.5 else x for x in readBalance])
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():
@@ -400,7 +645,8 @@ def plot_read_balance(
 	return 0
 
 
-def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
+def hist_read_balance(
+	chrom, readBalance, sampleID, homogenize, output_prefix):
 	"""
 	Plots a histogram of read balance values between 0.05 and 0.95
 
@@ -413,6 +659,10 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 		Read balance values
 	sampleID : str
 		Sample name or id to include in the plot title
+	homogenize: bool
+		If True, all read balance values less than 0.5 will be transformed
+		by subtracting the value from 1. For example, the values 0.25 and
+		0.75 would be treated as equivalent.
 	output_prefix : str
 		Desired prefix (including full path) of the output files
 
@@ -430,6 +680,8 @@ def hist_read_balance(chrom, readBalance, sampleID, output_prefix):
 		variants_logger.info(
 			"No sites on {} to plot histogram. Skipping.".format(chrom))
 		return 1
+	if homogenize is True:
+		read_balance = np.asarray([1.0 - x if x < 0.5 else x for x in read_balance])
 	if "x" in chrom.lower():
 		Color = "green"
 	elif "y" in chrom.lower():

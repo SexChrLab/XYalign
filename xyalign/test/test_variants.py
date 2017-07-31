@@ -50,7 +50,13 @@ def teardown_module(function):
 		"scatter_test_chr19_ReadBalance_GenomicScatter.svg",
 		"scatter_test_chr19_ReadBalance_GenomicScatter.png",
 		"hist_test_chr19_ReadBalance_Hist.svg",
-		"hist_test_chr19_ReadBalance_Hist.png"]
+		"hist_test_chr19_ReadBalance_Hist.png",
+		"hg19_header_rb.csv",
+		"hg19_header_rb_target_test.csv",
+		"plot_test_chr19_Window_Read_balance_GenomicScatter.png",
+		"plot_test_chr19_Window_Read_balance_GenomicScatter.svg",
+		"plot_test_chr19_Window_Variant_Count_GenomicScatter.png",
+		"plot_test_chr19_Window_Variant_Count_GenomicScatter.svg"]
 	for file_name in teardown_files:
 		if os.path.exists(os.path.join(dir, file_name)):
 			os.remove(os.path.join(dir, file_name))
@@ -76,7 +82,8 @@ def test_VCFFile():
 	assert test_vcf.is_bgzipped() is True
 	a = test_vcf.plot_variants_per_chrom(
 		["chr19"], "test", os.path.join(dir, "plot_test"), 30, 30, 8, 4, 0.5,
-		bam.BamFile(os.path.join(dir, "hg19_header.bam")), "platypus")
+		bam.BamFile(os.path.join(dir, "hg19_header.bam")), "platypus", True,
+		os.path.join(dir, "hg19_header_rb.csv"), 1, 10000)
 	assert os.path.exists(
 		os.path.join(dir, "plot_test_chr19_ReadBalance_GenomicScatter.png"))
 	assert os.path.exists(
@@ -85,6 +92,8 @@ def test_VCFFile():
 		os.path.join(dir, "plot_test_chr19_ReadBalance_Hist.svg"))
 	assert os.path.exists(
 		os.path.join(dir, "plot_test_chr19_ReadBalance_Hist.png"))
+	assert os.path.exists(
+		os.path.join(dir, "hg19_header_rb.csv"))
 	parsed = test_vcf.parse_platypus_VCF(30, 30, 8, "chr19")
 	positions = [
 		156497, 308662, 311825, 312020, 312143, 325266, 325481, 326481,
@@ -125,7 +134,7 @@ def test_VCFFile():
 	val = variants.plot_read_balance(
 		"chr19", positions, read_balances, "scatter_test",
 		os.path.join(dir, "scatter_test"), 4, 0.5, bam.BamFile(
-			os.path.join(dir, "hg19_header.bam")))
+			os.path.join(dir, "hg19_header.bam")).get_chrom_length("chr19"))
 	assert val == 0
 	assert os.path.exists(
 		os.path.join(dir, "scatter_test_chr19_ReadBalance_GenomicScatter.svg"))
@@ -143,6 +152,12 @@ def test_VCFFile():
 	assert val == 1
 	assert os.path.exists(
 		os.path.join(dir, "hist_test_broken_chr19_ReadBalance_Hist.png")) is False
+	target_test = variants.read_balance_per_window(
+		"chr19", positions, read_balances, "target_test", True, 1,
+		os.path.join(dir, "hg19_header_rb_target_test.csv"), None,
+		os.path.join(dir, "platypus.bed"))
+	assert os.path.exists(os.path.join(dir, "hg19_header_rb_target_test.csv"))
+	assert len(target_test) == 27
 
 
 def check_hist_error():

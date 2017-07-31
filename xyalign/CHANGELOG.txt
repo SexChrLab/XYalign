@@ -4,6 +4,9 @@
 # Only listing changes since previous version/release
 
 Development Version (currently branch called noY_support)
+	* Added plotting of window based variant measures (read balance and variant counts)
+	* Added option to "homogenize" read balance values by subtracting all values less than 0.5 from 1 (e.g., 0.25 and 0.75 would be equivalent)
+	* Added variants.read_balance_per_window, which calculates mean read balance (and variant count) per window
 	* fixed bug in utils.make_region_lists_chromosome_filters()
 	* depth filters for window filtering now simple multipliers of mean depth
 	* plot_variants_per_chrom now a method of variants.VCFFile()
@@ -12,7 +15,7 @@ Development Version (currently branch called noY_support)
 	* Fixed error in bam.strip_reads() that would return blank fastqs when sorting single end reads
 	* assemble.bwa_mem_mapping_sambamba() now handles mapping without read group line
 	* bam.strip_reads() now handles case where no read group is present in file
-	* Added cleanup option for strip reads (allowing on to delete large temporary, unsorted fastqs)
+	* Added cleanup option for strip reads (allowing one to delete large temporary, unsorted fastqs)
 	* Removed requirement for valid bam file for PREPARE_REFERENCE module
 	* Fixed bug causing the misreading of bam indices ending in .bai, rather than .bam.bai
 	* chromosome_bed() and check_chrom_in_bam() now methods of bam.BamFile()
