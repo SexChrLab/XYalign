@@ -30,21 +30,13 @@ See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/lates
 ## To-Do Items
 
 *Down the road*
-- [ ] Add thorough module testing
-- [ ] Make bwa indexing conditional for withY if no reference_mask provided
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
 	- [ ] Implement bam analyses in cython
-- [ ] Add "batch" option (for CHARACTERIZE_SEX_CHROMS and/or ANALYZE_BAM)
-	- not necessary for now, as can be easily done with a bash command
 - [ ] Add support for additional mappers
 	- not clear if this is necessary or valuable
 - [ ] Handle duplicate reads
 	- not clear if this is necessary or valuable
-- [ ] Add cram and sam support
-- [ ] Run bwa indexing in parallel
-	- this might be a bit more difficult that it seems due to memory requirements for large genomes
-- [ ] Implement subparser
 - [ ] More tuning of plotting parameters (font, color, size, etc.)
 
 ## Group Members

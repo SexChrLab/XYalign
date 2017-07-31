@@ -256,7 +256,7 @@ def parse_args():
 		"each value from 1. For example, 0.25 and 0.75 would be treated "
 		"equivalently. Default is True.")
 
-	parse.add_argument(
+	parser.add_argument(
 		"--min_variant_count", type=int, default=2,
 		help="Minimum number of variants in a window for the read balance of "
 		"that window to be plotted. Note that this does not affect plotting "
@@ -989,7 +989,8 @@ def bam_analysis_postprocessing():
 
 	return(pass_df, fail_df)
 
-if __name__ == "__main__":
+
+def main():
 	# Version - placeholder for now - need to incorporate it into __init__.py
 	citation = """
 	XYalign: Inferring Sex Chromosome Ploidy in NGS Data
@@ -1349,3 +1350,6 @@ if __name__ == "__main__":
 			time.time() - xyalign_start))
 		logging.shutdown()
 		sys.exit(0)
+
+if __name__ == "__main__":
+	main()

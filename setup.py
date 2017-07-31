@@ -19,5 +19,7 @@ setup(
 	long_description=open("README.md").read(),
 	packages=["xyalign", "xyalign.test"],
 	setup_requires=['pytest-runner'],
-	tests_require=['pytest']
+	tests_require=['pytest'],
+	entry_points={
+		"console_scripts": ['xyalign = xyalign.xyalign:main']},
 )
