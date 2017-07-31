@@ -653,13 +653,13 @@ def bam_analysis_noprocessing():
 					chromosome, None, args.target_bed)
 			if args.whole_genome_threshold is True:
 				tup = utils.make_region_lists_genome_filters(
-					data["windows"], args.mapq_cutoff,
+					data, args.mapq_cutoff,
 					args.min_depth_filter, args.max_depth_filter)
 			else:
 				tup = utils.make_region_lists_chromosome_filters(
-					data["windows"], args.mapq_cutoff,
+					data, args.mapq_cutoff,
 					args.min_depth_filter, args.max_depth_filter)
-			all_df.append(data["windows"])
+			all_df.append(data)
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			utils.plot_depth_mapq(
@@ -935,11 +935,11 @@ def bam_analysis_postprocessing():
 					chromosome, None, args.target_bed)
 			if args.whole_genome_threshold is True:
 				tup = utils.make_region_lists_genome_filters(
-					data["windows"], args.mapq_cutoff, args.depth_filter)
+					data, args.mapq_cutoff, args.depth_filter)
 			else:
 				tup = utils.make_region_lists_chromosome_filters(
-					data["windows"], args.mapq_cutoff, args.depth_filter)
-			all_df.append(data["windows"])
+					data, args.mapq_cutoff, args.depth_filter)
+			all_df.append(data)
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
 			utils.plot_depth_mapq(

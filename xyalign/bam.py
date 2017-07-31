@@ -677,11 +677,10 @@ class BamFile():
 			"mapq": np.asarray(mapq_list)
 		})[["chrom", "start", "stop", "depth", "mapq"]]
 
-		results = {"windows": windows_df}
 		samfile.close()
 		self.logger.info("Analysis complete. Elapsed time: {} seconds".format(
 			time.time() - analyze_start))
-		return results
+		return windows_df
 
 	def platypus_caller(
 		self, platypus_path, log_path, ref, chroms, cpus, output_file,

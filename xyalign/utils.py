@@ -420,20 +420,15 @@ def hist_array(chrom, value_array, measure_name, sampleID, output_prefix):
 
 
 def plot_depth_mapq(
-	data_dict, output_prefix, sampleID, chrom_length, MarkerSize, MarkerAlpha):
+	window_df, output_prefix, sampleID, chrom_length, MarkerSize, MarkerAlpha):
 	"""
 	Creates histograms and genome-wide plots of various metrics.
-
-	Note that the odd import format (a dictionary, in which "windows" is the
-	key whose value is the pandas dataframe of interest) is a carryover from
-	previous versions of this function that required a variety of pandas
-	dataframes.
 
 	Parameters
 	----------
 
-	data_dict : dict
-		Key must be 'windows' value is a pandas data frame
+	window_df : pandas dataframe
+		Columns must include chrom, start, depth, and mapq (at least)
 	output_prefix : str
 		Path and prefix of output files to create
 	sampleID : str
@@ -448,10 +443,6 @@ def plot_depth_mapq(
 		0
 
 	"""
-
-	window_df = None if "windows" not in data_dict else data_dict[
-		"windows"]
-
 	chromosome = window_df["chrom"][1]
 
 	# Create genome-wide plots based on window means
