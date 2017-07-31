@@ -157,7 +157,8 @@ def test_chromosome_bed():
 		os.path.join(dir, "test2.bed")) == [
 			["chr1", "0", "249250621"], ["chrX", "0", "155270560"]]
 	with pytest.raises(RuntimeError):
-		test_header.get_chrom_length("foo")
+		path3 = test_header.chromosome_bed(
+			os.path.join(dir, "test1.bed"), ["foo"])
 
 
 @pytest.mark.parametrize(

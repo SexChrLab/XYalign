@@ -1,2 +1,0 @@
-chr19_mean	chrX_mean	chr19_chrX_ratio	boot_2.5_percentile	boot_50_percentile	boot_97.5_percentile
-9.81782608696	2.83197879859	3.46677245319	1.45678288639	3.5493301919	9.12088994662

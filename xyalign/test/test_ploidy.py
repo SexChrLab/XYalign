@@ -7,7 +7,10 @@ dir = os.path.dirname(__file__)
 
 
 def teardown_module(function):
-	teardown_files = []
+	teardown_files = [
+		"perm.txt",
+		"boot.txt",
+		"ks.txt"]
 	for file_name in teardown_files:
 		if os.path.exists(os.path.join(dir, file_name)):
 			os.remove(os.path.join(dir, file_name))

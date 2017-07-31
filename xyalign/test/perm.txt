@@ -1,2 +1,0 @@
-chr19_mean	chrX_mean	chr19_chrX_ratio	p_val_(chr19_/_chrX)	perm_dist_2.5	perm_dist_50	perm_dist_97.5
-9.81782608696	2.83197879859	3.46677245319	0.01	0.387638919403	0.958714556237	2.37424069693

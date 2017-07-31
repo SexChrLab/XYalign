@@ -25,6 +25,14 @@ def read_file_to_list(input_file):
 	return file_contents
 
 
+def read_bed(file):
+	with open(file, "r") as f:
+		return_list = []
+		for line in f:
+			return_list.append(line.strip().split())
+	return return_list
+
+
 def teardown_module(function):
 	for file in [
 		os.path.join(dir, "toy2.fasta.amb"),
@@ -39,7 +47,9 @@ def teardown_module(function):
 		os.path.join(dir, "newfasta.fa"),
 		os.path.join(dir, "newfasta.fa.fai"),
 		os.path.join(dir, "newfasta.masked.fa"),
-		os.path.join(dir, "newfasta.masked.fa.fai")]:
+		os.path.join(dir, "newfasta.masked.fa.fai"),
+		os.path.join(dir, "reftest1.bed"),
+		os.path.join(dir, "reftest2.bed")]:
 		if os.path.exists(file):
 			os.remove(file)
 
@@ -121,3 +131,32 @@ def test_chromosome_names():
 	names = test_fasta.chromosome_names()
 	assert type(names) == tuple
 	assert names == ("seq1", "seq2")
+
+
+def test_get_chrom_length():
+	test_fasta = reftools.RefFasta(
+		os.path.join(dir, "toy.fasta"), "samtools", "bwa", no_initial_index=True)
+	lengths = test_fasta.get_chrom_length("seq1")
+	assert type(lengths) == int
+	assert lengths == 20
+	with pytest.raises(RuntimeError):
+		lengths = test_fasta.get_chrom_length("foo")
+
+
+def test_chromosome_bed():
+	test_fasta = reftools.RefFasta(
+		os.path.join(dir, "toy.fasta"), "samtools", "bwa", no_initial_index=True)
+	path1 = test_fasta.chromosome_bed(
+		os.path.join(dir, "reftest1.bed"), ["seq1"])
+	path2 = test_fasta.chromosome_bed(
+		os.path.join(dir, "reftest2.bed"), ["seq1", "seq2"])
+	assert path1 == os.path.join(dir, "reftest1.bed")
+	assert path2 == os.path.join(dir, "reftest2.bed")
+	assert read_bed(
+		os.path.join(dir, "reftest1.bed")) == [["seq1", "0", "20"]]
+	assert read_bed(
+		os.path.join(dir, "reftest2.bed")) == [
+			["seq1", "0", "20"], ["seq2", "0", "40"]]
+	with pytest.raises(RuntimeError):
+		path3 = test_fasta.chromosome_bed(
+			os.path.join(dir, "reftest1.bed"), ["foo"])
