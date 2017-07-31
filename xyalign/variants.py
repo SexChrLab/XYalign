@@ -314,9 +314,10 @@ class VCFFile():
 				chrom_len = bamfile_obj.get_chrom_length(i)
 				plot_read_balance(
 					i, parse_results[0], parse_results[2],
-					sampleID, output_prefix, MarkerSize, MarkerAlpha, chrom_len)
+					sampleID, output_prefix, MarkerSize,
+					MarkerAlpha, homogenize, chrom_len)
 				hist_read_balance(
-					i, parse_results[2], sampleID, output_prefix)
+					i, parse_results[2], sampleID, homogenize, output_prefix)
 				rb_df = read_balance_per_window(
 					i, parse_results[0], parse_results[2], sampleID, homogenize,
 					chrom_len, dataframe_out, window_size, target_file)

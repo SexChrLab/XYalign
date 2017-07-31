@@ -133,7 +133,7 @@ def test_VCFFile():
 	assert parsed == (positions, qualities, read_balances)
 	val = variants.plot_read_balance(
 		"chr19", positions, read_balances, "scatter_test",
-		os.path.join(dir, "scatter_test"), 4, 0.5, bam.BamFile(
+		os.path.join(dir, "scatter_test"), 4, 0.5, True, bam.BamFile(
 			os.path.join(dir, "hg19_header.bam")).get_chrom_length("chr19"))
 	assert val == 0
 	assert os.path.exists(
@@ -141,13 +141,13 @@ def test_VCFFile():
 	assert os.path.exists(
 		os.path.join(dir, "scatter_test_chr19_ReadBalance_GenomicScatter.png"))
 	variants.hist_read_balance(
-		"chr19", read_balances, "hist_test", os.path.join(dir, "hist_test"))
+		"chr19", read_balances, "hist_test", True, os.path.join(dir, "hist_test"))
 	assert os.path.exists(
 		os.path.join(dir, "hist_test_chr19_ReadBalance_Hist.svg"))
 	assert os.path.exists(
 		os.path.join(dir, "hist_test_chr19_ReadBalance_Hist.png"))
 	val = variants.hist_read_balance(
-		"chr19", [0, 0, 1], "hist_test_broken",
+		"chr19", [0, 0, 1], "hist_test_broken", True,
 		os.path.join(dir, "hist_test_broken"))
 	assert val == 1
 	assert os.path.exists(
