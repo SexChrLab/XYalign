@@ -536,7 +536,7 @@ class BamFile():
 				time.time() - rg_start))
 		return [out_rg_table, rg_header_lines]
 
-	def analyze_bam_fetch(self, chrom, window_size, target_file=None):
+	def analyze_bam_fetch(self, chrom, duplicates, window_size, target_file=None):
 		"""
 		Analyze BAM (or CRAM) file for depth and mapping quality across genomic
 		windows.
@@ -546,6 +546,8 @@ class BamFile():
 
 		chrom : str
 			The name of the chromosome to analyze
+		duplicates : bool
+			If True, duplicates included in analyses.
 		window_size
 			If int, the window size to use for sliding window analyses, if None
 			intervals from target_file
@@ -589,31 +591,60 @@ class BamFile():
 
 			start = 0
 			end = window_size
-			for window in range(0, num_windows):
-				mapq = []
-				total_read_length = 0
-				for read in samfile.fetch(chrom, start, end):
-					if read.is_secondary is False:
-						if read.is_supplementary is False:
-							total_read_length += read.infer_query_length()
-							mapq.append(read.mapping_quality)
-				start_list.append(start)
-				stop_list.append(end)
-				depth_list.append(total_read_length / window_size)
-				mapq_list.append(np.mean(np.asarray(mapq)))
+			if duplicates is True:
+				for window in range(0, num_windows):
+					mapq = []
+					total_read_length = 0
+					for read in samfile.fetch(chrom, start, end):
+						if read.is_secondary is False:
+							if read.is_supplementary is False:
+								total_read_length += read.infer_query_length()
+								mapq.append(read.mapping_quality)
+					start_list.append(start)
+					stop_list.append(end)
+					depth_list.append(total_read_length / window_size)
+					mapq_list.append(np.mean(np.asarray(mapq)))
 
-				window_id += 1
-				if window_id == num_windows - 1:
-					start += window_size
-					end += last_window_len
-				else:
-					start += window_size
-					end += window_size
+					window_id += 1
+					if window_id == num_windows - 1:
+						start += window_size
+						end += last_window_len
+					else:
+						start += window_size
+						end += window_size
 
-				# Print progress
-				if window_id % 1000 == 0:
-					self.logger.info("{} out of {} windows processed on {}".format(
-						window_id, num_windows, chrom))
+					# Print progress
+					if window_id % 1000 == 0:
+						self.logger.info("{} out of {} windows processed on {}".format(
+							window_id, num_windows, chrom))
+
+			else:
+				for window in range(0, num_windows):
+					mapq = []
+					total_read_length = 0
+					for read in samfile.fetch(chrom, start, end):
+						if read.is_secondary is False:
+							if read.is_supplementary is False:
+								if read.is_duplicate is False:
+									total_read_length += read.infer_query_length()
+									mapq.append(read.mapping_quality)
+					start_list.append(start)
+					stop_list.append(end)
+					depth_list.append(total_read_length / window_size)
+					mapq_list.append(np.mean(np.asarray(mapq)))
+
+					window_id += 1
+					if window_id == num_windows - 1:
+						start += window_size
+						end += last_window_len
+					else:
+						start += window_size
+						end += window_size
+
+					# Print progress
+					if window_id % 1000 == 0:
+						self.logger.info("{} out of {} windows processed on {}".format(
+							window_id, num_windows, chrom))
 
 		elif target_file is not None:
 			self.logger.info(
@@ -635,29 +666,55 @@ class BamFile():
 			depth_list = []
 			mapq_list = []
 
-			for window in targets:
-				mapq = []
-				total_read_length = 0
-				start = int(window[1])
-				end = int(window[2])
-				window_size = end - start
-				for read in samfile.fetch(window[0], start, end):
-					if read.is_secondary is False:
-						if read.is_supplementary is False:
-							total_read_length += read.infer_query_length()
-							mapq.append(read.mapping_quality)
-				chr_list.append(window[0])
-				start_list.append(start)
-				stop_list.append(end)
-				depth_list.append(total_read_length / window_size)
-				mapq_list.append(np.mean(np.asarray(mapq)))
+			if duplicates is True:
+				for window in targets:
+					mapq = []
+					total_read_length = 0
+					start = int(window[1])
+					end = int(window[2])
+					window_size = end - start
+					for read in samfile.fetch(window[0], start, end):
+						if read.is_secondary is False:
+							if read.is_supplementary is False:
+								total_read_length += read.infer_query_length()
+								mapq.append(read.mapping_quality)
+					chr_list.append(window[0])
+					start_list.append(start)
+					stop_list.append(end)
+					depth_list.append(total_read_length / window_size)
+					mapq_list.append(np.mean(np.asarray(mapq)))
 
-				window_id += 1
+					window_id += 1
 
-				# Print progress
-				if window_id % 1000 == 0:
-					self.logger.info("{} out of {} targets processed on {}".format(
-						window_id, num_windows, chrom))
+					# Print progress
+					if window_id % 1000 == 0:
+						self.logger.info("{} out of {} targets processed on {}".format(
+							window_id, num_windows, chrom))
+			else:
+				for window in targets:
+					mapq = []
+					total_read_length = 0
+					start = int(window[1])
+					end = int(window[2])
+					window_size = end - start
+					for read in samfile.fetch(window[0], start, end):
+						if read.is_secondary is False:
+							if read.is_supplementary is False:
+								if read.is_duplicate is False:
+									total_read_length += read.infer_query_length()
+									mapq.append(read.mapping_quality)
+					chr_list.append(window[0])
+					start_list.append(start)
+					stop_list.append(end)
+					depth_list.append(total_read_length / window_size)
+					mapq_list.append(np.mean(np.asarray(mapq)))
+
+					window_id += 1
+
+					# Print progress
+					if window_id % 1000 == 0:
+						self.logger.info("{} out of {} targets processed on {}".format(
+							window_id, num_windows, chrom))
 
 		else:
 			self.logger.error(

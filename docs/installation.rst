@@ -107,4 +107,4 @@ provide it to XYalign with the flag::
 
 Mac users can then load the environment with the command (same as Linux)::
 
-		source activate xyalign_env
+	source activate xyalign_env

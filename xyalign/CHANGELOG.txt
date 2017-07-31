@@ -4,6 +4,7 @@
 # Only listing changes since previous version/release
 
 Development Version (currently branch called noY_support)
+	* Option to ignore duplicates in bam analyses
 	* bam.analyze_bam_fetch() now outputs pandas dataframe - calls to its output and utils.plot_depth_mapq() updated accordingly
 	* Added plotting of window based variant measures (read balance and variant counts)
 	* Added option to "homogenize" read balance values by subtracting all values less than 0.5 from 1 (e.g., 0.25 and 0.75 would be equivalent)

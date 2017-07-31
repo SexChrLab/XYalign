@@ -27,6 +27,8 @@ Changes are made to the master branch quite frequently, so there still might be 
 
 See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/latest/index.html)
 
+Post any questions you have at the [XYalign Google Group](https://groups.google.com/forum/#!forum/xyalign)
+
 ## To-Do Items
 
 *Down the road*

@@ -396,6 +396,11 @@ def parse_args():
 		help="Number of bootstrap replicates to use when bootstrapping mean "
 		"depth ratios among chromosomes. Default is 10000")
 
+	parser.add_argument(
+		"--ignore_duplicates", action="store_true", default=False,
+		help="Ignore duplicate reads in bam analyses. Default is to include "
+		"duplicates.")
+
 	# Plotting flags
 	parser.add_argument(
 		"--marker_size", type=float, default=10.0,
@@ -647,10 +652,10 @@ def bam_analysis_noprocessing():
 		for chromosome in input_chromosomes:
 			if args.window_size is not None and args.window_size != "None":
 				data = input_bam.analyze_bam_fetch(
-					chromosome, int(args.window_size))
+					chromosome, args.ignore_duplicates, int(args.window_size))
 			else:
 				data = input_bam.analyze_bam_fetch(
-					chromosome, None, args.target_bed)
+					chromosome, args.ignore_duplicates, None, args.target_bed)
 			if args.whole_genome_threshold is True:
 				tup = utils.make_region_lists_genome_filters(
 					data, args.mapq_cutoff,
@@ -929,10 +934,10 @@ def bam_analysis_postprocessing():
 		for chromosome in input_chromosomes:
 			if args.window_size is not None and args.window_size != "None":
 				data = final_bam.analyze_bam_fetch(
-					chromosome, int(args.window_size))
+					chromosome, args.ignore_duplicates, int(args.window_size))
 			else:
 				data = final_bam.analyze_bam_fetch(
-					chromosome, None, args.target_bed)
+					chromosome, args.ignore_duplicates, None, args.target_bed)
 			if args.whole_genome_threshold is True:
 				tup = utils.make_region_lists_genome_filters(
 					data, args.mapq_cutoff, args.depth_filter)
