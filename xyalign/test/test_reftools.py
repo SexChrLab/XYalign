@@ -34,24 +34,25 @@ def read_bed(file):
 
 
 def teardown_module(function):
-	for file in [
-		os.path.join(dir, "toy2.fasta.amb"),
-		os.path.join(dir, "toy2.fasta.ann"),
-		os.path.join(dir, "toy2.fasta.bwt"),
-		os.path.join(dir, "toy2.fasta.fai"),
-		os.path.join(dir, "toy2.fasta.pac"),
-		os.path.join(dir, "toy2.fasta.sa"),
-		os.path.join(dir, "toy2.fasta.dict"),
-		os.path.join(dir, "toy.masked.fasta"),
-		os.path.join(dir, "toy.masked.fasta.fai"),
-		os.path.join(dir, "newfasta.fa"),
-		os.path.join(dir, "newfasta.fa.fai"),
-		os.path.join(dir, "newfasta.masked.fa"),
-		os.path.join(dir, "newfasta.masked.fa.fai"),
-		os.path.join(dir, "reftest1.bed"),
-		os.path.join(dir, "reftest2.bed")]:
-		if os.path.exists(file):
-			os.remove(file)
+	teardown_files = [
+		"toy2.fasta.amb",
+		"toy2.fasta.ann",
+		"toy2.fasta.bwt",
+		"toy2.fasta.fai",
+		"toy2.fasta.pac",
+		"toy2.fasta.sa",
+		"toy2.fasta.dict",
+		"toy.masked.fasta",
+		"toy.masked.fasta.fai",
+		"newfasta.fa",
+		"newfasta.fa.fai",
+		"newfasta.masked.fa",
+		"newfasta.masked.fa.fai",
+		"reftest1.bed",
+		"reftest2.bed"]
+	for file_name in teardown_files:
+		if os.path.exists(os.path.join(dir, file_name)):
+			os.remove(os.path.join(dir, file_name))
 
 
 def test_RefFasta():

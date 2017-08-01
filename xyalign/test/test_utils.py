@@ -19,12 +19,14 @@ def read_bed(file):
 
 
 def teardown_module(function):
-	if os.path.exists(os.path.join(dir, "merged.bed")):
-		os.remove(os.path.join(dir, "merged.bed"))
-	if os.path.exists(os.path.join(dir, "temp_test")):
-		os.rmdir(os.path.join(dir, "temp_test"))
-	if os.path.exists(os.path.join(dir, "out_test.bed")):
-		os.remove(os.path.join(dir, "out_test.bed"))
+	teardown_files = ["merged.bed", "out_test.bed"]
+	teardown_dirs = ["temp_test"]
+	for file_name in teardown_files:
+		if os.path.exists(os.path.join(dir, file_name)):
+			os.remove(os.path.join(dir, file_name))
+	for direc in teardown_dirs:
+		if os.path.exists(os.path.join(dir, direc)):
+			os.rmdir(os.path.join(dir, direc))
 
 
 def test_validate_external_prog():

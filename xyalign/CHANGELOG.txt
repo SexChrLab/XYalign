@@ -4,6 +4,7 @@
 # Only listing changes since previous version/release
 
 Development Version (currently branch called noY_support)
+	* bam.analyze_bam_fetch() now called bam.analyze_bam()
 	* Option to ignore duplicates in bam analyses
 	* bam.analyze_bam_fetch() now outputs pandas dataframe - calls to its output and utils.plot_depth_mapq() updated accordingly
 	* Added plotting of window based variant measures (read balance and variant counts)

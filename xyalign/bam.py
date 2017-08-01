@@ -536,7 +536,7 @@ class BamFile():
 				time.time() - rg_start))
 		return [out_rg_table, rg_header_lines]
 
-	def analyze_bam_fetch(self, chrom, duplicates, window_size, target_file=None):
+	def analyze_bam(self, chrom, duplicates, window_size, target_file=None):
 		"""
 		Analyze BAM (or CRAM) file for depth and mapping quality across genomic
 		windows.
@@ -558,9 +558,8 @@ class BamFile():
 		Returns
 		-------
 
-		dict
-			A dictionary in which the key is 'windows' and the value is
-			a pandas data frame with the columns: "chrom", "start", "stop",
+		pandas dataframe
+			pandas data frame with the columns: "chrom", "start", "stop",
 			"depth", "mapq"
 
 		"""
@@ -878,6 +877,9 @@ def switch_sex_chromosomes_sambamba(
 		pg_line = [
 			"@PG", "ID:{}".format(pg_header_dict["ID"]), "VN:{}".format(
 				pg_header_dict["VN"]), "CL:{}".format(cl_string)]
+	else:
+		pg_line = [
+			"@PG", "ID:{}".format(pg_header_dict["ID"]), "CL:{}".format(cl_string)]
 	subprocess.call("echo '{}' >> {}/{}.header.sam".format(
 		"\t".join(pg_line), output_directory, output_prefix), shell=True)
 	if cram is False:

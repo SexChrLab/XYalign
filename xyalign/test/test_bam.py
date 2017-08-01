@@ -1,6 +1,7 @@
 import gzip
 import os
 import pytest
+import pysam
 import subprocess
 from xyalign import bam
 
@@ -14,6 +15,14 @@ try:
 	samtools_present = True
 except OSError:
 	samtools_present = False
+
+# Test if "sambamba" available
+try:
+	a = subprocess.Popen(
+		["sambamba"], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+	sambamba_present = True
+except OSError:
+	sambamba_present = False
 
 # Test if "repair.sh" available
 try:
@@ -81,7 +90,16 @@ def teardown_module(function):
 		"xmx_none.fastq",
 		"xmx_none.full_rg.list",
 		"xmx_none.header_lines_rg.list",
-		"xmx_none.rg_fastq_key.list"]
+		"xmx_none.rg_fastq_key.list",
+		"swapped.header.sam",
+		"swapped.merged.bam",
+		"swapped.merged.bam.bai",
+		"swapped.reheadered.temp.new.bam",
+		"swapped.reheadered.temp.new.bam.bai",
+		"swapped.temp.nosexchr.bam",
+		"swapped.temp.nosexchr.bam.bai",
+		"merged1.merged.bam",
+		"merged1.merged.bam.bai"]
 	for file_name in teardown_files:
 		if os.path.exists(os.path.join(dir, file_name)):
 			os.remove(os.path.join(dir, file_name))
@@ -174,7 +192,7 @@ def test_check_chrom_in_bam(input, expected):
 
 
 @pytest.mark.skipif(
-	all([samtools_present, repairsh_present, shufflesh_present]) is False,
+	samtools_present is False or repairsh_present is False or shufflesh_present is False,
 	reason="samtools and repair.sh need too be callable with 'samtools'")
 def test_strip_reads():
 	no_rg_bam = bam.BamFile(
@@ -223,3 +241,75 @@ def test_strip_reads():
 	assert os.path.exists(os.path.join(dir, "xmx_none_compress.fastq.gz")) is True
 	assert read_file_to_string(
 		os.path.join(dir, "xmx_none_compress.fastq.gz"), True) == '@read1GGCCCC+FFFFFF@read2TTTTTA+FGGGGG@read3TTTGGG+BBBBBB'
+
+
+def test_analyze_bam_fetch():
+	test_bam = bam.BamFile(
+		os.path.join(dir, "chr19_window.bam"), "samtools", no_initial_index=True)
+	# with duplicates
+	results = test_bam.analyze_bam_fetch(
+		"chr19", True, 10000)
+	a = results.loc[results["start"] == 580000]["depth"]
+	results = test_bam.analyze_bam_fetch(
+		"chr19", True, None, os.path.join(dir, "fetch.bed"))
+	b = results.loc[results["start"] == 580000]["depth"]
+	assert float(a) == float(b)
+	# without duplicates
+	results = test_bam.analyze_bam_fetch(
+		"chr19", False, 10000)
+	c = results.loc[results["start"] == 580000]["depth"]
+	results = test_bam.analyze_bam_fetch(
+		"chr19", False, None, os.path.join(dir, "fetch.bed"))
+	d = results.loc[results["start"] == 580000]["depth"]
+	assert float(c) == float(d)
+	# 12 duplicate reads in file, so c should be less than a
+	assert float(c) < float(a)
+	with pytest.raises(RuntimeError):
+		results = test_bam.analyze_bam_fetch(
+			"chr19", False, None, None)
+
+
+@pytest.mark.skipif(
+	samtools_present is False or sambamba_present is False,
+	reason="samtools and sambamba need too be callable with 'samtools' and 'sambamba'")
+def test_merge_and_switch():
+	test_bam1 = bam.BamFile(
+		os.path.join(dir, "chr19_window.bam"), "samtools", no_initial_index=True)
+	test_bam2 = bam.BamFile(
+		os.path.join(dir, "chrX_window1.bam"), "samtools", no_initial_index=True)
+	test_bam3 = bam.BamFile(
+		os.path.join(dir, "chrX_window2.bam"), "samtools", no_initial_index=True)
+	merged = bam.samtools_merge(
+		"samtools", [test_bam1.filepath, test_bam2.filepath],
+		os.path.join(dir, "merged1"), 1)
+	merged = bam.BamFile(
+		os.path.join(dir, "merged1.merged.bam"), "samtools", no_initial_index=True)
+	a = pysam.idxstats(test_bam1.filepath)
+	test1_reads = sum([
+		int(k[2]) + int(k[3]) for k in [
+			x.split("\t") for x in a.split("\n")] if len(k) > 3])
+	a = pysam.idxstats(test_bam2.filepath)
+	test2_reads = sum([
+		int(k[2]) + int(k[3]) for k in [
+			x.split("\t") for x in a.split("\n")] if len(k) > 3])
+	a = pysam.idxstats(test_bam3.filepath)
+	test3_reads = sum([
+		int(k[2]) + int(k[3]) for k in [
+			x.split("\t") for x in a.split("\n")] if len(k) > 3])
+	a = pysam.idxstats(merged.filepath)
+	merged1_reads = sum([
+		int(k[2]) + int(k[3]) for k in [
+			x.split("\t") for x in a.split("\n")] if len(k) > 3])
+	assert merged1_reads == test1_reads + test2_reads
+	swapped = bam.switch_sex_chromosomes_sambamba(
+		"samtools", "sambamba", merged.filepath, test_bam3.filepath,
+		"chrX", dir, "swapped", 1, {"CL": ["foo"], "ID": "xyalign"})
+	swapped = bam.BamFile(
+		os.path.join(dir, "swapped.merged.bam"), "samtools", no_initial_index=True)
+	a = pysam.idxstats(swapped.filepath)
+	swapped_reads = sum([
+		int(k[2]) + int(k[3]) for k in [
+			x.split("\t") for x in a.split("\n")] if len(k) > 3])
+	assert swapped_reads == test1_reads + test3_reads
+	header = read_bed(os.path.join(dir, "swapped.header.sam"))
+	assert ["@PG", "ID:xyalign", "CL:foo"] in header

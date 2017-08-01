@@ -651,10 +651,10 @@ def bam_analysis_noprocessing():
 		fail_df = []
 		for chromosome in input_chromosomes:
 			if args.window_size is not None and args.window_size != "None":
-				data = input_bam.analyze_bam_fetch(
+				data = input_bam.analyze_bam(
 					chromosome, args.ignore_duplicates, int(args.window_size))
 			else:
-				data = input_bam.analyze_bam_fetch(
+				data = input_bam.analyze_bam(
 					chromosome, args.ignore_duplicates, None, args.target_bed)
 			if args.whole_genome_threshold is True:
 				tup = utils.make_region_lists_genome_filters(
@@ -933,10 +933,10 @@ def bam_analysis_postprocessing():
 		fail_df = []
 		for chromosome in input_chromosomes:
 			if args.window_size is not None and args.window_size != "None":
-				data = final_bam.analyze_bam_fetch(
+				data = final_bam.analyze_bam(
 					chromosome, args.ignore_duplicates, int(args.window_size))
 			else:
-				data = final_bam.analyze_bam_fetch(
+				data = final_bam.analyze_bam(
 					chromosome, args.ignore_duplicates, None, args.target_bed)
 			if args.whole_genome_threshold is True:
 				tup = utils.make_region_lists_genome_filters(
