@@ -243,30 +243,30 @@ def test_strip_reads():
 		os.path.join(dir, "xmx_none_compress.fastq.gz"), True) == '@read1GGCCCC+FFFFFF@read2TTTTTA+FGGGGG@read3TTTGGG+BBBBBB'
 
 
-def test_analyze_bam_fetch():
+def test_analyze_bam():
 	test_bam = bam.BamFile(
 		os.path.join(dir, "chr19_window.bam"), "samtools", no_initial_index=True)
 	# with duplicates
-	results = test_bam.analyze_bam_fetch(
-		"chr19", True, 10000)
+	results = test_bam.analyze_bam(
+		"chr19", True, False, 10000)
 	a = results.loc[results["start"] == 580000]["depth"]
-	results = test_bam.analyze_bam_fetch(
-		"chr19", True, None, os.path.join(dir, "fetch.bed"))
+	results = test_bam.analyze_bam(
+		"chr19", True, False, None, os.path.join(dir, "fetch.bed"))
 	b = results.loc[results["start"] == 580000]["depth"]
 	assert float(a) == float(b)
 	# without duplicates
-	results = test_bam.analyze_bam_fetch(
-		"chr19", False, 10000)
+	results = test_bam.analyze_bam(
+		"chr19", False, False, 10000)
 	c = results.loc[results["start"] == 580000]["depth"]
-	results = test_bam.analyze_bam_fetch(
-		"chr19", False, None, os.path.join(dir, "fetch.bed"))
+	results = test_bam.analyze_bam(
+		"chr19", False, False, None, os.path.join(dir, "fetch.bed"))
 	d = results.loc[results["start"] == 580000]["depth"]
 	assert float(c) == float(d)
 	# 12 duplicate reads in file, so c should be less than a
 	assert float(c) < float(a)
 	with pytest.raises(RuntimeError):
-		results = test_bam.analyze_bam_fetch(
-			"chr19", False, None, None)
+		results = test_bam.analyze_bam(
+			"chr19", False, False, None, None)
 
 
 @pytest.mark.skipif(

@@ -361,6 +361,11 @@ def parse_args():
 		"the chromosome name, start coordinate, stop coordinate.")
 
 	parser.add_argument(
+		"--exact_depth", action="store_true", default=False,
+		help="Calculate exact depth within windows, else use much faster "
+		"approximation. *Currently exact is not implemented*. Default is False.")
+
+	parser.add_argument(
 		"--whole_genome_threshold", action="store_true", default=False,
 		help="This flag will calculate the depth filter threshold based on "
 		"all values from across the genome.  By default, thresholds are "
@@ -448,6 +453,11 @@ def parse_args():
 		sys.exit(
 			"Error. XYalign does not currently support sam files. "
 			"Please provide a bam file via --bam instead.")
+
+	# Exact depth is not currently implemented
+	if args.exact_depth is True:
+		sys.exit(
+			"Error. Exact depth is not currently implemented. Exiting.")
 
 	# Validate ploidy test arguments
 	test_flags = [args.no_perm_test, args.no_bootstrap, args.no_ks_test]
@@ -652,10 +662,12 @@ def bam_analysis_noprocessing():
 		for chromosome in input_chromosomes:
 			if args.window_size is not None and args.window_size != "None":
 				data = input_bam.analyze_bam(
-					chromosome, args.ignore_duplicates, int(args.window_size))
+					chromosome, args.ignore_duplicates,
+					args.exact_depth, int(args.window_size))
 			else:
 				data = input_bam.analyze_bam(
-					chromosome, args.ignore_duplicates, None, args.target_bed)
+					chromosome, args.ignore_duplicates,
+					args.exact_depth, None, args.target_bed)
 			if args.whole_genome_threshold is True:
 				tup = utils.make_region_lists_genome_filters(
 					data, args.mapq_cutoff,
@@ -934,10 +946,12 @@ def bam_analysis_postprocessing():
 		for chromosome in input_chromosomes:
 			if args.window_size is not None and args.window_size != "None":
 				data = final_bam.analyze_bam(
-					chromosome, args.ignore_duplicates, int(args.window_size))
+					chromosome, args.ignore_duplicates,
+					args.exact_depth, int(args.window_size))
 			else:
 				data = final_bam.analyze_bam(
-					chromosome, args.ignore_duplicates, None, args.target_bed)
+					chromosome, args.ignore_duplicates, args.exact_depth,
+					None, args.target_bed)
 			if args.whole_genome_threshold is True:
 				tup = utils.make_region_lists_genome_filters(
 					data, args.mapq_cutoff, args.depth_filter)

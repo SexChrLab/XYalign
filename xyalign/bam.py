@@ -536,7 +536,8 @@ class BamFile():
 				time.time() - rg_start))
 		return [out_rg_table, rg_header_lines]
 
-	def analyze_bam(self, chrom, duplicates, window_size, target_file=None):
+	def analyze_bam(
+		self, chrom, duplicates, exact, window_size, target_file=None):
 		"""
 		Analyze BAM (or CRAM) file for depth and mapping quality across genomic
 		windows.
@@ -548,6 +549,9 @@ class BamFile():
 			The name of the chromosome to analyze
 		duplicates : bool
 			If True, duplicates included in analyses.
+		exact : bool
+			If True, mean depth is calculated exactly within each window.
+			If False, an accurate (and much faster) approximation is used
 		window_size
 			If int, the window size to use for sliding window analyses, if None
 			intervals from target_file
@@ -566,6 +570,15 @@ class BamFile():
 		self.logger.info(
 			"Traversing {} in {} to analyze depth and mapping quality".format(
 				chrom, self.filepath))
+
+		# exact not yet implemented
+		if exact is True:
+			self.logger.error(
+				"Exact is not yet implemented. Exiting")
+			logging.shutdown()
+			raise RuntimeError(
+				"Exact is not yet implemented. Exiting")
+
 		analyze_start = time.time()
 		samfile = pysam.AlignmentFile(self.filepath, "rb")
 		chr_len = self.get_chrom_length(chrom)
