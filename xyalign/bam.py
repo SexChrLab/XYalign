@@ -751,6 +751,60 @@ class BamFile():
 			time.time() - analyze_start))
 		return windows_df
 
+	def chrom_stats(self, chrom, duplicates):
+		"""
+		Analyze BAM (or CRAM) file for depth and mapping quality across a
+		single chromosome.
+
+		Parameters
+		----------
+
+		chrom : str
+			The name of the chromosome to analyze
+		duplicates : bool
+			If True, duplicates included in analyses.
+
+		Returns
+		-------
+
+		tuple
+			(mean_depth, mean_mapq)
+
+		"""
+		self.logger.info(
+			"Traversing {} (whole chromosome) in {} to analyze depth and mapping quality".format(
+				chrom, self.filepath))
+
+		analyze_start = time.time()
+		samfile = pysam.AlignmentFile(self.filepath, "rb")
+		chr_len = self.get_chrom_length(chrom)
+
+		start = 0
+		end = chr_len
+		if duplicates is True:
+			mapq = []
+			total_read_length = 0
+			for read in samfile.fetch(chrom, start, end):
+				if read.is_secondary is False:
+					if read.is_supplementary is False:
+						total_read_length += read.infer_query_length()
+						mapq.append(read.mapping_quality)
+
+		else:
+			mapq = []
+			total_read_length = 0
+			for read in samfile.fetch(chrom, start, end):
+				if read.is_secondary is False:
+					if read.is_supplementary is False:
+						if read.is_duplicate is False:
+							total_read_length += read.infer_query_length()
+							mapq.append(read.mapping_quality)
+
+		samfile.close()
+		self.logger.info("Analysis complete. Elapsed time: {} seconds".format(
+			time.time() - analyze_start))
+		return ((float(total_read_length) / chr_len), np.mean(np.asarray(mapq)))
+
 	def platypus_caller(
 		self, platypus_path, log_path, ref, chroms, cpus, output_file,
 		regions_file=None):

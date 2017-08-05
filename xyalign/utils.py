@@ -131,6 +131,43 @@ def check_bam_fasta_compatibility(bam_object, fasta_object):
 		return False
 
 
+def check_compatibility_bam_list(bam_obj_list):
+	"""
+	Checks to see if bam sequence names and lengths are
+	equivalent (i.e., if it is likely that the bam files were generated
+	using the same reference genome).
+
+	Parameters
+	----------
+
+	bam_obj_list : list
+		List of bam.BamFile() objects
+
+	Returns
+	-------
+
+	bool
+		True if sequence names and lengths match. False otherwise.
+
+	"""
+	utils_logger.info(
+		"Checking compatibility of: ".format(
+			", ".join([x.filepath for x in bam_obj_list])))
+
+	seq_names = [x.chromosome_names() for x in bam_obj_list]
+	seq_lengths = [x.chromosome_lengths() for x in bam_obj_list]
+
+	# Checking for ANY incompatibility
+	uniq_seq_names = [x for x in seq_names if x != seq_names[0]]
+	uniq_seq_lens = [x for x in seq_lengths if x != seq_lengths[0]]
+
+	if len(uniq_seq_names) == 0 and len(uniq_seq_lens) == 0:
+		return True
+	else:
+		utils_logger.info("Bam files contain different headers.")
+		return False
+
+
 def merge_bed_files(output_file, *bed_files):
 	"""
 	This function simply takes an output_file (full path to desired output file)

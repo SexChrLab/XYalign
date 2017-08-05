@@ -3,6 +3,7 @@
 from __future__ import division
 from __future__ import print_function
 import argparse
+import collections
 import csv
 import logging
 import os
@@ -600,6 +601,61 @@ def ref_prep():
 	return (noy_ref, withy_ref)
 
 
+def chrom_stats(bam_obj_list, chrom_list):
+	"""
+	Runs chrom stats module.
+
+	Calculates mean depth and mapq across entire scaffolds for a list of bam
+	files
+
+	Input
+	-----
+
+	bam_obj_list : list
+		List of bam.BamFile() objects. Need to have been created using same
+		reference (i.e., seq names and lengths are the same)
+
+	Returns
+	-------
+
+	"""
+	logger.info(
+		"Running CHROM_STATS on following bam files: {}".format(
+			", ".join([x.filepath for x in bam_obj_list])))
+
+	comp_check = check_compatibility_bam_list(bam_obj_list)
+	if comp_check is False:
+		logger.error(
+			"Bam files incompatible - ensure same reference used for all files "
+			"and that sequence portion of all bam headers match. Exiting")
+		logging.shutdown()
+		sys.exit(1)
+
+	if chrom_list == ["ALL"] or chrom_list == ["all"]:
+		chrom_list = list(bam_obj_list[0].chromosome_names())
+
+	missing_chroms = bam_obj_list[0].check_chrom_in_bam(chrom_list)
+	if len(missing_chroms) != 0:
+		logger.error(
+			"One or more chromosomes provided via --chromosomes not "
+			"present in bam files. Exiting.")
+		logging.shutdown()
+		sys.exit(1)
+
+	chrom_depth_dict = collections.OrderedDict()
+	chrom_mapq_dict = collections.OrderedDict()
+
+	chrom_depth_dict["header"] = [os.path.basename(x.filepath) for x in bam_obj_list]
+	for chromosome in chrom_list:
+		chrom_results = [x.chrom_stats(chromosome, False) for x in bam_obj_list]
+		chrom_depth_dict[chromosome], chrom_mapq_dict[chromosome] = zip(*chrom_results)
+
+		chrom_depth_dict[chromosome].insert(0, chromosome)
+		chrom_mapq_dict[chromosome].insert(0, chromosome)
+
+	return (chrom_depth_dict, chrom_mapq_dict)
+
+
 def bam_analysis_noprocessing():
 	"""
 	Runs bam analyis part of XYalign pipeline on unprocessed bam file.
@@ -1140,11 +1196,14 @@ def main():
 	readbalance_prefix_postprocessing = os.path.join(
 		plots_path, "{}_postprocessing".format(args.sample_id))
 	# Depth/mapq related
+	chrom_stats_mapq = os.path.join(
+		results_path, "{}_chrom_stats_mapq.txt".format(args.sample_id))
+	chrom_stats_depth = os.path.join(
+		results_path, "{}_chrom_stats_depth.txt".format(args.sample_id))
 	depth_mapq_prefix_noprocessing = os.path.join(
 		plots_path, "{}_noprocessing".format(args.sample_id))
 	depth_mapq_prefix_postprocessing = os.path.join(
 		plots_path, "{}_postprocessing".format(args.sample_id))
-	# Bedfile related
 	data_frame_preprocessing = os.path.join(
 		bed_path, "{}_full_dataframe_depth_mapq_preprocessing.csv".format(args.sample_id))
 	data_frame_postprocessing = os.path.join(
@@ -1178,6 +1237,29 @@ def main():
 		ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
 		ref_prep()
 		logger.info("PREPARE_REFERENCE complete.")
+		logger.info("XYalign complete. Elapsed time: {} seconds".format(
+			time.time() - xyalign_start))
+		logging.shutdown()
+		sys.exit(0)
+
+	if args.CHROM_STATS is True:
+		logger.info(
+			"CHROM_STATS set, will iterate through bam files to calculate "
+			"chromosome-wide averages.")
+		bam_list = [bam.BamFile(x, args.samtools_path) for x in args.bam]
+		chrom_stats_results = chrom_stats(bam_list, args.chromosomes)
+
+		with open(chrom_stats_depth, "w") as f:
+			for i in chrom_stats_results[0]:
+				out_line = "\t".join(i)
+				f.write("{}\n".format(out_line))
+
+		with open(chrom_stats_mapq, "w") as f:
+			for i in chrom_stats_results[1]:
+				out_line = "\t".join(i)
+				f.write("{}\n".format(out_line))
+
+		logger.info("CHROM_STATS complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
 		logging.shutdown()

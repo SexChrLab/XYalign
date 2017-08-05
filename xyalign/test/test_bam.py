@@ -269,6 +269,19 @@ def test_analyze_bam():
 			"chr19", False, False, None, None)
 
 
+def test_chrom_stats():
+	test_bam = bam.BamFile(
+		os.path.join(dir, "chr19_window.bam"), "samtools", no_initial_index=True)
+	# with duplicates
+	results = test_bam.chrom_stats("chr19", True)
+	assert 0.0008 < results[0] < 0.0009
+	assert 57 < results[1] < 58
+
+	# without duplicates
+	results_2 = test_bam.chrom_stats("chr19", False)
+	assert results_2[0] < results[0]
+
+
 @pytest.mark.skipif(
 	samtools_present is False or sambamba_present is False,
 	reason="samtools and sambamba need too be callable with 'samtools' and 'sambamba'")
