@@ -37,15 +37,19 @@ def parse_args():
 	parser = argparse.ArgumentParser(description="XYalign")
 
 	parser.add_argument(
-		"--bam", default=None, help="Full path to input bam file.")
+		"--bam", nargs="*", help="Full path to input bam files. If more "
+		"than one provided, only the first will be used for modules other "
+		"than --CHROM_STATS")
 
 	parser.add_argument(
-		"--cram", default=None, help="Full path to input cram file. "
-		"Not currently supported.")
+		"--cram", nargs="*", help="Full path to input cram files. If more "
+		"than one provided, only the first will be used for modules other "
+		"than --CHROM_STATS. Not currently supported.")
 
 	parser.add_argument(
-		"--sam", default=None, help="Full path to input sam file. "
-		"Not currently supported.")
+		"--sam", nargs="*", help="Full path to input sam files. If more "
+		"than one provided, only the first will be used for modules other "
+		"than --CHROM_STATS. Not currently supported.")
 
 	parser.add_argument(
 		"--ref", required=True,
@@ -123,6 +127,11 @@ def parse_args():
 		help="This flag will limit XYalign to only preparing reference fastas "
 		"for individuals with and without Y chromosomes.  These fastas can "
 		"then be passed with each sample to save subsequent processing time.")
+
+	pipeline_group.add_argument(
+		"--CHROM_STATS", action="store_true", default=False,
+		help="This flag will limit XYalign to only analyzing provided bam files "
+		"for depth and mapq across entire chromosomes.")
 
 	pipeline_group.add_argument(
 		"--ANALYZE_BAM", action="store_true", default=False,
@@ -423,7 +432,7 @@ def parse_args():
 
 	mods = [
 		args.PREPARE_REFERENCE, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS,
-		args.REMAPPING, args.STRIP_READS]
+		args.REMAPPING, args.STRIP_READS, args.CHROM_STATS]
 	if not any(mods) is True:
 		full_pipeline = True
 	else:
@@ -482,7 +491,7 @@ def parse_args():
 	# Validate chromosome arguments
 	if any(
 		[full_pipeline, args.ANALYZE_BAM, args.CHARACTERIZE_SEX_CHROMS,
-			args.STRIP_READS]) is True:
+			args.STRIP_READS, args.CHROM_STATS]) is True:
 		if args.chromosomes == [None]:
 			sys.exit("Please provide chromosome names to analyze (--chromosomes)")
 	if any(
@@ -1265,7 +1274,7 @@ def main():
 		logging.shutdown()
 		sys.exit(0)
 
-	input_bam = bam.BamFile(args.bam, args.samtools_path)
+	input_bam = bam.BamFile(args.bam[0], args.samtools_path)
 
 	if args.chromosomes == ["ALL"] or args.chromosomes == ["all"]:
 		input_chromosomes = list(input_bam.chromosome_names())
