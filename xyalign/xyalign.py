@@ -1342,8 +1342,14 @@ def main():
 			"PREPARE_REFERENCE set, so only preparing reference fastas.")
 		ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
 		ref_prep(
-			ref, args.reference_mask, reference_path,
-			xx_out, xy_out, args.y_chromosome, args.samtools_path, args.bwa_path)
+			ref_obj=ref,
+			ref_mask=args.reference_mask,
+			ref_dir=reference_path,
+			xx=xx_out,
+			xy=xy_out,
+			y_chromosome=args.y_chromosome,
+			samtools_path=args.samtools_path,
+			bwa_path=args.bwa_path)
 		logger.info("PREPARE_REFERENCE complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -1355,7 +1361,9 @@ def main():
 			"CHROM_STATS set, will iterate through bam files to calculate "
 			"chromosome-wide averages.")
 		bam_list = [bam.BamFile(x, args.samtools_path) for x in args.bam]
-		chrom_stats_results = chrom_stats(bam_list, args.chromosomes)
+		chrom_stats_results = chrom_stats(
+			bam_obj_list=bam_list,
+			chrom_list=args.chromosomes)
 
 		with open(chrom_stats_depth, "w") as f:
 			for i in chrom_stats_results[0]:
@@ -1545,8 +1553,14 @@ def main():
 				"Input masked reference not provided for both "
 				"XX and XY mapping, so creating both")
 			masked_refs = ref_prep(
-				ref, args.reference_mask, reference_path,
-				xx_out, xy_out, args.y_chromosome, args.samtools_path, args.bwa_path)
+				ref_obj=ref,
+				ref_mask=args.reference_mask,
+				ref_dir=reference_path,
+				xx=xx_out,
+				xy=xy_out,
+				y_chromosome=args.y_chromosome,
+				samtools_path=args.samtools_path,
+				bwa_path=args.bwa_path)
 		else:
 			xx = reftools.RefFasta(
 				args.xx_ref_in, args.samtools_path, args.bwa_path)
@@ -1585,8 +1599,14 @@ def main():
 				"Input masked reference not provided for both "
 				"XX and XY mapping, so creating both")
 			masked_refs = ref_prep(
-				ref, args.reference_mask, reference_path,
-				xx_out, xy_out, args.y_chromosome, args.samtools_path, args.bwa_path)
+				ref_obj=ref,
+				ref_mask=args.reference_mask,
+				ref_dir=reference_path,
+				xx=xx_out,
+				xy=xy_out,
+				y_chromosome=args.y_chromosome,
+				samtools_path=args.samtools_path,
+				bwa_path=args.bwa_path)
 		else:
 			xx = reftools.RefFasta(
 				args.xx_ref_in, args.samtools_path, args.bwa_path)
