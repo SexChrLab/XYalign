@@ -555,7 +555,8 @@ def parse_args():
 	return args
 
 
-def ref_prep(ref_obj, ref_mask, ref_dir, xx, xy):
+def ref_prep(
+	ref_obj, ref_mask, ref_dir, xx, xy, y_chromosome, samtools_path, bwa_path):
 	"""
 	Reference prep part of XYalign pipeline.
 
@@ -577,6 +578,8 @@ def ref_prep(ref_obj, ref_mask, ref_dir, xx, xy):
 		Path to XX output reference
 	xy : str
 		Path to XY output reference
+	y_chromosome : str
+		Name of Y chromosome in fasta
 
 	Returns
 	-------
@@ -585,18 +588,18 @@ def ref_prep(ref_obj, ref_mask, ref_dir, xx, xy):
 		Paths to two masked references (y_masked, y_unmasked")
 	"""
 	# Combine masks, if more than one present
-	if ref_mask != None:
+	if ref_mask is not None:
 		if len(ref_mask) > 1:
 			reference_mask = utils.merge_bed_files(
 				"{}/reference_mask.merged.bed".format(
-					ref_dir), *args.reference_mask)
+					ref_dir), *ref_mask)
 		else:
 			reference_mask = ref_mask[0]
 	else:
 		reference_mask = None
 	# Create masked noY reference
 	y_mask = ref_obj.chromosome_bed("{}/Y.bed".format(
-		ref_dir), args.y_chromosome)
+		ref_dir), y_chromosome)
 	if reference_mask is not None:
 		noy_out = ref_obj.mask_reference(
 			utils.merge_bed_files(
@@ -604,7 +607,7 @@ def ref_prep(ref_obj, ref_mask, ref_dir, xx, xy):
 					ref_dir), reference_mask, y_mask), xx)
 	else:
 		noy_out = ref_obj.mask_reference(y_mask, xx)
-	noy_ref = reftools.RefFasta(noy_out, args.samtools_path, args.bwa_path)
+	noy_ref = reftools.RefFasta(noy_out, samtools_path, bwa_path)
 	noy_ref.index_bwa()
 	noy_ref.seq_dict()
 	# Create masked withY reference
@@ -617,7 +620,7 @@ def ref_prep(ref_obj, ref_mask, ref_dir, xx, xy):
 			"reference.".format(xy))
 		subprocess.call(["cp", ref_obj.filepath, xy])
 		withy_out = xy
-	withy_ref = reftools.RefFasta(withy_out, args.samtools_path, args.bwa_path)
+	withy_ref = reftools.RefFasta(withy_out, samtools_path, bwa_path)
 	withy_ref.index_bwa()
 	withy_ref.seq_dict()
 	return (noy_ref, withy_ref)
@@ -1257,7 +1260,9 @@ def main():
 		logger.info(
 			"PREPARE_REFERENCE set, so only preparing reference fastas.")
 		ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
-		ref_prep(ref, args.reference_mask, reference_path, xx_out, xy_out)
+		ref_prep(
+			ref, args.reference_mask, reference_path,
+			xx_out, xy_out, args.y_chromosome, args.samtools_path, args.bwa_path)
 		logger.info("PREPARE_REFERENCE complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -1395,7 +1400,8 @@ def main():
 				"Input masked reference not provided for both "
 				"XX and XY mapping, so creating both")
 			masked_refs = ref_prep(
-				ref, args.reference_mask, reference_path, xx_out, xy_out)
+				ref, args.reference_mask, reference_path,
+				xx_out, xy_out, args.y_chromosome, args.samtools_path, args.bwa_path)
 		else:
 			xx = reftools.RefFasta(
 				args.xx_ref_in, args.samtools_path, args.bwa_path)
@@ -1434,7 +1440,8 @@ def main():
 				"Input masked reference not provided for both "
 				"XX and XY mapping, so creating both")
 			masked_refs = ref_prep(
-				ref, args.reference_mask, reference_path, xx_out, xy_out)
+				ref, args.reference_mask, reference_path,
+				xx_out, xy_out, args.y_chromosome, args.samtools_path, args.bwa_path)
 		else:
 			xx = reftools.RefFasta(
 				args.xx_ref_in, args.samtools_path, args.bwa_path)
