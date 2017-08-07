@@ -5,6 +5,7 @@ import subprocess
 
 from xyalign import assemble
 from xyalign import bam
+from xyalign import reftools
 
 # Get current directory
 dir = os.path.dirname(__file__)
@@ -36,6 +37,8 @@ except OSError:
 
 def teardown_module(function):
 	teardown_files = [
+		"assemble_test.sorted.bam",
+		"assemble_test.sorted.bam.bai",
 		"test_assemble.sorted.bam",
 		"test_assemble.sorted.bam.bai",
 		"test_assemble.rg.sorted.bam",
@@ -51,17 +54,19 @@ def teardown_module(function):
 	"'bwa', and 'sambamba' respectively")
 def test_bwa_mem_mapping_sambamba():
 	# Test single end, no rg
+	toy_fasta = reftools.RefFasta(os.path.join(dir, "toy.fasta"))
 	test_bam = assemble.bwa_mem_mapping_sambamba(
-		"bwa", "samtools", "sambamba", os.path.join(dir, "toy.fasta"),
-		os.path.join(dir, "test_assemble"), [os.path.join(dir, "toy_1.fastq")], 1,
+		"bwa", "samtools", "sambamba", toy_fasta,
+		os.path.join(dir, "assemble_test"), [os.path.join(dir, "toy_1.fastq")], 1,
 		"None", [""], cram=False)
-	assert os.path.exists(os.path.join(dir, "test_assemble.sorted.bam"))
+	assert os.path.exists(os.path.join(dir, "assemble_test.sorted.bam"))
 	assert pysam.idxstats(
 		os.path.join(
-			dir,"test_assemble.sorted.bam")) == 'seq1\t20\t0\t0\nseq2\t40\t0\t0\n*\t0\t0\t3\n'
+			dir, "assemble_test.sorted.bam")) == 'seq1\t20\t0\t0\nseq2\t40\t0\t0\n*\t0\t0\t3\n'
 	# Test single end, with rg
+	toy_fasta = reftools.RefFasta(os.path.join(dir, "toy.fasta"))
 	test_bam = assemble.bwa_mem_mapping_sambamba(
-		"bwa", "samtools", "sambamba", os.path.join(dir, "toy.fasta"),
+		"bwa", "samtools", "sambamba", toy_fasta,
 		os.path.join(dir, "test_assemble.rg"), [os.path.join(dir, "toy_1.fastq")], 1,
 		"@RG\tID:{}".format("test"), [""], cram=False)
 	assert os.path.exists(os.path.join(dir, "test_assemble.rg.sorted.bam"))
@@ -72,20 +77,25 @@ def test_bwa_mem_mapping_sambamba():
 	assert header.find("@RG\\tID:test") != -1
 	# Test raising error for inaccessible reference
 	with pytest.raises(RuntimeError):
+		fake_fasta = reftools.RefFasta(os.path.join(
+			dir, "DOES_NOT_EXIST.fasta"), no_initial_index=True)
 		test_bam = assemble.bwa_mem_mapping_sambamba(
-			"bwa", "samtools", "sambamba", os.path.join(dir, "DOES_NOT_EXIST.fasta"),
-			os.path.join(dir, "test_assemble"), [os.path.join(dir, "toy_1.fastq")], 1,
+			"bwa", "samtools", "sambamba", fake_fasta,
+			os.path.join(dir, "test_assemble"),
+			[os.path.join(dir, "toy_1.fastq")], 1,
 			"None", [""], cram=False)
 	# Test raising error for no fastqs
+	toy_fasta = reftools.RefFasta(os.path.join(dir, "toy.fasta"))
 	with pytest.raises(RuntimeError):
 		test_bam = assemble.bwa_mem_mapping_sambamba(
-			"bwa", "samtools", "sambamba", os.path.join(dir, "toy.fasta"),
+			"bwa", "samtools", "sambamba", toy_fasta,
 			os.path.join(dir, "test_assemble"), [], 1,
 			"None", [""], cram=False)
 	# Test raising error for inaccessible fastq
 	with pytest.raises(RuntimeError):
+		toy_fasta = reftools.RefFasta(os.path.join(dir, "toy.fasta"))
 		test_bam = assemble.bwa_mem_mapping_sambamba(
-			"bwa", "samtools", "sambamba", os.path.join(dir, "toy.fasta"),
+			"bwa", "samtools", "sambamba", toy_fasta,
 			os.path.join(dir, "test_assemble"),
 			[os.path.join(dir, "toy_FOO_fake.fastq")], 1,
 			"None", [""], cram=False)

@@ -608,7 +608,6 @@ def ref_prep(
 	else:
 		noy_out = ref_obj.mask_reference(y_mask, xx)
 	noy_ref = reftools.RefFasta(noy_out, samtools_path, bwa_path)
-	noy_ref.index_bwa()
 	noy_ref.seq_dict()
 	# Create masked withY reference
 	if reference_mask is not None:
@@ -621,7 +620,6 @@ def ref_prep(
 		subprocess.call(["cp", ref_obj.filepath, xy])
 		withy_out = xy
 	withy_ref = reftools.RefFasta(withy_out, samtools_path, bwa_path)
-	withy_ref.index_bwa()
 	withy_ref.seq_dict()
 	return (noy_ref, withy_ref)
 
@@ -953,7 +951,7 @@ def remapping():
 							break
 				temp_bam = assemble.bwa_mem_mapping_sambamba(
 					args.bwa_path, args.samtools_path, args.sambamba_path,
-					new_reference.filepath, "{}/{}.sex_chroms.{}.".format(
+					new_reference, "{}/{}.sex_chroms.{}.".format(
 						bam_path, args.sample_id, rg_id),
 					fastq_files, args.cpus, rg_tag,
 					[str(x).strip() for x in args.bwa_flags.split()])
@@ -968,7 +966,7 @@ def remapping():
 		fastq_files = read_group_and_fastqs[0][1:]
 		new_bam = assemble.bwa_mem_mapping_sambamba(
 			args.bwa_path, args.samtools_path, args.sambamba_path,
-			new_reference.filepath, "{}/{}.sex_chroms.{}.".format(
+			new_reference, "{}/{}.sex_chroms.{}.".format(
 				bam_path, args.sample_id, rg_id),
 			fastq_files, args.cpus, "None",
 			[str(x).strip() for x in args.bwa_flags.split()])
