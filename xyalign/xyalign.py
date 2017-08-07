@@ -274,11 +274,11 @@ def parse_args():
 
 	# Reference-related Flags
 	parser.add_argument(
-		"--reference_mask", nargs="+", default=[None],
+		"--reference_mask", nargs="*",
 		help="Bed file containing regions to replace with Ns in the sex "
 		"chromosome reference.  Examples might include the pseudoautosomal "
 		"regions on the Y to force all mapping/calling on those regions of the "
-		"X chromosome.  Default is none.")
+		"X chromosome.  Default is None.")
 
 	parser.add_argument(
 		"--xx_ref_out", default=None,
@@ -555,7 +555,7 @@ def parse_args():
 	return args
 
 
-def ref_prep():
+def ref_prep(ref_obj, ref_mask, ref_dir, xx, xy):
 	"""
 	Reference prep part of XYalign pipeline.
 
@@ -565,6 +565,19 @@ def ref_prep():
 
 	* Indexes (.fai, .dict, and bwa indices) both new references
 
+	Parameters
+	----------
+	ref_obj : RefFasta() object
+		A reftools.RefFasta() object of a fasta reference file to be processed
+	ref_mask : list or None
+		List of files to use to *hard-mask* references. None will ignore masking.
+	ref_dir : str
+		Path to output directory
+	xx : str
+		Path to XX output reference
+	xy : str
+		Path to XY output reference
+
 	Returns
 	-------
 
@@ -572,38 +585,38 @@ def ref_prep():
 		Paths to two masked references (y_masked, y_unmasked")
 	"""
 	# Combine masks, if more than one present
-	if args.reference_mask != [None]:
-		if len(args.reference_mask) > 1:
+	if ref_mask != None:
+		if len(ref_mask) > 1:
 			reference_mask = utils.merge_bed_files(
 				"{}/reference_mask.merged.bed".format(
-					reference_path), *args.reference_mask)
+					ref_dir), *args.reference_mask)
 		else:
-			reference_mask = args.reference_mask[0]
+			reference_mask = ref_mask[0]
 	else:
 		reference_mask = None
 	# Create masked noY reference
-	y_mask = ref.chromosome_bed("{}/Y.bed".format(
-		reference_path), args.y_chromosome)
+	y_mask = ref_obj.chromosome_bed("{}/Y.bed".format(
+		ref_dir), args.y_chromosome)
 	if reference_mask is not None:
-		noy_out = ref.mask_reference(
+		noy_out = ref_obj.mask_reference(
 			utils.merge_bed_files(
 				"{}/reference_mask.maskY.merged.bed".format(
-					reference_path), reference_mask, y_mask), xx_out)
+					ref_dir), reference_mask, y_mask), xx)
 	else:
-		noy_out = ref.mask_reference(y_mask, xx_out)
+		noy_out = ref_obj.mask_reference(y_mask, xx)
 	noy_ref = reftools.RefFasta(noy_out, args.samtools_path, args.bwa_path)
 	noy_ref.index_bwa()
 	noy_ref.seq_dict()
 	# Create masked withY reference
 	if reference_mask is not None:
-		withy_out = ref.mask_reference(reference_mask, xy_out)
+		withy_out = ref_obj.mask_reference(reference_mask, xy)
 	else:
 		logger.info(
 			"No reference mask provided, copying full reference to {} as "
 			"XY reference to prevent damage, modification, etc. to original "
-			"reference.".format(xy_out))
-		subprocess.call(["cp", ref.filepath, xy_out])
-		withy_out = xy_out
+			"reference.".format(xy))
+		subprocess.call(["cp", ref_obj.filepath, xy])
+		withy_out = xy
 	withy_ref = reftools.RefFasta(withy_out, args.samtools_path, args.bwa_path)
 	withy_ref.index_bwa()
 	withy_ref.seq_dict()
@@ -1244,7 +1257,7 @@ def main():
 		logger.info(
 			"PREPARE_REFERENCE set, so only preparing reference fastas.")
 		ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
-		ref_prep()
+		ref_prep(ref, args.reference_mask, reference_path, xx_out, xy_out)
 		logger.info("PREPARE_REFERENCE complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -1381,7 +1394,8 @@ def main():
 			logger.info(
 				"Input masked reference not provided for both "
 				"XX and XY mapping, so creating both")
-			masked_refs = ref_prep()
+			masked_refs = ref_prep(
+				ref, args.reference_mask, reference_path, xx_out, xy_out)
 		else:
 			xx = reftools.RefFasta(
 				args.xx_ref_in, args.samtools_path, args.bwa_path)
@@ -1419,7 +1433,8 @@ def main():
 			logger.info(
 				"Input masked reference not provided for both "
 				"XX and XY mapping, so creating both")
-			masked_refs = ref_prep()
+			masked_refs = ref_prep(
+				ref, args.reference_mask, reference_path, xx_out, xy_out)
 		else:
 			xx = reftools.RefFasta(
 				args.xx_ref_in, args.samtools_path, args.bwa_path)
