@@ -1684,7 +1684,7 @@ def main():
 			remapping(
 				input_bam_obj=input_bam,
 				y_pres=y_present,
-				masked_references=masked_refs,
+				masked_refs=masked_references,
 				samtools_path=args.samtools_path,
 				sambamba_path=args.sambamba_path,
 				repairsh_path=args.repairsh_path,
@@ -1829,7 +1829,7 @@ def main():
 			remapping(
 				input_bam_obj=input_bam,
 				y_pres=y_present,
-				masked_references=masked_refs,
+				masked_refs=masked_references,
 				samtools_path=args.samtools_path,
 				sambamba_path=args.sambamba_path,
 				repairsh_path=args.repairsh_path,
