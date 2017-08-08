@@ -1015,7 +1015,11 @@ def ploidy_analysis(
 		"boot": [boot_res_x, boot_res_y, sex_boot_res]}
 
 
-def remapping():
+def remapping(
+	input_bam_obj, y_present, masked_refs, samtools_path, sambamba_path,
+	repairsh_path, shufflesh_path, bwa_path, bwa_flags, single_end, bam_dir,
+	fastq_dir, sample_id, x_chromosome, y_chromosome, cpus,
+	xmx, fastq_compression, cleanup, read_group_id):
 	"""
 	Runs remapping steps of XYalign.
 
@@ -1027,20 +1031,65 @@ def remapping():
 
 	* Merge bam files (if more than one read group)
 
+	Parameters
+	----------
+
+	input_bam_obj : bam.BamFile() object
+	y_pres : bool
+		True if Y chromosome present in individual
+	masked_references : tuple
+		Masked reference objects (xx, xy)
+	samtools_path : str
+		Path/command to call samtools
+	sambamba_path : str
+		Path/command to call sambamba
+	repairsh_path : str
+		Path/command to call repair.sh
+	shufflesh_path : str
+		Path/command to call shuffle.sh
+	bwa_path : str
+		Path/command to call bwa
+	bwa_flags : str
+		Flags to use for bwa mapping
+	single_end : bool
+		If True, reads treated as single end
+	bam_dir : str
+		Path to output directory for bam files
+	fastq_dir : str
+		Path to output directory for fastq files
+	sample_id : str
+	x_chromosome : list
+		X-linked scaffolds
+	y_chromosome : list
+		Y-linked scaffolds
+	cpus : int
+		Number of threads/cpus
+	xmx : str
+		Value to be combined with -Xmx for java programs (i.e., 4g would
+		result in -Xmx4g)
+	fastq_compression : int
+		Compression level for fastq files. 0 leaves fastq files uncompressed.
+		Otherwise values should be between 1 and 9 (inclusive), with
+		larger values indicating more compression
+	cleanup : bool
+		If True, will delete temporary files
+	read_group_id : str
+		ID to use to add read group information
+
 	Returns
 	-------
 
 	str
 		Path to bam containing remapped sex chromsomes
 	"""
-	if y_present is True:
-		new_reference = masked_refs[1]
+	if y_pres is True:
+		new_reference = masked_references[1]
 	else:
-		new_reference = masked_refs[0]
-	new_fastqs = input_bam.strip_reads(
-		args.repairsh_path, args.shufflesh_path, args.single_end, fastq_path,
-		args.sample_id, args.x_chromosome + args.y_chromosome, args.xmx,
-		args.fastq_compression, args.cleanup, args.read_group_id)
+		new_reference = masked_references[0]
+	new_fastqs = input_bam_obj.strip_reads(
+		repairsh_path, shufflesh_path, single_end, fastq_dir,
+		sample_id, x_chromosome + y_chromosome, xmx,
+		fastq_compression, cleanup, read_group_id)
 	with open(new_fastqs[0]) as f:
 		read_group_and_fastqs = [line.strip() for line in f]
 		read_group_and_fastqs = [x.split() for x in read_group_and_fastqs]
@@ -1059,26 +1108,26 @@ def remapping():
 								rg_tag = "\t".join(j)
 							break
 				temp_bam = assemble.bwa_mem_mapping_sambamba(
-					args.bwa_path, args.samtools_path, args.sambamba_path,
+					bwa_path, samtools_path, sambamba_path,
 					new_reference, "{}/{}.sex_chroms.{}.".format(
-						bam_path, args.sample_id, rg_id),
-					fastq_files, args.cpus, rg_tag,
-					[str(x).strip() for x in args.bwa_flags.split()])
+						bam_dir, sample_id, rg_id),
+					fastq_files, cpus, rg_tag,
+					[str(x).strip() for x in bwa_flags.split()])
 				temp_bam_list.append(temp_bam)
 		if len(temp_bam_list) < 2:
 			new_bam = temp_bam_list[0]
 		else:
 			new_bam = bam.samtools_merge(
-				args.samtools_path, temp_bam_list, "{}/{}.sex_chroms".format(
-					bam_path, args.sample_id), args.cpus)
+				samtools_path, temp_bam_list, "{}/{}.sex_chroms".format(
+					bam_dir, sample_id), cpus)
 	else:
 		fastq_files = read_group_and_fastqs[0][1:]
 		new_bam = assemble.bwa_mem_mapping_sambamba(
-			args.bwa_path, args.samtools_path, args.sambamba_path,
+			bwa_path, samtools_path, sambamba_path,
 			new_reference, "{}/{}.sex_chroms.{}.".format(
-				bam_path, args.sample_id, rg_id),
-			fastq_files, args.cpus, "None",
-			[str(x).strip() for x in args.bwa_flags.split()])
+				bam_dir, sample_id, rg_id),
+			fastq_files, cpus, "None",
+			[str(x).strip() for x in bwa_flags.split()])
 	return new_bam
 
 
@@ -1612,7 +1661,29 @@ def main():
 			xy.conditional_index_bwa()
 			xy.conditional_seq_dict()
 			masked_refs = (xx, xy)
-		sex_chrom_bam = bam.BamFile(remapping(), args.samtools_path)
+		sex_chrom_bam = bam.BamFile(
+			remapping(
+				input_bam_obj=input_bam,
+				y_pres=y_present,
+				masked_references=masked_refs,
+				samtools_path=args.samtools_path,
+				sambamba_path=args.sambamba_path,
+				repairsh_path=args.repairsh_path,
+				shufflesh_path=args.shufflesh_path,
+				bwa_path=args.bwa_path,
+				bwa_flags=args.bwa_flags,
+				single_end=args.single_end,
+				bam_dir=bam_path,
+				fastq_dir=fastq_path,
+				sample_id=args.sample_id,
+				x_chromsome=args.x_chromosome,
+				y_chromosome=args.y_chromosome,
+				cpus=args.cpus,
+				xmx=args.xmx,
+				fastq_compression=args.fastq_compression,
+				cleanup=args.cleanup,
+				read_group_id=args.read_group_id),
+			args.samtools_path)
 		if args.sex_chrom_bam_only is True:
 			final_bam = sex_chrom_bam
 		else:
@@ -1724,7 +1795,29 @@ def main():
 				logger.info(
 					"X/Y depth ratio ({}) <= {}. Y inferred to be present.".format(
 						ploidy_results["boot"][2], args.sex_chrom_calling_threshold))
-		sex_chrom_bam = bam.BamFile(remapping(), args.samtools_path)
+		sex_chrom_bam = bam.BamFile(
+			remapping(
+				input_bam_obj=input_bam,
+				y_pres=y_present,
+				masked_references=masked_refs,
+				samtools_path=args.samtools_path,
+				sambamba_path=args.sambamba_path,
+				repairsh_path=args.repairsh_path,
+				shufflesh_path=args.shufflesh_path,
+				bwa_path=args.bwa_path,
+				bwa_flags=args.bwa_flags,
+				single_end=args.single_end,
+				bam_dir=bam_path,
+				fastq_dir=fastq_path,
+				sample_id=args.sample_id,
+				x_chromsome=args.x_chromosome,
+				y_chromosome=args.y_chromosome,
+				cpus=args.cpus,
+				xmx=args.xmx,
+				fastq_compression=args.fastq_compression,
+				cleanup=args.cleanup,
+				read_group_id=args.read_group_id),
+			args.samtools_path)
 		if args.sex_chrom_bam_only is True:
 			final_bam = sex_chrom_bam
 		else:
