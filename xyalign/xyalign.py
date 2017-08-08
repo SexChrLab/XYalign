@@ -1016,7 +1016,7 @@ def ploidy_analysis(
 
 
 def remapping(
-	input_bam_obj, y_pres, masked_refs, samtools_path, sambamba_path,
+	input_bam_obj, y_pres, masked_references, samtools_path, sambamba_path,
 	repairsh_path, shufflesh_path, bwa_path, bwa_flags, single_end, bam_dir,
 	fastq_dir, sample_id, x_chromosome, y_chromosome, cpus,
 	xmx, fastq_compression, cleanup, read_group_id):
@@ -1684,7 +1684,7 @@ def main():
 			remapping(
 				input_bam_obj=input_bam,
 				y_pres=y_present,
-				masked_refs=masked_references,
+				masked_references=masked_refs,
 				samtools_path=args.samtools_path,
 				sambamba_path=args.sambamba_path,
 				repairsh_path=args.repairsh_path,
@@ -1829,7 +1829,7 @@ def main():
 			remapping(
 				input_bam_obj=input_bam,
 				y_pres=y_present,
-				masked_refs=masked_references,
+				masked_referencess=masked_refs,
 				samtools_path=args.samtools_path,
 				sambamba_path=args.sambamba_path,
 				repairsh_path=args.repairsh_path,
