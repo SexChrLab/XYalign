@@ -561,7 +561,7 @@ def ref_prep(
 	Reference prep part of XYalign pipeline.
 
 	* Creates two reference fasta files.  Both will include masks provied with
-	--reference_mask.  One will additionally have the entire Y chromosome
+	ref_mask.  One will additionally have the entire Y chromosome
 	hard masked.
 
 	* Indexes (.fai, .dict, and bwa indices) both new references
@@ -580,12 +580,16 @@ def ref_prep(
 		Path to XY output reference
 	y_chromosome : str
 		Name of Y chromosome in fasta
+	samtools_path : str
+		The path to samtools (i.e, "samtools" if in path)
+	bwa_path : str
+		The path to bwa (i.e, "bwa" if in path)
 
 	Returns
 	-------
 
 	tuple
-		Paths to two masked references (y_masked, y_unmasked")
+		Paths to two masked references (y_masked, y_unmasked)
 	"""
 	# Combine masks, if more than one present
 	if ref_mask is not None:
