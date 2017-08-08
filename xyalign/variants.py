@@ -95,7 +95,7 @@ class VCFFile():
 		"""
 		self.logger.info("Compressing vcf file {}".format(self.filepath))
 		bgzip_start = time.time()
-		rc = subprocess.call([self.bgzip, self.filepath])
+		rc = subprocess.call([self.bgzip, "-f", self.filepath])
 		if rc == 0:
 			self.logger.info("Compression complete. Elapsed time: {} seconds".format(
 				time.time() - bgzip_start))
