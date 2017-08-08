@@ -683,7 +683,7 @@ def chrom_stats(bam_obj_list, chrom_list):
 	return (chrom_depth_dict, chrom_mapq_dict)
 
 
-def bam_analysis_noprocessing(
+def bam_analysis(
 	input_bam_obj, platypus_calling, platypus_path, vcf_log, ref_obj,
 	input_chroms, cpus, out_vcf, no_variant_plots, window_size, target_bed,
 	sample_id, readbalance_prefix, variant_site_quality,
@@ -691,7 +691,7 @@ def bam_analysis_noprocessing(
 	homogenize_read_balance, data_frame_readbalance, min_variant_count,
 	no_bam_analysis, ignore_duplicates, exact_depth , whole_genome_threshold,
 	mapq_cutoff, min_depth_filter, max_depth_filter, depth_mapq_prefix,
-	bam_data_frame, output_bed_high, output_bed_low):
+	bam_data_frame, output_bed_high, output_bed_low, include_bed=None):
 	"""
 	Runs bam analyis part of XYalign pipeline on unprocessed bam file.
 
@@ -780,6 +780,8 @@ def bam_analysis_noprocessing(
 	output_bed_low : str
 		Full path to output bed containing low quality (i.e., failing
 		filters) windows
+	include_bed : str
+		Full path to bed file of regions to include for variant calling
 
 	Returns
 	-------
@@ -792,7 +794,7 @@ def bam_analysis_noprocessing(
 		a = input_bam_obj.platypus_caller(
 			platypus_path, vcf_log,
 			ref_obj.filepath, input_chroms, cpus, out_vcf,
-			None)
+			include_bed)
 		if a != 0:
 			logger.error("Error in platypus calling on {}".format(
 				input_bam_obj.filepath))
@@ -1173,98 +1175,6 @@ def swap_sex_chroms(
 	return merged_bam
 
 
-def bam_analysis_postprocessing():
-	"""
-	Runs bam analyis part of XYalign pipeline on processed bam file.
-
-	* (Optionally) calls variants using Platypus
-
-	* (Optionally) parses and filters Platypus vcf, and plots read balance
-
-	* Calculates window based metrics from the bam file: depth and mapq
-
-	* Plots window-based metrics
-
-	* Outputs two bed files: high quality windows, and low quality windows.
-
-	Returns
-	-------
-
-	tuple
-		(list of pandas dataframes with passing windows,
-		list of pandas dataframes with failing windows)
-	"""
-	# Depth/MAPQ
-	if args.no_bam_analysis is not True:
-		all_df = []
-		pass_df = []
-		fail_df = []
-		for chromosome in input_chromosomes:
-			if args.window_size is not None and args.window_size != "None":
-				data = final_bam.analyze_bam(
-					chromosome, args.ignore_duplicates,
-					args.exact_depth, int(args.window_size))
-			else:
-				data = final_bam.analyze_bam(
-					chromosome, args.ignore_duplicates, args.exact_depth,
-					None, args.target_bed)
-			if args.whole_genome_threshold is True:
-				tup = utils.make_region_lists_genome_filters(
-					data, args.mapq_cutoff, args.depth_filter)
-			else:
-				tup = utils.make_region_lists_chromosome_filters(
-					data, args.mapq_cutoff, args.depth_filter)
-			all_df.append(data)
-			pass_df.append(tup[0])
-			fail_df.append(tup[1])
-			utils.plot_depth_mapq(
-				data, depth_mapq_prefix_postprocessing, args.sample_id,
-				final_bam.get_chrom_length(chromosome), args.marker_size,
-				args.marker_transparency)
-		all_concat = pd.concat(all_df)
-		all_concat.to_csv(
-			data_frame_postprocessing, index=False, sep="\t", quoting=csv.QUOTE_NONE)
-		utils.output_bed(output_bed_high_postprocessing, *pass_df)
-		utils.output_bed(output_bed_low_postprocessing, *fail_df)
-
-	# Platypus
-	include_bed = output_bed_high_postprocessing
-	if args.platypus_calling in ["both", "after"]:
-		a = input_bam.platypus_caller(
-			args.platypus_path, postprocessing_vcf_log,
-			ref.filepath, input_chromosomes, args.cpus, postprocessing_vcf,
-			include_bed)
-		if a != 0:
-			logger.error("Error in platypus calling on {}".format(
-				final_bam.filepath))
-			logging.shutdown()
-			sys.exit(1)
-		postprocess_vcf_object = variants.VCFFile(postprocessing_vcf)
-		if args.no_variant_plots is not True:
-			if args.window_size is not None and args.window_size != "None":
-				postprocess_vcf_object.plot_variants_per_chrom(
-					input_chromosomes, args.sample_id, readbalance_prefix_postprocessing,
-					args.variant_site_quality,
-					args.variant_genotype_quality,
-					args.variant_depth,
-					args.marker_size,
-					args.marker_transparency, final_bam, "platypus",
-					args.homogenize_read_balance, data_frame_readbalance_postprocessing,
-					args.min_variant_count, int(args.window_size))
-			else:
-				postprocess_vcf_object.plot_variants_per_chrom(
-					input_chromosomes, args.sample_id, readbalance_prefix_postprocessing,
-					args.variant_site_quality,
-					args.variant_genotype_quality,
-					args.variant_depth,
-					args.marker_size,
-					args.marker_transparency, final_bam, "platypus",
-					args.homogenize_read_balance, data_frame_readbalance_postprocessing,
-					args.min_variant_count, None, args.target_bed)
-
-	return(pass_df, fail_df)
-
-
 def main():
 	# Version - placeholder for now - need to incorporate it into __init__.py
 	citation = """
@@ -1435,6 +1345,7 @@ def main():
 		logger.info(
 			"PREPARE_REFERENCE set, so only preparing reference fastas.")
 		ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
+
 		ref_prep(
 			ref_obj=ref,
 			ref_mask=args.reference_mask,
@@ -1444,6 +1355,7 @@ def main():
 			y_chromosome=args.y_chromosome,
 			samtools_path=args.samtools_path,
 			bwa_path=args.bwa_path)
+
 		logger.info("PREPARE_REFERENCE complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -1540,7 +1452,8 @@ def main():
 		logger.info(
 			"ANALYZE_BAM set, so only running steps required "
 			"for bam analysis.")
-		bam_analysis_noprocessing(
+
+		bam_analysis(
 			input_bam_obj=input_bam,
 			platypus_calling=args.platypus_calling,
 			platypus_path=args.platypus_path,
@@ -1572,7 +1485,9 @@ def main():
 			depth_mapq_prefix=depth_mapq_prefix_noprocessing,
 			bam_data_frame=data_frame_preprocessing,
 			output_bed_high=output_bed_high,
-			output_bed_low=output_bed_low)
+			output_bed_low=output_bed_low,
+			include_bed=None)
+
 		logger.info("ANALYZE_BAM complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -1586,7 +1501,7 @@ def main():
 			"for to characterize sex chromosome complement. Note that "
 			"this involve both playtpus calling and bam analysis too.")
 
-		bam_dfs = bam_analysis_noprocessing(
+		bam_dfs = bam_analysis(
 			input_bam_obj=input_bam,
 			platypus_calling=args.platypus_calling,
 			platypus_path=args.platypus_path,
@@ -1618,7 +1533,8 @@ def main():
 			depth_mapq_prefix=depth_mapq_prefix_noprocessing,
 			bam_data_frame=data_frame_preprocessing,
 			output_bed_high=output_bed_high,
-			output_bed_low=output_bed_low)
+			output_bed_low=output_bed_low,
+			include_bed=None)
 
 		ploidy_results = ploidy_analysis(
 			passing_df=bam_dfs[0],
@@ -1661,6 +1577,7 @@ def main():
 			logger.info(
 				"Input masked reference not provided for both "
 				"XX and XY mapping, so creating both")
+
 			masked_refs = ref_prep(
 				ref_obj=ref,
 				ref_mask=args.reference_mask,
@@ -1670,6 +1587,7 @@ def main():
 				y_chromosome=args.y_chromosome,
 				samtools_path=args.samtools_path,
 				bwa_path=args.bwa_path)
+
 		else:
 			xx = reftools.RefFasta(
 				args.xx_ref_in, args.samtools_path, args.bwa_path)
@@ -1680,6 +1598,7 @@ def main():
 			xy.conditional_index_bwa()
 			xy.conditional_seq_dict()
 			masked_refs = (xx, xy)
+
 		sex_chrom_bam = bam.BamFile(
 			remapping(
 				input_bam_obj=input_bam,
@@ -1703,6 +1622,7 @@ def main():
 				cleanup=args.cleanup,
 				read_group_id=args.read_group_id),
 			args.samtools_path)
+
 		if args.sex_chrom_bam_only is True:
 			final_bam = sex_chrom_bam
 		else:
@@ -1719,6 +1639,7 @@ def main():
 					cpus=args.cpus,
 					xyalign_params=xyalign_params_dict),
 				args.samtools_path)
+
 		logger.info("REMAPPING complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -1740,6 +1661,7 @@ def main():
 			logger.info(
 				"Input masked reference not provided for both "
 				"XX and XY mapping, so creating both")
+
 			masked_refs = ref_prep(
 				ref_obj=ref,
 				ref_mask=args.reference_mask,
@@ -1749,6 +1671,7 @@ def main():
 				y_chromosome=args.y_chromosome,
 				samtools_path=args.samtools_path,
 				bwa_path=args.bwa_path)
+
 		else:
 			xx = reftools.RefFasta(
 				args.xx_ref_in, args.samtools_path, args.bwa_path)
@@ -1760,7 +1683,7 @@ def main():
 			xy.conditional_seq_dict()
 			masked_refs = (xx, xy)
 
-		bam_dfs = bam_analysis_noprocessing(
+		bam_dfs = bam_analysis(
 			input_bam_obj=input_bam,
 			platypus_calling=args.platypus_calling,
 			platypus_path=args.platypus_path,
@@ -1792,7 +1715,8 @@ def main():
 			depth_mapq_prefix=depth_mapq_prefix_noprocessing,
 			bam_data_frame=data_frame_preprocessing,
 			output_bed_high=output_bed_high,
-			output_bed_low=output_bed_low)
+			output_bed_low=output_bed_low,
+			include_bed=None)
 
 		ploidy_results = ploidy_analysis(
 			passing_df=bam_dfs[0],
@@ -1825,6 +1749,7 @@ def main():
 				logger.info(
 					"X/Y depth ratio ({}) <= {}. Y inferred to be present.".format(
 						ploidy_results["boot"][2], args.sex_chrom_calling_threshold))
+
 		sex_chrom_bam = bam.BamFile(
 			remapping(
 				input_bam_obj=input_bam,
@@ -1848,6 +1773,7 @@ def main():
 				cleanup=args.cleanup,
 				read_group_id=args.read_group_id),
 			args.samtools_path)
+
 		if args.sex_chrom_bam_only is True:
 			final_bam = sex_chrom_bam
 		else:
@@ -1864,7 +1790,42 @@ def main():
 					cpus=args.cpus,
 					xyalign_params=xyalign_params_dict),
 				args.samtools_path)
-		bam_analysis_postprocessing()
+
+		bam_analysis(
+			input_bam_obj=final_bam,
+			platypus_calling=args.platypus_calling,
+			platypus_path=args.platypus_path,
+			vcf_log=postprocessing_vcf_log,
+			ref_obj=ref,
+			input_chroms=input_chromosomes,
+			cpus=args.cpus,
+			out_vcf=postprocessing_vcf,
+			no_variant_plots=args.no_variant_plots,
+			window_size=args.window_size,
+			target_bed=args.target_bed,
+			sample_id=args.sample_id,
+			readbalance_prefix=readbalance_prefix_postprocessing,
+			variant_site_quality=args.variant_site_quality,
+			variant_genotype_quality=args.variant_genotype_quality,
+			variant_depth=args.variant_depth,
+			marker_size=args.marker_size,
+			marker_transparency=args.marker_transparency,
+			homogenize_read_balance=args.homogenize_read_balance,
+			data_frame_readbalance=data_frame_readbalance_postprocessing,
+			min_variant_count=args.min_variant_count,
+			no_bam_analysis=args.no_bam_analysis,
+			ignore_duplicates=args.ignore_duplicates,
+			exact_depth=args.exact_depth,
+			whole_genome_threshold=args.whole_genome_threshold,
+			mapq_cutoff=args.mapq_cutoff,
+			min_depth_filter=args.min_depth_filter,
+			max_depth_filter=args.max_depth_filter,
+			depth_mapq_prefix=depth_mapq_prefix_postprocessing,
+			bam_data_frame=data_frame_postprocessing,
+			output_bed_high=output_bed_high,
+			output_bed_low=output_bed_low,
+			include_bed=output_bed_high_postprocessing)
+
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
 		logging.shutdown()
