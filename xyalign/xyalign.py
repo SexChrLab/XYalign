@@ -859,7 +859,7 @@ def bam_analysis_noprocessing(
 
 def ploidy_analysis(
 	passing_df, failing_df, no_perm_test, no_ks_test, no_bootstrap,
-	input_chroms, x_chromosome, y_chromosome, results_path,
+	input_chroms, x_chromosome, y_chromosome, results_dir,
 	num_permutations, num_bootstraps, sample_id):
 	"""
 	Runs the ploidy analysis part of XYalign.
@@ -1131,15 +1131,34 @@ def remapping(
 	return new_bam
 
 
-def swap_sex_chroms(new_bam_file):
+def swap_sex_chroms(
+	input_bam_obj, new_bam_obj, samtools_path, sambamba_path, x_chromosome,
+	y_chromosome, bam_dir, sample_id, cpus, xyalign_params):
 	"""
 	Switches sex chromosmes from new_bam_file with those in original bam file
 
 	Parameters
 	----------
 
-	new_bam_file : str
-		Path to bam file containing newly mapped sex chromosomes (to insert)
+	input_bam_obj : bam.BamFile() object
+		Original input bam file object
+	new_bam_obj : bam.BamFile() object
+		Bam file object containing newly mapped sex chromosomes (to insert)
+	samtools_path : str
+		Path/command to call samtools
+	sambamba_path : str
+		Path/command to call sambamba
+	x_chromosome : list
+		X-linked scaffolds
+	y_chromosome : str
+		Y-linked scaffolds
+	bam_dir : str
+		Path to bam output directory
+	sample_id : str
+	cpus : int
+		Number of threads/cpus
+	xyalign_params : dict
+		Dictionary of xyalign_params to add to bam header
 
 	Returns
 	-------
@@ -1148,9 +1167,9 @@ def swap_sex_chroms(new_bam_file):
 		Path to new bam file containing original autosomes and new sex chromosomes
 	"""
 	merged_bam = bam.switch_sex_chromosomes_sambamba(
-		args.samtools_path, args.sambamba_path, input_bam.filepath,
-		new_bam_file.filepath, args.x_chromosome + args.y_chromosome,
-		bam_path, args.sample_id, args.cpus, xyalign_params_dict)
+		samtools_path, sambamba_path, input_bam_obj.filepath,
+		new_bam_obj.filepath, x_chromosome + y_chromosome,
+		bam_dir, sample_id, cpus, xyalign_params)
 	return merged_bam
 
 
@@ -1688,7 +1707,18 @@ def main():
 			final_bam = sex_chrom_bam
 		else:
 			final_bam = bam.BamFile(
-				swap_sex_chroms(sex_chrom_bam), args.samtools_path)
+				swap_sex_chroms(
+					input_bam_obj=input_bam,
+					new_bam_obj=sex_chrom_bam,
+					samtools_path=args.samtools_path,
+					sambamba_path=args.sambamba_path,
+					x_chromosome=args.x_chromosome,
+					y_chromosome=args.y_chromosome,
+					bam_dir=bam_path,
+					sample_id=args.sample_id,
+					cpus=args.cpus,
+					xyalign_params=xyalign_params_dict),
+				args.samtools_path)
 		logger.info("REMAPPING complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
@@ -1822,7 +1852,18 @@ def main():
 			final_bam = sex_chrom_bam
 		else:
 			final_bam = bam.BamFile(
-				swap_sex_chroms(sex_chrom_bam), args.samtools_path)
+				swap_sex_chroms(
+					input_bam_obj=input_bam,
+					new_bam_obj=sex_chrom_bam,
+					samtools_path=args.samtools_path,
+					sambamba_path=args.sambamba_path,
+					x_chromosome=args.x_chromosome,
+					y_chromosome=args.y_chromosome,
+					bam_dir=bam_path,
+					sample_id=args.sample_id,
+					cpus=args.cpus,
+					xyalign_params=xyalign_params_dict),
+				args.samtools_path)
 		bam_analysis_postprocessing()
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
