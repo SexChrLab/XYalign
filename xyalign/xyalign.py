@@ -1614,7 +1614,7 @@ def main():
 				bam_dir=bam_path,
 				fastq_dir=fastq_path,
 				sample_id=args.sample_id,
-				x_chromsome=args.x_chromosome,
+				x_chromosome=args.x_chromosome,
 				y_chromosome=args.y_chromosome,
 				cpus=args.cpus,
 				xmx=args.xmx,
@@ -1739,16 +1739,16 @@ def main():
 			y_present = False
 			logger.info("--y_absent provided, so remapping for XX individual")
 		else:
-			if ploidy_results["boot"][2] > args.sex_chrom_calling_threshold:
+			if ploidy_results["boot"][2][2] > args.sex_chrom_calling_threshold:
 				y_present = False
 				logger.info(
 					"X/Y depth ratio ({}) > {}. Y inferred to be absent.".format(
-						ploidy_results["boot"][2], args.sex_chrom_calling_threshold))
+						ploidy_results["boot"][2][2], args.sex_chrom_calling_threshold))
 			else:
 				y_present = True
 				logger.info(
 					"X/Y depth ratio ({}) <= {}. Y inferred to be present.".format(
-						ploidy_results["boot"][2], args.sex_chrom_calling_threshold))
+						ploidy_results["boot"][2][2], args.sex_chrom_calling_threshold))
 
 		sex_chrom_bam = bam.BamFile(
 			remapping(
@@ -1765,7 +1765,7 @@ def main():
 				bam_dir=bam_path,
 				fastq_dir=fastq_path,
 				sample_id=args.sample_id,
-				x_chromsome=args.x_chromosome,
+				x_chromosome=args.x_chromosome,
 				y_chromosome=args.y_chromosome,
 				cpus=args.cpus,
 				xmx=args.xmx,
