@@ -4,6 +4,7 @@
 # Only listing changes since previous version/release
 
 Development Version (currently branch called noY_support)
+	* Fixed bug in inference of Y chromosome presence/absence
 	* Removed bwa indexing from ref_prep()
 	* Added CHROM_STATS module to calculate coarse, scaffold-wide stats for a list of bam files (allowing for quick comparison)
 	* bam.analyze_bam_fetch() now called bam.analyze_bam()
