@@ -24,5 +24,8 @@ def teardown_module(function):
 			os.remove(os.path.join(dir, file_name))
 
 
-def test_ref_prep():
+def test_xyalign():
+	"""
+	All this does is ensure xyalign.py is checked for typical Python syntax errors
+	"""
 	pass

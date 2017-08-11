@@ -301,7 +301,8 @@ class BamFile():
 		"""
 		# Collect RGs
 		rg_start = time.time()
-		rg_list = output_directory + "/" + output_prefix + ".full_rg.list"
+		rg_list = os.path.join(
+			output_directory, output_prefix + ".full_rg.list")
 		command_line = """{} view -H {} | awk '$1=="\x40RG"' | """\
 			"""awk {} """\
 			"""| cut -d':' -f 2 > {}""".format(
@@ -311,7 +312,8 @@ class BamFile():
 		self.logger.info("Grabbing read groups from {} with the command: {}".format(
 			self.filepath, command_line))
 		subprocess.call(command_line, shell=True)
-		rg_header_lines = output_directory + "/" + output_prefix + ".header_lines_rg.list"
+		rg_header_lines = os.path.join(
+			output_directory, output_prefix + ".header_lines_rg.list")
 		command_line = """{} view -H {} | awk '$1=="\x40RG"' > {}""".format(
 			self.samtools, self.filepath, rg_header_lines)
 		self.logger.info(
@@ -328,7 +330,8 @@ class BamFile():
 			else:
 				rg = "None"
 				rg_header_lines = None
-			out_rg_table = output_directory + "/" + output_prefix + ".rg_fastq_key.list"
+			out_rg_table = os.path.join(
+				output_directory, output_prefix + ".rg_fastq_key.list")
 			with open(out_rg_table, "w") as ortab:
 				self.logger.info(
 					"No read group information found in {}.  Will therefore treat "
@@ -367,18 +370,22 @@ class BamFile():
 					temporary_fastqs.extend([temp1, temp2])
 					if repair_xmx == "None":
 						if compression == 0:
-							command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
-								repairsh, temp1, temp2, out1, out2)
+							command_line = "{} in1={} in2={} out1={} out2={} " \
+								"overwrite=true".format(
+									repairsh, temp1, temp2, out1, out2)
 						else:
-							command_line = "{} in1={} in2={} out1={} out2={} ziplevel={} overwrite=true".format(
-								repairsh, temp1, temp2, out1, out2, compression)
+							command_line = "{} in1={} in2={} out1={} out2={} ziplevel={} " \
+								"overwrite=true".format(
+									repairsh, temp1, temp2, out1, out2, compression)
 					else:
 						if compression == 0:
-							command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} overwrite=true".format(
-								repairsh, repair_xmx, temp1, temp2, out1, out2)
+							command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} " \
+								"overwrite=true".format(
+									repairsh, repair_xmx, temp1, temp2, out1, out2)
 						else:
-							command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} ziplevel={} overwrite=true".format(
-								repairsh, repair_xmx, temp1, temp2, out1, out2, compression)
+							command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} ziplevel={} " \
+								"overwrite=true".format(
+									repairsh, repair_xmx, temp1, temp2, out1, out2, compression)
 					self.logger.info(
 						"Sorting reads with command: {}".format(
 							command_line))
@@ -399,8 +406,8 @@ class BamFile():
 					if compression != 0:
 						out1 += ".gz"
 					command_line = "{} view -b {} {} | {} bam2fq -t -n - > {}".format(
-							self.samtools, self.filepath, ' '.join(map(
-								str, regions)), self.samtools, temp1)
+						self.samtools, self.filepath, ' '.join(map(
+							str, regions)), self.samtools, temp1)
 					self.logger.info(
 						"Stripping single-end reads with command: {}".format(
 							command_line))
@@ -418,8 +425,9 @@ class BamFile():
 							command_line = "{} -Xmx{} in={} out={} name overwrite=true".format(
 								shufflesh, repair_xmx, temp1, out1)
 						else:
-							command_line = "{} -Xmx{} in={} out={} name ziplevel={} overwrite=true".format(
-								shufflesh, repair_xmx, temp1, out1, compression)
+							command_line = "{} -Xmx{} in={} out={} name ziplevel={} " \
+								"overwrite=true".format(
+									shufflesh, repair_xmx, temp1, out1, compression)
 					self.logger.info(
 						"Sorting reads with command: {}".format(
 							command_line))
@@ -428,7 +436,8 @@ class BamFile():
 						rg, out1))
 		else:
 			with open(rg_list, "r") as f:
-				out_rg_table = output_directory + "/" + output_prefix + ".rg_fastq_key.list"
+				out_rg_table = os.path.join(
+					output_directory, output_prefix + ".rg_fastq_key.list")
 				self.logger.info(
 					"Iteratively removing reads by read group. Writing table of RGs and "
 					"fastqs to {}".format(out_rg_table))
@@ -464,18 +473,22 @@ class BamFile():
 								temporary_fastqs.extend([temp1, temp2])
 								if repair_xmx == "None":
 									if compression == 0:
-										command_line = "{} in1={} in2={} out1={} out2={} overwrite=true".format(
-											repairsh, temp1, temp2, out1, out2)
+										command_line = "{} in1={} in2={} out1={} out2={} " \
+											"overwrite=true".format(
+												repairsh, temp1, temp2, out1, out2)
 									else:
-										command_line = "{} in1={} in2={} out1={} out2={} ziplevel={} overwrite=true".format(
-											repairsh, temp1, temp2, out1, out2, compression)
+										command_line = "{} in1={} in2={} out1={} out2={} ziplevel={} " \
+											"overwrite=true".format(
+												repairsh, temp1, temp2, out1, out2, compression)
 								else:
 									if compression == 0:
-										command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} overwrite=true".format(
-											repairsh, repair_xmx, temp1, temp2, out1, out2)
+										command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} " \
+											"overwrite=true".format(
+												repairsh, repair_xmx, temp1, temp2, out1, out2)
 									else:
-										command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} ziplevel={} overwrite=true".format(
-											repairsh, repair_xmx, temp1, temp2, out1, out2, compression)
+										command_line = "{} -Xmx{} in1={} in2={} out1={} out2={} " \
+											"ziplevel={} overwrite=true".format(
+												repairsh, repair_xmx, temp1, temp2, out1, out2, compression)
 								self.logger.info(
 									"Sorting reads with command: {}".format(
 										command_line))
@@ -489,9 +502,10 @@ class BamFile():
 									output_directory, "{}_{}.fastq".format(output_prefix, rg))
 								if compression != 0:
 									out1 += ".gz"
-								command_line = "{} view -R {} -b {} {} | {} bam2fq -t -n - > {}".format(
-									self.samtools, tmp_out, self.filepath, ' '.join(map(
-										str, regions)), self.samtools, temp1)
+								command_line = "{} view -R {} -b {} {} | " \
+									"{} bam2fq -t -n - > {}".format(
+										self.samtools, tmp_out, self.filepath, ' '.join(map(
+											str, regions)), self.samtools, temp1)
 								self.logger.info(
 									"Stripping single-end reads with command: {}".format(
 										command_line))
@@ -502,15 +516,17 @@ class BamFile():
 										command_line = "{} in={} out={} name overwrite=true".format(
 											shufflesh, temp1, out1)
 									else:
-										command_line = "{} in={} out={} name ziplevel={} overwrite=true".format(
-											shufflesh, temp1, out1, compression)
+										command_line = "{} in={} out={} name ziplevel={} " \
+											"overwrite=true".format(
+												shufflesh, temp1, out1, compression)
 								else:
 									if compression == 0:
 										command_line = "{} -Xmx{} in={} out={} name overwrite=true".format(
 											shufflesh, repair_xmx, temp1, out1)
 									else:
-										command_line = "{} -Xmx{} in={} out={} name ziplevel={} overwrite=true".format(
-											shufflesh, repair_xmx, temp1, out1, compression)
+										command_line = "{} -Xmx{} in={} out={} name ziplevel={} " \
+											"overwrite=true".format(
+												shufflesh, repair_xmx, temp1, out1, compression)
 								self.logger.info(
 									"Sorting reads with command: {}".format(
 										command_line))
@@ -772,7 +788,8 @@ class BamFile():
 
 		"""
 		self.logger.info(
-			"Traversing {} (whole chromosome) in {} to analyze depth and mapping quality".format(
+			"Traversing {} (whole chromosome) in {} to analyze depth and "
+			"mapping quality".format(
 				chrom, self.filepath))
 
 		analyze_start = time.time()
@@ -954,9 +971,10 @@ def switch_sex_chromosomes_sambamba(
 		samfile = pysam.AlignmentFile(bam_orig, "rb")
 		non_sex_scaffolds = filter(
 			lambda x: x not in sex_chroms, list(samfile.references))
-		command_line = "{} view -h -t {} -f bam -o {}/{}.temp.nosexchr.bam {} {}".format(
-			sambamba_path, threads, output_directory, output_prefix, bam_orig,
-			" ".join(non_sex_scaffolds))
+		command_line = "{} view -h -t {} -f bam -o " \
+			"{}/{}.temp.nosexchr.bam {} {}".format(
+				sambamba_path, threads, output_directory, output_prefix, bam_orig,
+				" ".join(non_sex_scaffolds))
 		bam_logger.info(
 			"Removing sex chromosomes with command: {}".format(command_line))
 		subprocess.call(command_line, shell=True)

@@ -284,7 +284,8 @@ def test_chrom_stats():
 
 @pytest.mark.skipif(
 	samtools_present is False or sambamba_present is False,
-	reason="samtools and sambamba need too be callable with 'samtools' and 'sambamba'")
+	reason="samtools and sambamba need too be callable with "
+	"'samtools' and 'sambamba'")
 def test_merge_and_switch():
 	test_bam1 = bam.BamFile(
 		os.path.join(dir, "chr19_window.bam"), "samtools", no_initial_index=True)
