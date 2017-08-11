@@ -26,7 +26,6 @@ XYalign has a number of required Python packages and external programs::
 	Python: 2.7
 
 	Python packages:
-		cyvcf2
 		matplotlib
 		numpy
 		pandas
@@ -76,15 +75,23 @@ Miniconda is a lightweight version of Anaconda).
 
 	conda config --add channels r
 
+	conda config --add channels defaults
+
 	conda config --add channels conda-forge
 
 	conda config --add channels bioconda
 
 	conda create -n xyalign_env python=2.7 pysam pybedtools \
 	numpy pandas matplotlib platypus-variant bwa bbmap \
-	samtools bedtools sambamba cyvcf2 scipy
+	samtools bedtools sambamba scipy
 
-And load the new environment (containing all required programs and packages) with::
+..note::
+	You *need* to add channels in this order. Doing so will ensure priority of channels
+	will go in the order bioconda > conda-forge > defaults > r. This is important because
+	the source of bzip2 (required for many programs) needs to be conda-forge (the version
+	in defaults will cause many programs to miss a required library).
+
+You can then load the new environment (containing all required programs and packages) with::
 
 	source activate xyalign_env
 
@@ -92,6 +99,8 @@ And load the new environment (containing all required programs and packages) wit
 users will have to use the commands::
 
 	conda config --add channels r
+
+	conda config --add channels defaults
 
 	conda config --add channels conda-forge
 
