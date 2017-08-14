@@ -322,6 +322,7 @@ class VCFFile():
 				rb_df = read_balance_per_window(
 					i, parse_results[0], parse_results[2], sampleID, homogenize,
 					chrom_len, window_size, target_file)
+				all_df.append(rb_df)
 				utils.chromosome_wide_plot(
 					i, rb_df["start"].values, rb_df["count"], "Window_Variant_Count",
 					sampleID, output_prefix, MarkerSize, MarkerAlpha,

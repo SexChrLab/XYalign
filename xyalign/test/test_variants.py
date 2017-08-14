@@ -154,9 +154,7 @@ def test_VCFFile():
 		os.path.join(dir, "hist_test_broken_chr19_ReadBalance_Hist.png")) is False
 	target_test = variants.read_balance_per_window(
 		"chr19", positions, read_balances, "target_test", True, 1,
-		os.path.join(dir, "hg19_header_rb_target_test.csv"), None,
-		os.path.join(dir, "platypus.bed"))
-	assert os.path.exists(os.path.join(dir, "hg19_header_rb_target_test.csv"))
+		None, os.path.join(dir, "platypus.bed"))
 	assert len(target_test) == 27
 
 
