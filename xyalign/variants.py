@@ -305,6 +305,7 @@ class VCFFile():
 				"Error. Only 'platypus' currently supported as variant_caller "
 				"for plot_variants_per_chrom.")
 		no_sites = []
+		all_df = []
 		for i in chrom_list:
 			parse_results = self.parse_platypus_VCF(
 				site_qual, genotype_qual, depth, i)
@@ -320,7 +321,7 @@ class VCFFile():
 					i, parse_results[2], sampleID, homogenize, output_prefix)
 				rb_df = read_balance_per_window(
 					i, parse_results[0], parse_results[2], sampleID, homogenize,
-					chrom_len, dataframe_out, window_size, target_file)
+					chrom_len, window_size, target_file)
 				utils.chromosome_wide_plot(
 					i, rb_df["start"].values, rb_df["count"], "Window_Variant_Count",
 					sampleID, output_prefix, MarkerSize, MarkerAlpha,
@@ -330,6 +331,9 @@ class VCFFile():
 					i, rb_df["start"].values, rb_df["balance"], "Window_Read_Balance",
 					sampleID, output_prefix, MarkerSize, MarkerAlpha,
 					chrom_len, 1.0)
+		all_concat = pd.concat(all_df)
+		all_concat.to_csv(
+			dataframe_out, index=False, sep="\t", quoting=csv.QUOTE_NONE)
 		if len(no_sites) >= 1:
 			self.logger.info(
 				"No variants passing filters on the following chromosomes: {}".format(
@@ -344,7 +348,7 @@ class VCFFile():
 
 
 def read_balance_per_window(
-	chrom, positions, readBalance, sampleID, homogenize, chr_len, out_file,
+	chrom, positions, readBalance, sampleID, homogenize, chr_len,
 	window_size, target_file=None):
 	"""
 	Calculates mean read balance per genomic window (defined by size or an
@@ -371,8 +375,6 @@ def read_balance_per_window(
 		0.75 would be treated as equivalent.
 	chr_len : int
 		Length of chromosome. Ignored if target_file is provided.
-	out_file : str
-		Full path of file to write pandas dataframe to. Will overwire if exists
 	window_size
 		If int, the window size to use for sliding window analyses, if None
 		intervals from target_file
@@ -576,8 +578,6 @@ def read_balance_per_window(
 		"count": np.asarray(count_list)
 	})[["chrom", "start", "stop", "balance", "count"]]
 
-	windows_df.to_csv(
-		out_file, index=False, sep="\t", quoting=csv.QUOTE_NONE)
 	variants_logger.info("Analysis complete. Elapsed time: {} seconds".format(
 		time.time() - readbalance_start))
 	return windows_df
