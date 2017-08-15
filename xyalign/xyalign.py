@@ -1854,7 +1854,7 @@ def main():
 			bam_data_frame=data_frame_postprocessing,
 			output_bed_high=output_bed_high_postprocessing,
 			output_bed_low=output_bed_low_postprocessing,
-			use_bed_for_platypus=True)
+			use_bed_for_platypus=False)
 
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))
