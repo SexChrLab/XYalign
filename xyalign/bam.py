@@ -988,7 +988,7 @@ def switch_sex_chromosomes_sambamba(
 			[samtools_path, "index", "{}/{}.temp.nosexchr.bam".format(
 				output_directory, output_prefix)])
 		command_line = [
-			samtools_path, "merge", "-@", "{}".format(threads), "-h",
+			samtools_path, "merge", "-cp", "-@", "{}".format(threads), "-h",
 			"{}/{}.header.sam".format(output_directory, output_prefix), "-f",
 			"{}/{}.merged.bam".format(output_directory, output_prefix),
 			"{}/{}.temp.nosexchr.bam".format(
@@ -1057,7 +1057,7 @@ def samtools_merge(samtools_path, bam_list, output_prefix, threads):
 	"""
 	merge_start = time.time()
 	command_line = [
-		samtools_path, "merge", "-@", "{}".format(threads), "-f",
+		samtools_path, "merge", "-cp", "-@", "{}".format(threads), "-f",
 		"{}.merged.bam".format(output_prefix)] + bam_list
 	bam_logger.info(
 		"Merging {} with command {}".format(
