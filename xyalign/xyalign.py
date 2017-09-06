@@ -115,10 +115,8 @@ def parse_args():
 		help="Print version and exit.")
 
 	parser.add_argument(
-		"--cleanup", type=bool, default=True,
-		help="Default is True. Flag determines whether temporary files are "
-		"deleted or not.  '--cleanup False' will preserve all temporary "
-		"files.")
+		"--no_cleanup", action="store_true", default=False,
+		help="Include flag to preserve temporary files.")
 
 	# Options to run specific parts of the pipeline
 	pipeline_group = parser.add_mutually_exclusive_group(required=False)
@@ -1352,6 +1350,12 @@ def main():
 	output_bed_low_postprocessing = os.path.join(
 		bed_path, "{}.bed".format(low_prefix_postprocessing))
 
+	# Set cleanup
+	if args.no_cleanup is True:
+		cleanup = False
+	else:
+		cleanup = True
+
 	######################################
 	#            Run XYalign             #
 	######################################
@@ -1429,12 +1433,12 @@ def main():
 			stripped_fastqs = input_bam.strip_reads(
 				args.repairsh_path, args.shufflesh_path, args.single_end,
 				fastq_path, args.sample_id,
-				[], args.xmx, args.fastq_compression, args.cleanup, args.read_group_id)
+				[], args.xmx, args.fastq_compression, cleanup, args.read_group_id)
 		else:
 			stripped_fastqs = input_bam.strip_reads(
 				args.repairsh_path, args.shufflesh_path, args.single_end,
 				fastq_path, args.sample_id,
-				input_chromosomes, args.xmx, args.fastq_compression, args.cleanup,
+				input_chromosomes, args.xmx, args.fastq_compression, cleanup,
 				args.read_group_id)
 		logger.info("STRIP_READS complete. Output in {}".format(fastq_path))
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
@@ -1641,7 +1645,7 @@ def main():
 				cpus=args.cpus,
 				xmx=args.xmx,
 				fastq_compression=args.fastq_compression,
-				cleanup=args.cleanup,
+				cleanup=cleanup,
 				read_group_id=args.read_group_id),
 			args.samtools_path)
 
@@ -1796,7 +1800,7 @@ def main():
 				cpus=args.cpus,
 				xmx=args.xmx,
 				fastq_compression=args.fastq_compression,
-				cleanup=args.cleanup,
+				cleanup=cleanup,
 				read_group_id=args.read_group_id),
 			args.samtools_path)
 
