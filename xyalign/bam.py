@@ -253,6 +253,111 @@ class BamFile():
 				"All chromosomes present in {}".format(self.filepath))
 		return missing_list
 
+	def sort_bam(
+		self, sorted_bam, query_name=False):
+		"""
+		Sorts bam file by coordinate (query_name=False) or
+		query name (query_name=True)
+
+		Parameters
+		----------
+
+		sorted_bam : str
+			Full path to (including desired name of) output bam file
+		query_name : bool
+			If True, sort by query name (read ID), else sort by coordinate
+
+		Returns
+		-------
+
+		BamFile() object
+			BamFile() object of new, sorted bam file
+		"""
+		if query_name is True:
+			command_line = "{} sort -n -o {} {}".format(
+				self.samtools, sorted_bam, self.filepath)
+			self.logger.info(
+				"Sorting {} by query name with command: {}".format(
+					self.filepath, command_line))
+		else:
+			command_line = "{} sort -o {} {}".format(
+				self.samtools, sorted_bam, self.filepath)
+			self.logger.info(
+				"Sorting {} by coordinate with command: {}".format(
+					self.filepath, command_line))
+		subprocess.call(command_line, shell=True)
+		sorted_bam_obj = BamFile(sorted_bam, self.samtools)
+		return sorted_bam_obj
+
+	def extract_regions(
+		self, regions, new_bam, rg_id=None):
+		"""
+		Extracts regions from a bam file into new bam file.
+
+		Parameters
+		----------
+
+		regions : list
+			regions from which reads will be stripped
+		new_bam : str
+			Full path to and desired name of output bam file
+		rg_id : str or None
+			Path to text file containing read group ids to use when isolating regions.
+			If None, all reads from regions will be extracted.
+
+		Returns
+		-------
+
+		BamFile() object
+			BamFile() object of new bam file (containing extracted regions)
+		"""
+		if rg_id is None:
+			command_line = "{} view -bh -o {} {} {}".format(
+				self.samtools, new_bam, self.filepath, ' '.join(map(str, regions)))
+			self.logger.info(
+				"Extracting regions from {} into {} using the command: {}".format(
+					self.filepath, new_bam, command_line))
+		else:
+			command_line = "{} view -bh -R {} -o {} {} {}".format(
+				self.samtools, rg_id, new_bam, self.filepath, ' '.join(map(str, regions)))
+			self.logger.info(
+				"Extracting reads with RG ID {} from regions ({}) into {} "
+				"using the command: {}".format(
+					self.filepath, rg_id, new_bam, command_line))
+		subprocess.call(command_line, shell=True)
+		new_bam_obj = BamFile(new_bam, self.samtools)
+		return new_bam_obj
+
+	def extract_read_group(
+		self, new_bam, rg_id):
+		"""
+		Extracts all reads belonging to a given RG ID from a
+		bam file into new bam file.
+
+		Parameters
+		----------
+
+		new_bam : str
+			Full path to and desired name of output bam file
+		rg_id : str
+			Path to text file containing read group ids to use when isolating regions.
+
+		Returns
+		-------
+
+		BamFile() object
+			BamFile() object of new bam file (containing extracted regions)
+		"""
+		command_line = "{} view -bh -R {} -o {} {}".format(
+			self.samtools, rg_id, new_bam, self.filepath)
+		self.logger.info(
+			"Extracting reads with RG ID {} from regions ({}) into {} "
+			"using the command: {}".format(
+				self.filepath, rg_id, new_bam, command_line))
+		subprocess.call(command_line, shell=True)
+		new_bam_obj = BamFile(new_bam, self.samtools)
+		return new_bam_obj
+
 	def strip_reads(
 		self, repairsh, shufflesh, single, output_directory,
 		output_prefix, regions, repair_xmx, compression,
@@ -322,6 +427,7 @@ class BamFile():
 		subprocess.call(command_line, shell=True)
 		temporary_fastqs = []
 		temporary_rg_files = []
+		temporary_bams = []
 		if os.stat(rg_list).st_size == 0:
 			if default_rg != "None":
 				rg = default_rg
@@ -357,17 +463,76 @@ class BamFile():
 						out2 = os.path.join(
 							output_directory, "{}_{}_2.fastq".format(output_prefix, rg))
 					if compression != 0:
+						temp1 += ".gz"
+						temp2 += ".gz"
 						out1 += ".gz"
 						out2 += ".gz"
-					command_line = "{} view -b {} {} | {} bam2fq -1 {} "\
-						"-2 {} -t -n -".format(
-							self.samtools, self.filepath, ' '.join(map(str, regions)),
-							self.samtools, temp1, temp2)
-					self.logger.info(
-						"Stripping paired reads with command: {}".format(
-							command_line))
-					subprocess.call(command_line, shell=True)
-					temporary_fastqs.extend([temp1, temp2])
+					if len(regions) < len(self.chromosome_names()):
+						# Isolate chromosomes
+						iso_bam_obj = self.extract_regions(regions, iso_bam)
+						# Sort isolated bam
+						iso_bam_sort_obj = iso_bam_obj.sort_bam(iso_bam_sort, query_name=True)
+						temporary_bams.extend([
+							iso_bam, iso_bam + ".bai",
+							iso_bam_sort, iso_bam_sort + ".bai"])
+						# Strip reads
+						if compression == 0:
+							command_line = "{} fastq -n -t -1 {} -2 {} {}".format(
+								self.samtools, temp1, temp2, iso_bam_sort_obj.filepath)
+						else:
+							command_line = "{} fastq -n -t -c {} -1 {} -2 {} {}".format(
+								self.samtools, compression, temp1, temp2, iso_bam_sort_obj.filepath)
+						self.logger.info(
+							"Stripping reads with command: {}".format(
+								command_line))
+						subprocess.call(command_line, shell=True)
+						temporary_fastqs.extend([temp1, temp2])
+					else:
+						# Strip all reads
+						self.logger.info(
+							"Length of region list same or greater than number of "
+							"chroms in bam, so stripping all reads")
+						if compression == 0:
+							command_line = "{} fastq -n -t -1 {} -2 {} {}".format(
+								self.samtools, temp1, temp2, self.filepath)
+						else:
+							command_line = "{} fastq -n -t -c {} -1 {} -2 {} {}".format(
+								self.samtools, compression, temp1, temp2, self.filepath)
+						self.logger.info(
+							"Stripping reads with command: {}".format(
+								command_line))
+						subprocess.call(command_line, shell=True)
+						temporary_fastqs.extend([temp1, temp2])
+
+					# command_line = "{} view -bh -o {} {} {}".format(
+					# 	self.samtools, iso_bam, self.filepath, ' '.join(map(str, regions)))
+					# self.logger.info(
+					# 	"Isolating sex chroms into new bam with command: {}".format(
+					# 		command_line))
+					# subprocess.call(command_line, shell=True)
+					# iso_bam_obj = BamFile(iso_bam, samtools=self.samtools)
+					# temporary_bams.extend([iso_bam, iso_bam + ".bai"])
+					# # Sort isolated bam by name
+					# command_line = "{} sort -n -o {} {}".format(
+					# 	self.samtools, iso_bam_qsort, iso_bam.filepath)
+					# self.logger.info(
+					# 	"Sorting isolated bam by query name with command: {}".format(
+					# 		command_line))
+					# subprocess.call(command_line, shell=True)
+					# iso_bam_qsort_obj = BamFile(iso_bam_qsort, samtools=self.samtools)
+					# temporary_bams.extend([iso_bam_qsort, iso_bam_qsort + ".bai"])
+					# Strip reads
+
+
+					# command_line = "{} view -b {} {} | {} bam2fq -1 {} "\
+					# 	"-2 {} -t -n -".format(
+					# 		self.samtools, self.filepath, ' '.join(map(str, regions)),
+					# 		self.samtools, temp1, temp2)
+					# self.logger.info(
+					# 	"Stripping paired reads with command: {}".format(
+					# 		command_line))
+					# subprocess.call(command_line, shell=True)
+					# temporary_fastqs.extend([temp1, temp2])
 					if repair_xmx == "None":
 						if compression == 0:
 							command_line = "{} in1={} in2={} out1={} out2={} " \
@@ -404,7 +569,29 @@ class BamFile():
 						out1 = os.path.join(
 							output_directory, "{}_{}.fastq".format(output_prefix, rg))
 					if compression != 0:
+						temp1 += ".gz"
 						out1 += ".gz"
+##### Finish this section
+					# Isolate chromosomes
+					command_line = "{} view -bh -o {} {} {}".format(
+						self.samtools, iso_bam, self.filepath, ' '.join(map(str, regions)))
+					self.logger.info(
+						"Isolating sex chroms into new bam with command: {}".format(
+							command_line))
+					subprocess.call(command_line, shell=True)
+					iso_bam_obj = BamFile(iso_bam, samtools=self.samtools)
+					temporary_bams.extend([iso_bam, iso_bam + ".bai"])
+					# Sort isolated bam by name
+					command_line = "{} sort -n -o {} {}".format(
+						self.samtools, iso_bam_qsort, iso_bam.filepath)
+					self.logger.info(
+						"Sorting isolated bam by query name with command: {}".format(
+							command_line))
+					subprocess.call(command_line, shell=True)
+					iso_bam_qsort_obj = BamFile(iso_bam_qsort, samtools=self.samtools)
+					temporary_bams.extend([iso_bam_qsort, iso_bam_qsort + ".bai"])
+
+
 					command_line = "{} view -b {} {} | {} bam2fq -t -n - > {}".format(
 						self.samtools, self.filepath, ' '.join(map(
 							str, regions)), self.samtools, temp1)
@@ -413,6 +600,7 @@ class BamFile():
 							command_line))
 					subprocess.call(command_line, shell=True)
 					temporary_fastqs.append(temp1)
+####### Through here
 					if repair_xmx == "None":
 						if compression == 0:
 							command_line = "{} in={} out={} name overwrite=true".format(
@@ -460,17 +648,63 @@ class BamFile():
 								out2 = os.path.join(
 									output_directory, "{}_{}_2.fastq".format(output_prefix, rg))
 								if compression != 0:
+									temp1 += ".gz"
+									temp2 += ".gz"
 									out1 += ".gz"
 									out2 += ".gz"
-								command_line = "{} view -R {} -b {} {} | {} bam2fq -1 {} "\
-									"-2 {} -t -n - ".format(
-										self.samtools, tmp_out, self.filepath, ' '.join(map(str, regions)),
-										self.samtools, temp1, temp2)
-								self.logger.info(
-									"Stripping paired reads with command: {}".format(
-										command_line))
-								subprocess.call(command_line, shell=True)
-								temporary_fastqs.extend([temp1, temp2])
+								if len(regions) < len(self.chromosome_names()):
+									# Isolate chromosomes
+									iso_bam_obj = self.extract_regions(regions, iso_bam, tmp_out)
+									# Sort isolated bam
+									iso_bam_sort_obj = iso_bam_obj.sort_bam(iso_bam_sort, query_name=True)
+									temporary_bams.extend([
+										iso_bam, iso_bam + ".bai",
+										iso_bam_sort, iso_bam_sort + ".bai"])
+									# Strip reads
+									if compression == 0:
+										command_line = "{} fastq -n -t -1 {} -2 {} {}".format(
+											self.samtools, temp1, temp2, iso_bam_sort_obj.filepath)
+									else:
+										command_line = "{} fastq -n -t -c {} -1 {} -2 {} {}".format(
+											self.samtools, compression, temp1, temp2, iso_bam_sort_obj.filepath)
+									self.logger.info(
+										"Stripping reads with command: {}".format(
+											command_line))
+									subprocess.call(command_line, shell=True)
+									temporary_fastqs.extend([temp1, temp2])
+								else:
+									# Isolate RG ID
+									iso_bam_obj = self.extract_read_group(iso_bam, tmp_out)
+									# Sort isolated bam
+									iso_bam_sort_obj = iso_bam_obj.sort_bam(iso_bam_sort, query_name=True)
+									temporary_bams.extend([
+										iso_bam, iso_bam + ".bai",
+										iso_bam_sort, iso_bam_sort + ".bai"])
+									# Strip all reads
+									self.logger.info(
+										"Length of region list same or greater than number of "
+										"chroms in bam, so stripping all reads")
+									if compression == 0:
+										command_line = "{} fastq -n -t -1 {} -2 {} {}".format(
+											self.samtools, temp1, temp2, iso_bam_sort_obj.filepath)
+									else:
+										command_line = "{} fastq -n -t -c {} -1 {} -2 {} {}".format(
+											self.samtools, compression, temp1, temp2, iso_bam_sort_obj.filepath)
+									self.logger.info(
+										"Stripping reads with command: {}".format(
+											command_line))
+									subprocess.call(command_line, shell=True)
+									temporary_fastqs.extend([temp1, temp2])
+
+								# command_line = "{} view -R {} -b {} {} | {} bam2fq -1 {} "\
+								# 	"-2 {} -t -n - ".format(
+								# 		self.samtools, tmp_out, self.filepath, ' '.join(map(str, regions)),
+								# 		self.samtools, temp1, temp2)
+								# self.logger.info(
+								# 	"Stripping paired reads with command: {}".format(
+								# 		command_line))
+								# subprocess.call(command_line, shell=True)
+								# temporary_fastqs.extend([temp1, temp2])
 								if repair_xmx == "None":
 									if compression == 0:
 										command_line = "{} in1={} in2={} out1={} out2={} " \
@@ -500,6 +734,7 @@ class BamFile():
 									output_directory, "{}.{}.temp.fastq".format(output_prefix, rg))
 								out1 = os.path.join(
 									output_directory, "{}_{}.fastq".format(output_prefix, rg))
+######### Finish this section
 								if compression != 0:
 									out1 += ".gz"
 								command_line = "{} view -R {} -b {} {} | " \
@@ -511,6 +746,7 @@ class BamFile():
 										command_line))
 								subprocess.call(command_line, shell=True)
 								temporary_fastqs.append(temp1)
+########## Through here
 								if repair_xmx == "None":
 									if compression == 0:
 										command_line = "{} in={} out={} name overwrite=true".format(
@@ -534,7 +770,7 @@ class BamFile():
 								# write line
 								ortab.write("{}\t{}\n".format(
 									rg, out1))
-		files_to_remove = temporary_fastqs + temporary_rg_files
+		files_to_remove = temporary_fastqs + temporary_rg_files + temporary_bams
 		if cleanup is True:
 			self.logger.info("Cleanup is True. Removing temporary files: {}".format(
 				",".join(files_to_remove)))
