@@ -4,6 +4,7 @@
 # Only listing changes since previous version/release
 
 Development Version (currently branch called noY_support)
+	* Fixed recent bug introduced by updates to samtools which did not output all reads when stripping reads from a subset of data
 	* Cleanup is default, but can be turned off with the flag --no_cleanup
 	* Fixed bug in inference of Y chromosome presence/absence
 	* Removed bwa indexing from ref_prep()

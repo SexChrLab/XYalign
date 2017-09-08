@@ -99,7 +99,20 @@ def teardown_module(function):
 		"swapped.temp.nosexchr.bam",
 		"swapped.temp.nosexchr.bam.bai",
 		"merged1.merged.bam",
-		"merged1.merged.bam.bai"]
+		"merged1.merged.bam.bai",
+		"toy.test_rg.temp.fastq.gz",
+		"toy_extracted.bam",
+		"toy_extracted.bam.bai",
+		"toy_extracted.sorted.bam",
+		"toy_extracted.sorted.bam.bai",
+		"toy_none_extracted.bam",
+		"toy_none_extracted.bam.bai",
+		"toy_none_extracted.sorted.bam",
+		"toy_none_extracted.sorted.bam.bai",
+		"toy_test_rg_extracted.bam",
+		"toy_test_rg_extracted.bam.bai",
+		"toy_test_rg_extracted.sorted.bam",
+		"toy_test_rg_extracted.sorted.bam.bai"]
 	for file_name in teardown_files:
 		if os.path.exists(os.path.join(dir, file_name)):
 			os.remove(os.path.join(dir, file_name))
