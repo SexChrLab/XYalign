@@ -342,7 +342,7 @@ def output_bed(outBed, *regionDfs):
 
 def chromosome_wide_plot(
 	chrom, positions, y_value, measure_name, sampleID, output_prefix,
-	MarkerSize, MarkerAlpha, Xlim, Ylim):
+	MarkerSize, MarkerAlpha, Xlim, Ylim, x_scale=1000000):
 	"""
 	Plots values across a chromosome, where the x axis is the position along the
 	chromosome and the Y axis is the value of the measure of interest.
@@ -370,6 +370,8 @@ def chromosome_wide_plot(
 		Maximum X value
 	Ylim : float
 		Maximum Y value
+	x_scale : int
+		Divide all x values (including Xlim) by this value. Default is 1000000 (1MB)
 
 	Returns
 	-------
@@ -386,12 +388,21 @@ def chromosome_wide_plot(
 		Color = "red"
 	fig = plt.figure(figsize=(15, 5))
 	axes = fig.add_subplot(111)
+	positions = np.divide(positions, float(x_scale))
 	axes.scatter(
 		positions, y_value, c=Color, alpha=MarkerAlpha, s=MarkerSize, lw=0)
-	axes.set_xlim(0, Xlim)
+	axes.set_xlim(0, (Xlim / float(x_xcale)))
 	axes.set_ylim(0, Ylim)
 	axes.set_title("%s - %s" % (sampleID, chrom))
-	axes.set_xlabel("Chromosomal Position")
+	if x_scale == 1000000:
+		scale_label = "(MB)"
+	elif x_scale == 1000:
+		scale_label = "(KB)"
+	elif x_scale == 1:
+		scale_label = "(BP)"
+	else:
+		scale_label = "(divided by {})".formatt(x_scale)
+	axes.set_xlabel("Chromosomal Position {}".format(scale_label))
 	axes.set_ylabel(measure_name)
 	plt.savefig("{}_{}_{}_GenomicScatter.svg".format(
 		output_prefix, chrom, measure_name))
@@ -457,7 +468,8 @@ def hist_array(chrom, value_array, measure_name, sampleID, output_prefix):
 
 
 def plot_depth_mapq(
-	window_df, output_prefix, sampleID, chrom_length, MarkerSize, MarkerAlpha):
+	window_df, output_prefix, sampleID, chrom_length, MarkerSize,
+	MarkerAlpha, x_scale=1000000):
 	"""
 	Creates histograms and genome-wide plots of various metrics.
 
@@ -472,6 +484,9 @@ def plot_depth_mapq(
 		Sample ID
 	chrom_length: int
 		Length of chromosome
+	x_scale : int
+		Divide all x values (including Xlim) by this value for chromosome_wide_plot.
+		Default is 1000000 (1MB)
 
 	Returns
 	-------
@@ -489,7 +504,7 @@ def plot_depth_mapq(
 			chromosome, window_df["start"].values, window_df["depth"].values,
 			"Depth", sampleID, output_prefix,
 			MarkerSize, MarkerAlpha,
-			chrom_length, 100)
+			chrom_length, 100, x_scale)
 		hist_array(
 			chromosome, window_df["depth"], "Depth", sampleID, output_prefix)
 
@@ -497,7 +512,7 @@ def plot_depth_mapq(
 		chromosome_wide_plot(
 			chromosome, window_df["start"].values, window_df["mapq"].values,
 			"Mapq", sampleID, output_prefix,
-			MarkerSize, MarkerAlpha, chrom_length, 80)
+			MarkerSize, MarkerAlpha, chrom_length, 80, x_scale)
 		hist_array(
 			chromosome, window_df["mapq"], "Mapq", sampleID, output_prefix)
 

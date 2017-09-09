@@ -245,7 +245,7 @@ class VCFFile():
 	def plot_variants_per_chrom(
 		self, chrom_list, sampleID, output_prefix, site_qual, genotype_qual,
 		depth, MarkerSize, MarkerAlpha, bamfile_obj, variant_caller, homogenize,
-		dataframe_out, min_count, window_size, target_file=None):
+		dataframe_out, min_count, window_size, x_scale=1000000, target_file=None):
 		"""
 		Parses a vcf file and plots read balance in separate plots
 		for each chromosome in the input list
@@ -284,6 +284,8 @@ class VCFFile():
 		window_size
 			If int, the window size to use for sliding window analyses, if None
 			intervals from target_file
+		x_scale : int
+			Divide all x values (including Xlim) by this value. Default is 1000000 (1MB)
 		target_file : str
 			Path to bed_file containing regions to analyze instead of
 			windows of a fixed size. Will only be engaged if window_size is None
@@ -316,7 +318,7 @@ class VCFFile():
 				plot_read_balance(
 					i, parse_results[0], parse_results[2],
 					sampleID, output_prefix, MarkerSize,
-					MarkerAlpha, homogenize, chrom_len)
+					MarkerAlpha, homogenize, chrom_len, x_scale)
 				hist_read_balance(
 					i, parse_results[2], sampleID, homogenize, output_prefix)
 				rb_df = read_balance_per_window(
@@ -326,12 +328,12 @@ class VCFFile():
 				utils.chromosome_wide_plot(
 					i, rb_df["start"].values, rb_df["count"], "Window_Variant_Count",
 					sampleID, output_prefix, MarkerSize, MarkerAlpha,
-					chrom_len, rb_df["count"].max())
+					chrom_len, rb_df["count"].max(), x_scale)
 				rb_df = rb_df[rb_df["count"] >= min_count]
 				utils.chromosome_wide_plot(
 					i, rb_df["start"].values, rb_df["balance"], "Window_Read_Balance",
 					sampleID, output_prefix, MarkerSize, MarkerAlpha,
-					chrom_len, 1.0)
+					chrom_len, 1.0, x_scale)
 		all_concat = pd.concat(all_df)
 		all_concat.to_csv(
 			dataframe_out, index=False, sep="\t", quoting=csv.QUOTE_NONE)
@@ -586,7 +588,7 @@ def read_balance_per_window(
 
 def plot_read_balance(
 	chrom, positions, readBalance, sampleID, output_prefix, MarkerSize,
-	MarkerAlpha, homogenize, chrom_len):
+	MarkerAlpha, homogenize, chrom_len, x_scale=1000000):
 	"""
 	Plots read balance at each SNP along a chromosome
 
@@ -613,6 +615,8 @@ def plot_read_balance(
 		0.75 would be treated as equivalent.
 	chrom_len : int
 		Length of chromosome
+	x_scale : int
+		Divide all x values (including Xlim) by this value. Default is 1000000 (1MB)
 
 	Returns
 	-------
@@ -630,11 +634,20 @@ def plot_read_balance(
 		Color = "red"
 	fig = plt.figure(figsize=(15, 5))
 	axes = fig.add_subplot(111)
+	positions = np.divide(positions, float(x_scale))
 	axes.scatter(
 		positions, readBalance, c=Color, alpha=MarkerAlpha, s=MarkerSize, lw=0)
-	axes.set_xlim(0, chrom_len)
+	axes.set_xlim(0, (chrom_len / float(x_xcale)))
 	axes.set_title(sampleID)
-	axes.set_xlabel("Chromosomal Coordinate")
+	if x_scale == 1000000:
+		scale_label = "(MB)"
+	elif x_scale == 1000:
+		scale_label = "(KB)"
+	elif x_scale == 1:
+		scale_label = "(BP)"
+	else:
+		scale_label = "(divided by {})".formatt(x_scale)
+	axes.set_xlabel("Chromosomal Position {}".format(scale_label))
 	axes.set_ylabel("Read Balance")
 	# print(len(positions))
 	plt.savefig("{}_{}_ReadBalance_GenomicScatter.svg".format(
