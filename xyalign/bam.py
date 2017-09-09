@@ -286,7 +286,7 @@ class BamFile():
 				"Sorting {} by coordinate with command: {}".format(
 					self.filepath, command_line))
 		subprocess.call(command_line, shell=True)
-		sorted_bam_obj = BamFile(sorted_bam, self.samtools)
+		sorted_bam_obj = BamFile(sorted_bam, self.samtools, no_initial_index=True)
 		return sorted_bam_obj
 
 	def extract_regions(
@@ -325,7 +325,7 @@ class BamFile():
 				"using the command: {}".format(
 					self.filepath, rg_id, new_bam, command_line))
 		subprocess.call(command_line, shell=True)
-		new_bam_obj = BamFile(new_bam, self.samtools)
+		new_bam_obj = BamFile(new_bam, self.samtools, no_initial_index=True)
 		return new_bam_obj
 
 	def extract_read_group(
