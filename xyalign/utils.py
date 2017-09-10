@@ -391,7 +391,7 @@ def chromosome_wide_plot(
 	positions = np.divide(positions, float(x_scale))
 	axes.scatter(
 		positions, y_value, c=Color, alpha=MarkerAlpha, s=MarkerSize, lw=0)
-	axes.set_xlim(0, (Xlim / float(x_xcale)))
+	axes.set_xlim(0, (Xlim / float(x_scale)))
 	axes.set_ylim(0, Ylim)
 	axes.set_title("%s - %s" % (sampleID, chrom))
 	if x_scale == 1000000:

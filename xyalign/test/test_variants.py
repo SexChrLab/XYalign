@@ -83,7 +83,7 @@ def test_VCFFile():
 	a = test_vcf.plot_variants_per_chrom(
 		["chr19"], "test", os.path.join(dir, "plot_test"), 30, 30, 8, 4, 0.5,
 		bam.BamFile(os.path.join(dir, "hg19_header.bam")), "platypus", True,
-		os.path.join(dir, "hg19_header_rb.csv"), 1, 10000)
+		os.path.join(dir, "hg19_header_rb.csv"), 1, 10000, 1)
 	assert os.path.exists(
 		os.path.join(dir, "plot_test_chr19_ReadBalance_GenomicScatter.png"))
 	assert os.path.exists(

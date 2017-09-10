@@ -10,7 +10,6 @@ import time
 import pysam
 import bam
 import utils
-import cyvcf2
 import numpy as np
 import pandas as pd
 # Matplotlib needs to be called in this way to set the display variable
@@ -637,7 +636,7 @@ def plot_read_balance(
 	positions = np.divide(positions, float(x_scale))
 	axes.scatter(
 		positions, readBalance, c=Color, alpha=MarkerAlpha, s=MarkerSize, lw=0)
-	axes.set_xlim(0, (chrom_len / float(x_xcale)))
+	axes.set_xlim(0, (chrom_len / float(x_scale)))
 	axes.set_title(sampleID)
 	if x_scale == 1000000:
 		scale_label = "(MB)"
