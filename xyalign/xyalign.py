@@ -595,6 +595,7 @@ def ref_prep(
 	tuple
 		Paths to two masked references (y_masked, y_unmasked)
 	"""
+	logger = logging.getLogger("xyalign")
 	# Combine masks, if more than one present
 	if ref_mask is not None:
 		if len(ref_mask) > 1:
@@ -650,6 +651,7 @@ def chrom_stats(bam_obj_list, chrom_list):
 	-------
 
 	"""
+	logger = logging.getLogger("xyalign")
 	logger.info(
 		"Running CHROM_STATS on following bam files: {}".format(
 			", ".join([x.filepath for x in bam_obj_list])))
@@ -801,6 +803,7 @@ def bam_analysis(
 		(list of pandas dataframes with passing windows,
 		list of pandas dataframes with failing windows)
 	"""
+	logger = logging.getLogger("xyalign")
 	# Depth/MAPQ
 	if no_bam_analysis is not True:
 		all_df = []
