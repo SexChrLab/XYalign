@@ -351,7 +351,7 @@ class VCFFile():
 			self.logger.info(
 				"Read balance plotting complete. Elapsed time: {} seconds".format(
 					time.time() - plot_start))
-					return 0
+			return 0
 
 
 def read_balance_per_window(
