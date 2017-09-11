@@ -656,7 +656,7 @@ def chrom_stats(bam_obj_list, chrom_list):
 		"Running CHROM_STATS on following bam files: {}".format(
 			", ".join([x.filepath for x in bam_obj_list])))
 
-	comp_check = check_compatibility_bam_list(bam_obj_list)
+	comp_check = utils.check_compatibility_bam_list(bam_obj_list)
 	if comp_check is False:
 		logger.error(
 			"Bam files incompatible - ensure same reference used for all files "

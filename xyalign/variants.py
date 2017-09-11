@@ -292,7 +292,7 @@ class VCFFile():
 		Returns
 		-------
 		int
-			0
+			0 if variants to analyze; 1 if no variants to analyze on any chromosome
 
 		"""
 		plot_start = time.time()
@@ -333,20 +333,25 @@ class VCFFile():
 					i, rb_df["start"].values, rb_df["balance"], "Window_Read_Balance",
 					sampleID, output_prefix, MarkerSize, MarkerAlpha,
 					chrom_len, 1.0, x_scale)
-		all_concat = pd.concat(all_df)
-		all_concat.to_csv(
-			dataframe_out, index=False, sep="\t", quoting=csv.QUOTE_NONE)
-		if len(no_sites) >= 1:
-			self.logger.info(
-				"No variants passing filters on the following chromosomes: {}".format(
-					" ".join(no_sites)))
+		if len(all_df) < 1:
+			self.logger.error(
+				"No chromosomes with any variants present")
+			return 1
 		else:
+			all_concat = pd.concat(all_df)
+			all_concat.to_csv(
+				dataframe_out, index=False, sep="\t", quoting=csv.QUOTE_NONE)
+			if len(no_sites) >= 1:
+				self.logger.info(
+					"No variants passing filters on the following chromosomes: {}".format(
+						" ".join(no_sites)))
+			else:
+				self.logger.info(
+					"All chromosomes had variant sites passing filters.")
 			self.logger.info(
-				"All chromosomes had variant sites passing filters.")
-		self.logger.info(
-			"Read balance plotting complete. Elapsed time: {} seconds".format(
-				time.time() - plot_start))
-		return 0
+				"Read balance plotting complete. Elapsed time: {} seconds".format(
+					time.time() - plot_start))
+					return 0
 
 
 def read_balance_per_window(

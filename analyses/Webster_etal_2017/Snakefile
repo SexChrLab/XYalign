@@ -123,27 +123,27 @@ rule all:
 		expand(
 			"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
 			sample=human_list),
-		expand(
-			"processed_bams/{sample}.hg19.mkdup.sorted.merged.bam",
-			sample=gorilla_list),
-		expand(
-			"processed_bams/{sample}.hg19.mkdup.sorted.merged.bam.bai",
-			sample=gorilla_list),
-		expand(
-			"processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam",
-			sample=gorilla_list),
-		expand(
-			"processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam.bai",
-			sample=gorilla_list),
+		# expand(
+		# 	"processed_bams/{sample}.hg19.mkdup.sorted.merged.bam",
+		# 	sample=gorilla_list),
+		# expand(
+		# 	"processed_bams/{sample}.hg19.mkdup.sorted.merged.bam.bai",
+		# 	sample=gorilla_list),
+		# expand(
+		# 	"processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam",
+		# 	sample=gorilla_list),
+		# expand(
+		# 	"processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam.bai",
+		# 	sample=gorilla_list),
 		expand(
 			"xyalign_analyses/hg19/logfiles/{sample}_hg19_xyalign.log",
 			sample=human_list),
-		expand(
-			"xyalign_analyses/hg19/logfiles/{sample}_hg19_gorilla_xyalign.log",
-			sample=gorilla_list),
-		expand(
-			"xyalign_analyses/gorgor4/logfiles/{sample}_gorgor4_xyalign.log",
-			sample=gorilla_list),
+		# expand(
+		# 	"xyalign_analyses/hg19/logfiles/{sample}_hg19_gorilla_xyalign.log",
+		# 	sample=gorilla_list),
+		# expand(
+		# 	"xyalign_analyses/gorgor4/logfiles/{sample}_gorgor4_xyalign.log",
+		# 	sample=gorilla_list),
 		expand(
 			"xyalign_analyses/thousand_genomes/logfiles/{sample}_1000genomes_xyalign.log",
 			sample=thousand_list),
@@ -152,10 +152,10 @@ rule all:
 			sample=thousand_list),
 		"xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_mapq.txt",
 		"xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_depth.txt",
-		"xyalign_analyses/chrom_stats/results/hg19_gorilla_chrom_stats_mapq.txt",
-		"xyalign_analyses/chrom_stats/results/hg19_gorilla_chrom_stats_depth.txt",
-		"xyalign_analyses/chrom_stats/results/gorgor4_chrom_stats_mapq.txt",
-		"xyalign_analyses/chrom_stats/results/gorgor4_chrom_stats_depth.txt",
+		# "xyalign_analyses/chrom_stats/results/hg19_gorilla_chrom_stats_mapq.txt",
+		# "xyalign_analyses/chrom_stats/results/hg19_gorilla_chrom_stats_depth.txt",
+		# "xyalign_analyses/chrom_stats/results/gorgor4_chrom_stats_mapq.txt",
+		# "xyalign_analyses/chrom_stats/results/gorgor4_chrom_stats_depth.txt",
 		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_mapq.txt",
 		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_depth.txt"
 
