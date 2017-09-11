@@ -259,16 +259,17 @@ def parse_args():
 		"sample_id argument provided")
 
 	parser.add_argument(
-		"--homogenize_read_balance", type=bool, default=True,
+		"--homogenize_read_balance", type=bool, default=False,
 		help="If True, read balance values will be transformed by subtracting "
 		"each value from 1. For example, 0.25 and 0.75 would be treated "
-		"equivalently. Default is True.")
+		"equivalently. Default is False.")
 
 	parser.add_argument(
-		"--min_variant_count", type=int, default=2,
+		"--min_variant_count", type=int, default=1,
 		help="Minimum number of variants in a window for the read balance of "
 		"that window to be plotted. Note that this does not affect plotting "
-		"of variant counts. Default is 2.")
+		"of variant counts. Default is 1, though we note that many window "
+		"averages will be meaningless at this setting.")
 
 	# Reference-related Flags
 	parser.add_argument(

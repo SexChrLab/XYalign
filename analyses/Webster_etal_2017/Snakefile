@@ -43,8 +43,8 @@ and using snakemake to run the snakefile.
 # Update configfile if not in same directory
 configfile: "Webster_etal_2017_xyalign.config.json"
 
-# Path to xyalign.py
-xyalign_path =
+# Path to XYalign
+xyalign_path = "xyalign"
 
 # Name of anaconda XYalign environment (for running xyalign analysis rules)
 # See: http://xyalign.readthedocs.io/en/latest/installation.html for more information
@@ -82,8 +82,8 @@ gorilla_fastq_directory =
 # Path to 1000 genomes bam files (the 24 individuals)
 thousand_genomes_bam_directory =
 
-# Path to hg19 reference mask (located in the XYalign/Files/PARs directory)
-hg19_reference_mask_path = "../../Files/PARs/hg19_PAR_Ymask_startEnd.bed"
+# Path to hg19 reference mask (also located in the XYalign/Files/PARs directory)
+hg19_reference_mask_path = "misc/hg19_PAR_Ymask_startEnd.bed"
 
 # Paths to tools used in the pipeline
 rename_sh_path = "rename.sh"
@@ -113,19 +113,51 @@ thousand_list = [
 	"HG00759.wgs.ILLUMINA.bwa.CDX", "NA20845.wgs.ILLUMINA.bwa.GIH",
 	"HG01595.wgs.ILLUMINA.bwa.KHV", "HG01565.wgs.ILLUMINA.bwa.PEL"]
 
+hg19_list = human_list + gorilla_list
+
 rule all:
 	input:
-		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam", sample=human_list),
-		expand("processed_bams/{sample}.hg19.mkdup.sorted.bam.bai", sample=human_list),
-		expand("processed_bams/{sample}.hg19.mkdup.sorted.merged.bam", sample=gorilla_list),
-		expand("processed_bams/{sample}.hg19.mkdup.sorted.merged.bam.bai", sample=gorilla_list),
-		expand("processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam", sample=gorilla_list),
-		expand("processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam.bai", sample=gorilla_list),
-		expand("xyalign_analyses/logfiles/{sample}_hg19_xyalign.log", sample=human_list),
-		expand("xyalign_analyses/logfiles/{sample}_hg19_gorilla_xyalign.log", sample=gorilla_list),
-		expand("xyalign_analyses/logfiles/{sample}_gorgor4_xyalign.log", sample=gorilla_list),
-		expand("xyalign_analyses/logfiles/{sample}_1000genomes_xyalign.log", sample=thousand_list),
-		expand(thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai", sample=thousand_list)
+		expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.bam",
+			sample=human_list),
+		expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
+			sample=human_list),
+		expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.merged.bam",
+			sample=gorilla_list),
+		expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.merged.bam.bai",
+			sample=gorilla_list),
+		expand(
+			"processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam",
+			sample=gorilla_list),
+		expand(
+			"processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam.bai",
+			sample=gorilla_list),
+		expand(
+			"xyalign_analyses/hg19/logfiles/{sample}_hg19_xyalign.log",
+			sample=human_list),
+		expand(
+			"xyalign_analyses/hg19/logfiles/{sample}_hg19_gorilla_xyalign.log",
+			sample=gorilla_list),
+		expand(
+			"xyalign_analyses/gorgor4/logfiles/{sample}_gorgor4_xyalign.log",
+			sample=gorilla_list),
+		expand(
+			"xyalign_analyses/thousand_genomes/logfiles/{sample}_1000genomes_xyalign.log",
+			sample=thousand_list),
+		expand(
+			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
+			sample=thousand_list),
+		"xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_mapq.txt",
+		"xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_depth.txt",
+		"xyalign_analyses/chrom_stats/results/hg19_gorilla_chrom_stats_mapq.txt",
+		"xyalign_analyses/chrom_stats/results/hg19_gorilla_chrom_stats_depth.txt",
+		"xyalign_analyses/chrom_stats/results/gorgor4_chrom_stats_mapq.txt",
+		"xyalign_analyses/chrom_stats/results/gorgor4_chrom_stats_depth.txt",
+		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_mapq.txt",
+		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_depth.txt"
 
 rule prepare_reference_hg19:
 	input:
@@ -737,13 +769,48 @@ rule merge_Victoria_gorgor4:
 		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
 		shell("{params.samtools} index {output.bam}")
 
+rule xyalign_prepare_hg19_reference:
+	input:
+		ref = hg19_ref_path,
+		fai = hg19_ref_path + ".fai"
+	output:
+		xx = "xyalign_analyses/hg19/reference/hg19.XXonly.fasta",
+		xy = "xyalign_analyses/hg19/reference/hg19.XY.fasta"
+	params:
+		conda_env = xyalign_anaconda_env,
+		xyalign = xyalign_path,
+		output_dir = "xyalign_analyses/hg19/",
+		ref_mask = hg19_reference_mask_path
+	threads:
+		4
+	shell:
+		"source activate xyalign_env && {params.xyalign} --PREPARE_REFERENCE --ref {input.ref} --xx_ref_out {output.xx} --xy_ref_out {output.xy} --output_dir {params.output_dir} --x_chromosome chrX --y_chromosome chrY"
+
+rule xyalign_prepare_gorgor4_reference:
+	input:
+		ref = gorgor4_ref_path,
+		fai = gorgor4_ref_path + ".fai"
+	output:
+		xx = "xyalign_analyses/gorgor4/reference/gorgor4.XXonly.fasta",
+		xy = "xyalign_analyses/gorgor4/reference/gorgor4.XY.fasta"
+	params:
+		conda_env = xyalign_anaconda_env,
+		xyalign = xyalign_path,
+		output_dir = "xyalign_analyses/gorgor4/"
+	threads:
+		4
+	shell:
+		"source activate xyalign_env && {params.xyalign} --PREPARE_REFERENCE --ref {input.ref} --xx_ref_out {output.xx} --xy_ref_out {output.xy} --output_dir {params.output_dir} --x_chromosome chrX"
+
 rule xyalign_hg19_analysis_human:
 	input:
 		bam = "processed_bams/{sample}.hg19.mkdup.sorted.bam",
 		idx = "processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
-		ref = hg19_ref_path
+		ref = hg19_ref_path,
+		xx_in = "xyalign_analyses/hg19/reference/hg19.XXonly.fasta",
+		xy_in = "xyalign_analyses/hg19/reference/hg19.XY.fasta"
 	output:
-		"xyalign_analyses/logfiles/{sample}_hg19_xyalign.log"
+		"xyalign_analyses/hg19/logfiles/{sample}_hg19_xyalign.log"
 	params:
 		xyalign = xyalign_path,
 		sample_id = "{sample}_hg19",
@@ -753,15 +820,17 @@ rule xyalign_hg19_analysis_human:
 		xy_ref_out = "{sample}_xyalign_withY.masked.fa"
 	threads: 4
 	shell:
-		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY --xx_ref_out {params.xx_ref_out} --xy_ref_out {params.xy_ref_out}"
+		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/hg19 --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY --xmx 4g --fastq_compression 4 --xx_ref_out {params.xx_ref_out} --xy_ref_out {params.xy_ref_out}"
 
 rule xyalign_hg19_analysis_gorilla:
 	input:
 		bam = "processed_bams/{sample}.hg19.mkdup.sorted.merged.bam",
 		idx = "processed_bams/{sample}.hg19.mkdup.sorted.merged.bam.bai",
-		ref = hg19_ref_path
+		ref = hg19_ref_path,
+		xx_in = "xyalign_analyses/hg19/reference/hg19.XXonly.fasta",
+		xy_in = "xyalign_analyses/hg19/reference/hg19.XY.fasta"
 	output:
-		"xyalign_analyses/logfiles/{sample}_hg19_gorilla_xyalign.log"
+		"xyalign_analyses/hg19/logfiles/{sample}_hg19_gorilla_xyalign.log"
 	params:
 		xyalign = xyalign_path,
 		sample_id = "{sample}_hg19_gorilla",
@@ -769,7 +838,7 @@ rule xyalign_hg19_analysis_gorilla:
 		conda_env = xyalign_anaconda_env
 	threads: 4
 	shell:
-		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY --CHARACTERIZE_SEX_CHROMS"
+		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/hg19 --sample_id {params.sample_id} --cpus {threads} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY --CHARACTERIZE_SEX_CHROMS"
 
 rule xyalign_gorgor4_analysis:
 	input:
@@ -777,14 +846,14 @@ rule xyalign_gorgor4_analysis:
 		idx = "processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam.bai",
 		ref = gorgor4_ref_path
 	output:
-		"xyalign_analyses/logfiles/{sample}_gorgor4_xyalign.log"
+		"xyalign_analyses/gorgor4/logfiles/{sample}_gorgor4_xyalign.log"
 	params:
 		xyalign = xyalign_path,
 		sample_id = "{sample}_gorgor4",
 		conda_env = xyalign_anaconda_env
 	threads: 4
 	shell:
-		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --window_size 5000 --chromosomes chr19 chrX --x_chromosome chrX --CHARACTERIZE_SEX_CHROMS"
+		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/gorgor4 --sample_id {params.sample_id} --cpus {threads} --window_size 5000 --chromosomes chr19 chrX --x_chromosome chrX --CHARACTERIZE_SEX_CHROMS"
 
 rule xyalign_1000genomes_analysis:
 	input:
@@ -792,11 +861,81 @@ rule xyalign_1000genomes_analysis:
 		idx = thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
 		ref = thousand_genomes_ref_path
 	output:
-		"xyalign_analyses/logfiles/{sample}_1000genomes_xyalign.log"
+		"xyalign_analyses/thousand_genomes/logfiles/{sample}_1000genomes_xyalign.log"
 	params:
 		xyalign = xyalign_path,
 		sample_id = "{sample}_1000genomes",
 		conda_env = xyalign_anaconda_env
 	threads: 4
 	shell:
-		"source activate xyalign_env && python {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses --sample_id {params.sample_id} --cpus {threads} --window_size 5000 --chromosomes 19 X Y --x_chromosome X --y_chromosome Y --CHARACTERIZE_SEX_CHROMS"
+		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/thousand_genomes --sample_id {params.sample_id} --cpus {threads} --window_size 5000 --chromosomes 19 X Y --x_chromosome X --y_chromosome Y --CHARACTERIZE_SEX_CHROMS"
+
+rule chrom_stats_hg19_human:
+	input:
+		bams = expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.bam",
+			sample=human_list),
+		bais = expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
+			sample=human_list)
+	output:
+		mapqs = "xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_mapq.txt",
+		depth = "xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_depth.txt"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "hg19_human",
+		conda_env = xyalign_anaconda_env
+	shell:
+		"source activate xyalign_env && {params.xyalign} --bam {input.bams} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
+
+rule chrom_stats_hg19_gorilla:
+	input:
+		bams = expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.merged.bam",
+			sample=gorilla_list),
+		bais = expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.merged.bam",
+			sample=gorilla_list)
+	output:
+		mapqs = "xyalign_analyses/chrom_stats/results/hg19_gorilla_chrom_stats_mapq.txt",
+		depth = "xyalign_analyses/chrom_stats/results/hg19_gorilla_chrom_stats_depth.txt"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "hg19_gorilla",
+		conda_env = xyalign_anaconda_env
+	shell:
+		"source activate xyalign_env && {params.xyalign} --bam {input.bams} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
+
+rule chrom_stats_gorgor4:
+	input:
+		bams = expand(
+			"processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam", sample=gorilla_list),
+		bais = expand(
+			"processed_bams/{sample}.gorgor4.mkdup.sorted.merged.bam.bai", sample=gorilla_list)
+	output:
+		mapqs = "xyalign_analyses/chrom_stats/results/gorgor4_chrom_stats_mapq.txt",
+		depth = "xyalign_analyses/chrom_stats/results/gorgor4_chrom_stats_depth.txt"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "gorgor4",
+		conda_env = xyalign_anaconda_env
+	shell:
+		"source activate xyalign_env && {params.xyalign} --bam {input.bams} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
+
+rule chrom_stats_thousand_genomes:
+	input:
+		bams = expand(
+			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam",
+			sample=thousand_list),
+		bais = expand(
+			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
+			sample=thousand_list)
+	output:
+		mapqs = "xyalign_analyses/chrom_stats/results/thousand_chrom_stats_mapq.txt",
+		depth = "xyalign_analyses/chrom_stats/results/thousand_chrom_stats_depth.txt"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "thousand",
+		conda_env = xyalign_anaconda_env
+	shell:
+		"source activate xyalign_env && {params.xyalign} --bam {input.bams} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
