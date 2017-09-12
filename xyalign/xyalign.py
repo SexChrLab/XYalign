@@ -686,8 +686,8 @@ def chrom_stats(bam_obj_list, chrom_list):
 		chrom_depth_dict[chromosome], chrom_mapq_dict[chromosome] = zip(
 			*chrom_results)
 
-		chrom_depth_dict[chromosome].insert(0, chromosome)
-		chrom_mapq_dict[chromosome].insert(0, chromosome)
+		chrom_depth_dict[chromosome] = (chromosome,) + chrom_depth_dict[chromosome]
+		chrom_mapq_dict[chromosome] = (chromosome,) + chrom_mapq_dict[chromosome]
 
 	return (chrom_depth_dict, chrom_mapq_dict)
 
