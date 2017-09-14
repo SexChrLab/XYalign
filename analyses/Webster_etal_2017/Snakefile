@@ -886,7 +886,7 @@ rule chrom_stats_hg19_human:
 		sample_id = "hg19_human",
 		conda_env = xyalign_anaconda_env
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
 
 rule chrom_stats_hg19_gorilla:
 	input:
@@ -904,7 +904,7 @@ rule chrom_stats_hg19_gorilla:
 		sample_id = "hg19_gorilla",
 		conda_env = xyalign_anaconda_env
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
 
 rule chrom_stats_gorgor4:
 	input:
@@ -920,7 +920,7 @@ rule chrom_stats_gorgor4:
 		sample_id = "gorgor4",
 		conda_env = xyalign_anaconda_env
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
 
 rule chrom_stats_thousand_genomes:
 	input:
@@ -938,4 +938,4 @@ rule chrom_stats_thousand_genomes:
 		sample_id = "thousand",
 		conda_env = xyalign_anaconda_env
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
