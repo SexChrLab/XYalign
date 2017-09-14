@@ -1403,14 +1403,17 @@ def main():
 			bam_obj_list=bam_list,
 			chrom_list=args.chromosomes)
 
+		cs_depth_dict = chrom_stats_results[0]
+		cs_mapq_dict = chrom_stats_results[1]
+
 		with open(chrom_stats_depth, "w") as f:
-			for i in chrom_stats_results[0]:
-				out_line = "\t".join(i)
+			for i in cs_depth_dict:
+				out_line = "\t".join([str(x) for x in cs_depth_dict[i]])
 				f.write("{}\n".format(out_line))
 
 		with open(chrom_stats_mapq, "w") as f:
-			for i in chrom_stats_results[1]:
-				out_line = "\t".join(i)
+			for i in cs_mapq_dict:
+				out_line = "\t".join([str(x) for x in cs_mapq_dict[i]])
 				f.write("{}\n".format(out_line))
 
 		logger.info("CHROM_STATS complete.")
@@ -1881,6 +1884,7 @@ def main():
 			time.time() - xyalign_start))
 		logging.shutdown()
 		sys.exit(0)
+
 
 if __name__ == "__main__":
 	main()

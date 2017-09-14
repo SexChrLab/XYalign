@@ -7,8 +7,6 @@ import gzip
 import logging
 import subprocess
 import time
-import pysam
-import bam
 import utils
 import numpy as np
 import pandas as pd

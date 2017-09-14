@@ -9,8 +9,6 @@ import subprocess
 import numpy as np
 import pandas as pd
 import pybedtools
-import pysam
-import sys
 import time
 # Matplotlib needs to be called in this way to set the display variable
 import matplotlib
