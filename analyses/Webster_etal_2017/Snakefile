@@ -884,9 +884,10 @@ rule chrom_stats_hg19_human:
 	params:
 		xyalign = xyalign_path,
 		sample_id = "hg19_human",
-		conda_env = xyalign_anaconda_env
+		conda_env = xyalign_anaconda_env,
+		logfile = "hg19_human_chrom_stats.logfile"
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --chromosomes chr1 chr8 chr19 chrX chrY chrM --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
 
 rule chrom_stats_hg19_gorilla:
 	input:
@@ -902,9 +903,10 @@ rule chrom_stats_hg19_gorilla:
 	params:
 		xyalign = xyalign_path,
 		sample_id = "hg19_gorilla",
-		conda_env = xyalign_anaconda_env
+		conda_env = xyalign_anaconda_env,
+		logfile = "hg19_gorilla_chrom_stats.logfile"
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --chromosomes chr1 chr8 chr19 chrX chrY chrM --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
 
 rule chrom_stats_gorgor4:
 	input:
@@ -918,7 +920,8 @@ rule chrom_stats_gorgor4:
 	params:
 		xyalign = xyalign_path,
 		sample_id = "gorgor4",
-		conda_env = xyalign_anaconda_env
+		conda_env = xyalign_anaconda_env,
+		logfile = "gorgor4_chrom_stats.logfile"
 	shell:
 		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
 
@@ -936,6 +939,7 @@ rule chrom_stats_thousand_genomes:
 	params:
 		xyalign = xyalign_path,
 		sample_id = "thousand",
-		conda_env = xyalign_anaconda_env
+		conda_env = xyalign_anaconda_env,
+		logfile = "thousand_chrom_stats.logfile"
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --chromosomes 1 8 19 X Y M --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats --chromosomes ALL"
