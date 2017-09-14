@@ -680,6 +680,10 @@ def chrom_stats(bam_obj_list, chrom_list):
 
 	chrom_depth_dict["header"] = [
 		os.path.basename(x.filepath) for x in bam_obj_list]
+	chrom_depth_dict["header"].insert(0, "chrom")
+	chrom_mapq_dict["header"] = [
+		os.path.basename(x.filepath) for x in bam_obj_list]
+	chrom_mapq_dict["header"].insert(0, "chrom")
 	for chromosome in chrom_list:
 		chrom_results = [
 			x.chrom_stats(chromosome, False) for x in bam_obj_list]
