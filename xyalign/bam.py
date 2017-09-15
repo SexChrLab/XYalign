@@ -860,6 +860,7 @@ class BamFile():
 		analyze_start = time.time()
 		samfile = pysam.AlignmentFile(self.filepath, "rb")
 		chr_len = self.get_chrom_length(chrom)
+		no_query_len = 0
 
 		if window_size is not None:
 			self.logger.info(
@@ -888,7 +889,11 @@ class BamFile():
 					for read in samfile.fetch(chrom, start, end):
 						if read.is_secondary is False:
 							if read.is_supplementary is False:
-								total_read_length += read.infer_query_length()
+								try:
+									total_read_length += read.infer_query_length()
+								except TypeError:
+									no_query_len += 1
+									continue
 								mapq.append(read.mapping_quality)
 					start_list.append(start)
 					stop_list.append(end)
@@ -916,7 +921,11 @@ class BamFile():
 						if read.is_secondary is False:
 							if read.is_supplementary is False:
 								if read.is_duplicate is False:
-									total_read_length += read.infer_query_length()
+									try:
+										total_read_length += read.infer_query_length()
+									except TypeError:
+										no_query_len += 1
+										continue
 									mapq.append(read.mapping_quality)
 					start_list.append(start)
 					stop_list.append(end)
@@ -966,7 +975,11 @@ class BamFile():
 					for read in samfile.fetch(window[0], start, end):
 						if read.is_secondary is False:
 							if read.is_supplementary is False:
-								total_read_length += read.infer_query_length()
+								try:
+									total_read_length += read.infer_query_length()
+								except TypeError:
+									no_query_len += 1
+									continue
 								mapq.append(read.mapping_quality)
 					chr_list.append(window[0])
 					start_list.append(start)
@@ -991,7 +1004,11 @@ class BamFile():
 						if read.is_secondary is False:
 							if read.is_supplementary is False:
 								if read.is_duplicate is False:
-									total_read_length += read.infer_query_length()
+									try:
+										total_read_length += read.infer_query_length()
+									except TypeError:
+										no_query_len += 1
+										continue
 									mapq.append(read.mapping_quality)
 					chr_list.append(window[0])
 					start_list.append(start)
@@ -1025,8 +1042,10 @@ class BamFile():
 		})[["chrom", "start", "stop", "depth", "mapq"]]
 
 		samfile.close()
-		self.logger.info("Analysis complete. Elapsed time: {} seconds".format(
-			time.time() - analyze_start))
+		self.logger.info(
+			"Analysis complete. {} reads ignored because infer_query_length() "
+			"returned None. Elapsed time: {} seconds".format(
+				no_query_len, time.time() - analyze_start))
 		return windows_df
 
 	def chrom_stats(self, chrom, duplicates):
