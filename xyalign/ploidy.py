@@ -188,7 +188,6 @@ def bootstrap(
 	"""
 	boot_start = time.time()
 
-	ks_start = time.time()
 	ploidy_logger.info(
 		"Bootstrapping mean depth ratio of {} over {}".format(
 			first_chrom, second_chrom))

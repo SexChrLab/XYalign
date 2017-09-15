@@ -9,8 +9,6 @@ import subprocess
 import numpy as np
 import pandas as pd
 import pybedtools
-import pysam
-import sys
 import time
 # Matplotlib needs to be called in this way to set the display variable
 import matplotlib
@@ -48,7 +46,8 @@ def validate_external_prog(prog_path, prog_name):
 		utils_logger.error(
 			"ERROR: {} not available from path: {}".format(prog_name, prog_path))
 		logging.shutdown()
-		sys.exit(1)
+		raise OSError("ERROR: {} not available from path: {}".format(
+			prog_name, prog_path))
 	return 0
 
 
@@ -74,57 +73,6 @@ def validate_dir(parent_dir, dir_name):
 	if not exists:
 		os.makedirs(full_path)
 	return exists
-
-
-def chromosome_bed(bamfile_obj, output_file, chromosome_list):
-	"""
-	Takes list of chromosomes, uses a BamFile() object to find chromosome lenght,
-	and outputs a bed file with the length of each chromosome on each line
-	(e.g., chr1    0   247249719).
-
-	Parameters
-	----------
-
-	bamfile_obj : BamFile() object
-	output_file : str
-		Name of (including full path to) desired output file
-	chromosome_list : list
-		Chromosome/scaffolds to include
-
-	Returns
-	-------
-
-	str
-		output_file
-
-	Raises
-	------
-
-	RuntimeError
-		If chromocomse name is not in bam header.
-
-	"""
-	c_bed_start = time.time()
-	utils_logger.info("Creating bed file with chromosome lengths for {}".format(
-		" ".join(chromosome_list)))
-	with open(output_file, "w") as f:
-		for i in chromosome_list:
-			try:
-				lengths = bamfile_obj.get_chrom_length(i)
-				f.write("{}\t{}\t{}\n".format(i, "0", lengths))
-			except:
-				utils_logger.error(
-					"Error finding chromosome length in bam file {} "
-					"(for bed file)".format(bamfile_obj.filepath))
-				logging.shutdown()
-				raise RuntimeError(
-					"Error finding chromosome length in bam file {}.  Check "
-					"chromosome names and bam header.".format(
-						bamfile_obj.filepath))
-	utils_logger.info(
-		"Bed file ({}) created. Elapsed time: {} seconds".format(
-			output_file, time.time() - c_bed_start))
-	return output_file
 
 
 def check_bam_fasta_compatibility(bam_object, fasta_object):
@@ -181,6 +129,43 @@ def check_bam_fasta_compatibility(bam_object, fasta_object):
 		return False
 
 
+def check_compatibility_bam_list(bam_obj_list):
+	"""
+	Checks to see if bam sequence names and lengths are
+	equivalent (i.e., if it is likely that the bam files were generated
+	using the same reference genome).
+
+	Parameters
+	----------
+
+	bam_obj_list : list
+		List of bam.BamFile() objects
+
+	Returns
+	-------
+
+	bool
+		True if sequence names and lengths match. False otherwise.
+
+	"""
+	utils_logger.info(
+		"Checking compatibility of: ".format(
+			", ".join([x.filepath for x in bam_obj_list])))
+
+	seq_names = [x.chromosome_names() for x in bam_obj_list]
+	seq_lengths = [x.chromosome_lengths() for x in bam_obj_list]
+
+	# Checking for ANY incompatibility
+	uniq_seq_names = [x for x in seq_names if x != seq_names[0]]
+	uniq_seq_lens = [x for x in seq_lengths if x != seq_lengths[0]]
+
+	if len(uniq_seq_names) == 0 and len(uniq_seq_lens) == 0:
+		return True
+	else:
+		utils_logger.info("Bam files contain different headers.")
+		return False
+
+
 def merge_bed_files(output_file, *bed_files):
 	"""
 	This function simply takes an output_file (full path to desired output file)
@@ -216,7 +201,8 @@ def merge_bed_files(output_file, *bed_files):
 	return output_file
 
 
-def make_region_lists_genome_filters(depthAndMapqDf, mapqCutoff, depth_thresh):
+def make_region_lists_genome_filters(
+	depthAndMapqDf, mapqCutoff, min_depth, max_depth):
 	"""
 	Filters a pandas dataframe for mapq and depth based on using all values
 	from across the entire genome
@@ -228,10 +214,10 @@ def make_region_lists_genome_filters(depthAndMapqDf, mapqCutoff, depth_thresh):
 		Must have 'depth' and 'mapq' columns
 	mapqCutoff : int
 		The minimum mapq for a window to be considered high quality
-	depth_thresh : float
-		Factor to use in filtering regions based on depth. Li (2014) recommends:
-		mean_depth +- (depth_thresh * (depth_mean ** 0.5)), where depth_thresh
-		is 3 or 4.
+	min_depth : float
+		Fraction of mean to set as minimum depth
+	max_depth : float
+		Multiple of mean to set as maximum depth
 
 	Returns
 	-------
@@ -243,8 +229,8 @@ def make_region_lists_genome_filters(depthAndMapqDf, mapqCutoff, depth_thresh):
 	depth_mean = depthAndMapqDf["depth"].mean()
 	depth_sd = depthAndMapqDf["depth"].std()
 
-	depthMin = depth_mean - (depth_thresh * (depth_mean ** 0.5))
-	depthMax = depth_mean + (depth_thresh * (depth_mean ** 0.5))
+	depthMin = depth_mean * min_depth
+	depthMax = depth_mean * max_depth
 
 	utils_logger.info(
 		"Filtering dataframe for mapq (MAPQ >= mapqCutoff) "
@@ -263,7 +249,7 @@ def make_region_lists_genome_filters(depthAndMapqDf, mapqCutoff, depth_thresh):
 
 
 def make_region_lists_chromosome_filters(
-	depthAndMapqDf, mapqCutoff, depth_thresh):
+	depthAndMapqDf, mapqCutoff, min_depth, max_depth):
 	"""
 	Filters a pandas dataframe for mapq and depth based on thresholds calculated
 	per chromosome
@@ -275,10 +261,10 @@ def make_region_lists_chromosome_filters(
 		Must have 'depth' and 'mapq' columns
 	mapqCutoff : int
 		The minimum mapq for a window to be considered high quality
-	depth_thresh : float
-		Factor to use in filtering regions based on depth. Li (2014) recommends:
-		mean_depth +- (depth_thresh * (depth_mean ** 0.5)), where depth_thresh
-		is 3 or 4.
+	min_depth : float
+		Fraction of mean to set as minimum depth
+	max_depth : float
+		Multiple of mean to set as maximum depth
 
 	Returns
 	-------
@@ -299,23 +285,24 @@ def make_region_lists_chromosome_filters(
 	bad_list = []
 
 	for i in ordered_chrom_list:
-		depth_mean = depthAndMapqDf["depth"].mean()
-		depth_sd = depthAndMapqDf["depth"].std()
+		df = depthAndMapqDf.loc[depthAndMapqDf["chrom"] == i]
+		depth_mean = df["depth"].mean()
+		depth_sd = df["depth"].std()
 
-		depthMin = depth_mean - (depth_thresh * (depth_mean ** 0.5))
-		depthMax = depth_mean + (depth_thresh * (depth_mean ** 0.5))
+		depthMin = depth_mean * min_depth
+		depthMax = depth_mean * max_depth
 
 		utils_logger.info(
 			"Filtering chromosome {} for mapq (MAPQ >= mapqCutoff) "
 			"and depth (between depthMin and depthMax)".format(i))
 
 		good = (
-			(depthAndMapqDf.chrom == i) &
-			(depthAndMapqDf.mapq >= mapqCutoff) &
-			(depthAndMapqDf.depth > depthMin) &
-			(depthAndMapqDf.depth < depthMax))
-		good_list.append(depthAndMapqDf[good])
-		bad_list.append(depthAndMapqDf[~good])
+			(df.chrom == i) &
+			(df.mapq >= mapqCutoff) &
+			(df.depth > depthMin) &
+			(df.depth < depthMax))
+		good_list.append(df[good])
+		bad_list.append(df[~good])
 	dfGood = pd.concat(good_list)
 	dfBad = pd.concat(bad_list)
 
@@ -353,7 +340,7 @@ def output_bed(outBed, *regionDfs):
 
 def chromosome_wide_plot(
 	chrom, positions, y_value, measure_name, sampleID, output_prefix,
-	MarkerSize, MarkerAlpha, Xlim, Ylim):
+	MarkerSize, MarkerAlpha, Xlim, Ylim, x_scale=1000000):
 	"""
 	Plots values across a chromosome, where the x axis is the position along the
 	chromosome and the Y axis is the value of the measure of interest.
@@ -361,16 +348,18 @@ def chromosome_wide_plot(
 	Parameters
 	----------
 
+	chrom : str
+		Name of the chromosome
 	positions : numpy array
 		Genomic coordinates
 	y_value : numpy	array
 		The values of the measure of interest
 	measure_name : str
 		The name of the measure of interest (y axis title)
-	chromosome : str
-		The name of the chromosome being plotted
 	sampleID : str
 		The name of the sample
+	output_prefix : str
+		Full path to and prefix of desired output plot
 	MarkerSize : float
 		Size in points^2
 	MarkerAlpha : float
@@ -379,6 +368,8 @@ def chromosome_wide_plot(
 		Maximum X value
 	Ylim : float
 		Maximum Y value
+	x_scale : int
+		Divide all x values (including Xlim) by this value. Default is 1000000 (1MB)
 
 	Returns
 	-------
@@ -395,12 +386,21 @@ def chromosome_wide_plot(
 		Color = "red"
 	fig = plt.figure(figsize=(15, 5))
 	axes = fig.add_subplot(111)
+	positions = np.divide(positions, float(x_scale))
 	axes.scatter(
 		positions, y_value, c=Color, alpha=MarkerAlpha, s=MarkerSize, lw=0)
-	axes.set_xlim(0, Xlim)
+	axes.set_xlim(0, (Xlim / float(x_scale)))
 	axes.set_ylim(0, Ylim)
 	axes.set_title("%s - %s" % (sampleID, chrom))
-	axes.set_xlabel("Chromosomal Position")
+	if x_scale == 1000000:
+		scale_label = "(MB)"
+	elif x_scale == 1000:
+		scale_label = "(KB)"
+	elif x_scale == 1:
+		scale_label = "(BP)"
+	else:
+		scale_label = "(divided by {})".formatt(x_scale)
+	axes.set_xlabel("Chromosomal Position {}".format(scale_label))
 	axes.set_ylabel(measure_name)
 	plt.savefig("{}_{}_{}_GenomicScatter.svg".format(
 		output_prefix, chrom, measure_name))
@@ -410,22 +410,81 @@ def chromosome_wide_plot(
 	return 0
 
 
+def hist_array(chrom, value_array, measure_name, sampleID, output_prefix):
+	"""
+	Plots a histogram of an array of values of interest. Intended for mapq and
+	depth, but generalizeable.  Separate function from variants.hist_read_balance
+	because that function eliminates fixed variants, while this function will
+	plot all values.
+
+	Parameters
+	----------
+
+	chrom : str
+		Name of the chromosome
+	value_array : numpy array
+		Read balance values
+	measure_name : str
+		The name of the measure of interest (y axis title)
+	sampleID : str
+		Sample name or id to include in the plot title
+	output_prefix : str
+		Desired prefix (including full path) of the output files
+
+	Returns
+	-------
+
+	int
+		0 if plotting successful, 1 otherwise.
+
+	"""
+	if len(value_array) < 1:
+		utils_logger.info(
+			"No {} values on {} to plot histogram. Skipping.".format(
+				measure_name, chrom))
+		return 1
+	else:
+		value_array = value_array[~np.isnan(value_array)]
+		if "x" in chrom.lower():
+			Color = "green"
+		elif "y" in chrom.lower():
+			Color = "blue"
+		else:
+			Color = "red"
+		fig = plt.figure(figsize=(8, 8))
+		axes = fig.add_subplot(111)
+		axes.set_title("{} - {}".format(sampleID, chrom))
+		axes.set_xlabel("{}".format(measure_name))
+		axes.set_ylabel("Frequency")
+		axes.hist(value_array, bins=50, color=Color)
+		plt.savefig("{}_{}_{}_Hist.svg".format(output_prefix, chrom, measure_name))
+		plt.savefig("{}_{}_{}_Hist.png".format(output_prefix, chrom, measure_name))
+		plt.close(fig)
+		utils_logger.info(
+			"{} histogram of {} complete.".format(measure_name, chrom))
+		return 0
+
+
 def plot_depth_mapq(
-	data_dict, output_prefix, sampleID, chrom_length, MarkerSize, MarkerAlpha):
+	window_df, output_prefix, sampleID, chrom_length, MarkerSize,
+	MarkerAlpha, x_scale=1000000):
 	"""
 	Creates histograms and genome-wide plots of various metrics.
 
 	Parameters
 	----------
 
-	data_dict : dict
-		Key must be 'windows' value is a pandas data frame
+	window_df : pandas dataframe
+		Columns must include chrom, start, depth, and mapq (at least)
 	output_prefix : str
 		Path and prefix of output files to create
 	sampleID : str
 		Sample ID
 	chrom_length: int
 		Length of chromosome
+	x_scale : int
+		Divide all x values (including Xlim) by this value for chromosome_wide_plot.
+		Default is 1000000 (1MB)
 
 	Returns
 	-------
@@ -434,57 +493,25 @@ def plot_depth_mapq(
 		0
 
 	"""
-
-	window_df = None if "windows" not in data_dict else data_dict[
-		"windows"]
-	depth_hist = None if "depth_freq" not in data_dict else data_dict[
-		"depth_freq"]
-	readbal_hist = None if "readbal_freq" not in data_dict else data_dict[
-		"readbal_freq"]
-	mapq_hist = None if "mapq_freq" not in data_dict else data_dict[
-		"mapq_freq"]
-
 	chromosome = window_df["chrom"][1]
 
 	# Create genome-wide plots based on window means
 	if window_df is not None:
 		# depth plot
-		# depth_genome_plot_path = os.path.join(
-		# 	output_dir, "depth_windows." + chromosome + ".png")
-		# depth_genome_plot = sns.lmplot(
-		# 	'start', 'depth', data=window_df, fit_reg=False,
-		# 	scatter_kws={'alpha': 0.3})
-		# depth_genome_plot.savefig(depth_genome_plot_path)
 		chromosome_wide_plot(
 			chromosome, window_df["start"].values, window_df["depth"].values,
 			"Depth", sampleID, output_prefix,
 			MarkerSize, MarkerAlpha,
-			chrom_length, 100)
+			chrom_length, 100, x_scale)
+		hist_array(
+			chromosome, window_df["depth"], "Depth", sampleID, output_prefix)
 
 		# mapping quality plot
-		# mapq_genome_plot_path = os.path.join(
-		# 	output_dir, "mapq_windows." + chrom + ".png")
-		# mapq_genome_plot = sns.lmplot(
-		# 	'start', 'mapq', data=window_df, fit_reg=False)
-		# mapq_genome_plot.savefig(mapq_genome_plot_path)
 		chromosome_wide_plot(
 			chromosome, window_df["start"].values, window_df["mapq"].values,
 			"Mapq", sampleID, output_prefix,
-			MarkerSize, MarkerAlpha, chrom_length, 80)
+			MarkerSize, MarkerAlpha, chrom_length, 80, x_scale)
+		hist_array(
+			chromosome, window_df["mapq"], "Mapq", sampleID, output_prefix)
 
-	# Create histograms
-	# TODO: update filenames dynamically like window_df above
-	# TODO: update Count column name
-	if depth_hist is not None:
-		depth_bar_plot = sns.countplot(
-			x='depth', y='Count', data=depth_hist)
-		depth_bar_plot.savefig("depth_hist.png")
-	if readbal_hist is not None:
-		balance_bar_plot = sns.countplot(
-			x='ReadBalance', y='Count', data=readbal_hist)
-		balance_bar_plot.savefig("readbalance_hist.png")
-	if mapq_hist is not None:
-		mapq_bar_plot = sns.countplot(
-			x='Mapq', y='Count', data=mapq_hist)
-		mapq_bar_plot.savefig("mapq_hist.png")
 	return 0

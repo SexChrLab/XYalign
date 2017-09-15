@@ -4,14 +4,17 @@ Installation
 Obtaining XYalign
 -----------------
 
-Currently, you can obtain XYalign by cloning the Github repository::
+You can download the most recent (or any previous) release of XYalign [HERE](https://github.com/WilsonSayresLab/XYalign/releases)
+
+Alternatively, you can obtain the current development version of XYalign by
+cloning the Github repository::
 
 	git clone https://github.com/WilsonSayresLab/XYalign/
 
 Operating System
 ----------------
 
-XYalign has been tested on a variety of Linux and Mac operating systems, but has
+XYalign has been tested on Linux and Mac operating systems, but has
 not been tested on Windows.  This isn't to say it won't work, however
 we are unprepared to offer any Windows support at this time.
 
@@ -28,9 +31,10 @@ XYalign has a number of required Python packages and external programs::
 		pandas
 		pybedtools
 		pysam
+		scipy
 
 	External Programs:
-		bbmap
+		bbmap (XYalign uses repair.sh and shuffle.sh from this suite of tools)
 		bedtools
 		bwa
 		platypus
@@ -44,6 +48,7 @@ XYalign has a number of required Python packages and external programs::
 	using the appropriate flag(s)::
 
 		--repairsh_path
+		--shufflesh_path
 		--bwa_path
 		--platypus_path
 		--samtools_path
@@ -70,15 +75,23 @@ Miniconda is a lightweight version of Anaconda).
 
 	conda config --add channels r
 
+	conda config --add channels defaults
+
 	conda config --add channels conda-forge
 
 	conda config --add channels bioconda
 
 	conda create -n xyalign_env python=2.7 pysam pybedtools \
 	numpy pandas matplotlib platypus-variant bwa bbmap \
-	samtools bedtools sambamba
+	samtools bedtools sambamba scipy
 
-And load the new environment (containing all required programs and packages) with::
+..note::
+	You *need* to add channels in this order. Doing so will ensure priority of channels
+	will go in the order bioconda > conda-forge > defaults > r. This is important because
+	the source of bzip2 (required for many programs) needs to be conda-forge (the version
+	in defaults will cause many programs to miss a required library).
+
+You can then load the new environment (containing all required programs and packages) with::
 
 	source activate xyalign_env
 
@@ -86,6 +99,8 @@ And load the new environment (containing all required programs and packages) wit
 users will have to use the commands::
 
 	conda config --add channels r
+
+	conda config --add channels defaults
 
 	conda config --add channels conda-forge
 
@@ -101,4 +116,4 @@ provide it to XYalign with the flag::
 
 Mac users can then load the environment with the command (same as Linux)::
 
-		source activate xyalign_env
+	source activate xyalign_env

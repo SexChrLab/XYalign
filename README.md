@@ -2,6 +2,9 @@
   <img src="https://github.com/WilsonSayresLab/XYalign/blob/master/Files/XYlogo.png" width="500"/>
 </p>
 
+## This is a development version
+Note that this is the development version of XYalign.  If you'd like to download a stable release, you can find them [here](https://github.com/WilsonSayresLab/XYalign/releases)
+
 # XYalign: Inferring Sex Chromosome Ploidy in NGS Data
 Timothy H. Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa A. Wilson Sayres
 
@@ -18,33 +21,25 @@ prior to this cleaning.  Therefore, if you cloned before this date (or can't rem
 cloned), it's probably a good idea to clone a fresh version.
 
 ## Please note the XYalign is still in pre-release stages
-Changes are made to the master branch quite frequently, so there still might be a number of known or unknown bugs at any given time.  If you'd like to try things before release (which will be mid-April), please feel free to contact us (either via an Issue or by email to Tim Webster - address at the bottom of this page) to inquire about the current status of the program.
+Changes are made to the master branch quite frequently, so there still might be a number of known or unknown bugs at any given time.  If you'd like to try things before release, please feel free to contact us (either via an Issue or by email to Tim Webster - address at the bottom of this page) to inquire about the current status of the program.
 
 ## Using XYalign
 
 See full documentation at [Read The Docs](http://xyalign.readthedocs.io/en/latest/index.html)
 
+Post any questions you have at the [XYalign Google Group](https://groups.google.com/forum/#!forum/xyalign)
+
 ## To-Do Items
 
 *Down the road*
-- [ ] Add thorough module testing
-- [ ] Make bwa indexing conditional for withY if no reference_mask provided
 - [ ] Test exact depth (vs. current approximation) - time and results
 	- [ ] Implement exact depth if not too slow or if results differ substantially
 	- [ ] Implement bam analyses in cython
-- [ ] Add "batch" option (for CHARACTERIZE_SEX_CHROMS and/or ANALYZE_BAM)
-	- not necessary for now, as can be easily done with a bash command
 - [ ] Add support for additional mappers
 	- not clear if this is necessary or valuable
 - [ ] Handle duplicate reads
 	- not clear if this is necessary or valuable
-- [ ] Output high and low-quality bed files after second round of bam analyses
-- [ ] Add histogram plotting for depth and mapq
-- [ ] Add cram and sam support
-- [ ] Implement some kind of checkpointing functionality
-- [ ] Run bwa indexing in parallel
-	- this might be a bit more difficult that it seems due to memory requirements for large genomes
-- [ ] Implement subparser
+- [ ] More tuning of plotting parameters (font, color, size, etc.)
 
 ## Group Members
 Name | email | github ID

@@ -1,0 +1,3 @@
+@HD	VN:1.0	SO:unsorted
+@SQ	SN:seq1	LN:20	M5:be1e2020b916144dcfd8701a63988760	UR:file:///Users/twebster/Projects/Github_repos/XYalign/xyalign/test/toy.fasta
+@SQ	SN:seq2	LN:40	M5:0d6cbf026bc3aba62432d81be07a892c	UR:file:///Users/twebster/Projects/Github_repos/XYalign/xyalign/test/toy.fasta

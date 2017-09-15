@@ -1,0 +1,49 @@
+# CHANGELOG
+
+# List in reverse chronological order
+# Only listing changes since previous version/release
+
+Development Version (currently branch called noY_support)
+	* Added --use_counts to use read count data in CHROM_STATS
+	* Added --coordinate_scale to alter x axis labels for chromosome-wide plotting
+	* Fixed recent bug introduced by updates to samtools which did not output all reads when stripping reads from a subset of data
+	* Cleanup is default, but can be turned off with the flag --no_cleanup
+	* Fixed bug in inference of Y chromosome presence/absence
+	* Removed bwa indexing from ref_prep()
+	* Added CHROM_STATS module to calculate coarse, scaffold-wide stats for a list of bam files (allowing for quick comparison)
+	* bam.analyze_bam_fetch() now called bam.analyze_bam()
+	* Option to ignore duplicates in bam analyses
+	* bam.analyze_bam_fetch() now outputs pandas dataframe - calls to its output and utils.plot_depth_mapq() updated accordingly
+	* Added plotting of window based variant measures (read balance and variant counts)
+	* Added option to "homogenize" read balance values by subtracting all values less than 0.5 from 1 (e.g., 0.25 and 0.75 would be equivalent)
+	* Added variants.read_balance_per_window, which calculates mean read balance (and variant count) per window
+	* fixed bug in utils.make_region_lists_chromosome_filters()
+	* depth filters for window filtering now simple multipliers of mean depth
+	* plot_variants_per_chrom now a method of variants.VCFFile()
+	* platypus_caller now a method of bam.BamFile()
+	* Added filters for genotype quality and sample depth for variants
+	* Fixed error in bam.strip_reads() that would return blank fastqs when sorting single end reads
+	* assemble.bwa_mem_mapping_sambamba() now handles mapping without read group line
+	* bam.strip_reads() now handles case where no read group is present in file
+	* Added cleanup option for strip reads (allowing one to delete large temporary, unsorted fastqs)
+	* Removed requirement for valid bam file for PREPARE_REFERENCE module
+	* Fixed bug causing the misreading of bam indices ending in .bai, rather than .bam.bai
+	* chromosome_bed() and check_chrom_in_bam() now methods of bam.BamFile()
+	* Compress output fastq files (optional)
+	* Add -xmx flag for repair.sh (was having issues estimating/allocating memory when sorting reads from whole genome)
+	* Output histograms of depth and mapq for each chromosome
+	* Output full dataframes from bam analyses in addition to high/low bed files
+	* Removed flags --high_quality_bed_out and --low_quality_bed_out (unused)
+	* Fixed bug in which postprocessing bed files were overwriting preprocessing ones (with the same name)
+	* Added STRIP_READS module to allow for read stripping outside of REMAPPING
+	* Added option for --chromosomes ALL, to easily analyze all chromosomes
+	* Added check to ensure provided chromosomes are in bam file
+	* Fixed bug in threshold for calling individual as XY
+	* Generalized COMPARE_SEX_CHROMS so X-Y pairwise comparisons not necessary
+	* Added support for reference genomes with only a single sex chromosome sequenced (e.g., in XY systems, but only X in the reference)
+
+Version 0.1.1
+	* Updated documentation
+
+Version 0.1
+	* Initial release

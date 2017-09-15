@@ -1,0 +1,407 @@
+"""
+This snakefile reproduces analyses from:
+
+Webster et al., 2017. Inferring sex chromosome content and correcting for
+technical biases in next-generation sequencing data.
+
+Requires:
+	Python 3
+	snakemake (python package)
+	bwa
+	samtools
+	samblaster
+	BBmap (rename.sh is part of this suite of tools)
+	separate Anaconda directory with XYalign and its dependencies installed
+
+Runs analyses on 2 datasets:
+*Dataset1 contains fastq files from exome, low-coverage whole-genome, and
+high-coverage whole-genome sequencing for one male (HG00512) and one female (HG00513)
+from the 1000 genomes project
+
+*Dataset2 contains bam files from high-coverage whole-genome sequencing for
+24 individuals from the 1000 genomes project
+
+2 Reference Genomes are required for analyses:
+*hg19 for mapping dataset1
+
+*human_g1k_v37_decoy.fasta from the Broad Institute's resource bundle is required
+for dataset2 because this was the genome used to generate the bam files
+
+Before running the snakefile, complete the top of this script with
+paths to various reference genomes and directories
+containing bam and fastq files.
+
+See the README for more information about downloading files, setting up conda environments,
+and using snakemake to run the snakefile.
+
+"""
+# Update configfile if not in same directory
+configfile: "Webster_etal_2017_xyalign.config.json"
+
+# Path to XYalign
+xyalign_path = "xyalign"
+
+# Name of anaconda XYalign environment (for running xyalign analysis rules)
+# See: http://xyalign.readthedocs.io/en/latest/installation.html for more information
+xyalign_anaconda_env =
+
+# Path to hg19 reference (including filename). hg19_ref_prefix is everything in
+# the path *except the suffix of the file name*.
+# For example, if hg19_ref_path is "reference/hg19.fasta", then hg19_ref_prefix
+# should be "reference/hg19" (i.e., excluding the final ".fasta")
+hg19_ref_path =
+hg19_ref_prefix =
+
+# Path to 1000 genomes reference (including filename) used in to generate the
+# 24 1000 genomes bam files.  See information at the top of this script for how
+# to find and download this file.
+# thousand_genomes_ref_prefix is everything in
+# the path *except the suffix of the file name*.
+# For example, if thousand_genomes_ref_path is "reference/human_g1k_v37_decoy.fasta", then
+# thousand_genomes_ref_prefix should be "reference/human_g1k_v37_decoy" (i.e., excluding the final ".fasta")
+thousand_genomes_ref_path =
+thousand_genomes_ref_prefix =
+
+# Path to fastq files (include ending "/").  This is assuming that all fastqs from a
+# given species are in the same directory.
+human_fastq_directory =
+
+# Path to 1000 genomes bam files (the 24 individuals)
+thousand_genomes_bam_directory =
+
+# Path to hg19 reference mask (also located in the XYalign/Files/PARs directory)
+hg19_reference_mask_path = "misc/hg19_PAR_Ymask_startEnd.bed"
+
+# Paths to tools used in the pipeline
+rename_sh_path = "rename.sh"
+bwa_path = "bwa"
+samtools_path = "samtools"
+samblaster_path = "samblaster"
+
+human_list = [
+	"HG00512_exome", "HG00512_lowcov", "HG00512_wgs",
+	"HG00513_exome", "HG00513_lowcov", "HG00513_wgs"]
+
+thousand_list = [
+	"HG00096.wgs.ILLUMINA.bwa.GBR", "HG01879.wgs.ILLUMINA.bwa.ACB",
+	"HG03052.wgs.ILLUMINA.bwa.MSL", "HG01051.wgs.ILLUMINA.bwa.PUR",
+	"NA19625.wgs.ILLUMINA.bwa.ASW", "HG01583.wgs.ILLUMINA.bwa.PJL",
+	"HG03742.wgs.ILLUMINA.bwa.ITU", "NA20502.wgs.ILLUMINA.bwa.TSI",
+	"NA18525.wgs.ILLUMINA.bwa.CHB", "HG02922.wgs.ILLUMINA.bwa.ESN",
+	"NA19648.wgs.ILLUMINA.bwa.MXL", "HG00419.wgs.ILLUMINA.bwa.CHS",
+	"HG01112.wgs.ILLUMINA.bwa.CLM", "NA19017.wgs.ILLUMINA.bwa.LWK",
+	"HG00268.wgs.ILLUMINA.bwa.FIN", "HG02568.wgs.ILLUMINA.bwa.GWD",
+	"HG01500.wgs.ILLUMINA.bwa.IBS", "NA18939.wgs.ILLUMINA.bwa.JPT",
+	"HG03642.wgs.ILLUMINA.bwa.STU", "HG03006.wgs.ILLUMINA.bwa.BEB",
+	"HG00759.wgs.ILLUMINA.bwa.CDX", "NA20845.wgs.ILLUMINA.bwa.GIH",
+	"HG01595.wgs.ILLUMINA.bwa.KHV", "HG01565.wgs.ILLUMINA.bwa.PEL"]
+
+rule all:
+	input:
+		expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.bam",
+			sample=human_list),
+		expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
+			sample=human_list),
+		expand(
+			"xyalign_analyses/hg19/logfiles/{sample}_hg19_xyalign.log",
+			sample=human_list),
+		expand(
+			"xyalign_analyses/thousand_genomes/logfiles/{sample}_1000genomes_xyalign.log",
+			sample=thousand_list),
+		expand(
+			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
+			sample=thousand_list),
+		"xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_mapq.txt",
+		"xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_depth.txt",
+		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_mapq.txt",
+		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_depth.txt",
+		"xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_count.txt",
+		"xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_count.txt"
+
+rule prepare_reference_hg19:
+	input:
+		hg19_ref_path
+	output:
+		fai = hg19_ref_path + ".fai",
+		amb = hg19_ref_path + ".amb",
+		dict = hg19_ref_prefix + ".dict"
+	params:
+		samtools = samtools_path,
+		bwa = bwa_path
+	run:
+		# faidx
+		shell("{params.samtools} faidx {input}")
+		# .dict
+		shell("{params.samtools} dict -o {output.dict} {input}")
+		# bwa
+		shell("{params.bwa} index {input}")
+
+rule prepare_reference_thousand_genomes:
+	input:
+		thousand_genomes_ref_path
+	output:
+		fai = thousand_genomes_ref_path + ".fai",
+		dict = thousand_genomes_ref_prefix + ".dict"
+	params:
+		samtools = samtools_path
+	run:
+		# faidx
+		shell("{params.samtools} faidx {input}")
+		# .dict
+		shell("{params.samtools} dict -o {output.dict} {input}")
+
+rule map_and_process_reads_hg19_paired_human:
+	input:
+		fq1 = lambda wildcards: human_fastq_directory + config["human_paired_fastqs"][wildcards.sample][0],
+		fq2 = lambda wildcards: human_fastq_directory + config["human_paired_fastqs"][wildcards.sample][1],
+		fai = hg19_ref_path + ".fai",
+		amb = hg19_ref_path + ".amb",
+		ref = hg19_ref_path
+	output:
+		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
+	params:
+		id = lambda wildcards: config[wildcards.sample]["ID"],
+		sm = lambda wildcards: config[wildcards.sample]["SM"],
+		lb = lambda wildcards: config[wildcards.sample]["LB"],
+		pu = lambda wildcards: config[wildcards.sample]["PU"],
+		pl = lambda wildcards: config[wildcards.sample]["PL"],
+		bwa = bwa_path,
+		samblaster = samblaster_path,
+		samtools = samtools_path
+	threads: 4
+	shell:
+		" {params.bwa} mem -t {threads} -R "
+		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
+		"{input.ref} {input.fq1} {input.fq2} "
+		"| {params.samblaster} | {params.samtools} fixmate -O bam - - | {params.samtools} sort "
+		"-O bam -o {output}"
+
+rule index_bam_hg19_paired:
+	input:
+		"processed_bams/{sample}.hg19.mkdup.sorted.bam"
+	output:
+		"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
+	shell:
+		"{params.samtools} index {input}"
+
+rule index_bam_1000genomes:
+	input:
+		thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam"
+	output:
+		thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai"
+	params:
+		samtools = samtools_path
+	shell:
+		"{params.samtools} index {input}"
+
+rule merge_lcov_HG00512:
+	input:
+		run1 = "processed_bams/HG00512_lowcov_run1.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00512_lowcov_run1.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00512_lowcov_run2.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00512_lowcov_run2.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00512_lowcov.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/HG00512_lowcov.hg19.mkdup.sorted.bam.bai"
+	threads: 4
+	params:
+		samtools = samtools_path
+	run:
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2}")
+		shell("{params.samtools} index {output.bam}")
+
+rule merge_lcov_HG00513:
+	input:
+		run1 = "processed_bams/HG00513_lowcov_run1.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00513_lowcov_run1.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00513_lowcov_run2.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00513_lowcov_run2.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/HG00513_lowcov_run3.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/HG00513_lowcov_run3.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00513_lowcov.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/HG00513_lowcov.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
+	threads: 4
+	run:
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3}")
+		shell("{params.samtools} index {output.bam}")
+
+rule merge_wgs_HG00512:
+	input:
+		run1 = "processed_bams/HG00512_wgs_run1.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00512_wgs_run1.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00512_wgs_run2.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00512_wgs_run2.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/HG00512_wgs_run3.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/HG00512_wgs_run3.hg19.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/HG00512_wgs_run4.hg19.mkdup.sorted.bam",
+		run4_idx = "processed_bams/HG00512_wgs_run4.hg19.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/HG00512_wgs_run5.hg19.mkdup.sorted.bam",
+		run5_idx = "processed_bams/HG00512_wgs_run5.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00512_wgs.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/HG00512_wgs.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
+	threads: 4
+	run:
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
+		shell("{params.samtools} index {output.bam}")
+
+rule merge_wgs_HG00513:
+	input:
+		run1 = "processed_bams/HG00513_wgs_run1.hg19.mkdup.sorted.bam",
+		run1_idx = "processed_bams/HG00513_wgs_run1.hg19.mkdup.sorted.bam.bai",
+		run2 = "processed_bams/HG00513_wgs_run2.hg19.mkdup.sorted.bam",
+		run2_idx = "processed_bams/HG00513_wgs_run2.hg19.mkdup.sorted.bam.bai",
+		run3 = "processed_bams/HG00513_wgs_run3.hg19.mkdup.sorted.bam",
+		run3_idx = "processed_bams/HG00513_wgs_run3.hg19.mkdup.sorted.bam.bai",
+		run4 = "processed_bams/HG00513_wgs_run4.hg19.mkdup.sorted.bam",
+		run4_idx = "processed_bams/HG00513_wgs_run4.hg19.mkdup.sorted.bam.bai",
+		run5 = "processed_bams/HG00513_wgs_run5.hg19.mkdup.sorted.bam",
+		run5_idx = "processed_bams/HG00513_wgs_run5.hg19.mkdup.sorted.bam.bai",
+		run6 = "processed_bams/HG00513_wgs_run6.hg19.mkdup.sorted.bam",
+		run6_idx = "processed_bams/HG00513_wgs_run6.hg19.mkdup.sorted.bam.bai"
+	output:
+		bam = "processed_bams/HG00513_wgs.hg19.mkdup.sorted.bam",
+		bai = "processed_bams/HG00513_wgs.hg19.mkdup.sorted.bam.bai"
+	params:
+		samtools = samtools_path
+	threads: 4
+	run:
+		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
+		shell("{params.samtools} index {output.bam}")
+
+rule xyalign_prepare_hg19_reference:
+	input:
+		ref = hg19_ref_path,
+		fai = hg19_ref_path + ".fai"
+	output:
+		xx = "xyalign_analyses/hg19/reference/hg19.XXonly.fasta",
+		xy = "xyalign_analyses/hg19/reference/hg19.XY.fasta"
+	params:
+		conda_env = xyalign_anaconda_env,
+		xyalign = xyalign_path,
+		output_dir = "xyalign_analyses/hg19/",
+		ref_mask = hg19_reference_mask_path
+	threads:
+		4
+	shell:
+		"source activate xyalign_env && {params.xyalign} --PREPARE_REFERENCE --ref {input.ref} --xx_ref_out hg19.XXonly.fasta --xy_ref_out hg19.XY.fasta --output_dir {params.output_dir} --x_chromosome chrX --y_chromosome chrY"
+
+rule xyalign_hg19_analysis_human:
+	input:
+		bam = "processed_bams/{sample}.hg19.mkdup.sorted.bam",
+		idx = "processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
+		ref = hg19_ref_path,
+		xx_in = "xyalign_analyses/hg19/reference/hg19.XXonly.fasta",
+		xy_in = "xyalign_analyses/hg19/reference/hg19.XY.fasta"
+	output:
+		"xyalign_analyses/hg19/logfiles/{sample}_hg19_xyalign.log"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "{sample}_hg19",
+		hg19_ref_mask = hg19_reference_mask_path,
+		conda_env = xyalign_anaconda_env,
+		xx_ref_out = "{sample}_xyalign_noY.masked.fa",
+		xy_ref_out = "{sample}_xyalign_withY.masked.fa"
+	threads:
+		4
+	shell:
+		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/hg19 --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY --xmx 4g --fastq_compression 4 --xx_ref_out {params.xx_ref_out} --xy_ref_out {params.xy_ref_out}"
+
+rule xyalign_1000genomes_analysis:
+	input:
+		bam = thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam",
+		idx = thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
+		ref = thousand_genomes_ref_path
+	output:
+		"xyalign_analyses/thousand_genomes/logfiles/{sample}_1000genomes_xyalign.log"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "{sample}_1000genomes",
+		conda_env = xyalign_anaconda_env
+	threads:
+		4
+	shell:
+		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/thousand_genomes --sample_id {params.sample_id} --cpus {threads} --window_size 5000 --chromosomes 19 X Y --x_chromosome X --y_chromosome Y --CHARACTERIZE_SEX_CHROMS"
+
+rule chrom_stats_hg19_human:
+	input:
+		bams = expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.bam",
+			sample=human_list),
+		bais = expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
+			sample=human_list)
+	output:
+		mapqs = "xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_mapq.txt",
+		depth = "xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_depth.txt"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "hg19_human",
+		conda_env = xyalign_anaconda_env,
+		logfile = "hg19_human_chrom_stats.logfile"
+	shell:
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --chromosomes chr1 chr8 chr19 chrX chrY chrM --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
+
+rule chrom_stats_thousand_genomes:
+	input:
+		bams = expand(
+			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam",
+			sample=thousand_list),
+		bais = expand(
+			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
+			sample=thousand_list)
+	output:
+		mapqs = "xyalign_analyses/chrom_stats/results/thousand_chrom_stats_mapq.txt",
+		depth = "xyalign_analyses/chrom_stats/results/thousand_chrom_stats_depth.txt"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "thousand",
+		conda_env = xyalign_anaconda_env,
+		logfile = "thousand_chrom_stats.logfile"
+	shell:
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --chromosomes 1 8 19 X Y MT --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
+
+rule chrom_stats_hg19_human_counts:
+	input:
+		bams = expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.bam",
+			sample=human_list),
+		bais = expand(
+			"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
+			sample=human_list)
+	output:
+		counts = "xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_count.txt"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "hg19_human_counts",
+		conda_env = xyalign_anaconda_env,
+		logfile = "hg19_human_chrom_stats_counts.logfile"
+	shell:
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --use_counts --chromosomes chr1 chr8 chr19 chrX chrY chrM --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
+
+rule chrom_stats_thousand_genomes_counts:
+	input:
+		bams = expand(
+			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam",
+			sample=thousand_list),
+		bais = expand(
+			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
+			sample=thousand_list)
+	output:
+		counts = "xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_count.txt"
+	params:
+		xyalign = xyalign_path,
+		sample_id = "thousand_counts",
+		conda_env = xyalign_anaconda_env,
+		logfile = "thousand_chrom_stats_counts.logfile"
+	shell:
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --use_counts --chromosomes 1 8 19 X Y MT --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"

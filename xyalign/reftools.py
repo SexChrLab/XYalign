@@ -28,15 +28,17 @@ class RefFasta():
 		Full path to bwa. Default = 'bwa'
 
 	"""
-	def __init__(self, filepath, samtools="samtools", bwa="bwa"):
+	def __init__(
+		self, filepath, samtools="samtools", bwa="bwa", no_initial_index=False):
 		self.filepath = filepath
 		self.samtools = samtools
 		self.bwa = bwa
 		self.logger = logging.getLogger("xyalign.reftools.RefFasta")
 		self.logger.info("Creating a RefFasta instance for {}".format(
 			self.filepath))
-		if self.is_faidxed() is False:
-			self.index_fai()
+		if no_initial_index is False:
+			if self.is_faidxed() is False:
+				self.index_fai()
 
 	def is_faidxed(self):
 		"""
@@ -290,7 +292,7 @@ class RefFasta():
 		if self.check_seq_dict() is False:
 			self.seq_dict()
 
-	def mask_reference(self, bed_mask, output_fasta=None):
+	def mask_reference(self, bed_mask, output_fasta):
 		"""
 		Creates a new masked references by hardmasking regions included
 		in the bed_mask
@@ -326,7 +328,7 @@ class RefFasta():
 				maskedpath, time.time() - mask_start))
 		return maskedpath
 
-	def isolate_chroms(self, new_ref_prefix, chroms, bed_mask):
+	def isolate_chroms(self, new_ref_prefix, chroms, bed_mask=None):
 		"""
 		Takes a reference fasta file and a list of chromosomes to include
 		and outputs a new, indexed (and optionally masked) reference fasta.
@@ -382,6 +384,92 @@ class RefFasta():
 				"Elapsed time: {} seconds".format(time.time() - iso_start))
 			return outpath
 
+	def get_chrom_length(self, chrom):
+		"""
+		Extract chromosome length from fasta.
+
+		Parameters
+		----------
+
+		chrom : str
+			The name of the chromosome or scaffold.
+
+		Returns
+		-------
+
+		length : int
+			The length (integer) of the chromsome/scaffold
+
+		Raises
+		------
+
+		RuntimeError
+			If chromosome name not present in bam header
+
+		"""
+		fastafile = pysam.FastaFile(self.filepath)
+		lengths = dict(zip(fastafile.references, fastafile.lengths))
+		try:
+			lens = lengths[chrom]
+			fastafile.close()
+			return lens
+		except:
+			self.logger.error(
+				"{} not present in {}. Exiting.".format(
+					chrom, self.filepath))
+			logging.shutdown()
+			raise RuntimeError(
+				"Chromosome name not present in fasta. Exiting")
+
+	def chromosome_bed(self, output_file, chromosome_list):
+		"""
+		Takes list of chromosomes and outputs a bed file with the
+		length of each chromosome on each line
+		(e.g., chr1    0   247249719).
+
+		Parameters
+		----------
+
+		output_file : str
+			Name of (including full path to) desired output file
+		chromosome_list : list
+			Chromosome/scaffolds to include
+
+		Returns
+		-------
+
+		str
+			output_file
+
+		Raises
+		------
+
+		RuntimeError
+			If chromosome name is not in fasta.
+
+		"""
+		c_bed_start = time.time()
+		self.logger.info("Creating bed file with chromosome lengths for {}".format(
+			" ".join(chromosome_list)))
+		with open(output_file, "w") as f:
+			for i in chromosome_list:
+				try:
+					lengths = self.get_chrom_length(i)
+					f.write("{}\t{}\t{}\n".format(i, "0", lengths))
+				except:
+					self.logger.error(
+						"Error finding chromosome length in {} "
+						"(for bed file)".format(self.filepath))
+					logging.shutdown()
+					raise RuntimeError(
+						"Error finding chromosome length in {}.  Check "
+						"chromosome names and fasta IDs.".format(
+							self.filepath))
+		self.logger.info(
+			"Bed file ({}) created. Elapsed time: {} seconds".format(
+				output_file, time.time() - c_bed_start))
+		return output_file
+
 	def chromosome_lengths(self):
 		"""
 		Returns
@@ -394,7 +482,9 @@ class RefFasta():
 		fastafile = pysam.FastaFile(self.filepath)
 		lengths = fastafile.lengths
 		fastafile.close()
-		return lengths
+		# pysam's .lengths does not return a tuple (despite what is in the docs),
+		# so, convert to tuple before returning.
+		return tuple(lengths)
 
 	def chromosome_names(self):
 		"""
@@ -408,4 +498,6 @@ class RefFasta():
 		fastafile = pysam.FastaFile(self.filepath)
 		names = fastafile.references
 		fastafile.close()
-		return names
+		# pysam's .lengths does not return a tuple (despite what is in the docs),
+		# so, convert to tuple before returning.
+		return tuple(names)
