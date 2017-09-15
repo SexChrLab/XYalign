@@ -1084,6 +1084,22 @@ class BamFile():
 			time.time() - analyze_start))
 		return ((float(total_read_length) / chr_len), np.mean(np.asarray(mapq)))
 
+	def chrom_counts(self):
+		"""
+		Get read counts per chrom from a bamfile
+		"""
+		self.logger.info(
+			"Using index of {} to get read counts per chromosome".format(
+				self.filepath))
+
+		analyze_start = time.time()
+		samfile = pysam.AlignmentFile(self.filepath, "rb")
+		idx_out = samfile.get_index_statistics()
+		samfile.close()
+		self.logger.info("Index analysis complete. Elapsed time: {} seconds".format(
+			time.time() - analyze_start))
+		return idx_out
+
 	def platypus_caller(
 		self, platypus_path, log_path, ref, chroms, cpus, output_file,
 		regions_file=None):

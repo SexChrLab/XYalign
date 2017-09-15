@@ -5,7 +5,7 @@ accompany the initial publication of XYalign (Webster et al., 2017).
 Analyses are written in Snakemake (Koster and Rahmann, 2012), which you can find out more about [here](https://snakemake.readthedocs.io/en/stable/index.html)
 
 ## Data
-For these analyses, we used three different publicly-available datasets:
+For these analyses, we used two different publicly-available datasets:
 
 1) Exome, low-coverage whole-genome, and high-coverage whole-genome data from
 two individuals in the 1000 genomes project (HG00512 - male, HG00513 - female)
@@ -96,41 +96,8 @@ ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/HG01595/high_coverage_align
 ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/HG01565/high_coverage_alignment/HG01565.wgs.ILLUMINA.bwa.PEL.high_cov_pcr_free.20140203.bam
 ```
 
-3) Six gorillas (3 males and 3 females) from two different species
-
-Fastqs downloaded from SRA with the following command lines using [fastq-dump](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc&f=fastq-dump):
-
-Azizi - Male - Gorilla gorilla gorilla
-```
-for i in SRR747941 SRR747942 SRR747939 SRR747940; do fastq-dump --gzip --readids --split-files $i; done
-```
-
-Banjo - Male - Gorilla gorilla gorilla
-```
-for i in SRR747969 SRR747970 SRR747971 SRR747967 SRR747968; do fastq-dump --gzip --readids --split-files $i; done
-```
-
-Delphi - Female - Gorilla gorilla gorilla
-```
-for i in SRR747987 SRR747988 SRR747989 SRR747984 SRR747985 SRR747986; do fastq-dump --gzip --readids --split-files $i; done
-```
-
-Nyango - Female - Gorilla gorilla diehli
-```
-for i in SRR748109 SRR748110 SRR748111 SRR748112; do fastq-dump --gzip --readids --split-files $i; done
-```
-Kaisi - Male - Gorilla beringei graueri
-```
-for i in SRR747658 SRR747657 SRR747654 SRR747655 SRR747656 SRR747651 SRR747652 SRR747653; do fastq-dump --gzip --readids --split-files $i; done
-```
-
-Victoria - Female - Gorilla beringei graueri
-```
-for i in SRR748192 SRR748191 SRR748190 SRR748189 SRR748188 SRR748187; do fastq-dump --gzip --readids --split-files $i; done
-```
-
 ## Reference Genomes
-These analyses require three different reference genomes:
+These analyses require two different reference genomes:
 
 1) hg19 - We downloaded the UCSC version of hg19 available from the Broad Institute's
 Resource bundle: https://software.broadinstitute.org/gatk/download/bundle
@@ -139,13 +106,11 @@ Resource bundle: https://software.broadinstitute.org/gatk/download/bundle
 called "human_g1k_v37_decoy.fasta", also available from the Broad's resource
 Bundle: https://software.broadinstitute.org/gatk/download/bundle
 
-3) The gorGor4 reference genome, available here: http://hgdownload.soe.ucsc.edu/goldenPath/gorGor4/bigZips/gorGor4.fa.gz
-
 ## Directory Structure
 This directory - "Webster_etal_2017" - should contain the main snakefile ("snakefile"), the configuration file for the snakefile ("Webster_etal_2017_xyalign.config.json"),
-a .gitignore, two conda environment files (ending in .yml), and three subdirectories ("fastqs", "processed_bams", "reference").
+a .gitignore, two conda environment files (ending in .yml), and five subdirectories ("fastqs", "misc", "processed_bams", "reference", and "xyalign_analyses").
 
-Of the three subdirectories, "fastqs" and "reference" are provided as options for
+Of the five subdirectories, "fastqs" and "reference" are provided as options for
 depositing the raw fastqs and reference genomes (see above) for easy organization
 and access.  However, the files don't have to be in these directories.  Either way,
 at the top of the snakefile, you need to set a handful of variables including

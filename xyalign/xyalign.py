@@ -430,6 +430,13 @@ def parse_args():
 		help="For genome-wide scatter plots, divide all coordinates by this value."
 		"Default is 1000000, which will plot everything in megabases.")
 
+	# CHROM_STATS flags
+	parser.add_argument(
+		"--use_counts", action="store_true", default=False,
+		help="If True, get counts of reads per chromosome for CHROM_STATS, rather "
+		"than calculating mean depth and mapq. Much faster, but provides less "
+		"information. Default is False")
+
 	args = parser.parse_args()
 
 	# Validate Arguments
@@ -633,7 +640,7 @@ def ref_prep(
 	return (noy_ref, withy_ref)
 
 
-def chrom_stats(bam_obj_list, chrom_list):
+def chrom_stats(bam_obj_list, chrom_list, use_counts):
 	"""
 	Runs chrom stats module.
 
@@ -646,9 +653,19 @@ def chrom_stats(bam_obj_list, chrom_list):
 	bam_obj_list : list
 		List of bam.BamFile() objects. Need to have been created using same
 		reference (i.e., seq names and lengths are the same)
+	chrom_list : list
+		List of chromosome names to analyze
+	use_counts : bool
+		If True, will just grab counts from bam index INSTEAD of traversing
+		for depth and mapq
 
 	Returns
 	-------
+
+	tuple
+		Tuple containing two dictionaries with results for
+		depth and mapq, respectively. Or, if use_counts is True, returns a
+		tuple containing the count dictionary and None.
 
 	"""
 	logger = logging.getLogger("xyalign")
@@ -675,25 +692,44 @@ def chrom_stats(bam_obj_list, chrom_list):
 		logging.shutdown()
 		sys.exit(1)
 
-	chrom_depth_dict = collections.OrderedDict()
-	chrom_mapq_dict = collections.OrderedDict()
+	if use_counts is False:
+		chrom_depth_dict = collections.OrderedDict()
+		chrom_mapq_dict = collections.OrderedDict()
 
-	chrom_depth_dict["header"] = [
-		os.path.basename(x.filepath) for x in bam_obj_list]
-	chrom_depth_dict["header"].insert(0, "chrom")
-	chrom_mapq_dict["header"] = [
-		os.path.basename(x.filepath) for x in bam_obj_list]
-	chrom_mapq_dict["header"].insert(0, "chrom")
-	for chromosome in chrom_list:
-		chrom_results = [
-			x.chrom_stats(chromosome, False) for x in bam_obj_list]
-		chrom_depth_dict[chromosome], chrom_mapq_dict[chromosome] = zip(
-			*chrom_results)
+		chrom_depth_dict["header"] = [
+			os.path.basename(x.filepath) for x in bam_obj_list]
+		chrom_depth_dict["header"].insert(0, "chrom")
+		chrom_mapq_dict["header"] = [
+			os.path.basename(x.filepath) for x in bam_obj_list]
+		chrom_mapq_dict["header"].insert(0, "chrom")
+		for chromosome in chrom_list:
+			chrom_results = [
+				x.chrom_stats(chromosome, False) for x in bam_obj_list]
+			chrom_depth_dict[chromosome], chrom_mapq_dict[chromosome] = zip(
+				*chrom_results)
 
-		chrom_depth_dict[chromosome] = (chromosome,) + chrom_depth_dict[chromosome]
-		chrom_mapq_dict[chromosome] = (chromosome,) + chrom_mapq_dict[chromosome]
+			chrom_depth_dict[chromosome] = (chromosome,) + chrom_depth_dict[chromosome]
+			chrom_mapq_dict[chromosome] = (chromosome,) + chrom_mapq_dict[chromosome]
 
-	return (chrom_depth_dict, chrom_mapq_dict)
+		return (chrom_depth_dict, chrom_mapq_dict)
+
+	else:
+		chrom_count_dict = collections.OrderedDict()
+
+		chrom_count_dict["header"] = [
+			os.path.basename(x.filepath) for x in bam_obj_list]
+		chrom_count_dict["header"].insert(0, "chrom")
+
+		for chromosome in chrom_list:
+			chrom_count_dict[chromosome] = [chromosome]
+
+		for i in bam_obj_list:
+			idx_stats = i.chrom_counts()
+			for k in idx_stats:
+				if k.contig in chrom_count_dict:
+					chrom_count_dict[k.contig].append(int(k.mapped))
+
+		return (chrom_count_dict, None)
 
 
 def bam_analysis(
@@ -1336,6 +1372,8 @@ def main():
 		results_path, "{}_chrom_stats_mapq.txt".format(args.sample_id))
 	chrom_stats_depth = os.path.join(
 		results_path, "{}_chrom_stats_depth.txt".format(args.sample_id))
+	chrom_stats_count = os.path.join(
+		results_path, "{}_chrom_stats_count.txt".format(args.sample_id))
 	depth_mapq_prefix_noprocessing = os.path.join(
 		plots_path, "{}_noprocessing".format(args.sample_id))
 	depth_mapq_prefix_postprocessing = os.path.join(
@@ -1403,22 +1441,32 @@ def main():
 			"CHROM_STATS set, will iterate through bam files to calculate "
 			"chromosome-wide averages.")
 		bam_list = [bam.BamFile(x, args.samtools_path) for x in args.bam]
+
 		chrom_stats_results = chrom_stats(
 			bam_obj_list=bam_list,
-			chrom_list=args.chromosomes)
+			chrom_list=args.chromosomes,
+			use_counts=args.use_counts)
 
-		cs_depth_dict = chrom_stats_results[0]
-		cs_mapq_dict = chrom_stats_results[1]
+		if args.use_counts is False:
+			cs_depth_dict = chrom_stats_results[0]
+			cs_mapq_dict = chrom_stats_results[1]
 
-		with open(chrom_stats_depth, "w") as f:
-			for i in cs_depth_dict:
-				out_line = "\t".join([str(x) for x in cs_depth_dict[i]])
-				f.write("{}\n".format(out_line))
+			with open(chrom_stats_depth, "w") as f:
+				for i in cs_depth_dict:
+					out_line = "\t".join([str(x) for x in cs_depth_dict[i]])
+					f.write("{}\n".format(out_line))
 
-		with open(chrom_stats_mapq, "w") as f:
-			for i in cs_mapq_dict:
-				out_line = "\t".join([str(x) for x in cs_mapq_dict[i]])
-				f.write("{}\n".format(out_line))
+			with open(chrom_stats_mapq, "w") as f:
+				for i in cs_mapq_dict:
+					out_line = "\t".join([str(x) for x in cs_mapq_dict[i]])
+					f.write("{}\n".format(out_line))
+		else:
+			cs_count_dict = chrom_stats_results[0]
+
+			with open(chrom_stats_count, "w") as f:
+				for i in cs_count_dict:
+					out_line = "\t".join([str(x) for x in cs_count_dict[i]])
+					f.write("{}\n".format(out_line))
 
 		logger.info("CHROM_STATS complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
