@@ -117,10 +117,8 @@ rule all:
 		"xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_depth.txt",
 		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_mapq.txt",
 		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_depth.txt",
-		"xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_mapq.txt",
-		"xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_depth.txt",
-		"xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_mapq.txt",
-		"xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_depth.txt"
+		"xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_count.txt",
+		"xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_count.txt"
 
 rule prepare_reference_hg19:
 	input:
@@ -370,7 +368,7 @@ rule chrom_stats_thousand_genomes:
 		conda_env = xyalign_anaconda_env,
 		logfile = "thousand_chrom_stats.logfile"
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --chromosomes 1 8 19 X Y M --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --chromosomes 1 8 19 X Y MT --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
 
 rule chrom_stats_hg19_human_counts:
 	input:
@@ -381,8 +379,7 @@ rule chrom_stats_hg19_human_counts:
 			"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
 			sample=human_list)
 	output:
-		mapqs = "xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_mapq.txt",
-		depth = "xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_depth.txt"
+		counts = "xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_count.txt"
 	params:
 		xyalign = xyalign_path,
 		sample_id = "hg19_human_counts",
@@ -400,12 +397,11 @@ rule chrom_stats_thousand_genomes_counts:
 			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
 			sample=thousand_list)
 	output:
-		mapqs = "xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_mapq.txt",
-		depth = "xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_depth.txt"
+		counts = "xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_count.txt"
 	params:
 		xyalign = xyalign_path,
 		sample_id = "thousand_counts",
 		conda_env = xyalign_anaconda_env,
 		logfile = "thousand_chrom_stats_counts.logfile"
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --use_counts --chromosomes 1 8 19 X Y M --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
+		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --use_counts --chromosomes 1 8 19 X Y MT --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"

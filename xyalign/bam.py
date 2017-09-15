@@ -1058,6 +1058,8 @@ class BamFile():
 		samfile = pysam.AlignmentFile(self.filepath, "rb")
 		chr_len = self.get_chrom_length(chrom)
 
+		no_query_len = 0
+
 		start = 0
 		end = chr_len
 		if duplicates is True:
@@ -1066,7 +1068,11 @@ class BamFile():
 			for read in samfile.fetch(chrom, start, end):
 				if read.is_secondary is False:
 					if read.is_supplementary is False:
-						total_read_length += read.infer_query_length()
+						try:
+							total_read_length += read.infer_query_length()
+						except TypeError:
+							no_query_len += 1
+							continue
 						mapq.append(read.mapping_quality)
 
 		else:
@@ -1076,12 +1082,18 @@ class BamFile():
 				if read.is_secondary is False:
 					if read.is_supplementary is False:
 						if read.is_duplicate is False:
-							total_read_length += read.infer_query_length()
+							try:
+								total_read_length += read.infer_query_length()
+							except TypeError:
+								no_query_len += 1
+								continue
 							mapq.append(read.mapping_quality)
 
 		samfile.close()
-		self.logger.info("Analysis complete. Elapsed time: {} seconds".format(
-			time.time() - analyze_start))
+		self.logger.info(
+			"Analysis complete. {} reads ignored because infer_query_length() "
+			"returned None. Elapsed time: {} seconds".format(
+				no_query_len, time.time() - analyze_start))
 		return ((float(total_read_length) / chr_len), np.mean(np.asarray(mapq)))
 
 	def chrom_counts(self):
