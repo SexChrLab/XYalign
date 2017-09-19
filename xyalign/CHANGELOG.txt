@@ -3,7 +3,7 @@
 # List in reverse chronological order
 # Only listing changes since previous version/release
 
-Development Version (currently branch called noY_support)
+Version 1.0.0
 	* Added --use_counts to use read count data in CHROM_STATS
 	* Added --coordinate_scale to alter x axis labels for chromosome-wide plotting
 	* Fixed recent bug introduced by updates to samtools which did not output all reads when stripping reads from a subset of data
