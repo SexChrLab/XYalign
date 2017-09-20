@@ -9,8 +9,8 @@ Requirements
 
 The different modules of XYalign have slightly different requirements, but in
 general you'll need: a **bam file** and the **reference fasta file**
-used to generate it.  XYalign also requires a *list of chromosomes* to analyze (at least 3, including X and Y),
-the *name of the X chromosome*, and the *name of the Y chromosome*. The chromosome names must *exactly* match
+used to generate it.  XYalign also requires a *list of chromosomes* to analyze,
+the *name of the X chromosome*, and the *name of the Y chromosome* (if in the assembly). The chromosome names must *exactly* match
 those in the bam header and reference fasta - 'chr19' is not equivalent to '19', for example.
 
 You also need a variety of python packages and external programs installed.  See
@@ -19,13 +19,14 @@ You also need a variety of python packages and external programs installed.  See
 The Pipeline
 ~~~~~~~~~~~~
 
-Xyalign is composed of the following modules that can be thought of as steps in the pipeline::
+Xyalign is composed of the following modules that can be thought of as steps in the pipeline (with the exception of CHROM_STATS)::
 
 	PREPARE_REFERENCE
 	ANALYZE_BAM
 	CHARACTERIZE_SEX_CHROMS
 	STRIP_READS
 	REMAPPING
+	CHROM_STATS
 
 Each of these modules can be invoked as a command line flag with no arguments
 (e.g., ``--PREPARE_REFERENCE``), and XYalign will execute *only that module*.  If no flags
@@ -55,6 +56,9 @@ ANALYZE_BAM -> CHARACTERIZE_SEX_CHROMS -> STRIP_READS -> REMAPPING -> ANALYZE_BA
 
 	6. Analyze the new bam file as in steps 4 and 5.
 
+``CHROM_STATS`` provides quicker, coarser statistics and is designed for cases in which a reference genome is well-understood
+and when multiple samples are available.
+
 Suggested Command Lines
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -64,7 +68,7 @@ as well as the full pipeline.  You can find a complete list of command line flag
 their descriptions, and their defaults listed at the bottom of the page.  You can
 also get this list from the command line::
 
-	python xyalign.py -h
+	xyalign -h
 
 In all examples, ``reference.fasta`` is our input reference in fasta format, ``input.bam``
 is our input bam file (created using ``reference.fasta``), ``sample1`` is the ID of our
@@ -78,7 +82,7 @@ working on a cluster with 4 cores available to XYalign.
 1. PREPARE_REFERENCE
 ::
 
-	python xyalign.py --PREPARE_REFERENCE --ref reference.fasta \
+	xyalign --PREPARE_REFERENCE --ref reference.fasta \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 --reference_mask mask.bed \
 	--x_chromosome chrX --y_chromosome chrY
 
@@ -95,7 +99,7 @@ Note, however, that files will still be deposited in ``sample1_output/reference`
 2. ANALYZE_BAM
 ::
 
-	python xyalign.py --ANALYZE_BAM --ref reference.fasta --bam input.bam \
+	xyalign --ANALYZE_BAM --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 --window_size 10000 \
 	--chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY
 
@@ -120,7 +124,7 @@ with values for each measure in each window in ``sample1_output/bed``.
 3. CHARACTERIZE_SEX_CHROMS
 ::
 
-	python xyalign.py --CHARACTERIZE_SEX_CHROMS --ref reference.fasta --bam input.bam \
+	xyalign --CHARACTERIZE_SEX_CHROMS --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 --window_size 10000 \
 	--chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY
 
@@ -132,7 +136,7 @@ results of a series of statistical tests in ``sample1_output/results``.
 
 4. STRIP_READS
 ::
-	python xyalign.py --STRIP_READS --ref reference.fasta --bam input.bam \
+	xyalign --STRIP_READS --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 \
 	--chromosomes chr1 chr2 chr3 chr4 chr5
 
@@ -148,7 +152,7 @@ in its place.  To strip reads from the entire genome (including unmapped), use
 5. REMAPPING
 ::
 
-	python xyalign.py --REMAPPING --ref reference.fasta --bam input.bam \
+	xyalign --REMAPPING --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 \
 	--chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY \
 	--xx_ref_in sample1_output/reference/xyalign_noY.masked.fa \
@@ -168,7 +172,7 @@ REMAPPING will run STRIP_READS first.
 And if we want to run the full XYalign pipeline on a sample, we'd use a command line
 along the lines of::
 
-	python xyalign.py --ref reference.fasta --bam input.bam \
+	xyalign --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 --reference_mask mask.bed \
 	--window_size 10000 \ --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY
 
@@ -177,6 +181,16 @@ and ``--xx_ref_in``, as in 4.  We could have also used ``--y_absent`` or ``--y_p
 to force mapping to a certain reference.  Because we didn't include either of these
 two flags, XYalign will use ``--sex_chrom_calling_threshold`` to determine the
 sex chromosome complement (default is 2.0).
+
+6. CHROM_STATS
+::
+	xyalign --CHROM_STATS --use_counts --bam input1.bam input2.bam input3.bam --ref null \
+	--output_dir directory_name --sample_id analysis_name --chromosomes chr19 chrX chrY
+
+Here, ``--use_counts`` simply grabs the number of reads mapped to each chromosome from the
+bam index. It's by far the fastest, yet coarsest option. Running without this flag
+will calculated depth and mapq along each chromosome for more detail, but this will take longer.
+
 
 Recommendations for Incorporating XYalign into Pipelines
 --------------------------------------------------------
@@ -257,14 +271,15 @@ Analyzing arbitrary chromosomes
 -------------------------------
 
 Currently, XYalign requires a minimum of two chromosomes (an "autosome and an "x chromosome")
-for analyses (in the module CHARACTERIZE_SEX_CHROMS). These chromosomes, however,
-can be arbitrary. Below, we highlight two example cases: looking for evidence of Trisomy 21 in human samples,
+for analyses in ANALYZE_BAM and CHARACTERIZE_SEX_CHROMS (and therefore, the whole pipeline)
+These chromosomes, however, can be arbitrary. Below, we highlight two example cases:
+looking for evidence of Trisomy 21 in human samples,
 and running the full XYalign pipeline on a ZW sample (perhaps a bird, squamate reptile, or moth).
 
 If one wanted to look for evidence of Trisomy 21 in human data mapped to hg19 (which uses
 "chr" in chromosome names), s/he could use a command along the lines of::
 
-	python xyalign.py --CHARACTERIZE_SEX_CHROMS --ref reference.fasta --bam input.bam \
+	xyalign --CHARACTERIZE_SEX_CHROMS --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 --window_size 10000 \
 	--chromosomes chr1 chr10 chr19 chr21 --x_chromosome chr21
 
@@ -275,7 +290,7 @@ To run the full pipeline on a ZW sample (in ZZ/ZW systems, males are ZZ and fema
 are ZW), one could simply run a command like (assuming the Z scaffold was named
 "scaffoldz" and the W scaffold was named "scaffoldw")::
 
-	python xyalign.py --ref reference.fasta --bam input.bam \
+	xyalign --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 --reference_mask mask.bed \
 	--window_size 10000 --chromosomes scaffold1 scaffoldz scaffoldw --x_chromosome scaffoldz \
 	--y_chromosome scaffoldw
@@ -290,30 +305,35 @@ Using XYalign as a Python library
 ---------------------------------
 All modules in the XYalign/xyalign directory are designed to support the command
 line program XYalign.  However, some classes and functions might be of use in other
-circumstances. We're currently working on expanding and testing the library, but
-for now, you can install using the following command::
+circumstances. If you've installed XYalign as described in :doc:`installation`, then you
+should be able to import XYalign libraries just like you would for any other Python package. E.g.::
 
-	pip install https://github.com/WilsonSayresLab/XYalign/archive/master.zip
+	from xyalign import bam
 
-This will install the latest development version.  Alternatively, you can replace
-the above address with the address to the .zip source code of any of XYalign's
-releases ([available here](https://github.com/WilsonSayresLab/XYalign/releases)).
+Or::
 
-Another option, if you've already cloned the repo, is to move to that directory
-and use the command::
+	import xyalign.bam
 
-	pip install .
 
 Full List of Command-Line Flags
 -------------------------------
 This list can also be produced with the command::
-	python xyalign.py -h
+	xyalign -h
 
 ::
 -h, --help            show this help message and exit
---bam BAM             Full path to input bam file.
---cram CRAM           Full path to input cram file. Not currently supported.
---sam SAM             Full path to input sam file. Not currently supported.
+--bam [BAM [BAM ...]]
+					  Full path to input bam files. If more than one
+					  provided, only the first will be used for modules
+					  other than --CHROM_STATS
+--cram [CRAM [CRAM ...]]
+					  Full path to input cram files. If more than one
+					  provided, only the first will be used for modules
+					  other than --CHROM_STATS. Not currently supported.
+--sam [SAM [SAM ...]]
+					  Full path to input sam files. If more than one
+					  provided, only the first will be used for modules
+					  other than --CHROM_STATS. Not currently supported.
 --ref REF             REQUIRED. Path to reference sequence (including file
 					  name).
 --output_dir OUTPUT_DIR, -o OUTPUT_DIR
@@ -355,13 +375,14 @@ This list can also be produced with the command::
 --single_end          Include flag if reads are single-end and NOT paired-
 					  end.
 --version, -V         Print version and exit.
---cleanup CLEANUP     Default is True. Flag determines whether temporary
-					  files are deleted or not. '--cleanup False' will
-					  preserve all temporary files.
+--no_cleanup          Include flag to preserve temporary files.
 --PREPARE_REFERENCE   This flag will limit XYalign to only preparing
 					  reference fastas for individuals with and without Y
 					  chromosomes. These fastas can then be passed with each
 					  sample to save subsequent processing time.
+--CHROM_STATS         This flag will limit XYalign to only analyzing
+					  provided bam files for depth and mapq across entire
+					  chromosomes.
 --ANALYZE_BAM         This flag will limit XYalign to only analyzing the bam
 					  file for depth, mapq, and (optionally) read balance
 					  and outputting plots.
@@ -420,18 +441,34 @@ This list can also be produced with the command::
 					  either --y_present, --y_absent, or
 					  --sex_chrom_calling_threshold if running full
 					  pipeline.
---variant_quality_cutoff VARIANT_QUALITY_CUTOFF, -vqc VARIANT_QUALITY_CUTOFF
-					  Consider all SNPs with a quality greater than or equal
-					  to this value. Default is 20.
+--variant_site_quality VARIANT_SITE_QUALITY, -vsq VARIANT_SITE_QUALITY
+					  Consider all SNPs with a site quality (QUAL) greater
+					  than or equal to this value. Default is 30.
+--variant_genotype_quality VARIANT_GENOTYPE_QUALITY, -vgq VARIANT_GENOTYPE_QUALITY
+					  Consider all SNPs with a sample genotype quality
+					  greater than or equal to this value. Default is 30.
+--variant_depth VARIANT_DEPTH, -vd VARIANT_DEPTH
+					  Consider all SNPs with a sample depth greater than or
+					  equal to this value. Default is 4.
 --platypus_logfile PLATYPUS_LOGFILE
 					  Prefix to use for Platypus log files. Will default to
 					  the sample_id argument provided
---reference_mask REFERENCE_MASK [REFERENCE_MASK ...]
+--homogenize_read_balance HOMOGENIZE_READ_BALANCE
+					  If True, read balance values will be transformed by
+					  subtracting each value from 1. For example, 0.25 and
+					  0.75 would be treated equivalently. Default is False.
+--min_variant_count MIN_VARIANT_COUNT
+					  Minimum number of variants in a window for the read
+					  balance of that window to be plotted. Note that this
+					  does not affect plotting of variant counts. Default is
+					  1, though we note that many window averages will be
+					  meaningless at this setting.
+--reference_mask [REFERENCE_MASK [REFERENCE_MASK ...]]
 					  Bed file containing regions to replace with Ns in the
 					  sex chromosome reference. Examples might include the
 					  pseudoautosomal regions on the Y to force all
 					  mapping/calling on those regions of the X chromosome.
-					  Default is none.
+					  Default is None.
 --xx_ref_out XX_REF_OUT
 					  Desired name for masked output fasta for samples
 					  WITHOUT a Y chromosome (e.g., XX, XXX, XO, etc.).
@@ -502,6 +539,9 @@ This list can also be produced with the command::
 					  typical bed format, 0-based indexing, with the first
 					  three columns containing the chromosome name, start
 					  coordinate, stop coordinate.
+--exact_depth         Calculate exact depth within windows, else use much
+					  faster approximation. *Currently exact is not
+					  implemented*. Default is False.
 --whole_genome_threshold
 					  This flag will calculate the depth filter threshold
 					  based on all values from across the genome. By
@@ -509,11 +549,19 @@ This list can also be produced with the command::
 --mapq_cutoff MAPQ_CUTOFF, -mq MAPQ_CUTOFF
 					  Minimum mean mapq threshold for a window to be
 					  considered high quality. Default is 20.
---depth_filter DEPTH_FILTER, -df DEPTH_FILTER
-					  Filter for depth (f), where the threshold used is
-					  mean_depth +- (f * square_root(mean_depth)). See Li
-					  2014 (Bioinformatics 30: 2843-2851) for more
-					  information. Default is 4.
+--min_depth_filter MIN_DEPTH_FILTER
+					  Minimum depth threshold for a window to be considered
+					  high quality. Calculated as mean depth *
+					  min_depth_filter. So, a min_depth_filter of 0.2 would
+					  require at least a minimum depth of 2 if the mean
+					  depth was 10. Default is 0.0 to consider all windows.
+--max_depth_filter MAX_DEPTH_FILTER
+					  Maximum depth threshold for a window to be considered
+					  high quality. Calculated as mean depth *
+					  max_depth_filter. So, a max_depth_filter of 4 would
+					  require depths to be less than or equal to 40 if the
+					  mean depth was 10. Default is 10000.0 to consider all
+					  windows.
 --num_permutations NUM_PERMUTATIONS
 					  Number of permutations to use for permutation
 					  analyses. Default is 10000
@@ -521,9 +569,19 @@ This list can also be produced with the command::
 					  Number of bootstrap replicates to use when
 					  bootstrapping mean depth ratios among chromosomes.
 					  Default is 10000
+--ignore_duplicates   Ignore duplicate reads in bam analyses. Default is to
+					  include duplicates.
 --marker_size MARKER_SIZE
 					  Marker size for genome-wide plots in matplotlib.
 					  Default is 10.
 --marker_transparency MARKER_TRANSPARENCY, -mt MARKER_TRANSPARENCY
 					  Transparency of markers in genome-wide plots. Alpha in
 					  matplotlib. Default is 0.5
+--coordinate_scale COORDINATE_SCALE
+					  For genome-wide scatter plots, divide all coordinates
+					  by this value.Default is 1000000, which will plot
+					  everything in megabases.
+--use_counts          If True, get counts of reads per chromosome for
+					  CHROM_STATS, rather than calculating mean depth and
+					  mapq. Much faster, but provides less information.
+					  Default is False

@@ -4,12 +4,29 @@ Installation
 Obtaining XYalign
 -----------------
 
+Github
+~~~~~~
+
 You can download the most recent (or any previous) release of XYalign [HERE](https://github.com/WilsonSayresLab/XYalign/releases)
 
 Alternatively, you can obtain the current development version of XYalign by
 cloning the Github repository::
 
 	git clone https://github.com/WilsonSayresLab/XYalign/
+
+Once the repository is downloaded::
+
+	cd XYalign
+	pip install --editable .
+
+You should then be able to call XYalign from the command line, e.g.::
+
+	xyalign -h
+
+You can alternatively use the ```xyalign_runner.py``` script, located in the main XYalign directory, to run XYalign without installing::
+
+	python /path/to/xyalign_runner.py -h
+
 
 Operating System
 ----------------
@@ -85,7 +102,7 @@ Miniconda is a lightweight version of Anaconda).
 	numpy pandas matplotlib platypus-variant bwa bbmap \
 	samtools bedtools sambamba scipy
 
-..note::
+.. note::
 	You *need* to add channels in this order. Doing so will ensure priority of channels
 	will go in the order bioconda > conda-forge > defaults > r. This is important because
 	the source of bzip2 (required for many programs) needs to be conda-forge (the version
