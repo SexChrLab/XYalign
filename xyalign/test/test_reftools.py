@@ -60,6 +60,7 @@ def test_RefFasta():
 		os.path.join(dir, "toy.fasta"), "samtools", "bwa", no_initial_index=True)
 	test_fasta2 = reftools.RefFasta(
 		os.path.join(dir, "toy2.fasta"), "samtools", "bwa", no_initial_index=True)
+	os.utime(os.path.join(dir, "toy.dict"), None)
 	assert test_fasta.filepath == os.path.join(dir, "toy.fasta")
 	assert test_fasta.is_faidxed() is True
 	assert test_fasta.check_bwa_index() is True

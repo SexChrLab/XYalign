@@ -128,8 +128,10 @@ def test_BamFile():
 	assert test_header.filepath == os.path.join(dir, "header.bam")
 	assert test_header2.filepath == os.path.join(dir, "header2.bam")
 	assert test_header3.filepath == os.path.join(dir, "tinyheader2.bam")
+	os.utime(os.path.join(dir, "header.bam.bai"), None)
 	assert test_header.is_indexed() is True
 	assert test_header2.is_indexed() is False
+	os.utime(os.path.join(dir, "tinyheader2.bai"), None)
 	assert test_header3.is_indexed() is True
 
 
