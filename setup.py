@@ -5,8 +5,8 @@ from setuptools import setup
 version_py = "xyalign/_version.py"
 exec(open(version_py).read())
 
-package_description = 'Tools to infer ploidy, correct for sex chromosome "\
-	"complement, and work with NGS data'
+package_description = 'Command line tools and python library to infer ploidy,'\
+	' correct for sex chromosome complement, and work with NGS data'
 
 setup(
 	name='XYalign',
@@ -20,6 +20,8 @@ setup(
 	packages=["xyalign", "xyalign.test"],
 	setup_requires=['pytest-runner'],
 	tests_require=['pytest'],
+	install_requires=[
+		'matplotlib', 'numpy', 'pandas', 'pybedtools', 'pysam', 'scipy']
 	entry_points={
 		"console_scripts": ['xyalign = xyalign.xyalign:main']},
 )

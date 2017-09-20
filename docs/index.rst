@@ -1,6 +1,6 @@
 XYalign: Inferring and Correcting for Sex Chromosome Ploidy in Next-Generation Sequencing Data
 ==============================================================================================
-:Authors: Timothy Webster, Tanya Phung, Madeline Couse, Bruno Grande, Eric Karlins, Phillip Richmond, Whitney Whitford, Melissa Wilson Sayres
+:Authors: Timothy Webster, Madeline Couse, Bruno Grande, Eric Karlins, Tanya Phung, Phillip Richmond, Whitney Whitford, Melissa Wilson Sayres
 :Date: |today|
 :Release: |release|
 :Download: `Github Repository <https://github.com/WilsonSayresLab/XYalign/>`_
