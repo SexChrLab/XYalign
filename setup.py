@@ -21,7 +21,7 @@ setup(
 	setup_requires=['pytest-runner'],
 	tests_require=['pytest'],
 	install_requires=[
-		'matplotlib', 'numpy', 'pandas', 'pybedtools', 'pysam', 'scipy']
+		'matplotlib', 'numpy', 'pandas', 'pybedtools', 'pysam', 'scipy'],
 	entry_points={
 		"console_scripts": ['xyalign = xyalign.xyalign:main']},
 )
