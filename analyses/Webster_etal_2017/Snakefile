@@ -309,12 +309,12 @@ rule xyalign_hg19_analysis_human:
 		sample_id = "{sample}_hg19",
 		hg19_ref_mask = hg19_reference_mask_path,
 		conda_env = xyalign_anaconda_env,
-		xx_ref_out = "{sample}_xyalign_noY.masked.fa",
-		xy_ref_out = "{sample}_xyalign_withY.masked.fa"
+		xx_ref_in = "{sample}_xyalign_noY.masked.fa",
+		xy_ref_in = "{sample}_xyalign_withY.masked.fa"
 	threads:
 		4
 	shell:
-		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/hg19 --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY --xmx 4g --fastq_compression 4 --xx_ref_out {params.xx_ref_out} --xy_ref_out {params.xy_ref_out}"
+		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/hg19 --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY --xmx 4g --fastq_compression 4 --xx_ref_in {params.xx_ref_in} --xy_ref_in {params.xy_ref_in}"
 
 rule xyalign_1000genomes_analysis:
 	input:
