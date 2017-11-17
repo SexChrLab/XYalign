@@ -12,12 +12,7 @@ import sys
 import time
 import pandas as pd
 import pysam
-import assemble
-import bam
-import ploidy
-import reftools
-import utils
-import variants
+from xyalign import assemble, bam, ploidy, reftools, utils, variants
 
 # Grab XYalign version from _version.py in the xyalign directory
 dir = os.path.dirname(__file__)

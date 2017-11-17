@@ -7,7 +7,7 @@ import gzip
 import logging
 import subprocess
 import time
-import utils
+from xyalign import utils
 import numpy as np
 import pandas as pd
 # Matplotlib needs to be called in this way to set the display variable

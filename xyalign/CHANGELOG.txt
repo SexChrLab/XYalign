@@ -5,6 +5,7 @@
 
 Development Version (on Github) - Version 1.0.1
 	* Added --bwa_index flag to optionally create BWA indices in PREPARE_REFERENCE
+	* Changed to relative imports from within xyalign
 
 Version 1.0.0
 	* Added --use_counts to use read count data in CHROM_STATS
