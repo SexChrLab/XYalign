@@ -3,6 +3,9 @@
 # List in reverse chronological order
 # Only listing changes since previous version/release
 
+Development Version (on Github) - Version 1.0.1
+	* Added --bwa_index flag to optionally create BWA indices in PREPARE_REFERENCE
+
 Version 1.0.0
 	* Added --use_counts to use read count data in CHROM_STATS
 	* Added --coordinate_scale to alter x axis labels for chromosome-wide plotting

@@ -293,7 +293,7 @@ rule xyalign_prepare_hg19_reference:
 	threads:
 		4
 	shell:
-		"source activate xyalign_env && {params.xyalign} --PREPARE_REFERENCE --ref {input.ref} --xx_ref_out hg19.XXonly.fasta --xy_ref_out hg19.XY.fasta --output_dir {params.output_dir} --x_chromosome chrX --y_chromosome chrY"
+		"source activate xyalign_env && {params.xyalign} --PREPARE_REFERENCE --ref {input.ref} --xx_ref_out hg19.XXonly.fasta --xy_ref_out hg19.XY.fasta --output_dir {params.output_dir} --x_chromosome chrX --y_chromosome chrY --bwa_index True"
 
 rule xyalign_hg19_analysis_human:
 	input:

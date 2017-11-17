@@ -305,6 +305,11 @@ def parse_args():
 		"samples containing Y chromosome.  Default is None.  If none, will "
 		"produce a sample-specific reference for remapping.")
 
+	parser.add_argument(
+		"--bwa_index", type=bool, default=False,
+		help="If True, index with BWA during PREPARE_REFERENCE. Only relevant"
+		"when running the PREPARE_REFERENCE module by itself. Default is False.")
+
 	# Mapping/remapping arguments
 	parser.add_argument(
 		"--read_group_id", default="xyalign", type=str,
@@ -567,7 +572,8 @@ def parse_args():
 
 
 def ref_prep(
-	ref_obj, ref_mask, ref_dir, xx, xy, y_chromosome, samtools_path, bwa_path):
+	ref_obj, ref_mask, ref_dir, xx, xy, y_chromosome,
+	samtools_path, bwa_path, bwa_index):
 	"""
 	Reference prep part of XYalign pipeline.
 
@@ -575,7 +581,7 @@ def ref_prep(
 	ref_mask.  One will additionally have the entire Y chromosome
 	hard masked.
 
-	* Indexes (.fai, .dict, and bwa indices) both new references
+	* Indexes (.fai, .dict, and optionally bwa indices) both new references
 
 	Parameters
 	----------
@@ -595,6 +601,8 @@ def ref_prep(
 		The path to samtools (i.e, "samtools" if in path)
 	bwa_path : str
 		The path to bwa (i.e, "bwa" if in path)
+	bwa_index : bool
+		If True, create bwa indices. Don't if False.
 
 	Returns
 	-------
@@ -637,6 +645,9 @@ def ref_prep(
 		withy_out = xy
 	withy_ref = reftools.RefFasta(withy_out, samtools_path, bwa_path)
 	withy_ref.seq_dict()
+	if bwa_index is True:
+		noy_ref.index_bwa()
+		withy_ref.index_bwa()
 	return (noy_ref, withy_ref)
 
 
@@ -1428,7 +1439,8 @@ def main():
 			xy=xy_out,
 			y_chromosome=args.y_chromosome,
 			samtools_path=args.samtools_path,
-			bwa_path=args.bwa_path)
+			bwa_path=args.bwa_path,
+			bwa_index=args.bwa_index)
 
 		logger.info("PREPARE_REFERENCE complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
@@ -1682,7 +1694,8 @@ def main():
 				xy=xy_out,
 				y_chromosome=args.y_chromosome,
 				samtools_path=args.samtools_path,
-				bwa_path=args.bwa_path)
+				bwa_path=args.bwa_path,
+				bwa_index=True)
 
 		else:
 			xx = reftools.RefFasta(
@@ -1766,7 +1779,8 @@ def main():
 				xy=xy_out,
 				y_chromosome=args.y_chromosome,
 				samtools_path=args.samtools_path,
-				bwa_path=args.bwa_path)
+				bwa_path=args.bwa_path,
+				bwa_index=True)
 
 		else:
 			xx = reftools.RefFasta(
