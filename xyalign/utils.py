@@ -233,8 +233,9 @@ def make_region_lists_genome_filters(
 	depthMax = depth_mean * max_depth
 
 	utils_logger.info(
-		"Filtering dataframe for mapq (MAPQ >= mapqCutoff) "
-		"and depth (between depthMin and depthMax)")
+		"Filtering dataframe for mapq (MAPQ >= {}) "
+		"and depth (between {} and {})".format(
+			mapqCutoff, depthMin, depthMax))
 
 	good = (
 		(depthAndMapqDf.mapq >= mapqCutoff) &
@@ -293,8 +294,9 @@ def make_region_lists_chromosome_filters(
 		depthMax = depth_mean * max_depth
 
 		utils_logger.info(
-			"Filtering chromosome {} for mapq (MAPQ >= mapqCutoff) "
-			"and depth (between depthMin and depthMax)".format(i))
+			"Filtering chromosome {} for mapq (MAPQ >= {}) "
+			"and depth (between {} and {})".format(
+				i, mapqCutoff, depthMin, depthMax))
 
 		good = (
 			(df.chrom == i) &
