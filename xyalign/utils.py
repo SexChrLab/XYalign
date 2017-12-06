@@ -517,3 +517,102 @@ def plot_depth_mapq(
 			chromosome, window_df["mapq"], "Mapq", sampleID, output_prefix)
 
 	return 0
+
+
+def before_after_plot(
+	chrom, positions, values_before, values_after, measure_name, sampleID,
+	output_prefix, MarkerSize, MarkerAlpha, Xlim,
+	YMin="auto", YMax="auto", x_scale=1000000, Color="black"):
+	"""
+	Plots difference between before/after values (after minus before) across
+	a chromosome.
+
+	Parameters
+	----------
+
+	chrom : str
+		Name of the chromosome
+	positions : numpy array
+		Genomic coordinates
+	values_before : numpy array
+		The values of the measure of interest in the "before" condidtion
+	values_after : numpy array
+		The values of the measure of interest in the "after" condidtion
+	measure_name : str
+		The name of the measure of interest (for y-axis title)
+	sampleID : str
+		The name of the sample
+	output_prefix : str
+		Full path to and prefix of desired output plot
+	MarkerSize : float
+		Size in points^2
+	MarkerAlpha : float
+		Transparency (0 to 1)
+	Xlim : float
+		Maximum X value
+	YMin : str, int, or float
+		If "auto", will allow matplotlib to automatically determine limit. Otherwise,
+		will set the y axis minimum to the value provided (int or float)
+	YMax : str, int, or float
+		If "auto", will allow matplotlib to automatically determine limit. Otherwise,
+		will set the y axis maximum to the value provided (int or float)
+	x_scale : int
+		Divide all x values (including Xlim) by this value. Default is 1000000 (1MB)
+	Color : str
+		Color to use for points. See matplotlib documentation for acceptable options
+
+	Returns
+	-------
+
+	int
+		0 if plotting successful, 1 otherwise
+	"""
+	# Check that lengths are identical
+	if len(values_before) != len(values_after):
+		utils_logger.error(
+			"Error. values_before and values_after must have the same length")
+		return 1
+	else:
+		value_array = np.nan_to_num(values_after) - np.nan_to_num(values_before)
+		fig = plt.figure(figsize=(15, 5))
+		axes = fig.add_subplot(111)
+		positions = np.divide(positions, float(x_scale))
+		axes.scatter(
+			positions, value_array, c=Color, alpha=MarkerAlpha, s=MarkerSize, lw=0)
+		axes.set_xlim(0, (Xlim / float(x_scale)))
+		if YMin != "auto":
+			if "." in YMin:
+				YMin = float(YMin)
+			else:
+				YMin = int(YMin)
+			if YMax != "auto":
+				if "." in YMax:
+					YMax = float(YMax)
+				else:
+					YMax = int(YMax)
+				axes.ylim((YMin, YMax))
+			else:
+				axes.ylim(ymin=YMin)
+		elif YMax != "auto":
+				if "." in YMax:
+					YMax = float(YMax)
+				else:
+					YMax = int(YMax)
+				axes.ylim(ymax=YMax)
+		axes.set_title("%s - %s" % (sampleID, chrom))
+		if x_scale == 1000000:
+			scale_label = "(MB)"
+		elif x_scale == 1000:
+			scale_label = "(KB)"
+		elif x_scale == 1:
+			scale_label = "(BP)"
+		else:
+			scale_label = "(divided by {})".formatt(x_scale)
+		axes.set_xlabel("Chromosomal Position {}".format(scale_label))
+		axes.set_ylabel("Difference in {}".format(measure_name))
+		plt.savefig("{}_{}_{}_BeforeAfterScatter.svg".format(
+			output_prefix, chrom, measure_name))
+		plt.savefig("{}_{}_{}_BeforeAfterScatter.png".format(
+			output_prefix, chrom, measure_name))
+		plt.close(fig)
+		return 0

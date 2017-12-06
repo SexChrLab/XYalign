@@ -7,7 +7,7 @@ import gzip
 import logging
 import subprocess
 import time
-from xyalign import utils
+import xyalign  # import utils
 import numpy as np
 import pandas as pd
 # Matplotlib needs to be called in this way to set the display variable
@@ -322,12 +322,12 @@ class VCFFile():
 					i, parse_results[0], parse_results[2], sampleID, homogenize,
 					chrom_len, window_size, target_file)
 				all_df.append(rb_df)
-				utils.chromosome_wide_plot(
+				xyalign.utils.chromosome_wide_plot(
 					i, rb_df["start"].values, rb_df["count"], "Window_Variant_Count",
 					sampleID, output_prefix, MarkerSize, MarkerAlpha,
 					chrom_len, rb_df["count"].max(), x_scale)
 				rb_df = rb_df[rb_df["count"] >= min_count]
-				utils.chromosome_wide_plot(
+				xyalign.utils.chromosome_wide_plot(
 					i, rb_df["start"].values, rb_df["balance"], "Window_Read_Balance",
 					sampleID, output_prefix, MarkerSize, MarkerAlpha,
 					chrom_len, 1.0, x_scale)
