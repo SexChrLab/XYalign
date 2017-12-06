@@ -71,9 +71,41 @@ def parse_args():
 		"--x_limit", help="Max value on x axis. We recommend you use the "
 		"chromosome length.")
 
+	parser.add_argument(
+		"--log_transform_depth", action="store_true", default=False,
+		help="Include flag to plot the absolute value of the log of the depth "
+		"difference *IN THE DIRECTION OF THE DIFFERENCE*. For exampe, "
+		"if the difference is 2, this would plot that value as abs(log10(2)), "
+		"while if the difference is -2, this would plot that value as "
+		"-abs(log10(2)). This allows the sign of the difference to remain "
+		"intact, while controlling for taking the log of negative numbers "
+		"or values between 0 and 1.")
+
 	args = parser.parse_args()
 
 	return args
+
+
+def transform_depth(numpy_array):
+	"""
+	Performs custom version of log transformation on a numpy array. Where each
+	value is processed to be equal to:
+	initial_sign * abs(log10(abs(value)))
+
+	Parameters
+	----------
+	numpy_array : numpy array
+		Array of values without NaNs
+
+	Returns
+	-------
+	numpy array
+	"""
+	signs = np.sign(numpy_array)
+	step1 = np.absolute(numpy_array)
+	id_zeros = step1 != 0
+	step2 = np.absolute(np.log10(step1, where=id_zeros))
+	return signs * step2
 
 
 def main():
@@ -90,11 +122,24 @@ def main():
 	df_before = df_before.fillna(0)
 	df_after = df_after.fillna(0)
 
+	print(
+		"Mean depth difference = {}".format(
+			np.mean(df_after["depth"].values - df_before["depth"].values)))
+	print(
+		"Mean MAPQ difference = {}".format(
+			np.mean(df_after["mapq"].values - df_before["mapq"].values)))
+
+	if args.log_transform_depth is True:
+		v_before = transform_depth(df_before["depth"].values)
+		v_after = transform_depth(df_after["depth"].values)
+	else:
+		v_before = df_before["depth"].values
+		v_after = df_after["depth"].values
 	return_val = utils.before_after_plot(
 		chrom=args.chrom,
 		positions=df_before["start"].values,
-		values_before=df_before["depth"].values,
-		values_after=df_after["depth"].values,
+		values_before=v_before,
+		values_after=v_after,
 		measure_name="depth",
 		sampleID=args.sample_id,
 		output_prefix=args.output_prefix,
