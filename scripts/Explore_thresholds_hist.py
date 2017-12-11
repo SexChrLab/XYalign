@@ -1,4 +1,5 @@
 import argparse
+import numpy as np
 import pandas as pd
 import pybedtools
 from xyalign import utils, variants
@@ -111,10 +112,31 @@ def main():
 				genotype_qual=args.variant_genotype_quality,
 				depth=args.variant_depth,
 				chrom=i)
-		pass
 	else:
 		parsed = vcf.parse_platypus_VCF(
 			site_qual=args.variant_site_quality,
 			genotype_qual=args.variant_genotype_quality,
 			depth=args.variant_depth,
 			chrom=args.chrom)
+
+		start_sites = chrom_df["start"].values
+		tmp_df = chrom_df[["start", "stop"]]
+		coord_dict = tmp_df.set_index("start").to_dict()
+
+		pos = []
+		qual = []
+		rb = []
+
+		for idx, i in enumerate(parsed[0]):
+			tmp_start = start_sites[np.searchsorted(start_sites, i, side="right")]
+			if i < coord_dict[tmp_start]:
+				pos.append(i)
+				qual.append(parsed[1][idx])
+				rb.append(parsed[2][idx])
+
+		rc = variants.hist_read_balance(
+			chrom=args.chrom,
+			readBalance=np.asarray(rb),
+			homogenize=False,
+			output_prefix="{}_mapq{}_mindepth{}_max_depth".format(args.output_prefix)
+		)
