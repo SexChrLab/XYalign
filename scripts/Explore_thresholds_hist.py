@@ -38,14 +38,14 @@ def parse_args():
 		"Otherwise, will calculate mean per chromosome.")
 
 	parser.add_argument(
-		"--min_depth_filter", type=float, default=0.0,
+		"--min_depth_filter", nargs='*', default=[0.0],
 		help="Minimum depth threshold for a window to be considered high "
 		"quality. Calculated as mean depth * min_depth_filter. So, a "
 		"min_depth_filter of 0.2 would require at least a minimum depth "
 		"of 2 if the mean depth was 10. Default is 0.0 to consider all windows.")
 
 	parser.add_argument(
-		"--max_depth_filter", type=float, default=10000.0,
+		"--max_depth_filter", nargs='*', default=[10000.0],
 		help="Maximum depth threshold for a window to be considered high "
 		"quality. Calculated as mean depth * max_depth_filter. So, a "
 		"max_depth_filter of 4 would require depths to be less than or "
@@ -53,22 +53,22 @@ def parse_args():
 		"Default is 10000.0 to consider all windows.")
 
 	parser.add_argument(
-		"--mapq_cutoff", "-mq", type=int, default=20,
+		"--mapq_cutoff", nargs='*', default=[20],
 		help="Minimum mean mapq threshold for a window to be "
 		"considered high quality. Default is 20.")
 
 	parser.add_argument(
-		"--variant_site_quality", "-vsq", type=int, default=30,
+		"--variant_site_quality", type=int, default=30,
 		help="Consider all SNPs with a site quality (QUAL) greater than or "
 		"equal to this value. Default is 30.")
 
 	parser.add_argument(
-		"--variant_genotype_quality", "-vgq", type=int, default=30,
+		"--variant_genotype_quality", type=int, default=30,
 		help="Consider all SNPs with a sample genotype quality greater than or "
 		"equal to this value. Default is 30.")
 
 	parser.add_argument(
-		"--variant_depth", "-vd", type=int, default=4,
+		"--variant_depth", type=int, default=4,
 		help="Consider all SNPs with a sample depth greater than or "
 		"equal to this value. Default is 4.")
 
@@ -104,6 +104,13 @@ def main():
 			max_depth=args.max_depth_filter)
 
 	if args.CHROM == "ALL":
+		chrom_dict = {}
+		for i in pass_df.chrom.unique():
+			chrom_dict[i] = vcf.parse_platypus_VCF(
+				site_qual=args.variant_site_quality,
+				genotype_qual=args.variant_genotype_quality,
+				depth=args.variant_depth,
+				chrom=i)
 		pass
 	else:
 		parsed = vcf.parse_platypus_VCF(
