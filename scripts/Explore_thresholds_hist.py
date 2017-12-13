@@ -28,6 +28,11 @@ def parse_args():
 		"pandas dataframe from BAM_ANALYSIS module")
 
 	parser.add_argument(
+		"--callable_bed", type=str, help="Full path to OPTIONAL external bed "
+		"file with callable regions. This script will plot based on filters only, "
+		"callable sites only, and filters and callable sites combined.")
+
+	parser.add_argument(
 		"--vcf", type=str, required=True, help="Full path to Platypus VCF output "
 		"from BAM_ANALYSIS module")
 
@@ -92,6 +97,108 @@ def parse_args():
 	return args
 
 
+def filter_and_plot(
+	whole_genome, dataframe, mapq_thresh, min_dp, max_dp, chromosome, vcf_file,
+	variant_site_quality, variant_genotype_quality, variant_depth, sample_id,
+	out_pre):
+	"""
+	"""
+	if whole_genome is True:
+		pass_df, fail_df = utils.make_region_lists_genome_filters(
+			depthAndMapqDf=dataframe,
+			mapqCutoff=int(mapq_thresh),
+			min_depth=float(min_dp),
+			max_depth=float(max_dp))
+	else:
+		pass_df, fail_df = utils.make_region_lists_chromosome_filters(
+			depthAndMapqDf=dataframe,
+			mapqCutoff=int(mapq_thresh),
+			min_depth=float(min_dp),
+			max_depth=float(max_dp))
+
+	print(
+		"Checking empirical values. Min_depth={}, Max_depth={}, Min_Mapq={}".format(
+			np.amin(pass_df["depth"].values),
+			np.amax(pass_df["depth"].values),
+			np.amin(pass_df["mapq"].values)))
+
+	if chromosome == "ALL":
+		chrom_dict = {}
+		for i in pass_df.chrom.unique():
+			chrom_dict[i] = vcf_file.parse_platypus_VCF(
+				site_qual=variant_site_quality,
+				genotype_qual=variant_genotype_quality,
+				depth=variant_depth,
+				chrom=i)
+
+		rb = []
+		for i in chrom_dict:
+			tmp_chrom_df = pass_df.loc[pass_df['chrom'] == i]
+			start_sites = tmp_chrom_df["start"].values
+			tmp_df = tmp_chrom_df[["start", "stop"]]
+			coord_dict = tmp_df.set_index("start").to_dict()['stop']
+
+			for idx, i in enumerate(chrom_dict[i][0]):
+				try:
+					tmp_start = start_sites[np.searchsorted(start_sites, i, side="right")]
+				except IndexError:
+					tmp_start = start_sites[-1]
+				if i < coord_dict[tmp_start]:
+					rb.append(chrom_dict[i][2][idx])
+
+	else:
+		parsed = vcf_file.parse_platypus_VCF(
+			site_qual=variant_site_quality,
+			genotype_qual=variant_genotype_quality,
+			depth=variant_depth,
+			chrom=chrom)
+
+		print(
+			"{} sites with only variant-specific filters".format(len(parsed[0])))
+
+		start_sites = pass_df["start"].values
+		tmp_df = pass_df[["start", "stop"]]
+		coord_dict = tmp_df.set_index("start").to_dict()['stop']
+
+		print(
+			"{} windows passing filters".format(len(start_sites)))
+
+		rb = []
+
+		for idx, i in enumerate(parsed[0]):
+			try:
+				tmp_start = start_sites[np.searchsorted(start_sites, i, side="right")]
+			except IndexError:
+				tmp_start = start_sites[-1]
+			if i < coord_dict[tmp_start]:
+				rb.append(parsed[2][idx])
+
+		# if args.plot_snp_distance is True:
+		# 	rc = utils.hist_array(
+		# 		chrom=args.chrom,
+		# 		value_array=np.asarray(dist),
+		# 		measure_name="Distance between SNPs",
+		# 		sampleID=args.sample_id,
+		# 		output_prefix="{}_mapq{}_mindepth{}_maxdepth{}".format(
+		# 			args.output_prefix, mapq_thresh, min_dp, max_dp))
+
+		# print("Mean distance between SNPs: {} ({} std)".format(
+		# 	np.mean(dist), np.std(dist)))
+
+	print(
+		"{} variant sites after window filtering\n".format(len(rb)))
+
+	rc = variants.hist_read_balance(
+		chrom=chromosome,
+		readBalance=np.asarray(rb),
+		sampleID=sample_id,
+		homogenize=False,
+		output_prefix="{}_mapq{}_mindepth{}_maxdepth{}".format(
+			out_pre, mapq_thresh, min_dp, max_dp))
+
+	return rc
+
+
 def main():
 	args = parse_args()
 
@@ -110,97 +217,26 @@ def main():
 	for min_dp in args.min_depth_filter:
 		for max_dp in args.max_depth_filter:
 			for mapq_thresh in args.mapq_cutoff:
-				print(min_dp, max_dp, mapq_thresh)
+				print(
+					"Filtering with min_depth={} times mean, "
+					"max_depth={} times mean, and min_mapq={}".format(
+						min_dp, max_dp, mapq_thresh))
 
-				if args.whole_genome_threshold is True:
-					pass_df, fail_df = utils.make_region_lists_genome_filters(
-						depthAndMapqDf=chrom_df,
-						mapqCutoff=int(mapq_thresh),
-						min_depth=float(min_dp),
-						max_depth=float(max_dp))
-				else:
-					pass_df, fail_df = utils.make_region_lists_chromosome_filters(
-						depthAndMapqDf=chrom_df,
-						mapqCutoff=int(mapq_thresh),
-						min_depth=float(min_dp),
-						max_depth=float(max_dp))
+				print("Using filters only")
+				filters_only = filter_and_plot(
+					whole_genome=args.whole_genome_threshold,
+					dataframe=chrom_df,
+					mapq_thresh=mapq_thresh,
+					min_dp=min_dp,
+					max_dp=max_dp,
+					chromosome=args.chrom,
+					vcf_file=vcf,
+					variant_site_quality=args.variant_site_quality,
+					variant_genotype_quality=args.variant_genotype_quality,
+					variant_depth=args.variant_depth,
+					sample_id=args.sample_id,
+					out_pre="{}_filtersonly".format(args.output_prefix))
 
-				print(np.amin(pass_df["mapq"].values), np.amin(pass_df["depth"].values), np.amax(pass_df["depth"].values))
-
-				if args.chrom == "ALL":
-					chrom_dict = {}
-					for i in pass_df.chrom.unique():
-						chrom_dict[i] = vcf.parse_platypus_VCF(
-							site_qual=args.variant_site_quality,
-							genotype_qual=args.variant_genotype_quality,
-							depth=args.variant_depth,
-							chrom=i)
-
-					rb = []
-					for i in chrom_dict:
-						tmp_chrom_df = chrom_df.loc[chrom_df['chrom'] == i]
-						start_sites = chrom_df["start"].values
-						tmp_df = chrom_df[["start", "stop"]]
-						coord_dict = tmp_df.set_index("start").to_dict()
-
-						for idx, i in enumerate(chrom_dict[i][0]):
-							tmp_start = start_sites[np.searchsorted(start_sites, i, side="right")]
-							if i < coord_dict[tmp_start]:
-								rb.append(parsed[2][idx])
-
-				else:
-					parsed = vcf.parse_platypus_VCF(
-						site_qual=args.variant_site_quality,
-						genotype_qual=args.variant_genotype_quality,
-						depth=args.variant_depth,
-						chrom=args.chrom)
-
-					print(len(parsed[0]))
-
-					start_sites = pass_df["start"].values
-					tmp_df = pass_df[["start", "stop"]]
-					coord_dict = tmp_df.set_index("start").to_dict()['stop']
-
-					print(len(start_sites), len(coord_dict))
-
-					rb = []
-					dist = []
-
-					last_snp = None
-					for idx, i in enumerate(parsed[0]):
-						if last_snp is not None:
-							dist.append(i - last_snp)
-							last_snp = i
-						else:
-							last_snp = i
-						try:
-							tmp_start = start_sites[np.searchsorted(start_sites, i, side="right")]
-						except IndexError:
-							tmp_start = start_sites[-1]
-						if i < coord_dict[tmp_start]:
-							rb.append(parsed[2][idx])
-
-					if args.plot_snp_distance is True:
-						rc = utils.hist_array(
-							chrom=args.chrom,
-							value_array=np.asarray(dist),
-							measure_name="Distance between SNPs",
-							sampleID=args.sample_id,
-							output_prefix="{}_mapq{}_mindepth{}_maxdepth{}".format(
-								args.output_prefix, mapq_thresh, min_dp, max_dp))
-
-					print("Mean distance between SNPs: {} ({} std)".format(
-						np.mean(dist), np.std(dist)))
-
-				print(len(rb))
-
-				rc = variants.hist_read_balance(
-					chrom=args.chrom,
-					readBalance=np.asarray(rb),
-					sampleID=args.sample_id,
-					homogenize=False,
-					output_prefix="{}_mapq{}_mindepth{}_maxdepth{}".format(
-						args.output_prefix, mapq_thresh, min_dp, max_dp))
 
 if __name__ == "__main__":
 	main()
