@@ -238,9 +238,9 @@ def make_region_lists_genome_filters(
 			mapqCutoff, depthMin, depthMax))
 
 	good = (
-		(depthAndMapqDf.mapq >= mapqCutoff) &
-		(depthAndMapqDf.depth > depthMin) &
-		(depthAndMapqDf.depth < depthMax))
+		(depthAndMapqDf["mapq"] >= mapqCutoff) &
+		(depthAndMapqDf["depth"] > depthMin) &
+		(depthAndMapqDf["depth"] < depthMax))
 	dfGood = depthAndMapqDf[good]
 	dfBad = depthAndMapqDf[~good]
 
@@ -299,10 +299,10 @@ def make_region_lists_chromosome_filters(
 				i, mapqCutoff, depthMin, depthMax))
 
 		good = (
-			(df.chrom == i) &
-			(df.mapq >= mapqCutoff) &
-			(df.depth > depthMin) &
-			(df.depth < depthMax))
+			(df["chrom"] == i) &
+			(df["mapq"] >= mapqCutoff) &
+			(df["depth"] > depthMin) &
+			(df["depth"] < depthMax))
 		good_list.append(df[good])
 		bad_list.append(df[~good])
 	dfGood = pd.concat(good_list)
