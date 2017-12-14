@@ -1,8 +1,11 @@
 from __future__ import print_function
 import argparse
 import numpy as np
+import os
 import pandas as pd
 import pybedtools
+import random
+import string
 from xyalign import utils, variants
 
 
@@ -28,9 +31,10 @@ def parse_args():
 		"pandas dataframe from BAM_ANALYSIS module")
 
 	parser.add_argument(
-		"--callable_bed", type=str, help="Full path to OPTIONAL external bed "
-		"file with callable regions. This script will plot based on filters only, "
-		"callable sites only, and filters and callable sites combined.")
+		"--callable_bed", type=str, default="None", help="Full path to OPTIONAL "
+		"external bed file with callable regions. This script will plot based "
+		"on filters only, callable sites only, and filters and callable "
+		"sites combined. Default is 'None', which will plot based on filters only.")
 
 	parser.add_argument(
 		"--vcf", type=str, required=True, help="Full path to Platypus VCF output "
@@ -126,9 +130,9 @@ def filter_and_plot(
 		chrom_dict = {}
 		for i in pass_df.chrom.unique():
 			chrom_dict[i] = vcf_file.parse_platypus_VCF(
-				site_qual=variant_site_quality,
-				genotype_qual=variant_genotype_quality,
-				depth=variant_depth,
+				site_qual=int(variant_site_quality),
+				genotype_qual=int(variant_genotype_quality),
+				depth=int(variant_depth),
 				chrom=i)
 
 		rb = []
@@ -151,7 +155,7 @@ def filter_and_plot(
 			site_qual=variant_site_quality,
 			genotype_qual=variant_genotype_quality,
 			depth=variant_depth,
-			chrom=chrom)
+			chrom=chromosome)
 
 		print(
 			"{} sites with only variant-specific filters".format(len(parsed[0])))
@@ -200,6 +204,7 @@ def filter_and_plot(
 
 
 def main():
+	pybedtools.set_tempdir(".")
 	args = parse_args()
 
 	pd_df = pd.read_csv(
@@ -214,6 +219,29 @@ def main():
 	else:
 		chrom_df = pd_df
 
+	tmp_bed = "tmp_{}_{}.bed".format(
+		''.join(
+			random.choice(string.ascii_uppercase + string.digits) for _ in range(6)),
+		''.join(
+			random.choice(string.ascii_uppercase + string.digits) for _ in range(6)))
+	if args.callable_bed != "None":
+		callable_bed = pybedtools.BedTool(args.callable_bed)
+		callable_df = callable_bed.to_dataframe(
+			names=["chrom", "start", "stop"])
+		# tmp_bed = "tmp_{}_{}.bed".format(
+		# 	''.join(
+		# 		random.choice(string.ascii_uppercase + string.digits) for _ in range(6)),
+		# 	''.join(
+		# 		random.choice(string.ascii_uppercase + string.digits) for _ in range(6)))
+		utils.output_bed_no_merge(tmp_bed, chrom_df)
+		# chrom_df_bed = pybedtools.BedTool().from_dataframe(chrom_df).saveas("test_tmp.bed")
+		# print(chrom_df_bed)
+		import_tmp = pybedtools.BedTool(tmp_bed)
+		intersection = import_tmp.intersect(callable_bed)
+		# intersection = chrom_df_bed.intersect(callable_bed)
+		intersection_df = intersection.to_dataframe(
+			names=["chrom", "start", "stop", "depth", "mapq"])
+
 	for min_dp in args.min_depth_filter:
 		for max_dp in args.max_depth_filter:
 			for mapq_thresh in args.mapq_cutoff:
@@ -226,16 +254,35 @@ def main():
 				filters_only = filter_and_plot(
 					whole_genome=args.whole_genome_threshold,
 					dataframe=chrom_df,
-					mapq_thresh=mapq_thresh,
-					min_dp=min_dp,
-					max_dp=max_dp,
+					mapq_thresh=int(mapq_thresh),
+					min_dp=float(min_dp),
+					max_dp=float(max_dp),
 					chromosome=args.chrom,
 					vcf_file=vcf,
-					variant_site_quality=args.variant_site_quality,
-					variant_genotype_quality=args.variant_genotype_quality,
-					variant_depth=args.variant_depth,
+					variant_site_quality=int(args.variant_site_quality),
+					variant_genotype_quality=int(args.variant_genotype_quality),
+					variant_depth=int(args.variant_depth),
 					sample_id=args.sample_id,
 					out_pre="{}_filtersonly".format(args.output_prefix))
+
+				if args.callable_bed != "None":
+					print("Using filters and callable bed file")
+					filters_only = filter_and_plot(
+						whole_genome=args.whole_genome_threshold,
+						dataframe=intersection_df,
+						mapq_thresh=int(mapq_thresh),
+						min_dp=float(min_dp),
+						max_dp=float(max_dp),
+						chromosome=args.chrom,
+						vcf_file=vcf,
+						variant_site_quality=int(args.variant_site_quality),
+						variant_genotype_quality=int(args.variant_genotype_quality),
+						variant_depth=int(args.variant_depth),
+						sample_id=args.sample_id,
+						out_pre="{}_filters_and_callablebed".format(args.output_prefix))
+
+	if os.path.exists(tmp_bed):
+		os.remove(tmp_bed)
 
 
 if __name__ == "__main__":

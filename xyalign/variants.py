@@ -203,7 +203,7 @@ class VCFFile():
 
 			# Check genotype quality
 			try:
-				GQ = cols[9].split(':')[3]
+				GQ = int(cols[9].split(':')[3])
 			except IndexError:
 				self.logger.error("Error parsing line: {}".format(line))
 				continue
@@ -223,7 +223,7 @@ class VCFFile():
 			TC = float(TC)
 			if TR == 0 or TC == 0:
 				continue
-			if TR + TC < depth:
+			if TC < depth:
 				continue
 
 			# Site passes filters - grab the read ratio

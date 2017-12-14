@@ -340,6 +340,35 @@ def output_bed(outBed, *regionDfs):
 	return 0
 
 
+def output_bed_no_merge(outBed, *regionDfs):
+	"""
+	Concatenate dataframes into an output bed file. This will preserve all
+	columns after the first three as well.
+
+	Parameters
+	----------
+
+	outBed : str
+		The full path to and name of the output bed file
+	*regionDfs
+		Variable length list of dataframes to be included
+
+	Returns
+	-------
+
+	int
+		0
+
+	"""
+	dfComb = pd.concat(regionDfs)
+	regionList = dfComb.ix[:,:].values.tolist()
+	regionList_str = [[str(y) for y in x] for x in regionList]
+	sorted = pybedtools.BedTool(regionList_str).sort()
+	with open(outBed, 'w') as output:
+		output.write(str(sorted))
+	return 0
+
+
 def chromosome_wide_plot(
 	chrom, positions, y_value, measure_name, sampleID, output_prefix,
 	MarkerSize, MarkerAlpha, Xlim, Ylim, x_scale=1000000):
