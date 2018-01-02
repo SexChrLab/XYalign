@@ -1,0 +1,6 @@
+HG00512_exome	Exome	Male
+HG00512_lowcov	Low_Coverage_WGS	Male
+HG00512_wgs	High_Coverage_WGS	Male
+HG00513_exome	Exome	Female
+HG00513_lowcov	Low_Coverage_WGS	Female
+HG00513_wgs	High_Coverage_WGS	Female
