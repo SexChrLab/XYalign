@@ -34,9 +34,10 @@ def parse_args():
 		"--meta", type="str", required=True,
 		help="Full path to file containing metadata table. This file should "
 		"have the following columns separated by tabs: "
-		"Sample NameOfVariable1 NameOfVariable2. NameOfVariable1 and NameOfVariable2 "
-		"should be the names of whatever you're interested in plotting (e.g., Sex). "
-		"NameOfVariable2 is optional. This script handles a max of two variables.")
+		"Sample NameOfVariable1 NameOfVariable2. NameOfVariable1 and "
+		"NameofVariable2 should be the names of whatever you're interested in "
+		"plotting (e.g., Sex). NameOfVariable2 is optional. "
+		"This script handles a max of two variables.")
 
 	parser.add_argument(
 		"--output_prefix", type="str", required=True,
@@ -69,7 +70,7 @@ def parse_args():
 		"--second_chr chrY --const_chr chr19.")
 
 	parser.add_argument(
-		"--var1_marker", choices=["color", "shape", "size"], default="color"
+		"--var1_marker", choices=["color", "shape", "size"], default="color",
 		help="Way of designating variable 1 values in plot. Choices are 'color', "
 		"'shape', or 'size'. Must be used in conjunction with --var1_marker_vals. "
 		"Default is 'color'.")
@@ -86,7 +87,7 @@ def parse_args():
 		"points^2 (e.g., '5 10 15'). Default is 'red blue'.")
 
 	parser.add_argument(
-		"--var2_marker", choices=["color", "shape", "size", "none"], default="none"
+		"--var2_marker", choices=["color", "shape", "size", "none"], default="none",
 		help="Way of designating variable 2 values in plot. Choices are 'color', "
 		"'shape', or 'size'. Must be used in conjunction with --var2_marker_vals. "
 		"Default is 'none', which will only process --var1_marker.")
@@ -136,7 +137,7 @@ def main():
 	meta_df = pd.read_csv(args.meta, sep="\t", header=0)
 	merged = pd.concat[df2, meta_df]
 
-	fig = plt.figure(figsize=(10,10))
+	fig = plt.figure(figsize=(10, 10))
 	ax = plt.subplot(111)
 
 	# One variable
@@ -148,7 +149,7 @@ def main():
 					filtered["ratiox"], filtered["ratioy"],
 					color=args.var1_marker_vals[idx],
 					alpha=0.5, label=i)
-			elif args.var1_marker = "shape":
+			elif args.var1_marker == "shape":
 				ax.scatter(
 					filtered["ratiox"], filtered["ratioy"],
 					marker=args.var1_marker_vals[idx], label=i)
@@ -218,6 +219,7 @@ def main():
 	ax.set_ylabel("{} / {} Ratio".format(args.second_chr, args.const_chr))
 	fig.savefig("{}.svg".format(args.output_prefix))
 	fig.savefig("{}.png".format(args.output_prefix))
+
 
 if __name__ == "__main__":
 	main()
