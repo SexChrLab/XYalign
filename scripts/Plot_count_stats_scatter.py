@@ -2,6 +2,7 @@ from __future__ import division
 from __future__ import print_function
 import argparse
 import csv
+import math
 import numpy as np
 import pandas as pd
 import sys
@@ -27,11 +28,11 @@ def parse_args():
 		"users to customize and adjust as needed.")
 
 	parser.add_argument(
-		"--input", type="str", required=True,
+		"--input", type=str, required=True,
 		help="Full path to file containing table output by CHROM_STATS")
 
 	parser.add_argument(
-		"--meta", type="str", required=True,
+		"--meta", type=str, required=True,
 		help="Full path to file containing metadata table. This file should "
 		"have the following columns separated by tabs: "
 		"Sample NameOfVariable1 NameOfVariable2. NameOfVariable1 and "
@@ -40,30 +41,30 @@ def parse_args():
 		"This script handles a max of two variables.")
 
 	parser.add_argument(
-		"--output_prefix", type="str", required=True,
+		"--output_prefix", type=str, required=True,
 		help="'Prefix' of output files. This includes full path to desired file "
 		"and desired file name before suffix (suffixes will be .png and .svg).")
 
 	parser.add_argument(
-		"--exclude_suffix", type="str", default="",
+		"--exclude_suffix", type=str, default="",
 		help="Text to remove from end of sample names in input file. Default is "
 		"to remove nothing. Note that the sample names in the input file have "
 		"to match the names in the meta file AFTER they undergo this step.")
 
 	parser.add_argument(
-		"--first_chr", type="str", required=True,
+		"--first_chr", type=str, required=True,
 		help="Chromosome to use a numerator on X-axis. For example, if one was "
 		"comparing chrX and chrY, and using chr19 to normalize, recommended "
 		"values would be: --first_chr chrX --second_chr chrY --const_chr chr19.")
 
 	parser.add_argument(
-		"--second_chr", type="str", required=True,
+		"--second_chr", type=str, required=True,
 		help="Chromosome to use a numerator on Y-axis. For example, if one was "
 		"comparing chrX and chrY, and using chr19 to normalize, recommended "
 		"values would be: --first_chr chrX --second_chr chrY --const_chr chr19.")
 
 	parser.add_argument(
-		"--const_chr", type="str", required=True,
+		"--const_chr", type=str, required=True,
 		help="Chromosome to use denominator on both the X- and Y-axis. For "
 		"example, if one was comparing chrX and chrY, and using chr19 to "
 		"normalize, recommended values would be: --first_chr chrX "
@@ -120,14 +121,20 @@ def main():
 	df = pd.read_csv(
 		args.input, sep="\t", header=0)
 
-	if len(args.exclude_suffix) > 0:
-		col_names = df.values[0]
-		col_names = [x[:-(len(args.exclude_suffix))] if args.exclude_suffix in x else x for x in col_names]
-		df.loc[0] = col_names
+	length_es = len(args.exclude_suffix)
+	if length_es > 0:
+		# col_names = df.values[0]
+		col_names = df.columns.tolist()
+		print(col_names)
+		col_names = [x[:-length_es] if args.exclude_suffix in x else x for x in col_names]
+		df.columns = col_names
 	df2 = df.transpose()
 	df2.columns = df2.iloc[0]
-	df2.reindex(df2.index.drop(0))
-	df2.columns = ["Sample" if x == "chrom" else x for x in df.columns]
+	df2 = df2.drop(df2.index[0])
+	df2["Sample"] = df2.index
+	df2 = df2.reset_index(drop=True)
+	print(df2)
+	# df2.columns = ["Sample" if x == "chrom" else x for x in df2.columns]
 
 	df2["ratiox"] = df2.apply(
 		lambda row: row[args.first_chr] / row[args.const_chr], axis=1)
@@ -135,13 +142,18 @@ def main():
 		lambda row: row[args.second_chr] / row[args.const_chr], axis=1)
 
 	meta_df = pd.read_csv(args.meta, sep="\t", header=0)
-	merged = pd.concat[df2, meta_df]
+	# merged = pd.concat([df2, meta_df])
+	merged = pd.merge(df2, meta_df, on="Sample")
+	print("\n\n\n")
+	print(merged)
 
-	fig = plt.figure(figsize=(10, 10))
+	fig = plt.figure(figsize=(14, 14))
 	ax = plt.subplot(111)
 
 	# One variable
 	if len(meta_df.columns) == 2:
+		unique_values1 = merged[meta_df.columns[1]].unique()
+		unique_values1 = unique_values1[np.logical_not(pd.isnull(unique_values1))]
 		for idx, i in enumerate(merged[meta_df.columns[1]].unique()):
 			filtered = merged.loc[merged[args.var1_marker] == i]
 			if args.var1_marker == "color":
@@ -166,10 +178,18 @@ def main():
 				"the --meta file.")
 			sys.exit(1)
 
-		for idx, i in enumerate(merged[meta_df.columns[1]].unique()):
-			for jdx, j in enumerate(merged[meta_df.columns[1]].unique()):
-				filtered = merged.loc[merged[args.var1_marker] == i]
-				filtered = filtered.loc[filtered[args.var2_marker] == j]
+		unique_values1 = merged[meta_df.columns[1]].unique()
+		unique_values1 = unique_values1[np.logical_not(pd.isnull(unique_values1))]
+		print(unique_values1)
+		# unique_values1 = unique_values1[np.logical_not(np.isnan(unique_values1))]
+		unique_values2 = merged[meta_df.columns[2]].unique()
+		unique_values2 = unique_values2[np.logical_not(pd.isnull(unique_values2))]
+
+		for idx, i in enumerate(unique_values1):
+			for jdx, j in enumerate(unique_values2):
+				print(i, j)
+				filtered = merged.loc[merged[meta_df.columns[1]] == i]
+				filtered = filtered.loc[filtered[meta_df.columns[2]] == j]
 				if args.var1_marker == "color":
 					if args.var2_marker == "shape":
 						ax.scatter(
@@ -180,9 +200,9 @@ def main():
 					elif args.var2_marker == "size":
 						ax.scatter(
 							filtered["ratiox"], filtered["ratioy"],
-							color=args.var1_marker_vals[idx],
-							s=args.var2_marker_vals[jdx],
-							label="{}_{}".format(i, j))
+							color=args.var1_marker_vals[idx], alpha=0.5,
+							s=float(args.var2_marker_vals[jdx]),
+							label="{} {}".format(i, j))
 				elif args.var1_marker == "shape":
 					if args.var2_marker == "color":
 						ax.scatter(
@@ -215,10 +235,13 @@ def main():
 		print("Need at least one variable other than 'Sample' in --meta file.")
 		sys.exit(1)
 
+	ax.autoscale()
+	ax.legend()
 	ax.set_xlabel("{} / {} Ratio".format(args.first_chr, args.const_chr))
 	ax.set_ylabel("{} / {} Ratio".format(args.second_chr, args.const_chr))
 	fig.savefig("{}.svg".format(args.output_prefix))
 	fig.savefig("{}.png".format(args.output_prefix))
+
 
 
 if __name__ == "__main__":

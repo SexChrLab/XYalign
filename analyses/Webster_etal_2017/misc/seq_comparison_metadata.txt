@@ -1,6 +1,7 @@
-HG00512_exome	Exome	Male
-HG00512_lowcov	Low_Coverage_WGS	Male
-HG00512_wgs	High_Coverage_WGS	Male
-HG00513_exome	Exome	Female
-HG00513_lowcov	Low_Coverage_WGS	Female
-HG00513_wgs	High_Coverage_WGS	Female
+Sample	Sex	Sequencing
+HG00512_exome	Male	Exome
+HG00512_lowcov	Male	Low_Coverage_WGS
+HG00512_wgs	Male	High_Coverage_WGS
+HG00513_exome	Female	Exome
+HG00513_lowcov	Female	Low_Coverage_WGS
+HG00513_wgs	Female	High_Coverage_WGS
