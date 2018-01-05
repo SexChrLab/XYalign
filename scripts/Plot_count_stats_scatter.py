@@ -6,6 +6,7 @@ import math
 import numpy as np
 import pandas as pd
 import sys
+from collections import OrderedDict
 # Matplotlib needs to be called in this way to set the display variable
 import matplotlib
 matplotlib.use('Agg')
@@ -104,6 +105,42 @@ def parse_args():
 		"be a space-separated list of Matplotlib marker sizes in units of "
 		"points^2 (e.g., '5 10 15'). Default is 'red blue'.")
 
+	parser.add_argument(
+		"--marker_size", default=100.0, type=float,
+		help="If 'size' is not selected for --var1_marker or --var2_marker, "
+		"use this size for markers. Default is 100.")
+
+	parser.add_argument(
+		"--marker_color", default="black",
+		help="If 'color' is not selected for --var1_marker or --var2_marker, "
+		"use this color for markers. Default is 'black'.")
+
+	parser.add_argument(
+		"--marker_shape", default="o",
+		help="If 'shape' is not selected for --var1_marker or --var2_marker, "
+		"use this shape for markers (see matplotlib for possible shapes). "
+		"Default is 'o' for circles.")
+
+	parser.add_argument(
+		"--marker_alpha", default=0.5, type=float,
+		help="Marker transparency ranging from 0.0 to 1.0 (1.0 being "
+		"nontransparent). Default is 0.5.")
+
+	parser.add_argument(
+		"--legend_marker_scale", type=float, default=1.0,
+		help="Use this value to scale maker size in legend, if desired. "
+		"Default is 1.0, or no scaling.")
+
+	parser.add_argument(
+		"--x_title", default=None,
+		help="X axis title. Default is '<name of first chrom> / <name of const "
+		"chrom> ratio'. E.g., 'chrX / chr19 ratio'")
+
+	parser.add_argument(
+		"--y_title", default=None,
+		help="Y axis title. Default is '<name of second chrom> / <name of const "
+		"chrom> ratio'. E.g., 'chrY / chr19 ratio'")
+
 	args = parser.parse_args()
 
 	if args.var1_marker == args.var2_marker:
@@ -125,7 +162,6 @@ def main():
 	if length_es > 0:
 		# col_names = df.values[0]
 		col_names = df.columns.tolist()
-		print(col_names)
 		col_names = [x[:-length_es] if args.exclude_suffix in x else x for x in col_names]
 		df.columns = col_names
 	df2 = df.transpose()
@@ -133,8 +169,6 @@ def main():
 	df2 = df2.drop(df2.index[0])
 	df2["Sample"] = df2.index
 	df2 = df2.reset_index(drop=True)
-	print(df2)
-	# df2.columns = ["Sample" if x == "chrom" else x for x in df2.columns]
 
 	df2["ratiox"] = df2.apply(
 		lambda row: row[args.first_chr] / row[args.const_chr], axis=1)
@@ -142,10 +176,7 @@ def main():
 		lambda row: row[args.second_chr] / row[args.const_chr], axis=1)
 
 	meta_df = pd.read_csv(args.meta, sep="\t", header=0)
-	# merged = pd.concat([df2, meta_df])
 	merged = pd.merge(df2, meta_df, on="Sample")
-	print("\n\n\n")
-	print(merged)
 
 	fig = plt.figure(figsize=(14, 14))
 	ax = plt.subplot(111)
@@ -154,21 +185,32 @@ def main():
 	if len(meta_df.columns) == 2:
 		unique_values1 = merged[meta_df.columns[1]].unique()
 		unique_values1 = unique_values1[np.logical_not(pd.isnull(unique_values1))]
-		for idx, i in enumerate(merged[meta_df.columns[1]].unique()):
-			filtered = merged.loc[merged[args.var1_marker] == i]
+		for idx, i in enumerate(unique_values1):
+			filtered = merged.loc[merged[meta_df.columns[1]] == i]
 			if args.var1_marker == "color":
 				ax.scatter(
 					filtered["ratiox"], filtered["ratioy"],
 					color=args.var1_marker_vals[idx],
-					alpha=0.5, label=i)
+					label="{}".format(i),
+					s=args.marker_size,
+					alpha=args.marker_alpha,
+					marker=args.marker_shape)
 			elif args.var1_marker == "shape":
 				ax.scatter(
 					filtered["ratiox"], filtered["ratioy"],
-					marker=args.var1_marker_vals[idx], label=i)
+					marker=args.var1_marker_vals[idx],
+					label="{}".format(i),
+					s=args.marker_size,
+					alpha=args.marker_alpha,
+					color=args.marker_color)
 			else:
 				ax.scatter(
 					filtered["ratiox"], filtered["ratioy"],
-					s=args.var1_marker_vals[idx], label=i)
+					s=args.var1_marker_vals[idx],
+					label="{}".format(i),
+					marker=args.marker_shape,
+					alpha=args.marker_alpha,
+					color=args.marker_color)
 	# Two or more variables - only grab first two
 	elif len(meta_df.columns) > 2:
 		if args.var2_marker == "none":
@@ -180,14 +222,12 @@ def main():
 
 		unique_values1 = merged[meta_df.columns[1]].unique()
 		unique_values1 = unique_values1[np.logical_not(pd.isnull(unique_values1))]
-		print(unique_values1)
 		# unique_values1 = unique_values1[np.logical_not(np.isnan(unique_values1))]
 		unique_values2 = merged[meta_df.columns[2]].unique()
 		unique_values2 = unique_values2[np.logical_not(pd.isnull(unique_values2))]
 
 		for idx, i in enumerate(unique_values1):
 			for jdx, j in enumerate(unique_values2):
-				print(i, j)
 				filtered = merged.loc[merged[meta_df.columns[1]] == i]
 				filtered = filtered.loc[filtered[meta_df.columns[2]] == j]
 				if args.var1_marker == "color":
@@ -196,39 +236,51 @@ def main():
 							filtered["ratiox"], filtered["ratioy"],
 							color=args.var1_marker_vals[idx],
 							marker=args.var2_marker_vals[jdx],
-							label="{}_{}".format(i, j))
+							label="{} / {}".format(i, j),
+							s=args.marker_size,
+							alpha=args.marker_alpha)
 					elif args.var2_marker == "size":
 						ax.scatter(
 							filtered["ratiox"], filtered["ratioy"],
-							color=args.var1_marker_vals[idx], alpha=0.5,
+							color=args.var1_marker_vals[idx],
 							s=float(args.var2_marker_vals[jdx]),
-							label="{} {}".format(i, j))
+							label="{} {}".format(i, j),
+							alpha=args.marker_alpha,
+							marker=args.marker_shape)
 				elif args.var1_marker == "shape":
 					if args.var2_marker == "color":
 						ax.scatter(
 							filtered["ratiox"], filtered["ratioy"],
 							color=args.var2_marker_vals[idx],
 							marker=args.var1_marker_vals[jdx],
-							label="{}_{}".format(i, j))
+							label="{}_{}".format(i, j),
+							s=args.marker_size,
+							alpha=args.marker_alpha)
 					elif args.var2_marker == "size":
 						ax.scatter(
 							filtered["ratiox"], filtered["ratioy"],
 							s=args.var2_marker_vals[idx],
 							marker=args.var1_marker_vals[jdx],
-							label="{}_{}".format(i, j))
+							label="{}_{}".format(i, j),
+							c=args.marker_color,
+							alpha=args.marker_alpha)
 				else:
 					if args.var2_marker == "color":
 						ax.scatter(
 							filtered["ratiox"], filtered["ratioy"],
 							color=args.var2_marker_vals[idx],
 							s=args.var1_marker_vals[jdx],
-							label="{}_{}".format(i, j))
+							label="{}_{}".format(i, j),
+							marker=args.marker_shape,
+							alpha=args.marker_alpha)
 					elif args.var2_marker == "shape":
 						ax.scatter(
 							filtered["ratiox"], filtered["ratioy"],
 							marker=args.var2_marker_vals[idx],
 							s=args.var1_marker_vals[jdx],
-							label="{}_{}".format(i, j))
+							label="{}_{}".format(i, j),
+							alpha=args.marker_alpha,
+							c=args.marker_color)
 
 	# Need at least one variable
 	else:
@@ -236,12 +288,22 @@ def main():
 		sys.exit(1)
 
 	ax.autoscale()
-	ax.legend()
-	ax.set_xlabel("{} / {} Ratio".format(args.first_chr, args.const_chr))
-	ax.set_ylabel("{} / {} Ratio".format(args.second_chr, args.const_chr))
+	ax.legend(markerscale=args.legend_marker_scale, scatterpoints=1)
+	if args.x_title is None:
+		ax.set_xlabel(
+			"\n{} / {} Ratio".format(args.first_chr, args.const_chr), fontsize=20)
+	else:
+		ax.set_xlabel("\n{}".format(args.x_title), fontsize=20)
+	if args.y_title is None:
+		ax.set_ylabel(
+			"{} / {} Ratio\n".format(args.second_chr, args.const_chr), fontsize=20)
+	else:
+		ax.set_ylabel("\n{}".format(args.y_title), fontsize=20)
+	ax.set_xlim(left=0)
+	ax.set_ylim(bottom=0)
+	ax.tick_params("both", labelsize=15, pad=10)
 	fig.savefig("{}.svg".format(args.output_prefix))
 	fig.savefig("{}.png".format(args.output_prefix))
-
 
 
 if __name__ == "__main__":
