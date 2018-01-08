@@ -23,5 +23,9 @@ setup(
 	install_requires=[
 		'matplotlib', 'numpy', 'pandas', 'pybedtools', 'pysam', 'scipy'],
 	entry_points={
-		"console_scripts": ['xyalign = xyalign.xyalign:main']},
+		"console_scripts": [
+			'xyalign = xyalign.xyalign:main',
+			'explore_thresholds = xyalign.explore_thresholds:main',
+			'plot_count_stats = xyalign.plot_count_stats:main',
+			'plot_window_differences = xyalign.plot_window_differences:main']}
 )
