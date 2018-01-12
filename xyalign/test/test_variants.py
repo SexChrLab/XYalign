@@ -130,7 +130,12 @@ def test_VCFFile():
 		1.0, 1.0, 0.8, 0.6, 0.5714285714285714, 0.6666666666666666,
 		0.5483870967741935, 0.391304347826087, 0.43333333333333335,
 		0.27586206896551724, 0.45714285714285713, 0.7, 0.56]
-	assert parsed == (positions, qualities, read_balances)
+	gqs = [
+		99, 75, 99, 51, 48, 99, 99, 45, 99, 87, 99, 99, 99, 99, 99, 99,
+		99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 32, 63, 99, 99, 99,
+		99, 99, 99, 99, 45, 75, 99, 99, 45, 99, 90, 99, 99, 99, 99, 99, 99,
+		99, 99, 99, 99]
+	assert parsed == (positions, qualities, read_balances, gqs)
 	val = variants.plot_read_balance(
 		"chr19", positions, read_balances, "scatter_test",
 		os.path.join(dir, "scatter_test"), 4, 0.5, True, bam.BamFile(
