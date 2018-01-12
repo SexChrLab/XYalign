@@ -4,6 +4,8 @@
 # Only listing changes since previous version/release
 
 Development Version (on Github) - Version 1.0.1
+	* Fixed some bugs in VCF parsing
+	* Added plot_count_stats, plot_window_differences, and explore_thresholds to aid in working with XYalign output
 	* Added --bwa_index flag to optionally create BWA indices in PREPARE_REFERENCE
 	* Changed to relative imports from within xyalign
 

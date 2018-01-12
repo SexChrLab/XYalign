@@ -157,8 +157,9 @@ class VCFFile():
 		Returns
 		-------
 		tuple
-			three corresponding arrays of the same length:
-				(position across the chromosome, site quality, read balance)
+			four corresponding arrays of the same length:
+				(position across the chromosome, site quality, read balance,
+				genotype quality)
 
 		"""
 		parse_start = time.time()
@@ -167,6 +168,7 @@ class VCFFile():
 		positions = []
 		quality = []
 		readBalance = []
+		gqs = []
 
 		# Right now, cyvcf2 (and the htslib have trouble reading platypus vcfs),
 		# so currently hard coding parsing.
@@ -233,11 +235,12 @@ class VCFFile():
 			readBalance.append(ReadRatio)
 			positions.append(pos)
 			quality.append(qual)
+			gqs.append(GQ)
 
 		infile.close()
 		self.logger.info("Parsing complete. Elapsed time: {} seconds".format(
 			time.time() - parse_start))
-		return (positions, quality, readBalance)
+		return (positions, quality, readBalance, gqs)
 
 	def plot_variants_per_chrom(
 		self, chrom_list, sampleID, output_prefix, site_qual, genotype_qual,
