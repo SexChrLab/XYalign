@@ -2,7 +2,7 @@ from __future__ import print_function
 import argparse
 import numpy as np
 import pandas as pd
-import xyalign  # from xyalign import utils
+from xyalign import utils
 
 
 def parse_args():
@@ -135,7 +135,7 @@ def main():
 	else:
 		v_before = df_before["depth"].values
 		v_after = df_after["depth"].values
-	return_val = xyalign.utils.before_after_plot(
+	return_val = utils.before_after_plot(
 		chrom=args.chrom,
 		positions=df_before["start"].values,
 		values_before=v_before,
@@ -151,7 +151,7 @@ def main():
 		x_scale=args.coordinate_scale,
 		Color=args.color)
 
-	return_val = xyalign.utils.before_after_plot(
+	return_val = utils.before_after_plot(
 		chrom=args.chrom,
 		positions=df_before["start"].values,
 		values_before=df_before["mapq"].values,

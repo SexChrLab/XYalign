@@ -7,7 +7,7 @@ import gzip
 import logging
 import subprocess
 import time
-import xyalign  # import utils
+from xyalign import utils
 import numpy as np
 import pandas as pd
 # Matplotlib needs to be called in this way to set the display variable
@@ -169,6 +169,7 @@ class VCFFile():
 		quality = []
 		readBalance = []
 		gqs = []
+		dps = []
 
 		# Right now, cyvcf2 (and the htslib have trouble reading platypus vcfs),
 		# so currently hard coding parsing.
@@ -236,11 +237,12 @@ class VCFFile():
 			positions.append(pos)
 			quality.append(qual)
 			gqs.append(GQ)
+			dps.append(TC)
 
 		infile.close()
 		self.logger.info("Parsing complete. Elapsed time: {} seconds".format(
 			time.time() - parse_start))
-		return (positions, quality, readBalance, gqs)
+		return (positions, quality, readBalance, gqs, dps)
 
 	def plot_variants_per_chrom(
 		self, chrom_list, sampleID, output_prefix, site_qual, genotype_qual,
@@ -325,12 +327,12 @@ class VCFFile():
 					i, parse_results[0], parse_results[2], sampleID, homogenize,
 					chrom_len, window_size, target_file)
 				all_df.append(rb_df)
-				xyalign.utils.chromosome_wide_plot(
+				utils.chromosome_wide_plot(
 					i, rb_df["start"].values, rb_df["count"], "Window_Variant_Count",
 					sampleID, output_prefix, MarkerSize, MarkerAlpha,
 					chrom_len, rb_df["count"].max(), x_scale)
 				rb_df = rb_df[rb_df["count"] >= min_count]
-				xyalign.utils.chromosome_wide_plot(
+				utils.chromosome_wide_plot(
 					i, rb_df["start"].values, rb_df["balance"], "Window_Read_Balance",
 					sampleID, output_prefix, MarkerSize, MarkerAlpha,
 					chrom_len, 1.0, x_scale)

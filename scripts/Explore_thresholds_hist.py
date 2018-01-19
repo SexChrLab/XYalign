@@ -6,7 +6,7 @@ import pandas as pd
 import pybedtools
 import random
 import string
-import xyalign  # from xyalign import utils, variants
+from xyalign import utils, variants
 
 
 def parse_args():
@@ -108,13 +108,13 @@ def filter_and_plot(
 	"""
 	"""
 	if whole_genome is True:
-		pass_df, fail_df = xyalign.utils.make_region_lists_genome_filters(
+		pass_df, fail_df = utils.make_region_lists_genome_filters(
 			depthAndMapqDf=dataframe,
 			mapqCutoff=int(mapq_thresh),
 			min_depth=float(min_dp),
 			max_depth=float(max_dp))
 	else:
-		pass_df, fail_df = xyalign.utils.make_region_lists_chromosome_filters(
+		pass_df, fail_df = utils.make_region_lists_chromosome_filters(
 			depthAndMapqDf=dataframe,
 			mapqCutoff=int(mapq_thresh),
 			min_depth=float(min_dp),
@@ -178,7 +178,7 @@ def filter_and_plot(
 				rb.append(parsed[2][idx])
 
 		# if args.plot_snp_distance is True:
-		# 	rc = xyalign.utils.hist_array(
+		# 	rc = utils.hist_array(
 		# 		chrom=args.chrom,
 		# 		value_array=np.asarray(dist),
 		# 		measure_name="Distance between SNPs",
@@ -192,7 +192,7 @@ def filter_and_plot(
 	print(
 		"{} variant sites after window filtering\n".format(len(rb)))
 
-	rc = xyalign.variants.hist_read_balance(
+	rc = variants.hist_read_balance(
 		chrom=chromosome,
 		readBalance=np.asarray(rb),
 		sampleID=sample_id,
@@ -210,7 +210,7 @@ def main():
 	pd_df = pd.read_csv(
 		args.dataframe, sep="\t", header=0)
 
-	vcf = xyalign.variants.VCFFile(args.vcf)
+	vcf = variants.VCFFile(args.vcf)
 
 	if args.chrom != "ALL":
 		chrom_df = pd_df.loc[pd_df['chrom'] == args.chrom]
@@ -233,7 +233,7 @@ def main():
 		# 		random.choice(string.ascii_uppercase + string.digits) for _ in range(6)),
 		# 	''.join(
 		# 		random.choice(string.ascii_uppercase + string.digits) for _ in range(6)))
-		xyalign.utils.output_bed_no_merge(tmp_bed, chrom_df)
+		utils.output_bed_no_merge(tmp_bed, chrom_df)
 		# chrom_df_bed = pybedtools.BedTool().from_dataframe(chrom_df).saveas("test_tmp.bed")
 		# print(chrom_df_bed)
 		import_tmp = pybedtools.BedTool(tmp_bed)
