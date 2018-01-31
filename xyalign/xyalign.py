@@ -12,7 +12,7 @@ import sys
 import time
 import pandas as pd
 import pysam
-import xyalign  # import assemble, bam, ploidy, reftools, utils, variants
+from xyalign import assemble, bam, ploidy, reftools, utils, variants
 
 # Grab XYalign version from _version.py in the xyalign directory
 dir = os.path.dirname(__file__)
@@ -609,7 +609,7 @@ def ref_prep(
 	# Combine masks, if more than one present
 	if ref_mask is not None:
 		if len(ref_mask) > 1:
-			reference_mask = xyalign.utils.merge_bed_files(
+			reference_mask = utils.merge_bed_files(
 				"{}/reference_mask.merged.bed".format(
 					ref_dir), *ref_mask)
 		else:
@@ -621,12 +621,12 @@ def ref_prep(
 		ref_dir), y_chromosome)
 	if reference_mask is not None:
 		noy_out = ref_obj.mask_reference(
-			xyalign.utils.merge_bed_files(
+			utils.merge_bed_files(
 				"{}/reference_mask.maskY.merged.bed".format(
 					ref_dir), reference_mask, y_mask), xx)
 	else:
 		noy_out = ref_obj.mask_reference(y_mask, xx)
-	noy_ref = xyalign.reftools.RefFasta(noy_out, samtools_path, bwa_path)
+	noy_ref = reftools.RefFasta(noy_out, samtools_path, bwa_path)
 	noy_ref.seq_dict()
 	# Create masked withY reference
 	if reference_mask is not None:
@@ -638,7 +638,7 @@ def ref_prep(
 			"reference.".format(xy))
 		subprocess.call(["cp", ref_obj.filepath, xy])
 		withy_out = xy
-	withy_ref = xyalign.reftools.RefFasta(withy_out, samtools_path, bwa_path)
+	withy_ref = reftools.RefFasta(withy_out, samtools_path, bwa_path)
 	withy_ref.seq_dict()
 	if bwa_index is True:
 		noy_ref.index_bwa()
@@ -679,7 +679,7 @@ def chrom_stats(bam_obj_list, chrom_list, use_counts):
 		"Running CHROM_STATS on following bam files: {}".format(
 			", ".join([x.filepath for x in bam_obj_list])))
 
-	comp_check = xyalign.utils.check_compatibility_bam_list(bam_obj_list)
+	comp_check = utils.check_compatibility_bam_list(bam_obj_list)
 	if comp_check is False:
 		logger.error(
 			"Bam files incompatible - ensure same reference used for all files "
@@ -865,25 +865,25 @@ def bam_analysis(
 					chromosome, ignore_duplicates,
 					exact_depth, None, target_bed)
 			if whole_genome_threshold is True:
-				tup = xyalign.utils.make_region_lists_genome_filters(
+				tup = utils.make_region_lists_genome_filters(
 					data, mapq_cutoff,
 					min_depth_filter, max_depth_filter)
 			else:
-				tup = xyalign.utils.make_region_lists_chromosome_filters(
+				tup = utils.make_region_lists_chromosome_filters(
 					data, mapq_cutoff,
 					min_depth_filter, max_depth_filter)
 			all_df.append(data)
 			pass_df.append(tup[0])
 			fail_df.append(tup[1])
-			xyalign.utils.plot_depth_mapq(
+			utils.plot_depth_mapq(
 				data, depth_mapq_prefix, sample_id,
 				input_bam_obj.get_chrom_length(chromosome), marker_size,
 				marker_transparency, coordinate_scale)
 		all_concat = pd.concat(all_df)
 		all_concat.to_csv(
 			bam_data_frame, index=False, sep="\t", quoting=csv.QUOTE_NONE)
-		xyalign.utils.output_bed(output_bed_high, *pass_df)
-		xyalign.utils.output_bed(output_bed_low, *fail_df)
+		utils.output_bed(output_bed_high, *pass_df)
+		utils.output_bed(output_bed_low, *fail_df)
 
 	# Platypus
 	if platypus_calling is True:
@@ -902,7 +902,7 @@ def bam_analysis(
 				input_bam_obj.filepath))
 			logging.shutdown()
 			sys.exit(1)
-		noprocess_vcf_object = xyalign.variants.VCFFile(out_vcf)
+		noprocess_vcf_object = variants.VCFFile(out_vcf)
 		if no_variant_plots is not True:
 			if window_size is not None and window_size != "None":
 				noprocess_vcf_object.plot_variants_per_chrom(
@@ -988,21 +988,21 @@ def ploidy_analysis(
 		autosomes = [
 			x for x in input_chroms if x not in sex_chromosomes]
 		for c in autosomes:
-			perm_res_x.append(xyalign.ploidy.permutation_test_chromosomes(
+			perm_res_x.append(ploidy.permutation_test_chromosomes(
 				pd.concat(passing_df), c,
 				str(x_chromosome[0]), "chrom",
 				"depth", num_permutations,
 				results_dir + "/{}.{}_{}_permutation_results.txt".format(
 					sample_id, c, str(x_chromosome[0]))))
 			if perm_res_y is not None:
-				perm_res_y.append(xyalign.ploidy.permutation_test_chromosomes(
+				perm_res_y.append(ploidy.permutation_test_chromosomes(
 					pd.concat(passing_df), c,
 					str(y_chromosome[0]), "chrom",
 					"depth", num_permutations,
 					results_dir + "/{}.{}_{}_permutation_results.txt".format(
 						sample_id, c, str(y_chromosome[0]))))
 		if perm_res_y is not None:
-			sex_perm_res = xyalign.ploidy.permutation_test_chromosomes(
+			sex_perm_res = ploidy.permutation_test_chromosomes(
 				pd.concat(passing_df), str(x_chromosome[0]),
 				str(y_chromosome[0]),
 				"chrom", "depth", num_permutations,
@@ -1024,19 +1024,19 @@ def ploidy_analysis(
 		autosomes = [
 			x for x in input_chroms if x not in sex_chromosomes]
 		for c in autosomes:
-			ks_res_x.append(xyalign.ploidy.ks_two_sample(
+			ks_res_x.append(ploidy.ks_two_sample(
 				pd.concat(passing_df), c,
 				str(x_chromosome[0]), "chrom", "depth",
 				results_dir + "/{}.{}_{}_ks_results.txt".format(
 					sample_id, c, str(x_chromosome[0]))))
 			if ks_res_y is not None:
-				ks_res_y.append(xyalign.ploidy.ks_two_sample(
+				ks_res_y.append(ploidy.ks_two_sample(
 					pd.concat(passing_df), c,
 					str(y_chromosome[0]), "chrom", "depth",
 					results_dir + "/{}.{}_{}_ks_results.txt".format(
 						sample_id, c, str(y_chromosome[0]))))
 		if ks_res_y is not None:
-			sex_ks_res = xyalign.ploidy.ks_two_sample(
+			sex_ks_res = ploidy.ks_two_sample(
 				pd.concat(passing_df), str(x_chromosome[0]),
 				str(y_chromosome[0]), "chrom", "depth",
 				results_dir + "/{}.{}_{}_ks_results.txt".format(
@@ -1057,21 +1057,21 @@ def ploidy_analysis(
 		autosomes = [
 			x for x in input_chroms if x not in sex_chromosomes]
 		for c in autosomes:
-			boot_res_x.append(xyalign.ploidy.bootstrap(
+			boot_res_x.append(ploidy.bootstrap(
 				pd.concat(passing_df), c,
 				str(x_chromosome[0]), "chrom",
 				"depth", num_bootstraps,
 				results_dir + "/{}.{}_{}_bootstrap_results.txt".format(
 					sample_id, c, str(x_chromosome[0]))))
 			if boot_res_y is not None:
-				boot_res_y.append(xyalign.ploidy.bootstrap(
+				boot_res_y.append(ploidy.bootstrap(
 					pd.concat(passing_df), c,
 					str(y_chromosome[0]), "chrom",
 					"depth", num_bootstraps,
 					results_dir + "/{}.{}_{}_bootstrap_results.txt".format(
 						sample_id, c, str(y_chromosome[0]))))
 		if boot_res_y is not None:
-			sex_boot_res = xyalign.ploidy.bootstrap(
+			sex_boot_res = ploidy.bootstrap(
 				pd.concat(passing_df), str(x_chromosome[0]),
 				str(y_chromosome[0]),
 				"chrom", "depth", num_bootstraps,
@@ -1177,7 +1177,7 @@ def remapping(
 							if k[3:] == rg_id:
 								rg_tag = "\t".join(j)
 							break
-				temp_bam = xyalign.assemble.bwa_mem_mapping_sambamba(
+				temp_bam = assemble.bwa_mem_mapping_sambamba(
 					bwa_path, samtools_path, sambamba_path,
 					new_reference, "{}/{}.sex_chroms.{}.".format(
 						bam_dir, sample_id, rg_id),
@@ -1187,12 +1187,12 @@ def remapping(
 		if len(temp_bam_list) < 2:
 			new_bam = temp_bam_list[0]
 		else:
-			new_bam = xyalign.bam.samtools_merge(
+			new_bam = bam.samtools_merge(
 				samtools_path, temp_bam_list, "{}/{}.sex_chroms".format(
 					bam_dir, sample_id), cpus)
 	else:
 		fastq_files = read_group_and_fastqs[0][1:]
-		new_bam = xyalign.assemble.bwa_mem_mapping_sambamba(
+		new_bam = assemble.bwa_mem_mapping_sambamba(
 			bwa_path, samtools_path, sambamba_path,
 			new_reference, "{}/{}.sex_chroms.{}.".format(
 				bam_dir, sample_id, rg_id),
@@ -1236,7 +1236,7 @@ def swap_sex_chroms(
 	str
 		Path to new bam file containing original autosomes and new sex chromosomes
 	"""
-	merged_bam = xyalign.bam.switch_sex_chromosomes_sambamba(
+	merged_bam = bam.switch_sex_chromosomes_sambamba(
 		samtools_path, sambamba_path, input_bam_obj.filepath,
 		new_bam_obj.filepath, x_chromosome + y_chromosome,
 		bam_dir, sample_id, cpus, xyalign_params)
@@ -1263,14 +1263,14 @@ def main():
 	args = parse_args()
 
 	# Create directory structure if not already in place
-	xyalign.utils.validate_dir(args.output_dir, "fastq")
-	xyalign.utils.validate_dir(args.output_dir, "bam")
-	xyalign.utils.validate_dir(args.output_dir, "reference")
-	xyalign.utils.validate_dir(args.output_dir, "bed")
-	xyalign.utils.validate_dir(args.output_dir, "vcf")
-	xyalign.utils.validate_dir(args.output_dir, "plots")
-	xyalign.utils.validate_dir(args.output_dir, "results")
-	xyalign.utils.validate_dir(args.output_dir, "logfiles")
+	utils.validate_dir(args.output_dir, "fastq")
+	utils.validate_dir(args.output_dir, "bam")
+	utils.validate_dir(args.output_dir, "reference")
+	utils.validate_dir(args.output_dir, "bed")
+	utils.validate_dir(args.output_dir, "vcf")
+	utils.validate_dir(args.output_dir, "plots")
+	utils.validate_dir(args.output_dir, "results")
+	utils.validate_dir(args.output_dir, "logfiles")
 
 	# Set up logfile
 	logfile_path = os.path.join(args.output_dir, "logfiles")
@@ -1325,12 +1325,12 @@ def main():
 
 	# Check for external programs
 	logger.info("Checking external programs")
-	xyalign.utils.validate_external_prog(args.repairsh_path, "bbmap's repair.sh")
-	xyalign.utils.validate_external_prog(args.bedtools_path, "bedtools")
-	xyalign.utils.validate_external_prog(args.bwa_path, "bwa")
-	xyalign.utils.validate_external_prog(args.platypus_path, "platypus")
-	xyalign.utils.validate_external_prog(args.samtools_path, "samtools")
-	xyalign.utils.validate_external_prog(args.sambamba_path, "sambamba")
+	utils.validate_external_prog(args.repairsh_path, "bbmap's repair.sh")
+	utils.validate_external_prog(args.bedtools_path, "bedtools")
+	utils.validate_external_prog(args.bwa_path, "bwa")
+	utils.validate_external_prog(args.platypus_path, "platypus")
+	utils.validate_external_prog(args.samtools_path, "samtools")
+	utils.validate_external_prog(args.sambamba_path, "sambamba")
 	logger.info("All external program paths successfully checked")
 
 	# Setup output paths
@@ -1424,7 +1424,7 @@ def main():
 	if args.PREPARE_REFERENCE is True:
 		logger.info(
 			"PREPARE_REFERENCE set, so only preparing reference fastas.")
-		ref = xyalign.reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
+		ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
 
 		ref_prep(
 			ref_obj=ref,
@@ -1447,7 +1447,7 @@ def main():
 		logger.info(
 			"CHROM_STATS set, will iterate through bam files to calculate "
 			"chromosome-wide averages.")
-		bam_list = [xyalign.bam.BamFile(x, args.samtools_path) for x in args.bam]
+		bam_list = [bam.BamFile(x, args.samtools_path) for x in args.bam]
 
 		chrom_stats_results = chrom_stats(
 			bam_obj_list=bam_list,
@@ -1481,7 +1481,7 @@ def main():
 		logging.shutdown()
 		sys.exit(0)
 
-	input_bam = xyalign.bam.BamFile(args.bam[0], args.samtools_path)
+	input_bam = bam.BamFile(args.bam[0], args.samtools_path)
 
 	if args.chromosomes == ["ALL"] or args.chromosomes == ["all"]:
 		input_chromosomes = list(input_bam.chromosome_names())
@@ -1522,11 +1522,11 @@ def main():
 		sys.exit(0)
 
 	# Other modules
-	ref = xyalign.reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
+	ref = reftools.RefFasta(args.ref, args.samtools_path, args.bwa_path)
 
 	# Check to ensure bam and fasta are compatible and imports work
 	if args.skip_compatibility_check is False:
-		compatible = xyalign.utils.check_bam_fasta_compatibility(input_bam, ref)
+		compatible = utils.check_bam_fasta_compatibility(input_bam, ref)
 		if compatible is False:
 			logger.error(
 				"Exiting due to compatibility issues between {} and {}. Check: "
@@ -1693,9 +1693,9 @@ def main():
 				bwa_index=True)
 
 		else:
-			xx = xyalign.reftools.RefFasta(
+			xx = reftools.RefFasta(
 				args.xx_ref_in, args.samtools_path, args.bwa_path)
-			xy = xyalign.reftools.RefFasta(
+			xy = reftools.RefFasta(
 				args.xy_ref_in, args.samtools_path, args.bwa_path)
 			xx.conditional_index_bwa()
 			xx.conditional_seq_dict()
@@ -1703,7 +1703,7 @@ def main():
 			xy.conditional_seq_dict()
 			masked_refs = (xx, xy)
 
-		sex_chrom_bam = xyalign.bam.BamFile(
+		sex_chrom_bam = bam.BamFile(
 			remapping(
 				input_bam_obj=input_bam,
 				y_pres=y_present,
@@ -1730,7 +1730,7 @@ def main():
 		if args.sex_chrom_bam_only is True:
 			final_bam = sex_chrom_bam
 		else:
-			final_bam = xyalign.bam.BamFile(
+			final_bam = bam.BamFile(
 				swap_sex_chroms(
 					input_bam_obj=input_bam,
 					new_bam_obj=sex_chrom_bam,
@@ -1778,9 +1778,9 @@ def main():
 				bwa_index=True)
 
 		else:
-			xx = xyalign.reftools.RefFasta(
+			xx = reftools.RefFasta(
 				args.xx_ref_in, args.samtools_path, args.bwa_path)
-			xy = xyalign.reftools.RefFasta(
+			xy = reftools.RefFasta(
 				args.xy_ref_in, args.samtools_path, args.bwa_path)
 			xx.conditional_index_bwa()
 			xx.conditional_seq_dict()
@@ -1860,7 +1860,7 @@ def main():
 					"X/Y depth ratio ({}) <= {}. Y inferred to be present.".format(
 						ploidy_results["boot"][2][2], args.sex_chrom_calling_threshold))
 
-		sex_chrom_bam = xyalign.bam.BamFile(
+		sex_chrom_bam = bam.BamFile(
 			remapping(
 				input_bam_obj=input_bam,
 				y_pres=y_present,
@@ -1887,7 +1887,7 @@ def main():
 		if args.sex_chrom_bam_only is True:
 			final_bam = sex_chrom_bam
 		else:
-			final_bam = xyalign.bam.BamFile(
+			final_bam = bam.BamFile(
 				swap_sex_chroms(
 					input_bam_obj=input_bam,
 					new_bam_obj=sex_chrom_bam,

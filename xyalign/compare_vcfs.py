@@ -1,7 +1,7 @@
 from __future__ import print_function
 import argparse
 import numpy as np
-import xyalign  # from xyalign import utils, variants
+from xyalign import utils, variants
 
 
 def parse_args():
@@ -55,8 +55,8 @@ def parse_args():
 def main():
 	args = parse_args()
 
-	vcf_before = xyalign.variants.VCFFile(args.vcf_before)
-	vcf_after = xyalign.variants.VCFFile(args.vcf_after)
+	vcf_before = variants.VCFFile(args.vcf_before)
+	vcf_after = variants.VCFFile(args.vcf_after)
 
 	parsed_before = vcf_before.parse_platypus_VCF(
 		site_qual=args.variant_site_quality,
