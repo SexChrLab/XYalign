@@ -27,5 +27,6 @@ setup(
 			'xyalign = xyalign.xyalign:main',
 			'explore_thresholds = xyalign.explore_thresholds:main',
 			'plot_count_stats = xyalign.plot_count_stats:main',
-			'plot_window_differences = xyalign.plot_window_differences:main']}
+			'plot_window_differences = xyalign.plot_window_differences:main',
+			'compare_vcfs = xyalign.compare_vcfs:main']}
 )

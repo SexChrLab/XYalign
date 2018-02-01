@@ -94,9 +94,44 @@ def main():
 			after_also_in_before[2].append(parsed_after[2][idx])
 			after_also_in_before[3].append(parsed_after[3][idx])
 
-	# missing_in_before = [x for x in parsed_after[0] if x not in parsed_before[0]]
-	# missing_in_after = [x for x in parsed_before[0] if x not in parsed_after[0]]
+	diffs = [
+		after_also_in_before[0],
+		np.asarray(after_also_in_before[1]) - np.asarray(before_also_in_after[1]),
+		np.asarray(after_also_in_before[2]) - np.asarray(before_also_in_after[2]),
+		np.asarray(after_also_in_before[3]) - np.asarray(before_also_in_after[3])]
 
+	output_table = "{}.txt"
+	with open(output_table, "w") as o:
+		o.write(
+			"Total unique sites:\t{}\n".format(
+				len(missing_in_after) + len(missing_in_before)))
+		o.write(
+			"Sites unique to after:\t{}\n".format(
+				len(missing_in_after)))
+		o.write(
+			"Sites unique to before:\t{}\n".format(
+				len(missing_in_before)))
+		o.write("\n")
+		o.write(
+			"measure\tbefore_mean\tafter_mean\tmean_diff\tstd_diff\n")
+		o.write(
+			"QUAL\t{}\t{}\t{}\t\n".format(
+				np.mean(parsed_before[1]),
+				np.mean(parsed_after[1]),
+				np.mean(diffs[1]),
+				np.std(diffs[1])))
+		o.write(
+			"read_balance\t{}\t{}\t{}\t\n".format(
+				np.mean(parsed_before[2]),
+				np.mean(parsed_after[2]),
+				np.mean(diffs[2]),
+				np.std(diffs[2])))
+		o.write(
+			"GQ\t{}\t{}\t{}\t\n".format(
+				np.mean(parsed_before[3]),
+				np.mean(parsed_after[3]),
+				np.mean(diffs[3]),
+				np.std(diffs[3])))
 
 if __name__ == "__main__":
 	main()
