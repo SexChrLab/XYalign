@@ -1,5 +1,5 @@
 # XYalign main program
-
+from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import argparse
@@ -11,8 +11,13 @@ import subprocess
 import sys
 import time
 import pandas as pd
-import pysam
-from xyalign import assemble, bam, ploidy, reftools, utils, variants
+import xyalign.assemble as assemble
+import xyalign.bam as bam
+import xyalign.ploidy as ploidy
+import xyalign.reftools as reftools
+import xyalign.utils as utils
+import xyalign.variants as variants
+# from xyalign import assemble, bam, ploidy, reftools, utils, variants
 
 # Grab XYalign version from _version.py in the xyalign directory
 dir = os.path.dirname(__file__)

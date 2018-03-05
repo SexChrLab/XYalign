@@ -6,7 +6,9 @@ import pandas as pd
 import pybedtools
 import random
 import string
-from xyalign import utils, variants
+import xyalign.utils as utils
+import xyalign.variants as variants
+# from xyalign import utils, variants
 
 
 def parse_args():

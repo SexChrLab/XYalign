@@ -1,7 +1,10 @@
+from __future__ import absolute_import
 from __future__ import print_function
 import argparse
 import numpy as np
-from xyalign import utils, variants
+import xyalign.utils as utils
+import xyalign.variants as variants
+#from xyalign import utils, variants
 
 
 def parse_args():
