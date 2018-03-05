@@ -119,13 +119,13 @@ def main():
 				len(parsed_after[0])))
 		o.write(
 			"Total unique sites:\t{}\n".format(
-				len(missing_in_after) + len(missing_in_before)))
+				len(missing_in_after[0]) + len(missing_in_before[0])))
 		o.write(
 			"Sites unique to after:\t{}\n".format(
-				len(missing_in_after)))
+				len(missing_in_after[0])))
 		o.write(
 			"Sites unique to before:\t{}\n".format(
-				len(missing_in_before)))
+				len(missing_in_before[0])))
 		o.write("\n")
 		o.write(
 			"measure\tbefore_mean\tafter_mean\tmean_diff\tstd_diff\n")
