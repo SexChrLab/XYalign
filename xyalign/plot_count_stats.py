@@ -12,6 +12,9 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 
 def parse_args():
 	"""
@@ -44,7 +47,7 @@ def parse_args():
 	parser.add_argument(
 		"--output_prefix", type=str, required=True,
 		help="'Prefix' of output files. This includes full path to desired file "
-		"and desired file name before suffix (suffixes will be .png and .svg).")
+		"and desired file name before suffix (suffix will be .pdf).")
 
 	parser.add_argument(
 		"--exclude_suffix", type=str, default="",
@@ -302,8 +305,9 @@ def main():
 	ax.set_xlim(left=0)
 	ax.set_ylim(bottom=0)
 	ax.tick_params("both", labelsize=15, pad=10)
-	fig.savefig("{}.svg".format(args.output_prefix))
-	fig.savefig("{}.png".format(args.output_prefix))
+	fig.savefig("{}.pdf".format(args.output_prefix), transparent=True)
+	# fig.savefig("{}.svg".format(args.output_prefix))
+	# fig.savefig("{}.png".format(args.output_prefix))
 
 
 if __name__ == "__main__":

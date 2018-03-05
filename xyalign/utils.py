@@ -15,6 +15,9 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 
 # Create logger for utils submodule
 utils_logger = logging.getLogger("xyalign.utils")
@@ -433,10 +436,12 @@ def chromosome_wide_plot(
 		scale_label = "(divided by {})".formatt(x_scale)
 	axes.set_xlabel("Chromosomal Position {}".format(scale_label))
 	axes.set_ylabel(measure_name)
-	plt.savefig("{}_{}_{}_GenomicScatter.svg".format(
-		output_prefix, chrom, measure_name))
-	plt.savefig("{}_{}_{}_GenomicScatter.png".format(
-		output_prefix, chrom, measure_name))
+	plt.savefig("{}_{}_{}_GenomicScatter.pdf".format(
+		output_prefix, chrom, measure_name), transparent=True)
+	# plt.savefig("{}_{}_{}_GenomicScatter.svg".format(
+	# 	output_prefix, chrom, measure_name))
+	# plt.savefig("{}_{}_{}_GenomicScatter.png".format(
+	# 	output_prefix, chrom, measure_name))
 	plt.close(fig)
 	return 0
 
@@ -488,8 +493,10 @@ def hist_array(chrom, value_array, measure_name, sampleID, output_prefix):
 		axes.set_xlabel("{}".format(measure_name))
 		axes.set_ylabel("Frequency")
 		axes.hist(value_array, bins=50, color=Color)
-		plt.savefig("{}_{}_{}_Hist.svg".format(output_prefix, chrom, measure_name))
-		plt.savefig("{}_{}_{}_Hist.png".format(output_prefix, chrom, measure_name))
+		plt.savefig("{}_{}_{}_Hist.pdf".format(
+			output_prefix, chrom, measure_name), transparent=True)
+		# plt.savefig("{}_{}_{}_Hist.svg".format(output_prefix, chrom, measure_name))
+		# plt.savefig("{}_{}_{}_Hist.png".format(output_prefix, chrom, measure_name))
 		plt.close(fig)
 		utils_logger.info(
 			"{} histogram of {} complete.".format(measure_name, chrom))
@@ -639,9 +646,11 @@ def before_after_plot(
 			scale_label = "(divided by {})".formatt(x_scale)
 		axes.set_xlabel("Chromosomal Position {}".format(scale_label))
 		axes.set_ylabel("Difference in {}".format(measure_name))
-		plt.savefig("{}_{}_{}_BeforeAfterScatter.svg".format(
-			output_prefix, chrom, measure_name))
-		plt.savefig("{}_{}_{}_BeforeAfterScatter.png".format(
-			output_prefix, chrom, measure_name))
+		plt.savefig("{}_{}_{}_BeforeAfterScatter.pdf".format(
+			output_prefix, chrom, measure_name), transparent=True)
+		# plt.savefig("{}_{}_{}_BeforeAfterScatter.svg".format(
+		# 	output_prefix, chrom, measure_name))
+		# plt.savefig("{}_{}_{}_BeforeAfterScatter.png".format(
+		# 	output_prefix, chrom, measure_name))
 		plt.close(fig)
 		return 0

@@ -15,6 +15,9 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 # Create logger for variants submodule
 variants_logger = logging.getLogger("xyalign.variants")
 
@@ -657,10 +660,12 @@ def plot_read_balance(
 	axes.set_xlabel("Chromosomal Position {}".format(scale_label))
 	axes.set_ylabel("Read Balance")
 	# print(len(positions))
-	plt.savefig("{}_{}_ReadBalance_GenomicScatter.svg".format(
-		output_prefix, chrom))
-	plt.savefig("{}_{}_ReadBalance_GenomicScatter.png".format(
-		output_prefix, chrom))
+	plt.savefig("{}_{}_ReadBalance_GenomicScatter.pdf".format(
+		output_prefix, chrom), transparent=True)
+	# plt.savefig("{}_{}_ReadBalance_GenomicScatter.svg".format(
+	# 	output_prefix, chrom))
+	# plt.savefig("{}_{}_ReadBalance_GenomicScatter.png".format(
+	# 	output_prefix, chrom))
 	plt.close(fig)
 	variants_logger.info("Genomic read balance plot of {} complete.".format(
 		chrom))
@@ -716,8 +721,10 @@ def hist_read_balance(
 	axes.set_xlabel("Read Balance")
 	axes.set_ylabel("Frequency")
 	axes.hist(read_balance, bins=50, color=Color)
-	plt.savefig("{}_{}_ReadBalance_Hist.svg".format(output_prefix, chrom))
-	plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
+	plt.savefig("{}_{}_ReadBalance_Hist.pdf".format(
+		output_prefix, chrom), transparent=True)
+	# plt.savefig("{}_{}_ReadBalance_Hist.svg".format(output_prefix, chrom))
+	# plt.savefig("{}_{}_ReadBalance_Hist.png".format(output_prefix, chrom))
 	plt.close(fig)
 	variants_logger.info(
 		"Genomic read balance histogram of {} complete.".format(
