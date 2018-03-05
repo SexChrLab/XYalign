@@ -1,7 +1,6 @@
 # Part of XYalign
 # Functions for calling and processing variants
 
-from __future__ import absolute_import
 from __future__ import division
 import csv
 import gzip

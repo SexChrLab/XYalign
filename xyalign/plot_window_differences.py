@@ -2,7 +2,8 @@ from __future__ import print_function
 import argparse
 import numpy as np
 import pandas as pd
-from xyalign import utils
+import xyalign.utils as utils
+#from xyalign import utils
 
 
 def parse_args():
