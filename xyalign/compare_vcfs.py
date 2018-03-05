@@ -33,6 +33,10 @@ def parse_args():
 		"condition for comparisons.")
 
 	parser.add_argument(
+		"--output_file", type=str, required=True,
+		help="Name of output file (including path, if to be created elsewhere).")
+
+	parser.add_argument(
 		"--variant_site_quality", type=int, default=30,
 		help="Consider all SNPs with a site quality (QUAL) greater than or "
 		"equal to this value. Default is 30.")
@@ -105,8 +109,14 @@ def main():
 		np.asarray(after_also_in_before[2]) - np.asarray(before_also_in_after[2]),
 		np.asarray(after_also_in_before[3]) - np.asarray(before_also_in_after[3])]
 
-	output_table = "{}.txt"
+	output_table = args.output_file
 	with open(output_table, "w") as o:
+		o.write(
+			"Total sites before:\t{}\n".format(
+				len(parsed_before[0])))
+		o.write(
+			"Total sites after:\t{}\n".format(
+				len(parsed_after[0])))
 		o.write(
 			"Total unique sites:\t{}\n".format(
 				len(missing_in_after) + len(missing_in_before)))
@@ -120,19 +130,19 @@ def main():
 		o.write(
 			"measure\tbefore_mean\tafter_mean\tmean_diff\tstd_diff\n")
 		o.write(
-			"QUAL\t{}\t{}\t{}\t\n".format(
+			"QUAL\t{}\t{}\t{}\t{}\n".format(
 				np.mean(parsed_before[1]),
 				np.mean(parsed_after[1]),
 				np.mean(diffs[1]),
 				np.std(diffs[1])))
 		o.write(
-			"read_balance\t{}\t{}\t{}\t\n".format(
+			"read_balance\t{}\t{}\t{}\t{}\n".format(
 				np.mean(parsed_before[2]),
 				np.mean(parsed_after[2]),
 				np.mean(diffs[2]),
 				np.std(diffs[2])))
 		o.write(
-			"GQ\t{}\t{}\t{}\t\n".format(
+			"GQ\t{}\t{}\t{}\t{}\n".format(
 				np.mean(parsed_before[3]),
 				np.mean(parsed_after[3]),
 				np.mean(diffs[3]),
