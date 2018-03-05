@@ -1,13 +1,15 @@
 # Part of XYalign
 # Functions for calling and processing variants
 
+from __future__ import absolute_import
 from __future__ import division
 import csv
 import gzip
 import logging
 import subprocess
 import time
-from xyalign import utils
+import xyalign.utils as utils
+# from xyalign import utils
 import numpy as np
 import pandas as pd
 # Matplotlib needs to be called in this way to set the display variable
