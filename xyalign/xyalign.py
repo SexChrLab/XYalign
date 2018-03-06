@@ -280,18 +280,33 @@ def parse_args():
 		"X chromosome.  Default is None.")
 
 	parser.add_argument(
-		"--xx_ref_out", default=None,
+		"--xx_ref_out_name", default=None,
 		help="Desired name for masked output fasta for "
 		"samples WITHOUT a Y chromosome (e.g., XX, XXX, XO, etc.). "
 		"Defaults to 'xyalign_noY.masked.fa'. Will be output "
 		"in the XYalign reference directory.")
 
 	parser.add_argument(
-		"--xy_ref_out", default=None,
+		"--xy_ref_out_name", default=None,
 		help="Desired name for masked output fasta for "
 		"samples WITH a Y chromosome (e.g., XY, XXY, etc.). "
 		"Defaults to 'xyalign_withY.masked.fa'. Will be output "
 		"in the XYalign reference directory.")
+
+	parser.add_argument(
+		"--xx_ref_out", default=None,
+		help="Desired path to and name of masked output fasta for "
+		"samples WITHOUT a Y chromosome (e.g., XX, XXX, XO, etc.). "
+		"Overwrites if exists. "
+		"Use if you would like output somewhere other than XYalign reference "
+		"directory. Otherwise, use --xx_ref_name.")
+
+	parser.add_argument(
+		"--xy_ref_out", default=None,
+		help="Desired path to and name of masked output fasta for "
+		"samples WITH a Y chromosome (e.g., XY, XXY, etc.). Overwrites if exists. "
+		"Use if you would like output somewhere other than XYalign reference "
+		"directory. Otherwise, use --xy_ref_name.")
 
 	parser.add_argument(
 		"--xx_ref_in", default=None,
@@ -1349,12 +1364,16 @@ def main():
 
 	# Create paths for output files
 	# reference-related
-	if args.xx_ref_out is not None:
+	if args.xx_ref_out_name is not None:
 		xx_out = os.path.join(reference_path, args.xx_ref_out)
+	elif args.xx_ref_out is not None:
+		xx_out = args.xx_ref_out
 	else:
 		xx_out = os.path.join(reference_path, "xyalign_noY.masked.fa")
-	if args.xy_ref_out is not None:
+	if args.xy_ref_out_name is not None:
 		xy_out = os.path.join(reference_path, args.xy_ref_out)
+	elif args.xy_ref_out is not None:
+		xy_out = args.xy_ref_out
 	else:
 		xy_out = os.path.join(reference_path, "xyalign_withY.masked.fa")
 	# variant/vcf related
