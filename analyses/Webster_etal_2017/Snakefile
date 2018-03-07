@@ -169,10 +169,11 @@ rule map_and_process_reads_hg19_paired_human:
 		pl = lambda wildcards: config[wildcards.sample]["PL"],
 		bwa = bwa_path,
 		samblaster = samblaster_path,
-		samtools = samtools_path
+		samtools = samtools_path,
+		threads = 4
 	threads: 4
 	shell:
-		" {params.bwa} mem -t {threads} -R "
+		" {params.bwa} mem -t {params.threads} -R "
 		"'@RG\\tID:{params.id}\\tSM:{params.sm}\\tLB:{params.lb}\\tPU:{params.pu}\\tPL:{params.pl}' "
 		"{input.ref} {input.fq1} {input.fq2} "
 		"| {params.samblaster} | {params.samtools} fixmate -O bam - - | {params.samtools} sort "
@@ -293,7 +294,7 @@ rule xyalign_prepare_hg19_reference:
 	threads:
 		4
 	shell:
-		"source activate xyalign_env && {params.xyalign} --PREPARE_REFERENCE --ref {input.ref} --xx_ref_out hg19.XXonly.fasta --xy_ref_out hg19.XY.fasta --output_dir {params.output_dir} --x_chromosome chrX --y_chromosome chrY --bwa_index True"
+		"source activate xyalign_env && {params.xyalign} --PREPARE_REFERENCE --ref {input.ref} --xx_ref_out_name hg19.XXonly.fasta --xy_ref_out_name hg19.XY.fasta --output_dir {params.output_dir} --x_chromosome chrX --y_chromosome chrY --bwa_index True"
 
 rule xyalign_hg19_analysis_human:
 	input:
@@ -308,11 +309,12 @@ rule xyalign_hg19_analysis_human:
 		xyalign = xyalign_path,
 		sample_id = "{sample}_hg19",
 		hg19_ref_mask = hg19_reference_mask_path,
-		conda_env = xyalign_anaconda_env
+		conda_env = xyalign_anaconda_env,
+		threads = 4
 	threads:
 		4
 	shell:
-		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/hg19 --sample_id {params.sample_id} --cpus {threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY --xmx 4g --fastq_compression 4 --min_depth_filter 0.2 --max_depth_filter 2 --xx_ref_in {input.xx_in} --xy_ref_in {input.xy_in}"
+		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/hg19 --sample_id {params.sample_id} --cpus {params.threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY --xmx 4g --fastq_compression 4 --min_depth_filter 0.2 --max_depth_filter 2 --xx_ref_in {input.xx_in} --xy_ref_in {input.xy_in}"
 
 rule xyalign_1000genomes_analysis:
 	input:
@@ -324,11 +326,12 @@ rule xyalign_1000genomes_analysis:
 	params:
 		xyalign = xyalign_path,
 		sample_id = "{sample}_1000genomes",
-		conda_env = xyalign_anaconda_env
+		conda_env = xyalign_anaconda_env,
+		threads = 4
 	threads:
 		4
 	shell:
-		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/thousand_genomes --sample_id {params.sample_id} --cpus {threads} --window_size 5000 --chromosomes 19 X Y --x_chromosome X --y_chromosome Y --CHARACTERIZE_SEX_CHROMS"
+		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/thousand_genomes --sample_id {params.sample_id} --cpus {params.threads} --window_size 5000 --chromosomes 19 X Y --x_chromosome X --y_chromosome Y --CHARACTERIZE_SEX_CHROMS"
 
 rule chrom_stats_hg19_human:
 	input:
