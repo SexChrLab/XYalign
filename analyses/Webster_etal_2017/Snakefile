@@ -230,8 +230,11 @@ rule merge_lcov_HG00513:
 		samtools = samtools_path
 	threads: 4
 	run:
-		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3}")
-		shell("{params.samtools} index {output.bam}")
+		shell(
+			"{params.samtools} merge {output.bam} {input.run1} "
+			"{input.run2} {input.run3}")
+		shell(
+			"{params.samtools} index {output.bam}")
 
 rule merge_wgs_HG00512:
 	input:
@@ -252,8 +255,11 @@ rule merge_wgs_HG00512:
 		samtools = samtools_path
 	threads: 4
 	run:
-		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5}")
-		shell("{params.samtools} index {output.bam}")
+		shell(
+			"{params.samtools} merge {output.bam} {input.run1} {input.run2} "
+			"{input.run3} {input.run4} {input.run5}")
+		shell(
+			"{params.samtools} index {output.bam}")
 
 rule merge_wgs_HG00513:
 	input:
@@ -276,8 +282,11 @@ rule merge_wgs_HG00513:
 		samtools = samtools_path
 	threads: 4
 	run:
-		shell("{params.samtools} merge {output.bam} {input.run1} {input.run2} {input.run3} {input.run4} {input.run5} {input.run6}")
-		shell("{params.samtools} index {output.bam}")
+		shell(
+			"{params.samtools} merge {output.bam} {input.run1} {input.run2} "
+			"{input.run3} {input.run4} {input.run5} {input.run6}")
+		shell(
+			"{params.samtools} index {output.bam}")
 
 rule xyalign_prepare_hg19_reference:
 	input:
@@ -294,7 +303,11 @@ rule xyalign_prepare_hg19_reference:
 	threads:
 		4
 	shell:
-		"source activate xyalign_env && {params.xyalign} --PREPARE_REFERENCE --ref {input.ref} --xx_ref_out_name hg19.XXonly.fasta --xy_ref_out_name hg19.XY.fasta --output_dir {params.output_dir} --x_chromosome chrX --y_chromosome chrY --bwa_index True"
+		"source activate {params.conda_env} "
+		"&& {params.xyalign} --PREPARE_REFERENCE --ref {input.ref} "
+		"--xx_ref_out_name hg19.XXonly.fasta --xy_ref_out_name hg19.XY.fasta "
+		"--output_dir {params.output_dir} --x_chromosome chrX "
+		"--y_chromosome chrY --bwa_index True"
 
 rule xyalign_hg19_analysis_human:
 	input:
@@ -314,7 +327,14 @@ rule xyalign_hg19_analysis_human:
 	threads:
 		4
 	shell:
-		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/hg19 --sample_id {params.sample_id} --cpus {params.threads} --reference_mask {params.hg19_ref_mask} --window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY --xmx 4g --fastq_compression 4 --min_depth_filter 0.2 --max_depth_filter 2 --xx_ref_in {input.xx_in} --xy_ref_in {input.xy_in}"
+		"source activate {params.conda_env} "
+		"&& {params.xyalign} --ref {input.ref} --bam {input.bam} "
+		"--output_dir xyalign_analyses/hg19 --sample_id {params.sample_id} "
+		"--cpus {params.threads} --reference_mask {params.hg19_ref_mask} "
+		"--window_size 5000 --chromosomes chr19 chrX chrY --x_chromosome chrX "
+		"--y_chromosome chrY --xmx 4g --fastq_compression 4 "
+		"--min_depth_filter 0.2 --max_depth_filter 2 --xx_ref_in {input.xx_in} "
+		"--xy_ref_in {input.xy_in}"
 
 rule xyalign_1000genomes_analysis:
 	input:
@@ -331,7 +351,12 @@ rule xyalign_1000genomes_analysis:
 	threads:
 		4
 	shell:
-		"source activate xyalign_env && {params.xyalign} --ref {input.ref} --bam {input.bam} --output_dir xyalign_analyses/thousand_genomes --sample_id {params.sample_id} --cpus {params.threads} --window_size 5000 --chromosomes 19 X Y --x_chromosome X --y_chromosome Y --CHARACTERIZE_SEX_CHROMS"
+		"source activate {params.conda_env} "
+		"&& {params.xyalign} --ref {input.ref} --bam {input.bam} "
+		"--output_dir xyalign_analyses/thousand_genomes "
+		"--sample_id {params.sample_id} --cpus {params.threads} "
+		"--window_size 5000 --chromosomes 19 X Y --x_chromosome X "
+		"--y_chromosome Y --CHARACTERIZE_SEX_CHROMS"
 
 rule chrom_stats_hg19_human:
 	input:
@@ -350,7 +375,10 @@ rule chrom_stats_hg19_human:
 		conda_env = xyalign_anaconda_env,
 		logfile = "hg19_human_chrom_stats.logfile"
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --chromosomes chr1 chr8 chr19 chrX chrY chrM --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
+		"source activate {params.conda_env} "
+		"&& {params.xyalign} --CHROM_STATS "
+		"--chromosomes chr1 chr8 chr19 chrX chrY chrM --bam {input.bams} "
+		"--ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
 
 rule chrom_stats_thousand_genomes:
 	input:
@@ -369,7 +397,10 @@ rule chrom_stats_thousand_genomes:
 		conda_env = xyalign_anaconda_env,
 		logfile = "thousand_chrom_stats.logfile"
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --chromosomes 1 8 19 X Y MT --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
+		"source activate {params.conda_env} "
+		"&& {params.xyalign} --CHROM_STATS --chromosomes 1 8 19 X Y MT "
+		"--bam {input.bams} --ref null --sample_id {params.sample_id} "
+		"--output_dir xyalign_analyses/chrom_stats"
 
 rule chrom_stats_hg19_human_counts:
 	input:
@@ -387,7 +418,10 @@ rule chrom_stats_hg19_human_counts:
 		conda_env = xyalign_anaconda_env,
 		logfile = "hg19_human_chrom_stats_counts.logfile"
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --use_counts --chromosomes chr1 chr8 chr19 chrX chrY chrM --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
+		"source activate {params.conda_env} "
+		"&& {params.xyalign} --CHROM_STATS --use_counts "
+		"--chromosomes chr1 chr8 chr19 chrX chrY chrM --bam {input.bams} "
+		"--ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
 
 rule chrom_stats_thousand_genomes_counts:
 	input:
@@ -405,4 +439,7 @@ rule chrom_stats_thousand_genomes_counts:
 		conda_env = xyalign_anaconda_env,
 		logfile = "thousand_chrom_stats_counts.logfile"
 	shell:
-		"source activate xyalign_env && {params.xyalign} --CHROM_STATS --use_counts --chromosomes 1 8 19 X Y MT --bam {input.bams} --ref null --sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
+		"source activate {params.conda_env} "
+		"&& {params.xyalign} --CHROM_STATS --use_counts "
+		"--chromosomes 1 8 19 X Y MT --bam {input.bams} --ref null "
+		"--sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
