@@ -450,6 +450,13 @@ def parse_args():
 		help="For genome-wide scatter plots, divide all coordinates by this value."
 		"Default is 1000000, which will plot everything in megabases.")
 
+	parser.add_argument(
+		"--include_fixed", type=bool, default=False,
+		help="Default is False, which removes read balances less than 0.05 and "
+		"greater than 0.95 for histogram plotting. True will include all values. "
+		"Extreme values removed by default because they often swamp out the "
+		"signal of the rest of the distribution.")
+
 	# CHROM_STATS flags
 	parser.add_argument(
 		"--use_counts", action="store_true", default=False,
@@ -767,7 +774,7 @@ def bam_analysis(
 	no_bam_analysis, ignore_duplicates, exact_depth, whole_genome_threshold,
 	mapq_cutoff, min_depth_filter, max_depth_filter, depth_mapq_prefix,
 	bam_data_frame, output_bed_high, output_bed_low, use_bed_for_platypus,
-	coordinate_scale):
+	coordinate_scale, fixed):
 	"""
 	Runs bam analyis part of XYalign pipeline on bam file.
 
@@ -862,6 +869,9 @@ def bam_analysis(
 	coordinate_scale : int
 		Divide all coordinates by this value for plotting. In most cases, 1000000
 		will be ideal for eukaryotic genomes.
+	fixed : bool
+		If False, only plots histogram for values between 0.05 and 0.95. If
+		True, plots histogram of all variants.
 
 	Returns
 	-------
@@ -926,24 +936,42 @@ def bam_analysis(
 		if no_variant_plots is not True:
 			if window_size is not None and window_size != "None":
 				noprocess_vcf_object.plot_variants_per_chrom(
-					input_chroms, sample_id, readbalance_prefix,
-					variant_site_quality,
-					variant_genotype_quality,
-					variant_depth,
-					marker_size,
-					marker_transparency, input_bam_obj, "platypus",
-					homogenize_read_balance, data_frame_readbalance,
-					min_variant_count, int(window_size), coordinate_scale)
+					chrom_list=input_chroms,
+					sampleID=sample_id,
+					output_prefix=readbalance_prefix,
+					site_qual=variant_site_quality,
+					genotype_qual=variant_genotype_quality,
+					depth=variant_depth,
+					MarkerSize=marker_size,
+					MarkerAlpha=marker_transparency,
+					bamfile_obj=input_bam_obj,
+					variant_caller="platypus",
+					homogenize=homogenize_read_balance,
+					dataframe_out=data_frame_readbalance,
+					min_count=min_variant_count,
+					window_size=int(window_size),
+					x_scale=coordinate_scale,
+					target_file=None,
+					include_fixed=fixed)
 			else:
 				noprocess_vcf_object.plot_variants_per_chrom(
-					input_chroms, sample_id, readbalance_prefix,
-					variant_site_quality,
-					variant_genotype_quality,
-					variant_depth,
-					marker_size,
-					marker_transparency, input_bam_obj, "platypus",
-					homogenize_read_balance, data_frame_readbalance,
-					min_variant_count, None, coordinate_scale, target_bed)
+					chrom_list=input_chroms,
+					sampleID=sample_id,
+					output_prefix=readbalance_prefix,
+					site_qual=variant_site_quality,
+					genotype_qual=variant_genotype_quality,
+					depth=variant_depth,
+					MarkerSize=marker_size,
+					MarkerAlpha=marker_transparency,
+					bamfile_obj=input_bam_obj,
+					variant_caller="platypus",
+					homogenize=homogenize_read_balance,
+					dataframe_out=data_frame_readbalance,
+					min_count=min_variant_count,
+					window_size=None,
+					x_scale=coordinate_scale,
+					target_file=target_bed,
+					include_fixed=fixed)
 	return(pass_df, fail_df)
 
 
@@ -1608,7 +1636,8 @@ def main():
 			output_bed_high=output_bed_high_preprocessing,
 			output_bed_low=output_bed_low_preprocessing,
 			use_bed_for_platypus=False,
-			coordinate_scale=args.coordinate_scale)
+			coordinate_scale=args.coordinate_scale,
+			fixed=args.include_fixed)
 
 		logger.info("ANALYZE_BAM complete.")
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
@@ -1661,7 +1690,8 @@ def main():
 			output_bed_high=output_bed_high_preprocessing,
 			output_bed_low=output_bed_low_preprocessing,
 			use_bed_for_platypus=False,
-			coordinate_scale=args.coordinate_scale)
+			coordinate_scale=args.coordinate_scale,
+			fixed=args.include_fixed)
 
 		ploidy_results = ploidy_analysis(
 			passing_df=bam_dfs[0],
@@ -1850,7 +1880,8 @@ def main():
 			output_bed_high=output_bed_high_preprocessing,
 			output_bed_low=output_bed_low_preprocessing,
 			use_bed_for_platypus=False,
-			coordinate_scale=args.coordinate_scale)
+			coordinate_scale=args.coordinate_scale,
+			fixed=args.include_fixed)
 
 		ploidy_results = ploidy_analysis(
 			passing_df=bam_dfs[0],
@@ -1963,7 +1994,8 @@ def main():
 			output_bed_high=output_bed_high_postprocessing,
 			output_bed_low=output_bed_low_postprocessing,
 			use_bed_for_platypus=True,
-			coordinate_scale=args.coordinate_scale)
+			coordinate_scale=args.coordinate_scale,
+			fixed=args.include_fixed)
 
 		logger.info("XYalign complete. Elapsed time: {} seconds".format(
 			time.time() - xyalign_start))

@@ -252,7 +252,8 @@ class VCFFile():
 	def plot_variants_per_chrom(
 		self, chrom_list, sampleID, output_prefix, site_qual, genotype_qual,
 		depth, MarkerSize, MarkerAlpha, bamfile_obj, variant_caller, homogenize,
-		dataframe_out, min_count, window_size, x_scale=1000000, target_file=None):
+		dataframe_out, min_count, window_size, x_scale=1000000, target_file=None,
+		include_fixed=False):
 		"""
 		Parses a vcf file and plots read balance in separate plots
 		for each chromosome in the input list
@@ -296,6 +297,9 @@ class VCFFile():
 		target_file : str
 			Path to bed_file containing regions to analyze instead of
 			windows of a fixed size. Will only be engaged if window_size is None
+		include_fixed : bool
+			If False, only plots histogram for values between 0.05 and 0.95. If
+			True, plots histogram of all variants.
 
 		Returns
 		-------
@@ -675,7 +679,7 @@ def plot_read_balance(
 
 
 def hist_read_balance(
-	chrom, readBalance, sampleID, homogenize, output_prefix):
+	chrom, readBalance, sampleID, homogenize, output_prefix, include_fixed=False):
 	"""
 	Plots a histogram of read balance values between 0.05 and 0.95
 
@@ -694,6 +698,9 @@ def hist_read_balance(
 		0.75 would be treated as equivalent.
 	output_prefix : str
 		Desired prefix (including full path) of the output files
+	include_fixed : bool
+		If False, only plots histogram for values between 0.05 and 0.95. If
+		True, plots histogram of all variants.
 
 	Returns
 	-------
@@ -703,8 +710,11 @@ def hist_read_balance(
 
 	"""
 	readBalance = np.asarray(readBalance)
-	read_balance = readBalance[
-		np.where((readBalance > 0.05) & (readBalance < 1))]
+	if include_fixed is False:
+		read_balance = readBalance[
+			np.where((readBalance > 0.05) & (readBalance < 1))]
+	else:
+		read_balance = readBalance
 	if len(read_balance) == 0:
 		variants_logger.info(
 			"No sites on {} to plot histogram. Skipping.".format(chrom))

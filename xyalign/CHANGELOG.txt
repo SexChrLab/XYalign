@@ -4,6 +4,7 @@
 # Only listing changes since previous version/release
 
 Development Version (on Github) - Version 1.0.1
+	* Added --include_fixed flag to allow plotting of read balances < 0.05 and > 0.95 if desired
 	* --xx_ref_out and --xy_ref_out now allow placement of output anywhere, while --xx_ref_out_name and --xy_ref_out_name allow choice of name of output, but files will be placed in XYalign output directory structure
 	* Output pdfs (settings optimized for importing into Adobe Illustrator) of figures instead of png and svg files
 	* Fixed some bugs in VCF parsing
