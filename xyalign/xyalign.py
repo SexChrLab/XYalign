@@ -1365,13 +1365,13 @@ def main():
 	# Create paths for output files
 	# reference-related
 	if args.xx_ref_out_name is not None:
-		xx_out = os.path.join(reference_path, args.xx_ref_out)
+		xx_out = os.path.join(reference_path, args.xx_ref_out_name)
 	elif args.xx_ref_out is not None:
 		xx_out = args.xx_ref_out
 	else:
 		xx_out = os.path.join(reference_path, "xyalign_noY.masked.fa")
 	if args.xy_ref_out_name is not None:
-		xy_out = os.path.join(reference_path, args.xy_ref_out)
+		xy_out = os.path.join(reference_path, args.xy_ref_out_name)
 	elif args.xy_ref_out is not None:
 		xy_out = args.xy_ref_out
 	else:
