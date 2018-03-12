@@ -1227,7 +1227,7 @@ def remapping(
 							break
 				temp_bam = assemble.bwa_mem_mapping_sambamba(
 					bwa_path, samtools_path, sambamba_path,
-					new_reference, "{}/{}.sex_chroms.{}.".format(
+					new_reference, "{}/{}.sex_chroms.{}".format(
 						bam_dir, sample_id, rg_id),
 					fastq_files, cpus, rg_tag,
 					[str(x).strip() for x in bwa_flags.split()])
@@ -1242,7 +1242,7 @@ def remapping(
 		fastq_files = read_group_and_fastqs[0][1:]
 		new_bam = assemble.bwa_mem_mapping_sambamba(
 			bwa_path, samtools_path, sambamba_path,
-			new_reference, "{}/{}.sex_chroms.{}.".format(
+			new_reference, "{}/{}.sex_chroms.{}".format(
 				bam_dir, sample_id, rg_id),
 			fastq_files, cpus, "None",
 			[str(x).strip() for x in bwa_flags.split()])
