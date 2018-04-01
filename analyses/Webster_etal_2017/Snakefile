@@ -39,7 +39,10 @@ and using snakemake to run the snakefile.
 configfile: "Webster_etal_2017_xyalign.config.json"
 
 # Path to XYalign
+# If installed and in PATH, then leave values as-is
 xyalign_path = "xyalign"
+plot_count_stats_path = "plot_count_stats"
+plot_window_differences_path = "plot_window_differences"
 
 # Name of anaconda XYalign environment (for running xyalign analysis rules)
 # See: http://xyalign.readthedocs.io/en/latest/installation.html for more information
@@ -113,12 +116,18 @@ rule all:
 		expand(
 			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
 			sample=thousand_list),
-		"xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_mapq.txt",
-		"xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_depth.txt",
-		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_mapq.txt",
-		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_depth.txt",
-		"xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_count.txt",
-		"xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_count.txt"
+		# "xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_mapq.txt",
+		# "xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_depth.txt",
+		# "xyalign_analyses/chrom_stats/results/thousand_chrom_stats_mapq.txt",
+		# "xyalign_analyses/chrom_stats/results/thousand_chrom_stats_depth.txt",
+		# "xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_count.txt",
+		# "xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_count.txt",
+		expand(
+			"xyalign_analyses/chrom_stats/plots/{dataset}_{type}.pdf",
+			dataset=["thousand", "seq_comp"], type=["count", "depth", "mapq"]),
+		expand(
+			"xyalign_analyses/hg19/plots/HG00513_wgs_chrX_{type}_BeforeAfterScatter.pdf",
+			type=["depth", "MAPQ"])
 
 rule prepare_reference_hg19:
 	input:
@@ -317,7 +326,9 @@ rule xyalign_hg19_analysis_human:
 		xx_in = "xyalign_analyses/hg19/reference/hg19.XXonly.fasta",
 		xy_in = "xyalign_analyses/hg19/reference/hg19.XY.fasta"
 	output:
-		"xyalign_analyses/hg19/logfiles/{sample}_hg19_xyalign.log"
+		log = "xyalign_analyses/hg19/logfiles/{sample}_hg19_xyalign.log",
+		before = "xyalign_analyses/hg19/bed/{sample}_hg19_full_dataframe_depth_mapq_preprocessing.csv",
+		after = "xyalign_analyses/hg19/bed/{sample}_hg19_full_dataframe_depth_mapq_postprocessing.csv"
 	params:
 		xyalign = xyalign_path,
 		sample_id = "{sample}_hg19",
@@ -411,10 +422,10 @@ rule chrom_stats_hg19_human_counts:
 			"processed_bams/{sample}.hg19.mkdup.sorted.bam.bai",
 			sample=human_list)
 	output:
-		counts = "xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_count.txt"
+		counts = "xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_count.txt"
 	params:
 		xyalign = xyalign_path,
-		sample_id = "hg19_human_counts",
+		sample_id = "hg19_human",
 		conda_env = xyalign_anaconda_env,
 		logfile = "hg19_human_chrom_stats_counts.logfile"
 	shell:
@@ -432,10 +443,10 @@ rule chrom_stats_thousand_genomes_counts:
 			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
 			sample=thousand_list)
 	output:
-		counts = "xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_count.txt"
+		counts = "xyalign_analyses/chrom_stats/results/thousand_chrom_stats_count.txt"
 	params:
 		xyalign = xyalign_path,
-		sample_id = "thousand_counts",
+		sample_id = "thousand",
 		conda_env = xyalign_anaconda_env,
 		logfile = "thousand_chrom_stats_counts.logfile"
 	shell:
@@ -443,3 +454,59 @@ rule chrom_stats_thousand_genomes_counts:
 		"&& {params.xyalign} --CHROM_STATS --use_counts "
 		"--chromosomes 1 8 19 X Y MT --bam {input.bams} --ref null "
 		"--sample_id {params.sample_id} --output_dir xyalign_analyses/chrom_stats"
+
+rule chrom_stats_plots_hg19:
+	input:
+		"xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_{type}.txt"
+	output:
+		"xyalign_analyses/chrom_stats/plots/seq_comp_{type}.pdf"
+	params:
+		plot_count_stats = plot_count_stats_path,
+		conda_env = xyalign_anaconda_env
+	shell:
+		"source activate {params.conda_env} && "
+		"{params.plot_count_stats} --input {input} "
+		"--meta misc/seq_comparison_metadata.txt "
+		"--output_prefix xyalign_analyses/chrom_stats/plots/seq_comp_{wildcards.type} "
+		"--exclude_suffix '.hg19.mkdup.sorted.bam' --first_chr chrX "
+		"--second_chr chrY --const_chr chr19 "
+		"--var1_marker color --var1_marker_vals darkslateblue thistle "
+		"--var2_marker shape --var2_marker_vals o s v --marker_size 1700 "
+		"--legend_marker_scale 0.4"
+
+rule chrom_stats_plots_thousand:
+	input:
+		"xyalign_analyses/chrom_stats/results/thousand_chrom_stats_{type}.txt"
+	output:
+		"xyalign_analyses/chrom_stats/plots/thousand_{type}.pdf"
+	params:
+		plot_count_stats = plot_count_stats_path,
+		conda_env = xyalign_anaconda_env
+	shell:
+		"source activate {params.conda_env} && "
+		"{params.plot_count_stats} --input {input} "
+		"--meta misc/1000genomes_metadata.txt "
+		"--output_prefix xyalign_analyses/chrom_stats/plots/thousand_{wildcards.type} "
+		"--exclude_suffix '.high_cov_pcr_free.20140203.bam' --first_chr X "
+		"--second_chr Y --const_chr 19 "
+		"--var1_marker color --var1_marker_vals darkslateblue thistle "
+		"--marker_size 1700 --legend_marker_scale 0.4 --marker_alpha 0.5 "
+		"--x_title 'chrX / chr19 ratio' --y_title 'chrY / chr19 ratio'"
+
+rule chrx_before_after_plots:
+	input:
+		before = "xyalign_analyses/hg19/bed/HG00513_wgs_hg19_full_dataframe_depth_mapq_preprocessing.csv",
+		after = "xyalign_analyses/hg19/bed/HG00513_wgs_hg19_full_dataframe_depth_mapq_postprocessing.csv"
+	output:
+		depth = "xyalign_analyses/hg19/plots/HG00513_wgs_chrX_depth_BeforeAfterScatter.pdf",
+		mapq = "xyalign_analyses/hg19/plots/HG00513_wgs_chrX_MAPQ_BeforeAfterScatter.pdf"
+	params:
+		plot_window_differences = plot_window_differences_path,
+		conda_env = xyalign_anaconda_env
+	shell:
+		"source activate {params.conda_env} && "
+		"{params.plot_window_differences} "
+		"--before {input.before} --after {input.after} --color black "
+		"--chrom chrX --sample_id HG00513_wgs "
+		"--output_prefix xyalign_analyses/hg19/plots/HG00513_wgs "
+		"--x_limit 155270560 --log_transform_depth"
