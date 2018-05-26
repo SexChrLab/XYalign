@@ -77,6 +77,8 @@ hg19_reference_mask_path = "misc/hg19_PAR_Ymask_startEnd.bed"
 
 # Paths to tools used in the pipeline
 rename_sh_path = "rename.sh"
+bcftools_path = "bcftools"
+bedtools_path = "bedtools"
 bwa_path = "bwa"
 samtools_path = "samtools"
 samblaster_path = "samblaster"
@@ -127,7 +129,14 @@ rule all:
 			dataset=["thousand", "seq_comp"], type=["count", "depth", "mapq"]),
 		expand(
 			"xyalign_analyses/hg19/plots/HG00513_wgs_chrX_{type}_BeforeAfterScatter.pdf",
-			type=["depth", "MAPQ"])
+			type=["depth", "MAPQ"]),
+		expand(
+			"xyalign_analyses/hg19/vcf/{sample}_{direction}.{status}_status.txt",
+			sample=human_list,
+			direction=[
+				"postprocessing_minus_noprocessing",
+				"noprocessing_minus_postprocessing"],
+			status=["gene", "missing"])
 
 rule prepare_reference_hg19:
 	input:
@@ -328,7 +337,9 @@ rule xyalign_hg19_analysis_human:
 	output:
 		log = "xyalign_analyses/hg19/logfiles/{sample}_hg19_xyalign.log",
 		before = "xyalign_analyses/hg19/bed/{sample}_hg19_full_dataframe_depth_mapq_preprocessing.csv",
-		after = "xyalign_analyses/hg19/bed/{sample}_hg19_full_dataframe_depth_mapq_postprocessing.csv"
+		after = "xyalign_analyses/hg19/bed/{sample}_hg19_full_dataframe_depth_mapq_postprocessing.csv",
+		vcf_before = "xyalign_analyses/hg19/vcf/{sample}_hg19.noprocessing.vcf.gz",
+		vcf_after = "xyalign_analyses/hg19/vcf/{sample}_hg19.postprocessing.vcf.gz",
 	params:
 		xyalign = xyalign_path,
 		sample_id = "{sample}_hg19",
@@ -510,3 +521,62 @@ rule chrx_before_after_plots:
 		"--chrom chrX --sample_id HG00513_wgs "
 		"--output_prefix xyalign_analyses/hg19/plots/HG00513_wgs "
 		"--x_limit 155270560 --log_transform_depth"
+
+rule filter_hg19_vcf:
+	input:
+		"xyalign_analyses/hg19/vcf/{sample}_hg19.{processing}.vcf.gz"
+	output:
+		"xyalign_analyses/hg19/vcf/{sample}_hg19.{processing}.filtered.vcf"
+	params:
+		bcftools = bcftools_path
+	shell:
+		"{params.bcftools} filter --include 'INFO/MQ>=30 && %QUAL>=30' "
+		"{input} > {output}"
+
+rule bedtools_subtract_vcf_before_minus_after_hg19:
+	input:
+		before = "xyalign_analyses/hg19/vcf/{sample}_hg19.noprocessing.filtered.vcf",
+		after = "xyalign_analyses/hg19/vcf/{sample}_hg19.postprocessing.filtered.vcf"
+	output:
+		"xyalign_analyses/hg19/vcf/{sample}_noprocessing_minus_postprocessing.vcf"
+	params:
+		bedtools = bedtools_path
+	shell:
+		"{params.bedtools} subtract -header -a {input.before} -b {input.after} "
+		"> {output}"
+
+rule bedtools_subtract_vcf_after_minus_before_hg19:
+	input:
+		before = "xyalign_analyses/hg19/vcf/{sample}_hg19.noprocessing.filtered.vcf",
+		after = "xyalign_analyses/hg19/vcf/{sample}_hg19.postprocessing.filtered.vcf"
+	output:
+		"xyalign_analyses/hg19/vcf/{sample}_postprocessing_minus_noprocessing.vcf"
+	params:
+		bedtools = bedtools_path
+	shell:
+		"{params.bedtools} subtract -header -a {input.before} -b {input.after} "
+		"> {output}"
+
+rule bedtools_intersect_vcf_with_ccds:
+	input:
+		vcf = "xyalign_analyses/hg19/vcf/{sample}_{direction}.vcf",
+		ccds = "misc/hg19_ccds_genes_chrx.bed"
+	output:
+		"xyalign_analyses/hg19/vcf/{sample}_{direction}.ccds.bed"
+	params:
+		bedtools_path = "bedtools"
+	shell:
+		"bedtools intersect -wa -u -a {input.ccds} "
+		"-b {input.vcf} > {output}"
+
+rule get_gene_status_for_ccds:
+	input:
+		bed = "xyalign_analyses/hg19/vcf/{sample}_{direction}.ccds.bed",
+		gene_status = "misc/hg19_chrx_gene_status.txt"
+	output:
+		gene_status = "xyalign_analyses/hg19/vcf/{sample}_{direction}.gene_status.txt",
+		missing_status = "xyalign_analyses/hg19/vcf/{sample}_{direction}.missing_status.txt"
+	shell:
+		"python misc/Get_gene_status.py --bed {input.bed} "
+		"--gene_status {input.gene_status} --outfile {output.gene_status} "
+		"--missing_ids_outfile {output.missing_status}"
