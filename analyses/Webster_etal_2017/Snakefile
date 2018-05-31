@@ -131,6 +131,9 @@ rule all:
 			"xyalign_analyses/hg19/plots/HG00513_wgs_chrX_{type}_BeforeAfterScatter.pdf",
 			type=["depth", "MAPQ"]),
 		expand(
+			"xyalign_analyses/hg19/vcf/{sample}_noprocessing_intersect_postprocessing.vcf",
+			sample=human_list),
+		expand(
 			"xyalign_analyses/hg19/vcf/{sample}_{direction}.{status}_status.txt",
 			sample=human_list,
 			direction=[
@@ -533,6 +536,18 @@ rule filter_hg19_vcf:
 		"{params.bcftools} filter --include 'INFO/MQ>=30 && %QUAL>=30' "
 		"{input} > {output}"
 
+rule bedtools_intersect_vcf_before_and_after_hg19:
+	input:
+		before = "xyalign_analyses/hg19/vcf/{sample}_hg19.noprocessing.filtered.vcf",
+		after = "xyalign_analyses/hg19/vcf/{sample}_hg19.postprocessing.filtered.vcf"
+	output:
+		"xyalign_analyses/hg19/vcf/{sample}_noprocessing_intersect_postprocessing.vcf"
+	params:
+		bedtools = bedtools_path
+	shell:
+		"{params.bedtools} intersect -header -a {input.after} -b {input.before} "
+		"> {output}"
+
 rule bedtools_subtract_vcf_before_minus_after_hg19:
 	input:
 		before = "xyalign_analyses/hg19/vcf/{sample}_hg19.noprocessing.filtered.vcf",
@@ -554,7 +569,7 @@ rule bedtools_subtract_vcf_after_minus_before_hg19:
 	params:
 		bedtools = bedtools_path
 	shell:
-		"{params.bedtools} subtract -header -a {input.before} -b {input.after} "
+		"{params.bedtools} subtract -header -a {input.after} -b {input.before} "
 		"> {output}"
 
 rule bedtools_intersect_vcf_with_ccds:
