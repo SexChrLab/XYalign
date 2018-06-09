@@ -139,7 +139,13 @@ rule all:
 			direction=[
 				"postprocessing_minus_noprocessing",
 				"noprocessing_minus_postprocessing"],
-			status=["gene", "missing"])
+			status=["gene", "missing"]),
+		expand(
+			"xyalign_analyses/hg19/vcf/{sample}_{direction}.region_variant_counts.bed",
+			sample=human_list,
+			direction=[
+				"postprocessing_minus_noprocessing",
+				"noprocessing_minus_postprocessing"])
 
 rule prepare_reference_hg19:
 	input:
@@ -571,6 +577,18 @@ rule bedtools_subtract_vcf_after_minus_before_hg19:
 	shell:
 		"{params.bedtools} subtract -header -a {input.after} -b {input.before} "
 		"> {output}"
+
+rule bedtools_count_variants_in_x_regions:
+	input:
+		regions = "misc/hg19_x_regions.bed",
+		vcf = "xyalign_analyses/hg19/vcf/{sample}_{direction}.vcf"
+	output:
+		"xyalign_analyses/hg19/vcf/{sample}_{direction}.region_variant_counts.bed"
+	params:
+		bedtools_path = "bedtools"
+	shell:
+		"bedtools intersect -c -a {input.regions} "
+		"-b {input.vcf} > {output}"
 
 rule bedtools_intersect_vcf_with_ccds:
 	input:
