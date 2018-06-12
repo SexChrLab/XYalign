@@ -452,10 +452,10 @@ def parse_args():
 
 	parser.add_argument(
 		"--include_fixed", type=bool, default=False,
-		help="Default is False, which removes read balances less than 0.05 and "
-		"greater than 0.95 for histogram plotting. True will include all values. "
-		"Extreme values removed by default because they often swamp out the "
-		"signal of the rest of the distribution.")
+		help="Default is False, which removes read balances less than or equal to "
+		"0.05 and equal to 1.0 for histogram plotting. True will include "
+		"all values. Extreme values removed by default because they often swamp "
+		"out the signal of the rest of the distribution.")
 
 	# CHROM_STATS flags
 	parser.add_argument(
@@ -870,8 +870,8 @@ def bam_analysis(
 		Divide all coordinates by this value for plotting. In most cases, 1000000
 		will be ideal for eukaryotic genomes.
 	fixed : bool
-		If False, only plots histogram for values between 0.05 and 0.95. If
-		True, plots histogram of all variants.
+		If False, only plots histogram for values between 0.05 and 1.0
+		(non-inclusive). If True, plots histogram of all variants.
 
 	Returns
 	-------

@@ -298,7 +298,7 @@ class VCFFile():
 			Path to bed_file containing regions to analyze instead of
 			windows of a fixed size. Will only be engaged if window_size is None
 		include_fixed : bool
-			If False, only plots histogram for values between 0.05 and 0.95. If
+			If False, only plots histogram for values between 0.05 and 1.0. If
 			True, plots histogram of all variants.
 
 		Returns
@@ -681,7 +681,7 @@ def plot_read_balance(
 def hist_read_balance(
 	chrom, readBalance, sampleID, homogenize, output_prefix, include_fixed=False):
 	"""
-	Plots a histogram of read balance values between 0.05 and 0.95
+	Plots a histogram of read balance values between 0.05 and 1.0 (non-incusive)
 
 	Parameters
 	----------
@@ -699,7 +699,7 @@ def hist_read_balance(
 	output_prefix : str
 		Desired prefix (including full path) of the output files
 	include_fixed : bool
-		If False, only plots histogram for values between 0.05 and 0.95. If
+		If False, only plots histogram for values between 0.05 and 1.0. If
 		True, plots histogram of all variants.
 
 	Returns
