@@ -146,7 +146,7 @@ results of a series of statistical tests in ``sample1_output/results``.
 This will strip the reads, by read group, from chromosomes 1-5 and output
 a pair of fastqs per read group, as well as the read groups themselves, and a
 text file connecting fastqs with their respective read groups in the directory
-`` sample1_output/fastq ``.  If we were working with single-end reads, we would
+`` sample1_output/fastq``.  If we were working with single-end reads, we would
 have had to include the flag `` --single_end ``.  Here, the reference file isn't
 used at all (it's a general requirement of XYalign), so a dummy file can be used
 in its place.  To strip reads from the entire genome (including unmapped), use
