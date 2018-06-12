@@ -1,6 +1,6 @@
-# Analyses from Webster et al. 2017
+# Analyses from Webster et al. 2018
 This directory contains scripts and information for reproducing the analyses that
-accompany the initial publication of XYalign (Webster et al., 2017).
+accompany the initial publication of XYalign (Webster et al., 2018).
 
 Analyses are written in Snakemake (Koster and Rahmann, 2012), which you can find out more about [here](https://snakemake.readthedocs.io/en/stable/index.html)
 
@@ -107,7 +107,7 @@ called "human_g1k_v37_decoy.fasta", also available from the Broad's resource
 Bundle: https://software.broadinstitute.org/gatk/download/bundle
 
 ## Directory Structure
-This directory - "Webster_etal_2017" - should contain the main snakefile ("snakefile"), the configuration file for the snakefile ("Webster_etal_2017_xyalign.config.json"),
+This directory - "Webster_etal_2018" - should contain the main snakefile ("snakefile"), the configuration file for the snakefile ("Webster_etal_2018_xyalign.config.json"),
 a .gitignore, two conda environment files (ending in .yml), and five subdirectories ("fastqs", "misc", "processed_bams", "reference", and "xyalign_analyses").
 
 Of the five subdirectories, "fastqs" and "reference" are provided as options for
@@ -148,5 +148,5 @@ snakemake --snakefile snakefile -j 8 --cluster "sbatch -n 4 --nodes 1 -t 96:00:0
 Koster and Rahmann. 2012. Snakemake - a scalable bioinformatics workflow engine.
 Bioinformatics 28: 2520-2522.
 
-Webster TH et al. In prep. XYalign: inferring sex chromosome content and correcting
-for technical biases in next-generation sequencing data.
+Webster TH et al. 2018. Identifying, understanding, and correcting technical
+biases on the sex chromosomes in next-generation sequencing data.

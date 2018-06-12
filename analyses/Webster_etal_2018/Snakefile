@@ -1,13 +1,14 @@
 """
 This snakefile reproduces analyses from:
 
-Webster et al., 2017. Inferring sex chromosome content and correcting for
-technical biases in next-generation sequencing data.
+Webster TH et al. 2018. Identifying, understanding, and correcting technical
+biases on the sex chromosomes in next-generation sequencing data.
 
 Requires:
 	Python 3
 	snakemake (python package)
 	bwa
+	bedtools
 	samtools
 	samblaster
 	BBmap (rename.sh is part of this suite of tools)
@@ -36,7 +37,7 @@ and using snakemake to run the snakefile.
 
 """
 # Update configfile if not in same directory
-configfile: "Webster_etal_2017_xyalign.config.json"
+configfile: "Webster_etal_2018_xyalign.config.json"
 
 # Path to XYalign
 # If installed and in PATH, then leave values as-is
@@ -75,7 +76,8 @@ thousand_genomes_bam_directory =
 # Path to hg19 reference mask (also located in the XYalign/Files/PARs directory)
 hg19_reference_mask_path = "misc/hg19_PAR_Ymask_startEnd.bed"
 
-# Paths to tools used in the pipeline
+# Paths to tools used in the pipeline. Update if in different location or
+# under different name
 rename_sh_path = "rename.sh"
 bcftools_path = "bcftools"
 bedtools_path = "bedtools"
@@ -118,12 +120,6 @@ rule all:
 		expand(
 			thousand_genomes_bam_directory + "{sample}.high_cov_pcr_free.20140203.bam.bai",
 			sample=thousand_list),
-		# "xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_mapq.txt",
-		# "xyalign_analyses/chrom_stats/results/hg19_human_chrom_stats_depth.txt",
-		# "xyalign_analyses/chrom_stats/results/thousand_chrom_stats_mapq.txt",
-		# "xyalign_analyses/chrom_stats/results/thousand_chrom_stats_depth.txt",
-		# "xyalign_analyses/chrom_stats/results/hg19_human_counts_chrom_stats_count.txt",
-		# "xyalign_analyses/chrom_stats/results/thousand_counts_chrom_stats_count.txt",
 		expand(
 			"xyalign_analyses/chrom_stats/plots/{dataset}_{type}.pdf",
 			dataset=["thousand", "seq_comp"], type=["count", "depth", "mapq"]),

@@ -1,5 +1,3 @@
-# Here is a glossary of terms that will be helpful for people when reading about our program.
-
 Glossary:
 ASW - African Ancestry in SW USA
 ACB - African Caribbean in Barbados
@@ -32,7 +30,7 @@ CNVs - copy number variants in the form of deletions and duplications larger sca
 SNP - single nucleotide polymorphism
 BWA - Burrows-Wheeler Aligner
 SAM - Sequence Alignment/Map file used to represent aligned sequences
-BAM - Binary Alignment/Map is the compressed binary version of a SAM file that is used to represent aligned sequences 
+BAM - Binary Alignment/Map is the compressed binary version of a SAM file that is used to represent aligned sequences
 FASTQ  - format is a text-based format for storing both a biological sequence (usually nucleotide sequence) and its corresponding quality scores
 Reference genome - the 'true' genome for which the reads output from sequencing are aligned to
 Allele frequency - relative frequency of an allele at a particular locus in a population. The fraction of all chromosomes in the population that carry that allele
@@ -41,7 +39,7 @@ SNP - SNVs which are present in at least a given level within the population, ty
 Singleton/private SNV - single nucleotide variants that are only present in one individual in the population
 VCF - Variant Call Format, text based file which describes the genetic variants
 homozygous - all alleles at a given locus are the same allele
-heterozygous - at a given locus, more than one allele is present. Typically 2 alleles in equal relative copy number 
+heterozygous - at a given locus, more than one allele is present. Typically 2 alleles in equal relative copy number
 PAR - psuedo autosomal region. Areas on the X and Y chromosomes with sequence homology where crossing over occurs, thus these sections of the sex chromosomes act like autosomal regions
 XTR - X-transposed region. A locus on the Y chromosome where a section of the X chromosome has been inserted into the Y chromosome, following the human-chimpanzee divergence
 Orphan reads - where only one read of a read pair is aligned to the reference genome
@@ -50,15 +48,9 @@ Polyploidy - increases in the number of whole sets of chromosomes e.g. 3n
 Aneuploidy - alterations in the number of single chromosomes e.g. 2n + 1
 Allele fraction/Read balance - the relative proportion of reads for alleles at heterozygous sites
 CNVR - copy number variable regions
-
-
-
 LASTZ - LASTZ is a program for aligning DNA sequences, a pairwise aligner. Used for self-self alignment of X and Y, and X vs. Y, which can identify areas of duplication and inversions within and between the chromosomes
 BWA - Burrows-Wheeler Aligner, alignment tool
 SAMtools - provide various utilities for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format
 python 2
 1000 genome project - large project with sequencing of over 1000 human genomes with the goal of identifting all SNPs with frequencies >1%
 Platypus - a haplotype based variant caller
-
-Reference genome : GRCh38 with decoy dowloaded directly from 1000 genomes (ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/GRCh38_reference_genome/)
-Data: 1000 genomes - phase 3, YRI and CEU, 5 males and 5 females from each population

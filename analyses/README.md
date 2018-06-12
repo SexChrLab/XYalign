@@ -2,5 +2,4 @@ This directory contains materials to reproduce analyses from XYalign publication
 
 It currently contains materials for:
 
-Webster TH et al. 2017. XYalign: inferring sex chromosome content and correcting
-for technical biases in next-generation sequencing data.
+Webster TH et al. 2018. Identifying, understanding, and correcting technical biases on the sex chromosomes in next-generation sequencing data.
