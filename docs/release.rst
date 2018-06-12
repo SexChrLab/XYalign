@@ -1,6 +1,12 @@
 Release History
 ===============
 
+1.1.0
+-----
+* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.0
+* Major updates across all of XYalign
+* See detailed list of changes here: https://github.com/WilsonSayresLab/XYalign/blob/master/xyalign/CHANGELOG.txt
+
 1.0.0
 -----
 	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.0.0

@@ -1,33 +1,6 @@
 Installation
 ============
 
-Obtaining XYalign
------------------
-
-Github
-~~~~~~
-
-You can download the most recent (or any previous) release of XYalign [HERE](https://github.com/WilsonSayresLab/XYalign/releases)
-
-Alternatively, you can obtain the current development version of XYalign by
-cloning the Github repository::
-
-	git clone https://github.com/WilsonSayresLab/XYalign/
-
-Once the repository is downloaded::
-
-	cd XYalign
-	pip install --editable .
-
-You should then be able to call XYalign from the command line, e.g.::
-
-	xyalign -h
-
-You can alternatively use the ```xyalign_runner.py``` script, located in the main XYalign directory, to run XYalign without installing::
-
-	python /path/to/xyalign_runner.py -h
-
-
 Operating System
 ----------------
 
@@ -71,6 +44,9 @@ XYalign has a number of required Python packages and external programs::
 		--samtools_path
 		--sambamba_path
 
+Obtaining XYalign
+-----------------
+
 We strongly recommend users install and manage all packages and programs using
 Anaconda.  To do so:
 
@@ -88,7 +64,7 @@ Miniconda is a lightweight version of Anaconda).
 		which should point you to the python installed in your Anaconda or
 		Miniconda directory.
 
-2. Linux users can finish installation with the following commands (note that \\ indicates a continuation of the command on the next line)::
+2. Linux and Mac users can finish installation with the following commands (note that \\ indicates a continuation of the command on the next line)::
 
 	conda config --add channels r
 
@@ -98,9 +74,9 @@ Miniconda is a lightweight version of Anaconda).
 
 	conda config --add channels bioconda
 
-	conda create -n xyalign_env python=2.7 pysam pybedtools \
-	numpy pandas matplotlib platypus-variant bwa bbmap \
-	samtools bedtools sambamba scipy
+	conda create -n xyalign_env xyalign
+
+This assumes you're installing into a new environment called "xyalign_env".
 
 .. note::
 	You *need* to add channels in this order. Doing so will ensure priority of channels
@@ -112,25 +88,21 @@ You can then load the new environment (containing all required programs and pack
 
 	source activate xyalign_env
 
-3. Mac users - as of right now, bioconda won't install platypus on Macs, so Mac
-users will have to use the commands::
+To use Bioconda to simply install XYalign into your current environment, load the channels in using the
+commands listed above and then type::
 
-	conda config --add channels r
+	conda install xyalign
 
-	conda config --add channels defaults
+In all cases, this will install XYalign, its dependancies, and all external programs that it
+calls.
 
-	conda config --add channels conda-forge
+Pip
+---
 
-	conda config --add channels bioconda
+XYalign can also be installed using ``pip``, a tool used for installing Python packages,
+with the command::
 
-	conda create -n xyalign_env python=2.7 pysam pybedtools \
-	numpy pandas matplotlib bwa bbmap samtools bedtools sambamba
+	pip install xyalign
 
-and then `install platypus on their own <http://www.well.ox.ac.uk/platypus>`_ and
-provide it to XYalign with the flag::
-
-	--platypus_path
-
-Mac users can then load the environment with the command (same as Linux)::
-
-	source activate xyalign_env
+However, note that this will not install any external programs that XYalign calls on
+for its various functions.

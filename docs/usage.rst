@@ -9,7 +9,8 @@ Requirements
 
 The different modules of XYalign have slightly different requirements, but in
 general you'll need: a **bam file** and the **reference fasta file**
-used to generate it.  XYalign also requires a *list of chromosomes* to analyze,
+used to generate it (it's critically important, as using a different fasta will
+cause errors).  XYalign also requires a *list of chromosomes* to analyze,
 the *name of the X chromosome*, and the *name of the Y chromosome* (if in the assembly). The chromosome names must *exactly* match
 those in the bam header and reference fasta - 'chr19' is not equivalent to '19', for example.
 
@@ -63,10 +64,9 @@ Suggested Command Lines
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Below we highlight example command lines, as well as useful optional flags for
-each module (PREPARE_REFERENCE, ANALYZE_BAM, CHARACTERIZE_SEX_CHROMS, STRIP_READS, REMAPPING)
+each module (PREPARE_REFERENCE, ANALYZE_BAM, CHARACTERIZE_SEX_CHROMS, STRIP_READS, REMAPPING, CHROM_STATS)
 as well as the full pipeline.  You can find a complete list of command line flags,
-their descriptions, and their defaults listed at the bottom of the page.  You can
-also get this list from the command line::
+their descriptions, and their defaults from the command line::
 
 	xyalign -h
 
@@ -93,8 +93,12 @@ than one can be included as well (e.g., ``--reference_mask mask.bed mask2.bed``)
 This will output two reference genomes, one with the Y chromosome completely masked
 (defaults to ``sample1_output/reference/xyalign_noY.masked.fa``) and one with
 an unmasked Y (defaults to ``sample1_output/reference/xyalign_withY.masked.fa``). These
-default *names* can be changed with the ``--xx_ref_out`` and ``--xy_ref_out`` flags.
-Note, however, that files will still be deposited in ``sample1_output/reference``.
+default *names* can be changed with the ``--xx_ref_out_name`` and
+``--xy_ref_out_name`` flags. With these flags, files will still be
+deposited in ``sample1_output/reference``. To deposit these files in a specific location,
+use ``--xx_ref_out`` and ``--xy_ref_out`` with the full path to and name of desired
+output files.  You can optionally use BWA to index the output fasta files as well
+by using the "--bwa_index" flag.
 
 2. ANALYZE_BAM
 ::
@@ -108,14 +112,12 @@ analyses of the bam file.  If you're working with targeted sequencing data (e.g.
 you can provide a list of regions to use instead of windows.  For example, if your
 regions are in ``targets.bed`` you would add the flag: ``--targed_bed targets.bed``.
 
-This command line will default to a minimum quality of 20 (SNP), minimum
-mapping quality of 20 (bam window), and a depth filter of 4 (bam window).  These
-can be set with the flags ``--variant_quality_cutoff``, ``--mapq_cutoff``, and
-``--depth_filter``, respectively. A quick note about the depth filter: the formula
-we use is based off of Li's (2004, Bioinformatics 30: 2843-2851) analysis of artifacts
-in sequencing data.  For SNPs, he recommends a depth_filter of 3 or 4 using the equation
-mean_depth +- (depth_filter * square_root(mean_depth)).  We use this formula for our filter
-as well.
+This command line will default to a minimum quality of 30 (SNP), genotype quality
+of 30 (SNP), variant depth of 4 (SNP), and mapping quality of 20 (bam window). These
+can be set with the flags ``--variant_site_quality``, ``--variant_genotype_quality``,
+``--variant_depth``, and ``--mapq_cutoff``, respectively.
+One can also apply depth filters to bam windows with ``--min_depth_filter`` and
+``--max_depth_filter``.
 
 This will output a series of plots in ``sample1_output/plots``, bed files containing
 high and low quality windows in ``sample1_output/bed``, and the entire dataframe
@@ -138,7 +140,8 @@ results of a series of statistical tests in ``sample1_output/results``.
 ::
 	xyalign --STRIP_READS --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 \
-	--chromosomes chr1 chr2 chr3 chr4 chr5
+	--chromosomes chr1 chr2 chr3 chr4 chr5 --xmx 2g \
+	--fastq_compression 5
 
 This will strip the reads, by read group, from chromosomes 1-5 and output
 a pair of fastqs per read group, as well as the read groups themselves, and a
@@ -147,7 +150,10 @@ text file connecting fastqs with their respective read groups in the directory
 have had to include the flag `` --single_end ``.  Here, the reference file isn't
 used at all (it's a general requirement of XYalign), so a dummy file can be used
 in its place.  To strip reads from the entire genome (including unmapped), use
-`` --chromosomes ALL``
+`` --chromosomes ALL``. ``--xmx`` tells the Java programs that XYalign is calling
+how much memory to use (e.g., ``--xmx 2g`` provides 2 GB ram). ``--fastq_compression``
+determines the compression level of output fastqs (between 0 and 9, with 0 leaving
+files uncompressed).
 
 5. REMAPPING
 ::
@@ -174,7 +180,8 @@ along the lines of::
 
 	xyalign --ref reference.fasta --bam input.bam \
 	--output_dir sample1_output --sample_id sample1 --cpus 4 --reference_mask mask.bed \
-	--window_size 10000 \ --chromosomes chr19 chrX chrY --x_chromosome chrX --y_chromosome chrY
+	--window_size 10000 --chromosomes chr19 chrX chrY \
+	--x_chromosome chrX --y_chromosome chrY
 
 We could have optionally provided preprocessed reference genomes with ``--xx_ref_in``
 and ``--xx_ref_in``, as in 4.  We could have also used ``--y_absent`` or ``--y_present``
@@ -201,10 +208,13 @@ the following pipeline is better suited to most users' needs and will save time 
 1. Use XYalign PREPARE_REFERENCE to prepare Y present and Y absent genomes.
 
 2. Preliminarily map reads to the standard reference (or Y present) and sort the bam file
-using any mapper and sorting algorithm.
+using any mapper and sorting algorithm. We have found that one can usually use smaller
+dataset for this step (e.g., a whole exome sequencing run or one lane of a whole genome
+sequencing run).
 
 3. Run CHARACTERIZE_SEX_CHROMS, to analyze the bam file, output plots, and estimate
-ploidy.
+ploidy. If a number of samples are available and sex chromosomes are well-differentiated
+(as in humans), consider using CHROM_STATS with plot_count_stats.
 
 4. Remap reads to the fasta produced in 1 corresponding to the sex chromosome
 complement characterized in 3.  E.g., if Y is not detected, map to Y absent.  This time
@@ -261,7 +271,7 @@ chromosomes/scaffolds (we are planning on supporting this soon though).
 Keep in mind, however, that read balance, mapq, and depth ratios might differ
 among organisms, so default XYalign settings will likely not be appropriate in
 most cases.  Instead, if multiple samples are available, we recommend running
-XYalign's CHARACTERIZE_SEX_CHROMS  on each sample (steps 2-3 in
+XYalign's CHARACTERIZE_SEX_CHROMS on each sample (steps 2-3 in
 "Recommendations for Incorporating XYalign into pipelines" above)
 using the same output directory for all samples.  One can then quickly concatenate
 results (we recommend starting with bootstrap results) and plot them to look
@@ -274,7 +284,8 @@ Currently, XYalign requires a minimum of two chromosomes (an "autosome and an "x
 for analyses in ANALYZE_BAM and CHARACTERIZE_SEX_CHROMS (and therefore, the whole pipeline)
 These chromosomes, however, can be arbitrary. Below, we highlight two example cases:
 looking for evidence of Trisomy 21 in human samples,
-and running the full XYalign pipeline on a ZW sample (perhaps a bird, squamate reptile, or moth).
+and running the full XYalign pipeline on a ZW sample (perhaps a bird,
+squamate reptile, or moth).
 
 If one wanted to look for evidence of Trisomy 21 in human data mapped to hg19 (which uses
 "chr" in chromosome names), s/he could use a command along the lines of::
@@ -320,268 +331,291 @@ Full List of Command-Line Flags
 This list can also be produced with the command::
 	xyalign -h
 
-::
--h, --help            show this help message and exit
---bam [BAM [BAM ...]]
-					  Full path to input bam files. If more than one
-					  provided, only the first will be used for modules
-					  other than --CHROM_STATS
---cram [CRAM [CRAM ...]]
-					  Full path to input cram files. If more than one
-					  provided, only the first will be used for modules
-					  other than --CHROM_STATS. Not currently supported.
---sam [SAM [SAM ...]]
-					  Full path to input sam files. If more than one
-					  provided, only the first will be used for modules
-					  other than --CHROM_STATS. Not currently supported.
---ref REF             REQUIRED. Path to reference sequence (including file
-					  name).
---output_dir OUTPUT_DIR, -o OUTPUT_DIR
-					  REQUIRED. Output directory. XYalign will create a
-					  directory structure within this directory
---chromosomes [CHROMOSOMES [CHROMOSOMES ...]], -c [CHROMOSOMES [CHROMOSOMES ...]]
-					  Chromosomes to analyze (names must match reference
-					  exactly). For humans, we recommend at least chr19,
-					  chrX, chrY. Generally, we suggest including the sex
-					  chromosomes and at least one autosome. To analyze all
-					  chromosomes use '--chromosomes ALL' or '--chromosomes
-					  all'.
---x_chromosome [X_CHROMOSOME [X_CHROMOSOME ...]], -x [X_CHROMOSOME [X_CHROMOSOME ...]]
-					  Names of x-linked scaffolds in reference fasta (must
-					  match reference exactly).
---y_chromosome [Y_CHROMOSOME [Y_CHROMOSOME ...]], -y [Y_CHROMOSOME [Y_CHROMOSOME ...]]
-					  Names of y-linked scaffolds in reference fasta (must
-					  match reference exactly). Defaults to chrY. Give None
-					  if using an assembly without a Y chromosome
---sample_id SAMPLE_ID, -id SAMPLE_ID
-					  Name/ID of sample - for use in plot titles and file
-					  naming. Default is sample
---cpus CPUS           Number of cores/threads to use. Default is 1
---xmx XMX             Memory to be provided to java programs via -Xmx. E.g.,
-					  use the flag '--xmx 4g' to pass '-Xmx4g' as a flag
-					  when running java programs (currently just repair.sh).
-					  Default is 'None' (i.e., nothing provided on the
-					  command line), which will allow repair.sh to
-					  automatically allocate memory. Note that if you're
-					  using --STRIP_READS on deep coverage whole genome
-					  data, you might need quite a bit of memory, e.g. '--
-					  xmx 16g', '--xmx 32g', or more depending on how many
-					  reads are present per read group.
---fastq_compression {0,1,2,3,4,5,6,7,8,9}
-					  Compression level for fastqs output from repair.sh.
-					  Between (inclusive) 0 and 9. Default is 3. 1 through 9
-					  indicate compression levels. If 0, fastqs will be
-					  uncompressed.
---single_end          Include flag if reads are single-end and NOT paired-
-					  end.
---version, -V         Print version and exit.
---no_cleanup          Include flag to preserve temporary files.
---PREPARE_REFERENCE   This flag will limit XYalign to only preparing
-					  reference fastas for individuals with and without Y
-					  chromosomes. These fastas can then be passed with each
-					  sample to save subsequent processing time.
---CHROM_STATS         This flag will limit XYalign to only analyzing
-					  provided bam files for depth and mapq across entire
-					  chromosomes.
---ANALYZE_BAM         This flag will limit XYalign to only analyzing the bam
-					  file for depth, mapq, and (optionally) read balance
-					  and outputting plots.
---CHARACTERIZE_SEX_CHROMS
-					  This flag will limit XYalign to the steps required to
-					  characterize sex chromosome content (i.e., analyzing
-					  the bam for depth, mapq, and read balance and running
-					  statistical tests to help infer ploidy)
---REMAPPING           This flag will limit XYalign to only the steps
-					  required to strip reads and remap to masked
-					  references. If masked references are not provided,
-					  they will be created.
---STRIP_READS         This flag will limit XYalign to only the steps
-					  required to strip reads from a provided bam file.
---logfile LOGFILE     Name of logfile. Will overwrite if exists. Default is
-					  sample_xyalign.log
---reporting_level {DEBUG,INFO,ERROR,CRITICAL}
-					  Set level of messages printed to console. Default is
-					  'INFO'. Choose from (in decreasing amount of
-					  reporting) DEBUG, INFO, ERROR or CRITICAL
---platypus_path PLATYPUS_PATH
-					  Path to platypus. Default is 'platypus'. If platypus
-					  is not directly callable (e.g., '/path/to/platypus' or
-					  '/path/to/Playpus.py'), then provide path to python as
-					  well (e.g., '/path/to/python /path/to/platypus'). In
-					  addition, be sure provided python is version 2. See
-					  the documentation for more information about setting
-					  up an anaconda environment.
---bwa_path BWA_PATH   Path to bwa. Default is 'bwa'
---samtools_path SAMTOOLS_PATH
-					  Path to samtools. Default is 'samtools'
---repairsh_path REPAIRSH_PATH
-					  Path to bbmap's repair.sh script. Default is
-					  'repair.sh'
---shufflesh_path SHUFFLESH_PATH
-					  Path to bbmap's shuffle.sh script. Default is
-					  'shuffle.sh'
---sambamba_path SAMBAMBA_PATH
-					  Path to sambamba. Default is 'sambamba'
---bedtools_path BEDTOOLS_PATH
-					  Path to bedtools. Default is 'bedtools'
---platypus_calling {both,none,before,after}
-					  Platypus calling withing the pipeline (before
-					  processing, after processing, both, or neither).
-					  Options: both, none, before, after.
---no_variant_plots    Include flag to prevent plotting read balance from VCF
-					  files.
---no_bam_analysis     Include flag to prevent depth/mapq analysis of bam
-					  file. Used to isolate platypus_calling.
---skip_compatibility_check
-					  Include flag to prevent check of compatibility between
-					  input bam and reference fasta
---no_perm_test        Include flag to turn off permutation tests.
---no_ks_test          Include flag to turn off KS Two Sample tests.
---no_bootstrap        Include flag to turn off bootstrap analyses. Requires
-					  either --y_present, --y_absent, or
-					  --sex_chrom_calling_threshold if running full
-					  pipeline.
---variant_site_quality VARIANT_SITE_QUALITY, -vsq VARIANT_SITE_QUALITY
-					  Consider all SNPs with a site quality (QUAL) greater
-					  than or equal to this value. Default is 30.
---variant_genotype_quality VARIANT_GENOTYPE_QUALITY, -vgq VARIANT_GENOTYPE_QUALITY
-					  Consider all SNPs with a sample genotype quality
-					  greater than or equal to this value. Default is 30.
---variant_depth VARIANT_DEPTH, -vd VARIANT_DEPTH
-					  Consider all SNPs with a sample depth greater than or
-					  equal to this value. Default is 4.
---platypus_logfile PLATYPUS_LOGFILE
-					  Prefix to use for Platypus log files. Will default to
-					  the sample_id argument provided
---homogenize_read_balance HOMOGENIZE_READ_BALANCE
-					  If True, read balance values will be transformed by
-					  subtracting each value from 1. For example, 0.25 and
-					  0.75 would be treated equivalently. Default is False.
---min_variant_count MIN_VARIANT_COUNT
-					  Minimum number of variants in a window for the read
-					  balance of that window to be plotted. Note that this
-					  does not affect plotting of variant counts. Default is
-					  1, though we note that many window averages will be
-					  meaningless at this setting.
---reference_mask [REFERENCE_MASK [REFERENCE_MASK ...]]
-					  Bed file containing regions to replace with Ns in the
-					  sex chromosome reference. Examples might include the
-					  pseudoautosomal regions on the Y to force all
-					  mapping/calling on those regions of the X chromosome.
-					  Default is None.
---xx_ref_out XX_REF_OUT
-					  Desired name for masked output fasta for samples
-					  WITHOUT a Y chromosome (e.g., XX, XXX, XO, etc.).
-					  Defaults to 'xyalign_noY.masked.fa'. Will be output in
-					  the XYalign reference directory.
---xy_ref_out XY_REF_OUT
-					  Desired name for masked output fasta for samples WITH
-					  a Y chromosome (e.g., XY, XXY, etc.). Defaults to
-					  'xyalign_withY.masked.fa'. Will be output in the
-					  XYalign reference directory.
---xx_ref_in XX_REF_IN
-					  Path to preprocessed reference fasta to be used for
-					  remapping in X0 or XX samples. Default is None. If
-					  none, will produce a sample-specific reference for
-					  remapping.
---xy_ref_in XY_REF_IN
-					  Path to preprocessed reference fasta to be used for
-					  remapping in samples containing Y chromosome. Default
-					  is None. If none, will produce a sample-specific
-					  reference for remapping.
---read_group_id READ_GROUP_ID
-					  If read groups are present in a bam file, they are
-					  used by default in remapping steps. However, if read
-					  groups are not present in a file, there are two
-					  options for proceeding. If '--read_group_id None' is
-					  provided (case sensitive), then no read groups will be
-					  used in subsequent mapping steps. Otherwise, any other
-					  string provided to this flag will be used as a read
-					  group ID. Default is '--read_group_id xyalign'
---bwa_flags BWA_FLAGS
-					  Provide a string (in quotes, with spaces between
-					  arguments) for additional flags desired for BWA
-					  mapping (other than -R and -t). Example: '-M -T 20 -v
-					  4'. Note that those are spaces between arguments.
---sex_chrom_bam_only  This flag skips merging the new sex chromosome bam
-					  file back into the original bam file (i.e., sex chrom
-					  swapping). This will output a bam file containing only
-					  the newly remapped sex chromosomes.
---sex_chrom_calling_threshold SEX_CHROM_CALLING_THRESHOLD
-					  This is the *maximum* filtered X/Y depth ratio for an
-					  individual to be considered as having heterogametic
-					  sex chromsomes (e.g., XY) for the REMAPPING module of
-					  XYalign. Note here that X and Y chromosomes are simply
-					  the chromosomes that have been designated as X and Y
-					  via --x_chromosome and --y_chromosome. Keep in mind
-					  that the ideal threshold will vary according to sex
-					  determination mechanism, sequence homology between the
-					  sex chromosomes, reference genome, sequencing methods,
-					  etc. See documentation for more detail. Default is
-					  2.0, which we found to be reasonable for exome, low-
-					  coverage whole-genome, and high-coverage whole-genome
-					  human data.
---y_present           Overrides sex chr estimation by XYalign and remaps
-					  with Y present.
---y_absent            Overrides sex chr estimation by XY align and remaps
-					  with Y absent.
---window_size WINDOW_SIZE, -w WINDOW_SIZE
-					  Window size (integer) for sliding window calculations.
-					  Default is 50000. Default is None. If set to None,
-					  will use targets provided using --target_bed.
---target_bed TARGET_BED
-					  Bed file containing targets to use in sliding window
-					  analyses instead of a fixed window width. Either this
-					  or --window_size needs to be set. Default is None,
-					  which will use window size provided with
-					  --window_size. If not None, and --window_size is None,
-					  analyses will use targets in provided file. Must be
-					  typical bed format, 0-based indexing, with the first
-					  three columns containing the chromosome name, start
-					  coordinate, stop coordinate.
---exact_depth         Calculate exact depth within windows, else use much
-					  faster approximation. *Currently exact is not
-					  implemented*. Default is False.
---whole_genome_threshold
-					  This flag will calculate the depth filter threshold
-					  based on all values from across the genome. By
-					  default, thresholds are calculated per chromosome.
---mapq_cutoff MAPQ_CUTOFF, -mq MAPQ_CUTOFF
-					  Minimum mean mapq threshold for a window to be
-					  considered high quality. Default is 20.
---min_depth_filter MIN_DEPTH_FILTER
-					  Minimum depth threshold for a window to be considered
-					  high quality. Calculated as mean depth *
-					  min_depth_filter. So, a min_depth_filter of 0.2 would
-					  require at least a minimum depth of 2 if the mean
-					  depth was 10. Default is 0.0 to consider all windows.
---max_depth_filter MAX_DEPTH_FILTER
-					  Maximum depth threshold for a window to be considered
-					  high quality. Calculated as mean depth *
-					  max_depth_filter. So, a max_depth_filter of 4 would
-					  require depths to be less than or equal to 40 if the
-					  mean depth was 10. Default is 10000.0 to consider all
-					  windows.
---num_permutations NUM_PERMUTATIONS
-					  Number of permutations to use for permutation
-					  analyses. Default is 10000
---num_bootstraps NUM_BOOTSTRAPS
-					  Number of bootstrap replicates to use when
-					  bootstrapping mean depth ratios among chromosomes.
-					  Default is 10000
---ignore_duplicates   Ignore duplicate reads in bam analyses. Default is to
-					  include duplicates.
---marker_size MARKER_SIZE
-					  Marker size for genome-wide plots in matplotlib.
-					  Default is 10.
---marker_transparency MARKER_TRANSPARENCY, -mt MARKER_TRANSPARENCY
-					  Transparency of markers in genome-wide plots. Alpha in
-					  matplotlib. Default is 0.5
---coordinate_scale COORDINATE_SCALE
-					  For genome-wide scatter plots, divide all coordinates
-					  by this value.Default is 1000000, which will plot
-					  everything in megabases.
---use_counts          If True, get counts of reads per chromosome for
-					  CHROM_STATS, rather than calculating mean depth and
-					  mapq. Much faster, but provides less information.
-					  Default is False
+Flags::
+
+	-h, --help            show this help message and exit
+	--bam [BAM [BAM ...]]
+						  Full path to input bam files. If more than one
+						  provided, only the first will be used for modules
+						  other than --CHROM_STATS
+	--cram [CRAM [CRAM ...]]
+						  Full path to input cram files. If more than one
+						  provided, only the first will be used for modules
+						  other than --CHROM_STATS. Not currently supported.
+	--sam [SAM [SAM ...]]
+						  Full path to input sam files. If more than one
+						  provided, only the first will be used for modules
+						  other than --CHROM_STATS. Not currently supported.
+	--ref REF             REQUIRED. Path to reference sequence (including file
+						  name).
+	--output_dir OUTPUT_DIR, -o OUTPUT_DIR
+						  REQUIRED. Output directory. XYalign will create a
+						  directory structure within this directory
+	--chromosomes [CHROMOSOMES [CHROMOSOMES ...]], -c [CHROMOSOMES [CHROMOSOMES ...]]
+						  Chromosomes to analyze (names must match reference
+						  exactly). For humans, we recommend at least chr19,
+						  chrX, chrY. Generally, we suggest including the sex
+						  chromosomes and at least one autosome. To analyze all
+						  chromosomes use '--chromosomes ALL' or '--chromosomes
+						  all'.
+	--x_chromosome [X_CHROMOSOME [X_CHROMOSOME ...]], -x [X_CHROMOSOME [X_CHROMOSOME ...]]
+						  Names of x-linked scaffolds in reference fasta (must
+						  match reference exactly).
+	--y_chromosome [Y_CHROMOSOME [Y_CHROMOSOME ...]], -y [Y_CHROMOSOME [Y_CHROMOSOME ...]]
+						  Names of y-linked scaffolds in reference fasta (must
+						  match reference exactly). Defaults to chrY. Give None
+						  if using an assembly without a Y chromosome
+	--sample_id SAMPLE_ID, -id SAMPLE_ID
+						  Name/ID of sample - for use in plot titles and file
+						  naming. Default is sample
+	--cpus CPUS           Number of cores/threads to use. Default is 1
+	--xmx XMX             Memory to be provided to java programs via -Xmx. E.g.,
+						  use the flag '--xmx 4g' to pass '-Xmx4g' as a flag
+						  when running java programs (currently just repair.sh).
+						  Default is 'None' (i.e., nothing provided on the
+						  command line), which will allow repair.sh to
+						  automatically allocate memory. Note that if you're
+						  using --STRIP_READS on deep coverage whole genome
+						  data, you might need quite a bit of memory, e.g. '--
+						  xmx 16g', '--xmx 32g', or more depending on how many
+						  reads are present per read group.
+	--fastq_compression {0,1,2,3,4,5,6,7,8,9}
+						  Compression level for fastqs output from repair.sh.
+						  Between (inclusive) 0 and 9. Default is 3. 1 through 9
+						  indicate compression levels. If 0, fastqs will be
+						  uncompressed.
+	--single_end          Include flag if reads are single-end and NOT paired-
+						  end.
+	--version, -V         Print version and exit.
+	--no_cleanup          Include flag to preserve temporary files.
+	--PREPARE_REFERENCE   This flag will limit XYalign to only preparing
+						  reference fastas for individuals with and without Y
+						  chromosomes. These fastas can then be passed with each
+						  sample to save subsequent processing time.
+	--CHROM_STATS         This flag will limit XYalign to only analyzing
+						  provided bam files for depth and mapq across entire
+						  chromosomes.
+	--ANALYZE_BAM         This flag will limit XYalign to only analyzing the bam
+						  file for depth, mapq, and (optionally) read balance
+						  and outputting plots.
+	--CHARACTERIZE_SEX_CHROMS
+						  This flag will limit XYalign to the steps required to
+						  characterize sex chromosome content (i.e., analyzing
+						  the bam for depth, mapq, and read balance and running
+						  statistical tests to help infer ploidy)
+	--REMAPPING           This flag will limit XYalign to only the steps
+						  required to strip reads and remap to masked
+						  references. If masked references are not provided,
+						  they will be created.
+	--STRIP_READS         This flag will limit XYalign to only the steps
+						  required to strip reads from a provided bam file.
+	--logfile LOGFILE     Name of logfile. Will overwrite if exists. Default is
+						  sample_xyalign.log
+	--reporting_level {DEBUG,INFO,ERROR,CRITICAL}
+						  Set level of messages printed to console. Default is
+						  'INFO'. Choose from (in decreasing amount of
+						  reporting) DEBUG, INFO, ERROR or CRITICAL
+	--platypus_path PLATYPUS_PATH
+						  Path to platypus. Default is 'platypus'. If platypus
+						  is not directly callable (e.g., '/path/to/platypus' or
+						  '/path/to/Playpus.py'), then provide path to python as
+						  well (e.g., '/path/to/python /path/to/platypus'). In
+						  addition, be sure provided python is version 2. See
+						  the documentation for more information about setting
+						  up an anaconda environment.
+	--bwa_path BWA_PATH   Path to bwa. Default is 'bwa'
+	--samtools_path SAMTOOLS_PATH
+						  Path to samtools. Default is 'samtools'
+	--repairsh_path REPAIRSH_PATH
+						  Path to bbmap's repair.sh script. Default is
+						  'repair.sh'
+	--shufflesh_path SHUFFLESH_PATH
+						  Path to bbmap's shuffle.sh script. Default is
+						  'shuffle.sh'
+	--sambamba_path SAMBAMBA_PATH
+						  Path to sambamba. Default is 'sambamba'
+	--bedtools_path BEDTOOLS_PATH
+						  Path to bedtools. Default is 'bedtools'
+	--platypus_calling {both,none,before,after}
+						  Platypus calling withing the pipeline (before
+						  processing, after processing, both, or neither).
+						  Options: both, none, before, after.
+	--no_variant_plots    Include flag to prevent plotting read balance from VCF
+						  files.
+	--no_bam_analysis     Include flag to prevent depth/mapq analysis of bam
+						  file. Used to isolate platypus_calling.
+	--skip_compatibility_check
+						  Include flag to prevent check of compatibility between
+						  input bam and reference fasta
+	--no_perm_test        Include flag to turn off permutation tests.
+	--no_ks_test          Include flag to turn off KS Two Sample tests.
+	--no_bootstrap        Include flag to turn off bootstrap analyses. Requires
+						  either --y_present, --y_absent, or
+						  --sex_chrom_calling_threshold if running full
+						  pipeline.
+	--variant_site_quality VARIANT_SITE_QUALITY, -vsq VARIANT_SITE_QUALITY
+						  Consider all SNPs with a site quality (QUAL) greater
+						  than or equal to this value. Default is 30.
+	--variant_genotype_quality VARIANT_GENOTYPE_QUALITY, -vgq VARIANT_GENOTYPE_QUALITY
+						  Consider all SNPs with a sample genotype quality
+						  greater than or equal to this value. Default is 30.
+	--variant_depth VARIANT_DEPTH, -vd VARIANT_DEPTH
+						  Consider all SNPs with a sample depth greater than or
+						  equal to this value. Default is 4.
+	--platypus_logfile PLATYPUS_LOGFILE
+						  Prefix to use for Platypus log files. Will default to
+						  the sample_id argument provided
+	--homogenize_read_balance HOMOGENIZE_READ_BALANCE
+						  If True, read balance values will be transformed by
+						  subtracting each value from 1. For example, 0.25 and
+						  0.75 would be treated equivalently. Default is False.
+	--min_variant_count MIN_VARIANT_COUNT
+						  Minimum number of variants in a window for the read
+						  balance of that window to be plotted. Note that this
+						  does not affect plotting of variant counts. Default is
+						  1, though we note that many window averages will be
+						  meaningless at this setting.
+	--reference_mask [REFERENCE_MASK [REFERENCE_MASK ...]]
+						  Bed file containing regions to replace with Ns in the
+						  sex chromosome reference. Examples might include the
+						  pseudoautosomal regions on the Y to force all
+						  mapping/calling on those regions of the X chromosome.
+						  Default is None.
+	--xx_ref_out_name XX_REF_OUT_NAME
+						  Desired name for masked output fasta for samples
+						  WITHOUT a Y chromosome (e.g., XX, XXX, XO, etc.).
+						  Defaults to 'xyalign_noY.masked.fa'. Will be output in
+						  the XYalign reference directory.
+	--xy_ref_out_name XY_REF_OUT_NAME
+						  Desired name for masked output fasta for samples WITH
+						  a Y chromosome (e.g., XY, XXY, etc.). Defaults to
+						  'xyalign_withY.masked.fa'. Will be output in the
+						  XYalign reference directory.
+	--xx_ref_out XX_REF_OUT
+						  Desired path to and name of masked output fasta for
+						  samples WITHOUT a Y chromosome (e.g., XX, XXX, XO,
+						  etc.). Overwrites if exists. Use if you would like
+						  output somewhere other than XYalign reference
+						  directory. Otherwise, use --xx_ref_name.
+	--xy_ref_out XY_REF_OUT
+						  Desired path to and name of masked output fasta for
+						  samples WITH a Y chromosome (e.g., XY, XXY, etc.).
+						  Overwrites if exists. Use if you would like output
+						  somewhere other than XYalign reference directory.
+						  Otherwise, use --xy_ref_name.
+	--xx_ref_in XX_REF_IN
+						  Path to preprocessed reference fasta to be used for
+						  remapping in X0 or XX samples. Default is None. If
+						  none, will produce a sample-specific reference for
+						  remapping.
+	--xy_ref_in XY_REF_IN
+						  Path to preprocessed reference fasta to be used for
+						  remapping in samples containing Y chromosome. Default
+						  is None. If none, will produce a sample-specific
+						  reference for remapping.
+	--bwa_index BWA_INDEX
+						  If True, index with BWA during PREPARE_REFERENCE. Only
+						  relevantwhen running the PREPARE_REFERENCE module by
+						  itself. Default is False.
+	--read_group_id READ_GROUP_ID
+						  If read groups are present in a bam file, they are
+						  used by default in remapping steps. However, if read
+						  groups are not present in a file, there are two
+						  options for proceeding. If '--read_group_id None' is
+						  provided (case sensitive), then no read groups will be
+						  used in subsequent mapping steps. Otherwise, any other
+						  string provided to this flag will be used as a read
+						  group ID. Default is '--read_group_id xyalign'
+	--bwa_flags BWA_FLAGS
+						  Provide a string (in quotes, with spaces between
+						  arguments) for additional flags desired for BWA
+						  mapping (other than -R and -t). Example: '-M -T 20 -v
+						  4'. Note that those are spaces between arguments.
+	--sex_chrom_bam_only  This flag skips merging the new sex chromosome bam
+						  file back into the original bam file (i.e., sex chrom
+						  swapping). This will output a bam file containing only
+						  the newly remapped sex chromosomes.
+	--sex_chrom_calling_threshold SEX_CHROM_CALLING_THRESHOLD
+						  This is the *maximum* filtered X/Y depth ratio for an
+						  individual to be considered as having heterogametic
+						  sex chromsomes (e.g., XY) for the REMAPPING module of
+						  XYalign. Note here that X and Y chromosomes are simply
+						  the chromosomes that have been designated as X and Y
+						  via --x_chromosome and --y_chromosome. Keep in mind
+						  that the ideal threshold will vary according to sex
+						  determination mechanism, sequence homology between the
+						  sex chromosomes, reference genome, sequencing methods,
+						  etc. See documentation for more detail. Default is
+						  2.0, which we found to be reasonable for exome, low-
+						  coverage whole-genome, and high-coverage whole-genome
+						  human data.
+	--y_present           Overrides sex chr estimation by XYalign and remaps
+						  with Y present.
+	--y_absent            Overrides sex chr estimation by XY align and remaps
+						  with Y absent.
+	--window_size WINDOW_SIZE, -w WINDOW_SIZE
+						  Window size (integer) for sliding window calculations.
+						  Default is 50000. Default is None. If set to None,
+						  will use targets provided using --target_bed.
+	--target_bed TARGET_BED
+						  Bed file containing targets to use in sliding window
+						  analyses instead of a fixed window width. Either this
+						  or --window_size needs to be set. Default is None,
+						  which will use window size provided with
+						  --window_size. If not None, and --window_size is None,
+						  analyses will use targets in provided file. Must be
+						  typical bed format, 0-based indexing, with the first
+						  three columns containing the chromosome name, start
+						  coordinate, stop coordinate.
+	--exact_depth         Calculate exact depth within windows, else use much
+						  faster approximation. *Currently exact is not
+						  implemented*. Default is False.
+	--whole_genome_threshold
+						  This flag will calculate the depth filter threshold
+						  based on all values from across the genome. By
+						  default, thresholds are calculated per chromosome.
+	--mapq_cutoff MAPQ_CUTOFF, -mq MAPQ_CUTOFF
+						  Minimum mean mapq threshold for a window to be
+						  considered high quality. Default is 20.
+	--min_depth_filter MIN_DEPTH_FILTER
+						  Minimum depth threshold for a window to be considered
+						  high quality. Calculated as mean depth *
+						  min_depth_filter. So, a min_depth_filter of 0.2 would
+						  require at least a minimum depth of 2 if the mean
+						  depth was 10. Default is 0.0 to consider all windows.
+	--max_depth_filter MAX_DEPTH_FILTER
+						  Maximum depth threshold for a window to be considered
+						  high quality. Calculated as mean depth *
+						  max_depth_filter. So, a max_depth_filter of 4 would
+						  require depths to be less than or equal to 40 if the
+						  mean depth was 10. Default is 10000.0 to consider all
+						  windows.
+	--num_permutations NUM_PERMUTATIONS
+						  Number of permutations to use for permutation
+						  analyses. Default is 10000
+	--num_bootstraps NUM_BOOTSTRAPS
+						  Number of bootstrap replicates to use when
+						  bootstrapping mean depth ratios among chromosomes.
+						  Default is 10000
+	--ignore_duplicates   Ignore duplicate reads in bam analyses. Default is to
+						  include duplicates.
+	--marker_size MARKER_SIZE
+						  Marker size for genome-wide plots in matplotlib.
+						  Default is 10.
+	--marker_transparency MARKER_TRANSPARENCY, -mt MARKER_TRANSPARENCY
+						  Transparency of markers in genome-wide plots. Alpha in
+						  matplotlib. Default is 0.5
+	--coordinate_scale COORDINATE_SCALE
+						  For genome-wide scatter plots, divide all coordinates
+						  by this value.Default is 1000000, which will plot
+						  everything in megabases.
+	--include_fixed INCLUDE_FIXED
+						  Default is False, which removes read balances less
+						  than 0.05 and greater than 0.95 for histogram
+						  plotting. True will include all values. Extreme values
+						  removed by default because they often swamp out the
+						  signal of the rest of the distribution.
+	--use_counts          If True, get counts of reads per chromosome for
+						  CHROM_STATS, rather than calculating mean depth and
+						  mapq. Much faster, but provides less information.
+						  Default is False
