@@ -1,3 +1,4 @@
+sphinx==1.6.7
 numpydoc==0.6
 pysam
 pybedtools
