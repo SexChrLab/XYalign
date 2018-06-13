@@ -162,9 +162,9 @@ class VCFFile():
 		Returns
 		-------
 		tuple
-			four corresponding arrays of the same length:
+			five corresponding arrays of the same length:
 				(position across the chromosome, site quality, read balance,
-				genotype quality)
+				genotype quality, and depth)
 
 		"""
 		parse_start = time.time()
