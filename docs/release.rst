@@ -1,6 +1,11 @@
 Release History
 ===============
 
+1.1.3
+-----
+	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.1
+	* More work making utility scripts available in pip and bioconda
+
 1.1.2
 -----
 	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.1

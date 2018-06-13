@@ -22,6 +22,11 @@ setup(
 	tests_require=['pytest'],
 	install_requires=[
 		'matplotlib', 'numpy', 'pandas', 'pybedtools', 'pysam', 'scipy'],
+	py_modules=[
+		'xyalign.xyalign', 'xyalign.scripts.explore_thresholds',
+		'xyalign.scripts.plot_count_stats',
+		'xyalign.scripts.plot_window_differences',
+		'xyalign.scripts.compare_vcfs'],
 	entry_points={
 		"console_scripts": [
 			'xyalign = xyalign.xyalign:main',
