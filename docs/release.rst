@@ -1,9 +1,13 @@
 Release History
 ===============
 
+1.1.1
+-----
+	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.1
+	* Couple of minor documentation and testing updates
+
 1.1.0
 -----
-	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.0
 	* Updates across all of XYalign, but most substantial were:
 		* The addition of plot_cout_stats, plot_window_differences, and explore_thresholds
 		* XYalign now outputs Adobe Illustrator compatible pdfs for figures
