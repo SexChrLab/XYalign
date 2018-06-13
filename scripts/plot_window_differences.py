@@ -1,17 +1,17 @@
+from __future__ import absolute_import
 from __future__ import print_function
 import argparse
 import numpy as np
 import pandas as pd
-from xyalign import utils
+import xyalign.utils as utils
+# from xyalign import utils
 
 
 def parse_args():
 	"""
 	Parse command-line arguments
-
 	Returns
 	-------
-
 	Parser argument namespace
 	"""
 
@@ -91,12 +91,10 @@ def transform_depth(numpy_array):
 	Performs custom version of log transformation on a numpy array. Where each
 	value is processed to be equal to:
 	initial_sign * abs(log10(abs(value)))
-
 	Parameters
 	----------
 	numpy_array : numpy array
 		Array of values without NaNs
-
 	Returns
 	-------
 	numpy array

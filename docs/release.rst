@@ -1,6 +1,11 @@
 Release History
 ===============
 
+1.1.2
+-----
+	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.1
+	* Fixed import errors for the utility scripts (plot_cout_stats, plot_window_differences, and explore_thresholds)
+
 1.1.1
 -----
 	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.1
