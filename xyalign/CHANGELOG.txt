@@ -3,6 +3,9 @@
 # List in reverse chronological order
 # Only listing changes since previous version/release
 
+Version 1.1.3
+	* Moved utility scripts (explore_thresholds, etc.) so that they were installed correctly via Pip and Conda
+
 Version 1.1.0
 	* Added --include_fixed flag to allow plotting of read balances < 0.05 and == 1.0 if desired
 	* --xx_ref_out and --xy_ref_out now allow placement of output anywhere, while --xx_ref_out_name and --xy_ref_out_name allow choice of name of output, but files will be placed in XYalign output directory structure
