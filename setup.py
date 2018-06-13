@@ -25,8 +25,8 @@ setup(
 	entry_points={
 		"console_scripts": [
 			'xyalign = xyalign.xyalign:main',
-			'explore_thresholds = scripts.explore_thresholds:main',
-			'plot_count_stats = scripts.plot_count_stats:main',
-			'plot_window_differences = scripts.plot_window_differences:main',
-			'compare_vcfs = scripts.compare_vcfs:main']}
+			'explore_thresholds = xyalign.scripts.explore_thresholds:main',
+			'plot_count_stats = xyalign.scripts.plot_count_stats:main',
+			'plot_window_differences = xyalign.scripts.plot_window_differences:main',
+			'compare_vcfs = xyalign.scripts.compare_vcfs:main']}
 )
