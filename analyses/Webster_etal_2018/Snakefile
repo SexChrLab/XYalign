@@ -330,7 +330,7 @@ rule xyalign_prepare_hg19_reference:
 		"&& {params.xyalign} --PREPARE_REFERENCE --ref {input.ref} "
 		"--xx_ref_out_name hg19.XXonly.fasta --xy_ref_out_name hg19.XY.fasta "
 		"--output_dir {params.output_dir} --x_chromosome chrX "
-		"--y_chromosome chrY --bwa_index True"
+		"--y_chromosome chrY --bwa_index True --reference_mask {params.ref_mask}"
 
 rule xyalign_hg19_analysis_human:
 	input:

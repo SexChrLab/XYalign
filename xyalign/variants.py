@@ -440,10 +440,10 @@ def read_balance_per_window(
 			if i < start:
 				variants_logger.info(
 					"Position {} is less than window start {}. Check that "
-					"positions are sorted numerically. Exiting.")
+					"positions are sorted numerically. Exiting.".format(i, start))
 				raise RuntimeError(
 					"Position {} is less than window start {}. Check that "
-					"positions are sorted numerically. Exiting.")
+					"positions are sorted numerically. Exiting.".format(i, start))
 			elif i < end:
 				window_count += 1
 				if homogenize is False:
