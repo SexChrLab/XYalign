@@ -37,7 +37,6 @@ Miniconda is a lightweight version of Anaconda).
 of its dependancies in an environment called "xyalign_env":
 
 ```
-conda config --add channels r
 
 conda config --add channels defaults
 
