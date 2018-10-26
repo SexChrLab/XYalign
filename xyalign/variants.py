@@ -437,6 +437,7 @@ def read_balance_per_window(
 		window_balances = []
 
 		for idx, i in enumerate(positions):
+			print(i, start, end)
 			if i < start:
 				variants_logger.info(
 					"Position {} is less than window start {}. Check that "
