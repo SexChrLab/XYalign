@@ -422,7 +422,7 @@ def read_balance_per_window(
 		if chr_len % num_windows == 0:
 			last_window_len = window_size
 		else:
-			last_window_len = chr_len % num_windows
+			last_window_len = chr_len % window_size
 
 		chr_list = []
 		start_list = []
