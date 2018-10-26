@@ -3,6 +3,9 @@
 # List in reverse chronological order
 # Only listing changes since previous version/release
 
+Version 1.1.5
+	* Fix bug in variants.read_balance_per_window caused by incorrect calculation of final window length
+
 Version 1.1.4
 	* Add missing information in read_balance_per_window error messages
 	* Fixed command in Snakefile for publication analyses (did not alter presented results)
