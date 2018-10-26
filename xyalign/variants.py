@@ -457,6 +457,7 @@ def read_balance_per_window(
 			else:
 				# i is >= end, so window needs to be reset
 				while i >= end:
+					print("greater than end", i, start, end)
 					chr_list.append(chrom)
 					start_list.append(start)
 					stop_list.append(end)
