@@ -424,7 +424,6 @@ def read_balance_per_window(
 		else:
 			last_window_len = chr_len % window_size
 
-		print(num_windows, window_size, last_window_len, chr_len)
 		chr_list = []
 		start_list = []
 		stop_list = []
@@ -438,7 +437,6 @@ def read_balance_per_window(
 		window_balances = []
 
 		for idx, i in enumerate(positions):
-			print(i, start, end)
 			if i < start:
 				variants_logger.info(
 					"Position {} is less than window start {}. Check that "
@@ -458,7 +456,6 @@ def read_balance_per_window(
 			else:
 				# i is >= end, so window needs to be reset
 				while i >= end:
-					print("greater than end", i, start, end)
 					chr_list.append(chrom)
 					start_list.append(start)
 					stop_list.append(end)
