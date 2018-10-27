@@ -1,14 +1,19 @@
 Release History
 ===============
 
+1.1.5
+-----
+	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.5
+	* Fix bug in variants.read_balance_per_window in calculating final window length
+
 1.1.3
 -----
-	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.1
+	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.2
 	* More work making utility scripts available in pip and bioconda
 
 1.1.2
 -----
-	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.1
+	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.2
 	* Fixed import errors for the utility scripts (plot_cout_stats, plot_window_differences, and explore_thresholds)
 
 1.1.1
