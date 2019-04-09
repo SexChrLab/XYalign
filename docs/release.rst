@@ -1,6 +1,12 @@
 Release History
 ===============
 
+1.1.6
+-----
+	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.6
+	* Fix bug in x axis scaling in variants.plot_read_balance when scaling wasn't in MB, KB, or BP
+	* Additional analyses for publication included in "analyses" directory
+
 1.1.5
 -----
 	* Available: https://github.com/WilsonSayresLab/XYalign/releases/tag/v1.1.5

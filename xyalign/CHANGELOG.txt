@@ -3,6 +3,10 @@
 # List in reverse chronological order
 # Only listing changes since previous version/release
 
+Version 1.1.6
+	* Fix bug in x axis scaling in variants.plot_read_balance when scaling wasn't in MB, KB, or BP
+	* Additional analyses for publication included in "analyses" directory
+
 Version 1.1.5
 	* Fix bug in variants.read_balance_per_window caused by incorrect calculation of final window length
 

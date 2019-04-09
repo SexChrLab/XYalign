@@ -662,7 +662,7 @@ def plot_read_balance(
 	elif x_scale == 1:
 		scale_label = "(BP)"
 	else:
-		scale_label = "(divided by {})".formatt(x_scale)
+		scale_label = "(divided by {})".format(x_scale)
 	axes.set_xlabel("Chromosomal Position {}".format(scale_label))
 	axes.set_ylabel("Read Balance")
 	# print(len(positions))

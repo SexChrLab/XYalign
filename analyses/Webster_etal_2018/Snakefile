@@ -81,6 +81,7 @@ hg19_reference_mask_path = "misc/hg19_PAR_Ymask_startEnd.bed"
 rename_sh_path = "rename.sh"
 bcftools_path = "bcftools"
 bedtools_path = "bedtools"
+bgzip_path = "bgzip"
 bwa_path = "bwa"
 samtools_path = "samtools"
 samblaster_path = "samblaster"
@@ -141,7 +142,8 @@ rule all:
 			sample=human_list,
 			direction=[
 				"postprocessing_minus_noprocessing",
-				"noprocessing_minus_postprocessing"])
+				"noprocessing_minus_postprocessing"]),
+		"xyalign_analyses/hg19/vcf/hg19_chry_readbalance_stats_per_region.txt"
 
 rule prepare_reference_hg19:
 	input:
@@ -609,3 +611,28 @@ rule get_gene_status_for_ccds:
 		"python misc/Get_gene_status.py --bed {input.bed} "
 		"--gene_status {input.gene_status} --outfile {output.gene_status} "
 		"--missing_ids_outfile {output.missing_status}"
+
+rule intersect_vcf_with_y_regions:
+	input:
+		vcf = "xyalign_analyses/hg19/vcf/HG00512_wgs_hg19.noprocessing.vcf.gz",
+		bed = "misc/hg19_Y_region_bed_files/hg19_chrY_{region}.bed"
+	output:
+		"xyalign_analyses/hg19/vcf/HG00512_wgs_hg19.noprocessing.{region}.vcf.gz"
+	params:
+		bedtools = bedtools_path,
+		bgzip = bgzip_path
+	shell:
+		"{params.bedtools} intersect -header -u -a {input.vcf} -b {input.bed} | bgzip > {output}"
+
+rule plot_regional_chy_readbalance:
+	input:
+		expand(
+			"xyalign_analyses/hg19/vcf/HG00512_wgs_hg19.noprocessing.{region}.vcf.gz",
+			region=["ampliconic", "heterochromatic", "other", "par", "xdegen", "xtrans"])
+	output:
+		"xyalign_analyses/hg19/vcf/hg19_chry_readbalance_stats_per_region.txt"
+	params:
+		path_prefix = "xyalign_analyses/hg19/vcf",
+		conda_env = xyalign_anaconda_env
+	shell:
+		"source activate {params.conda_env} && python scripts/Plot_read_balance_by_chrY_region.py {output} {params.path_prefix}"
