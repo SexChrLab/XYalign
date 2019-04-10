@@ -42,6 +42,26 @@ xyv.hist_read_balance(
 	"chrY", xtr_parse[2], "X-transposed", False, "{}/X_trans_chrY".format(
 		path_prefix))
 
+# with fixed
+xyv.hist_read_balance(
+	"chrY", amp_parse[2], "Ampliconic", False, "{}/Ampliconic_chrY_with_fixed".format(
+		path_prefix), include_fixed=True)
+xyv.hist_read_balance(
+	"chrY", het_parse[2], "Heterochromatic", False, "{}/Heterochromatic_chrY_with_fixed".format(
+		path_prefix), include_fixed=True)
+xyv.hist_read_balance(
+	"chrY", oth_parse[2], "Other", False, "{}/Other_chrY_with_fixed".format(
+		path_prefix), include_fixed=True)
+xyv.hist_read_balance(
+	"chrY", par_parse[2], "PAR", False, "{}/PAR_chrY_with_fixed".format(
+		path_prefix), include_fixed=True)
+xyv.hist_read_balance(
+	"chrY", xde_parse[2], "X-degenerate", False, "{}/X_degen_chrY_with_fixed".format(
+		path_prefix), include_fixed=True)
+xyv.hist_read_balance(
+	"chrY", xtr_parse[2], "X-transposed", False, "{}/X_trans_chrY_with_fixed".format(
+		path_prefix), include_fixed=True)
+
 parse_list = [amp_parse, het_parse, oth_parse, par_parse, xde_parse, xtr_parse]
 parse_list_regions = [
 	"ampliconic", "heterochromatic", "other", "par", "xdegen", "xtr"]

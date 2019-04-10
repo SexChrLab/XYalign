@@ -143,7 +143,8 @@ rule all:
 			direction=[
 				"postprocessing_minus_noprocessing",
 				"noprocessing_minus_postprocessing"]),
-		"xyalign_analyses/hg19/vcf/hg19_chry_readbalance_stats_per_region.txt"
+		"xyalign_analyses/hg19/vcf/hg19_chry_readbalance_stats_per_region.txt",
+		"xyalign_analyses/hg19/vcf/hg19_readbalance_stats_overall_with_fixed.txt"
 
 rule prepare_reference_hg19:
 	input:
@@ -636,3 +637,14 @@ rule plot_regional_chy_readbalance:
 		conda_env = xyalign_anaconda_env
 	shell:
 		"source activate {params.conda_env} && python scripts/Plot_read_balance_by_chrY_region.py {output} {params.path_prefix}"
+
+rule plot_readbalance_with_fixed_overall:
+	input:
+		"xyalign_analyses/hg19/vcf/HG00512_wgs_hg19.noprocessing.vcf.gz"
+	output:
+		"xyalign_analyses/hg19/vcf/hg19_readbalance_stats_overall_with_fixed.txt"
+	params:
+		path_prefix = "xyalign_analyses/hg19/vcf",
+		conda_env = xyalign_anaconda_env
+	shell:
+		"source activate {params.conda_env} && python scripts/Plot_read_balance_with_fixed_overall.py {output} {params.path_prefix}"
