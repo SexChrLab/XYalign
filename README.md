@@ -148,16 +148,10 @@ and our output will be located in ``bam_comparison1_results/results``. We could 
 ``--use_counts`` to force XYalign to simply use counts of reads on each chromosome in
 comparisons.
 
-## If you cloned XYalign before April 5, 2017 please clone a fresh version
-On April 5th, we removed a host of large files using BFG Repo Cleaner, which changed
-the commit history of the repo.  Because of this, ```git pull``` will no longer work on clones
-prior to this cleaning.  Therefore, if you cloned before this date (or can't remember when you
-cloned), it's probably a good idea to clone a fresh version.
-
 ## Group Members
 Name | email | github ID
 --- | --- |  ---
-Tim Webster | timothy.h.webster@asu.edu | @thw17
+Tim Webster | timothy.h.webster@utah.edu | @thw17
 Madeline Couse| mhcouse@gmail.com | @Madelinehazel
 Bruno Grande | bgrande@sfu.ca | @brunogrande
 Eric Karlins | karlinser@mail.nih.gov | @ekarlins
