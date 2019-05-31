@@ -69,6 +69,7 @@ xyalign --PREPARE_REFERENCE --ref reference.fasta
 --x_chromosome chrX
 --y_chromosome chrY
 --reference_mask mask.bed
+--output_dir output_directory
 ```
 
 In the above command, ``reference.fasta`` is the original reference genome,
@@ -76,7 +77,8 @@ In the above command, ``reference.fasta`` is the original reference genome,
 full paths to and names of the desired output references for XX and XY samples,
 respectively. ``chrX`` and ``chrY`` are the *exact* names of the X and Y chromosome
 scaffolds in the assembly. ``mask.bed`` is some bed file containing regions that
-should be masked in *both* output fastas.
+should be masked in *both* output fastas. ``output_directory`` is the name of a
+directory into which the logfile and other intermediate files will be deposited.
 
 ### Analyze a single bam file to explore sex chromosome content, etc.
 You can use the command (assume the following is on one line):
