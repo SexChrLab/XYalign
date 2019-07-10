@@ -5,14 +5,11 @@
 ## Background
 The high degree of similarity between gametologous sequences on the sex chromosomes can lead to the misalignment of sequencing reads and substantially affect variant calling. Here we present XYalign, a new tool that (1) quickly infers sex chromosome ploidy in NGS data, (2) remaps reads based on the inferred sex chromosome complement of the individual, and (3) outputs quality, depth, and allele-balance metrics across chromosomes.
 
-## Preprint
+## Citation
 
-Please see our preprint for more information:
+Webster TH; Couse M; Grande BM; Karlins E; Phung T; Richmond PA; Whitford W; Wilson MA. 2019. Identifying, understanding, and correcting technical artifacts on the sex chromosomes in next-generation sequencing data. GigaScience 8(7): giz074. DOI: https://doi.org/10.1093/gigascience/giz074
 
-*Identifying, understanding, and correcting technical biases on the sex chromosomes in next-generation sequencing data.* 2018. Webster TH; Couse M; Grande BM; Karlins E;
-Phung T; Richmond PA; Whitford W; Wilson Sayres MA. bioRxiv 346940; doi: https://doi.org/10.1101/346940
-
-If you use XYalign or discuss/correct for bias in mapping on the sex chromosomes, please cite this preprint.
+If you use XYalign or discuss/correct for bias in mapping on the sex chromosomes, please cite this article.
 
 ## Using XYalign
 
@@ -150,14 +147,3 @@ and our output will be located in ``bam_comparison1_results/results``. We could 
 ``--use_counts`` to force XYalign to simply use counts of reads on each chromosome in
 comparisons.
 
-## Group Members
-Name | email | github ID
---- | --- |  ---
-Tim Webster | timothy.h.webster@utah.edu | @thw17
-Madeline Couse| mhcouse@gmail.com | @Madelinehazel
-Bruno Grande | bgrande@sfu.ca | @brunogrande
-Eric Karlins | karlinser@mail.nih.gov | @ekarlins
-Tanya Phung | tnphung@ucla.edu | @tnphung
-Phillip Richmond | phillip.a.richmond@gmail.com | @Phillip-a-Richmond
-Whitney Whitford | whitney.whitford@auckland.ac.nz | @whitneywhitford
-Melissa A. Wilson Sayres | melissa.wilsonsayres@asu.edu | @mwilsonsayres
